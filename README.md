@@ -8,8 +8,8 @@ The projects collected here reflect work completed while developing practical ex
 
 Projects are organized under the `projects/` directory:
 
-* **Loreweaver Wedding Website** — Full-stack React/Vite and Node.js/Express wedding website with RSVP functionality, responsive design, accessibility considerations, and self-hosted deployment.
-* **Loreweaver Creations Website** — Public-facing website and application platform for Loreweaver Creations.
+* **Loreweaver Creations Website** — Public-facing website and application platform for Loreweaver Creations: https://www.loreweavercreations.com
+* **Norstein-Dashiell Wedding Website** — Full-stack React/Vite and Node.js/Express wedding website with RSVP functionality, responsive design, accessibility considerations, and self-hosted deployment: https://www.loreweavercreations.com/wedding
 * **Lor-E** — Self-hosted, RAG-enabled personal AI assistant designed around controlled access to locally managed information and services.
 * **H/exicon** — Online digital board game developed in Godot using C#.
 * **Self-Hosted Infrastructure** — Documentation and configuration related to Linux systems administration, networking, containerized services, remote access, security, and homelab operations.
