@@ -1,0 +1,264 @@
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+
+  min-height: 2.75rem;
+  padding: var(--space-3) var(--space-6);
+
+  border: 2px solid transparent;
+  border-radius: var(--radius-control);
+
+  font-family: var(--font-body);
+  font-size: var(--text-interface);
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+
+  cursor: pointer;
+}
+
+.button--primary {
+  color: var(--color-button-text);
+  background: var(--color-button-bg);
+}
+
+.button--primary:hover {
+  box-shadow: inset 0 0 0 9999px rgb(0 0 0 / 8%);
+}
+
+.button--primary:active {
+  box-shadow: inset 0 0 0 9999px rgb(0 0 0 / 14%);
+}
+
+.button--secondary {
+  color: var(--color-button-bg);
+  background: transparent;
+  border-color: var(--color-button-bg);
+}
+
+.button--secondary:hover {
+  background: var(--color-surface-muted);
+}
+
+.button--secondary:active {
+  box-shadow: inset 0 0 0 9999px rgb(0 0 0 / 6%);
+}
+
+.button:disabled,
+.button[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   EXTERNAL LINKS
+   ========================================================= */
+
+.external-link__indicator {
+  display: inline-block;
+  margin-inline-start: 0.2em;
+  text-decoration: none;
+}
+
+
+/* =========================================================
+   CARDS
+   ========================================================= */
+
+.card {
+  padding: var(--space-6);
+
+  color: var(--color-body);
+  background: var(--color-surface);
+
+  border: var(--border-card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+
+/* =========================================================
+   STATUS MESSAGES
+   ========================================================= */
+
+.status-message {
+  padding: var(--space-4) var(--space-6);
+
+  color: var(--color-body);
+  background: var(--color-surface);
+
+  border: 1px solid currentColor;
+  border-inline-start-width: 0.4rem;
+  border-radius: var(--radius-control);
+}
+
+.status-message__title {
+  display: block;
+  margin-block-end: var(--space-2);
+}
+
+.status-message--information {
+  border-color: var(--color-body);
+}
+
+.status-message--error {
+  border-color: var(--color-error);
+  background:
+    color-mix(
+      in srgb,
+      var(--color-error) 7%,
+      var(--color-surface)
+    );
+}
+
+.status-message--warning {
+  border-color: var(--color-warning);
+  background:
+    color-mix(
+      in srgb,
+      var(--color-warning) 7%,
+      var(--color-surface)
+    );
+}
+
+.status-message--success {
+  border-color: var(--color-success);
+  background:
+    color-mix(
+      in srgb,
+      var(--color-success) 7%,
+      var(--color-surface)
+    );
+}
+
+.status-message--uncertainty {
+  border-color: var(--color-uncertainty);
+  background:
+    color-mix(
+      in srgb,
+      var(--color-uncertainty) 7%,
+      var(--color-surface)
+    );
+}
+
+.status-message--closed {
+  border-color: var(--color-closed);
+  background:
+    color-mix(
+      in srgb,
+      var(--color-closed) 7%,
+      var(--color-surface)
+    );
+}
+
+
+/* =========================================================
+   FORMS
+   ========================================================= */
+
+.form-stack {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.form-field {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.form-field label,
+fieldset,
+legend,
+input,
+select,
+textarea {
+  font-family: var(--font-body);
+}
+
+.form-field label,
+legend {
+  font-weight: 700;
+}
+
+input:not([type="radio"]):not([type="checkbox"]),
+select,
+textarea {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: var(--space-3);
+
+  color: var(--color-body);
+  background: var(--color-surface);
+
+  border: var(--border-control);
+  border-radius: var(--radius-control);
+}
+
+textarea {
+  min-height: 8rem;
+}
+
+fieldset {
+  min-width: 0;
+  padding: var(--space-4);
+
+  border: var(--border-control);
+  border-radius: var(--radius-control);
+}
+
+legend {
+  padding-inline: var(--space-2);
+}
+
+input[type="radio"],
+input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+
+  accent-color: var(--color-button-bg);
+}
+
+.form-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.form-help {
+  margin: 0;
+  font-size: 0.925rem;
+}
+
+.required-indicator {
+  font-weight: 700;
+}
+
+[aria-invalid="true"] {
+  border-color: var(--color-error) !important;
+  border-width: 2px !important;
+}
+
+input:disabled,
+select:disabled,
+textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 40rem) {
+  .form-stack {
+    grid-template-columns: 1fr;
+  }
+
+  .button {
+    max-width: 100%;
+  }
+}

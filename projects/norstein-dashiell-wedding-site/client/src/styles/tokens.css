@@ -1,0 +1,144 @@
+:root {
+  /* =========================================================
+     TYPOGRAPHY FAMILIES
+     ========================================================= */
+
+  --font-display-script:
+    "Edwardian Script ITC",
+    "Brush Script MT",
+    "Segoe Script",
+    cursive;
+
+  --font-display-titling:
+    "Felix Titling",
+    "Palatino Linotype",
+    Palatino,
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  --font-body:
+    "Book Antiqua",
+    "Palatino Linotype",
+    Palatino,
+    "Bookman Old Style",
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  --font-body-emphasis:
+    "Book Antiqua",
+    "Palatino Linotype",
+    Palatino,
+    "Bookman Old Style",
+    Georgia,
+    "Times New Roman",
+    serif;
+
+
+  /* =========================================================
+     PROVISIONAL TYPE SCALE
+     Browser calibration may revise these values.
+     ========================================================= */
+
+  --text-title: 4.5rem;
+  --text-h1: 3rem;
+  --text-h2: 2.25rem;
+  --text-h3: 1.75rem;
+  --text-h4: 1.625rem;
+  --text-subtitle: 1.75rem;
+  --text-body: 1rem;
+  --text-interface: 1rem;
+
+
+  /* =========================================================
+     SEMANTIC COLORS
+     Approved visual-design-system values.
+     ========================================================= */
+
+  /* Display typography */
+  --color-title: #8A6A22;
+  --color-heading: #8A6A22;
+  --color-heading-outline: #111111;
+  --color-heading-shadow: rgba(17, 17, 17, 0.38);
+
+  /* Primary readable text */
+  --color-body: #2F3952;
+
+  /* Links */
+  --color-link: #3D679C;
+  --color-link-hover: #31567F;
+  --color-link-active: #263F64;
+  --color-link-visited: #334A7D;
+
+  /* Navigation */
+  --color-navigation-bg: #356B68;
+  --color-navigation-text: #F8F3EA;
+
+  /* Primary actions */
+  --color-button-bg: #6F568E;
+  --color-button-text: #F8F3EA;
+
+  /* Decorative framing */
+  --color-border-decorative: #B89548;
+
+  /* Readable surfaces */
+  --color-surface: #F8F3EA;
+  --color-surface-muted: #F5ECD8;
+
+  /* Keyboard focus */
+  --color-focus: #A83D78;
+
+  /* Semantic status colors */
+  --color-error: #8B3F49;
+  --color-warning: #7A5A17;
+  --color-success: #3E6A48;
+  --color-uncertainty: #5E567D;
+  --color-closed: #5B5961;
+
+
+  /* =========================================================
+     PROVISIONAL SPACING SCALE
+     ========================================================= */
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+
+  /* =========================================================
+     PROVISIONAL CONTENT WIDTHS
+     ========================================================= */
+
+  --content-prose-max: 46rem;
+  --content-form-max: 46rem;
+  --content-site-max: 68rem;
+
+
+  /* =========================================================
+     IMPLEMENTATION-LEVEL TOKENS
+     Provisional until browser calibration.
+     ========================================================= */
+
+  --radius-control: 0.5rem;
+  --radius-card: 0.75rem;
+
+  --border-control: 1px solid var(--color-body);
+  --border-card: 1px solid var(--color-border-decorative);
+
+  --focus-ring-width: 3px;
+  --focus-ring-offset: 3px;
+
+  --shadow-display:
+    0 0.125rem 0.35rem var(--color-heading-shadow);
+
+  --shadow-card:
+    0 0.25rem 1rem rgba(17, 17, 17, 0.12);
+
+  --header-height: 4.5rem;
+}

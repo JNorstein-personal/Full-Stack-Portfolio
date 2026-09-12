@@ -1,0 +1,41 @@
+/* Visually hidden, but available to assistive technology. */
+.visually-hidden {
+  position: absolute !important;
+
+  width: 1px !important;
+  height: 1px !important;
+
+  padding: 0 !important;
+  margin: -1px !important;
+
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+
+  border: 0 !important;
+}
+
+
+/* Long-form readable content. */
+.prose-width {
+  width: min(100%, var(--content-prose-max));
+  margin-inline: auto;
+}
+
+
+/* Forms and transactional content. */
+.form-width {
+  width: min(100%, var(--content-form-max));
+  margin-inline: auto;
+}
+
+
+/* General site-content container. */
+.site-width {
+  width: min(
+    calc(100% - (2 * var(--space-4))),
+    var(--content-site-max)
+  );
+
+  margin-inline: auto;
+}

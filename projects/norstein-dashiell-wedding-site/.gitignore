@@ -29,6 +29,16 @@ Invitees List.xlsx
 *guest*.xlsx
 *Guest*.xlsx
 
-# Operating-system files
+# Operating-system and application temporary files
 .DS_Store
 Thumbs.db
+~$*.docx
+~$*.xlsx
+~$*.pptx
+
+# Private planning documents
+**/Loreweaver Creations Wedding Website Plan Detail Phase 1-3 - Fully Revised.docx
+**/Loreweaver Creations Wedding Website Plan Detail Phase 4-8.docx
+**/WORKSTREAM PLAN Loreweaver Creations Wedding Website.docx
+**/WORKSTREAM 1 Loreweaver Creations Wedding Website.docx
+**/Wedding Website Development and Deployment Plan - Revised.docx
