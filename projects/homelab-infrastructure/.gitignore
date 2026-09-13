@@ -1,0 +1,63 @@
+# ============================================================
+# Loreweaver Homelab Infrastructure
+# Local repository exclusions
+# ============================================================
+
+# Environment / secret files
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.kdbx
+
+# Explicit secret-bearing material
+*credential*
+*credentials*
+*secret*
+*secrets*
+*token*
+*tokens*
+private/
+
+# Database exports and backups
+*.sql
+*.sql.gz
+*.dump
+*.bak
+*.backup
+
+# Archives and recovery material
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.7z
+backups/
+recovery/
+pre-*/
+
+# Runtime service data
+data/
+volumes/
+postgres-data/
+nextcloud-data/
+portainer_data/
+logs/
+cache/
+
+# Installer / disk images
+*.iso
+*.img
+
+# Local temporary configuration
+*.tmp
+*.swp
+*.old
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+Desktop.ini
