@@ -1,3 +1,7 @@
+import {
+  lazy,
+  Suspense,
+} from "react";
 import { Route, Routes } from "react-router-dom";
 
 import WeddingLayout from "./components/layout/WeddingLayout";
@@ -7,6 +11,10 @@ import NotFoundPage from "./pages/NotFoundPage";
 import PlaceholderPage from "./pages/PlaceholderPage";
 import RsvpConfirmationPage from "./pages/RsvpConfirmationPage";
 import RsvpPage from "./pages/RsvpPage";
+
+const DesignSystemPage = import.meta.env.DEV
+  ? lazy(() => import("./pages/DesignSystemPage"))
+  : null;
 
 function App() {
   return (
@@ -116,6 +124,17 @@ function App() {
             />
           }
         />
+
+        {import.meta.env.DEV && DesignSystemPage && (
+          <Route
+            path="dev/design-system"
+            element={
+              <Suspense fallback={null}>
+                <DesignSystemPage />
+              </Suspense>
+            }
+          />
+        )}
 
         <Route
           path="not-found"

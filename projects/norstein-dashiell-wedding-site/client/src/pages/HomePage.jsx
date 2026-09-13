@@ -2,17 +2,19 @@ import { Link } from "react-router-dom";
 
 import ContentSection from "../components/layout/ContentSection";
 import PageContainer from "../components/layout/PageContainer";
+import { activeEventConfiguration } from "../data/eventConfigurations.js";
+import { siteContent } from "../data/siteContent.js";
 
 function HomePage() {
   return (
     <PageContainer>
       <ContentSection labelledBy="welcome-heading">
         <p className="subtitle">
-          May 1, 2027
+          {siteContent.wedding.date.display}
         </p>
 
         <h1 id="welcome-heading">
-          Norstein-Dashiell Wedding
+          {siteContent.labels.siteIdentity}
         </h1>
 
         <div className="prose-width">
@@ -27,7 +29,7 @@ function HomePage() {
             className="button button--primary"
             to="/rsvp/"
           >
-            RSVP
+            {siteContent.labels.rsvp}
           </Link>
         </div>
       </ContentSection>
@@ -38,6 +40,15 @@ function HomePage() {
         </h2>
 
         <div className="prose-width">
+          <p>
+            {siteContent.wedding.generalLocation}
+          </p>
+
+          <p>
+            <strong>Current event plan:</strong>{" "}
+            {activeEventConfiguration.displayName}
+          </p>
+
           <p>
             Use the navigation to access information
             about attire, venues, travel, schedule,

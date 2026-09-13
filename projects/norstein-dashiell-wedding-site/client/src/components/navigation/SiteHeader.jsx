@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
+import { siteContent } from "../../data/siteContent.js";
 import PrimaryNavigation from "./PrimaryNavigation";
 
 function SiteHeader() {
@@ -37,7 +38,7 @@ function SiteHeader() {
           to="/"
           onClick={closeMenu}
         >
-          Norstein-Dashiell Wedding
+          {siteContent.labels.siteIdentity}
         </Link>
 
         <button

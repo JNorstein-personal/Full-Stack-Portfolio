@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 
+import { siteContent } from "../../data/siteContent.js";
+
 function Footer() {
   return (
     <footer className="site-footer">
@@ -8,27 +10,28 @@ function Footer() {
           className="site-footer__navigation"
           aria-label="Footer"
         >
-          <Link to="/">
-            Home
-          </Link>
-
-          <Link to="/rsvp/">
-            RSVP
-          </Link>
-
-          <Link to="/privacy">
-            Privacy
-          </Link>
+          {siteContent.footerNavigation.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+            >
+              {item.label}
+            </Link>
+          ))}
         </nav>
 
         <div className="site-footer__support">
           <p>
-            RSVP assistance details will be
-            available here.
+            RSVP assistance:{" "}
+            <a
+              href={`mailto:${siteContent.rsvp.assistanceEmail}`}
+            >
+              {siteContent.rsvp.assistanceEmail}
+            </a>
           </p>
 
           <p>
-            © 2027 Norstein-Dashiell Wedding
+            © 2027 {siteContent.labels.siteIdentity}
           </p>
         </div>
       </div>

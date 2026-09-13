@@ -1,53 +1,6 @@
 import { NavLink } from "react-router-dom";
 
-const navigationItems = [
-  {
-    label: "Home",
-    to: "/",
-    end: true,
-  },
-  {
-    label: "RSVP",
-    to: "/rsvp/",
-    prominent: true,
-  },
-  {
-    label: "Theme and Attire",
-    to: "/theme",
-  },
-  {
-    label: "Our Story",
-    to: "/story",
-  },
-  {
-    label: "Read, Listen, and Watch",
-    to: "/read-listen-watch",
-  },
-  {
-    label: "Venues",
-    to: "/venues",
-  },
-  {
-    label: "Travel",
-    to: "/travel",
-  },
-  {
-    label: "Schedule",
-    to: "/schedule",
-  },
-  {
-    label: "FAQ",
-    to: "/faq",
-  },
-  {
-    label: "Gallery",
-    to: "/gallery",
-  },
-  {
-    label: "Privacy",
-    to: "/privacy",
-  },
-];
+import { siteContent } from "../../data/siteContent.js";
 
 function PrimaryNavigation({
   isOpen = false,
@@ -62,7 +15,7 @@ function PrimaryNavigation({
       aria-label="Primary"
     >
       <ul className="primary-navigation__list">
-        {navigationItems.map((item) => (
+        {siteContent.navigation.map((item) => (
           <li
             key={item.to}
             className="primary-navigation__item"
