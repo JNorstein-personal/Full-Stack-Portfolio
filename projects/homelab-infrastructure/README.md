@@ -182,11 +182,14 @@ Major completed work includes:
 - repair of the server's wired private-LAN path;
 - self-hosted UniFi deployment and U6+ adoption;
 - migration to Tailscale as the primary remote-access mechanism;
-- retirement of legacy WireGuard;
-- removal of obsolete public game-server exposure;
-- restriction of major Docker application backends to loopback-only host bindings.
+- retirement of legacy WireGuard and obsolete public game-server exposure;
+- restriction of major Docker application backends to loopback-only host bindings;
+- completion of host, firewall, IPv6, and administrative-service exposure hardening;
+- separation and rotation of Keycloak/PostgreSQL and Nextcloud/PostgreSQL credentials;
+- administrator credential recovery and verified recovery-point replacement for Portainer and Uptime Kuma;
+- hardening of Uptime Kuma persistent authentication and database storage.
 
-Current work is focused on completing the remaining host, firewall, IPv6, and administrative-service exposure audit before beginning credential rotation and final legacy cleanup.
+Current work is Phase M — Credential Rotation and Legacy Cleanup. Phase M is complete through M4. The next step is a read-only M5 inventory of remaining host-level credential and authorization material, beginning with Cloudflare Tunnel, Tailscale, and SSH, before any further rotation or deletion.
 
 ## Repository Scope and Secret Handling
 
