@@ -187,9 +187,15 @@ Major completed work includes:
 - completion of host, firewall, IPv6, and administrative-service exposure hardening;
 - separation and rotation of Keycloak/PostgreSQL and Nextcloud/PostgreSQL credentials;
 - administrator credential recovery and verified recovery-point replacement for Portainer and Uptime Kuma;
-- hardening of Uptime Kuma persistent authentication and database storage.
+- hardening of Uptime Kuma persistent authentication and database storage;
+- audit and cleanup of remaining host-level credential, authorization, and rollback material;
+- retirement of the unused OpenVPN and NetworkManager OpenVPN stack after dependency and profile validation;
+- cleanup of obsolete rollback artifacts associated with Cloudflare Tunnel and SSH while preserving verified recovery copies;
+- hardening of credential-bearing dormant Palworld configuration and consolidation of redundant recovery archives while retaining verified recovery points;
+- retirement of an obsolete Palworld backup job while preserving the current external save mirror; and
+- final verification of active administrative, tunneling, monitoring, and remote-access services following cleanup.
 
-Current work is Phase M — Credential Rotation and Legacy Cleanup. Phase M is complete through M4. The next step is a read-only M5 inventory of remaining host-level credential and authorization material, beginning with Cloudflare Tunnel, Tailscale, and SSH, before any further rotation or deletion.
+Phase M — Credential Rotation and Legacy Cleanup is complete. Active credentials and authorization material have been reconciled, obsolete legacy access mechanisms and stale rollback artifacts have been retired, and retained recovery material has been verified and preserved outside live configuration paths.
 
 ## Repository Scope and Secret Handling
 
