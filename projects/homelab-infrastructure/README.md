@@ -235,4 +235,6 @@ Project-specific source code, configuration work, architecture, and documentatio
 
 This project administers and integrates third-party software including Ubuntu, OpenWrt, Docker, Podman, Nextcloud, PostgreSQL, Keycloak, Portainer, Uptime Kuma, Tailscale, Cloudflare services, and Ubiquiti UniFi software.
 
+Nextcloud `user_oidc` 8.11.0 is used as the OpenID Connect user backend for the planned Keycloak integration. It is third-party software licensed under AGPL-3.0-or-later and is not authored by this project.
+
 These components are not authored by this project. This repository documents their configuration and integration within the homelab environment rather than redistributing their source code.
