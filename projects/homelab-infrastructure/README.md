@@ -174,28 +174,34 @@ This project demonstrates practical experience with:
 
 The environment is operational and remains under active development.
 
-Major completed work includes:
+Infrastructure audit, recovery, storage migration, wired-network repair,
+self-hosted UniFi deployment, administrative-access hardening, credential
+rotation, secret cleanup, and legacy-service cleanup are complete through
+Phase M.
 
-- current-state infrastructure inventory;
-- verified backup and recovery baseline;
-- external-storage migration and Nextcloud data reconciliation;
-- repair of the server's wired private-LAN path;
-- self-hosted UniFi deployment and U6+ adoption;
-- migration to Tailscale as the primary remote-access mechanism;
-- retirement of legacy WireGuard and obsolete public game-server exposure;
-- restriction of major Docker application backends to loopback-only host bindings;
-- completion of host, firewall, IPv6, and administrative-service exposure hardening;
-- separation and rotation of Keycloak/PostgreSQL and Nextcloud/PostgreSQL credentials;
-- administrator credential recovery and verified recovery-point replacement for Portainer and Uptime Kuma;
-- hardening of Uptime Kuma persistent authentication and database storage;
-- audit and cleanup of remaining host-level credential, authorization, and rollback material;
-- retirement of the unused OpenVPN and NetworkManager OpenVPN stack after dependency and profile validation;
-- cleanup of obsolete rollback artifacts associated with Cloudflare Tunnel and SSH while preserving verified recovery copies;
-- hardening of credential-bearing dormant Palworld configuration and consolidation of redundant recovery archives while retaining verified recovery points;
-- retirement of an obsolete Palworld backup job while preserving the current external save mirror; and
-- final verification of active administrative, tunneling, monitoring, and remote-access services following cleanup.
+Phase N is now in progress and focuses on final service deployment and the
+six-user authorization model. A dedicated Keycloak application realm
+(`loreweaver`) has been established for human-facing services. Five named
+trusted users have been provisioned with individual credentials and a
+first-login password-update requirement; the deliberately restricted shared
+Guest identity remains credential-free until explicitly activated.
 
-Phase M — Credential Rotation and Legacy Cleanup is complete. Active credentials and authorization material have been reconciled, obsolete legacy access mechanisms and stale rollback artifacts have been retired, and retained recovery material has been verified and preserved outside live configuration paths.
+Current Nextcloud identity-integration work has:
+
+- established and verified the six-user Keycloak authorization baseline;
+- created verified recovery points after credential provisioning;
+- audited Keycloak's OIDC client and scope baseline;
+- normalized Nextcloud's reverse-proxy configuration for its public HTTPS URL;
+- retained Cloudflare Access as the current outer access gate;
+- installed and enabled Nextcloud `user_oidc` 8.11.0;
+- verified that no Nextcloud OIDC provider or Keycloak `nextcloud` client has
+  yet been configured.
+
+The exact current pause point is immediately before the read-only
+Nextcloud/Keycloak OIDC contract preflight. The next step is to validate the
+installed callback route, Keycloak authorization-code capabilities, existing
+authorization boundaries, and absence of conflicting client/provider
+configuration before creating the `nextcloud` Keycloak client.
 
 ## Repository Scope and Secret Handling
 
