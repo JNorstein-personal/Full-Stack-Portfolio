@@ -912,11 +912,19 @@ Persistent state is associated with a live Firefox tab and is removed when that 
 
 ## Firefox-Specific AMO Metadata
 
-The current release-candidate manifest contains the runtime fields proven necessary for the tested extension, but it does not yet declare a Firefox-specific extension ID or a `data_collection_permissions` block.
+The release manifest declares the existing Firefox add-on identity:
 
-Those Firefox-specific AMO manifest details remain part of the Phase 20 release gate. Before packaging and submission, the exact extension identity associated with the existing public AMO listing and the applicable Mozilla submission requirements must be verified. If the manifest requires additional AMO-specific metadata, `manifest.json` and this README should be updated together before the final package is created.
-
-The tested extension behavior remains local-first and does not require transmission of webpage content, telemetry, analytics, advertising data, or behavioral-tracking data for its core operation.
+```json
+"browser_specific_settings": {
+  "gecko": {
+    "id": "focus-window@example.local",
+    "data_collection_permissions": {
+      "required": [
+        "none"
+      ]
+    }
+  }
+}
 
 ---
 
