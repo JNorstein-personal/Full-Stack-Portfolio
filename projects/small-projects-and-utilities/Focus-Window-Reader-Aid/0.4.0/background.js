@@ -2,19 +2,287 @@
 
 /*
  * Focus Window Reader Aid 0.4.0
- * Phase 2-4 clean-rewrite persistence proof of concept.
+ * Phase 6 — Canonical State Model
  *
- * This background script is the authoritative owner of persistent
- * tab-scoped state.
+ * background.js is the authoritative owner of persistent tab-scoped state.
  *
- * IMPORTANT:
  * Persistent state is keyed only by Firefox tab ID.
  * It is never keyed by URL, hostname, origin, or document.
  */
 
-const LOG_PREFIX = "[Focus Window 0.4.0 POC]";
+const LOG_PREFIX = "[Focus Window 0.4.0]";
 const STORAGE_KEY_PREFIX = "focus-window-reader-aid:tab:";
 const STATE_SCHEMA_VERSION = 1;
+
+/*
+ * The defaults below are the initial canonical-state defaults for Phase 6.
+ *
+ * They are state defaults only. The production renderer and production
+ * interaction limits are introduced in later phases.
+ */
+const DEFAULT_STATE_TEMPLATE = {
+  schemaVersion: STATE_SCHEMA_VERSION,
+
+  active: true,
+  persist: false,
+
+  outer: {
+    left: 100,
+    top: 100,
+    width: 900,
+    height: 400
+  },
+
+  inner: {
+    left: 140,
+    top: 180,
+    width: 820,
+    height: 180
+  },
+
+  dimming: {
+    outer: 0.75,
+    ring: 0.35
+  },
+
+  filters: {
+    brightness: 1.0,
+    contrast: 1.0,
+    invert: false
+  },
+
+  locks: {
+    movement: false,
+    overlay: false
+  }
+};
+
+/**
+ * Deep-clone state containing only JSON-compatible data.
+ *
+ * The canonical Focus Window state intentionally consists only of plain
+ * serializable values.
+ *
+ * @param {object} value
+ * @returns {object}
+ */
+function cloneState(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+/**
+ * Create a fresh canonical default-state object.
+ *
+ * @returns {object}
+ */
+function createDefaultState() {
+  return cloneState(DEFAULT_STATE_TEMPLATE);
+}
+
+/**
+ * Clamp a finite numeric value.
+ *
+ * @param {*} value
+ * @param {number} fallback
+ * @param {number} minimum
+ * @param {number} maximum
+ * @returns {number}
+ */
+function normalizeNumber(
+  value,
+  fallback,
+  minimum = Number.NEGATIVE_INFINITY,
+  maximum = Number.POSITIVE_INFINITY
+) {
+  const numericValue = Number(value);
+
+  if (!Number.isFinite(numericValue)) {
+    return fallback;
+  }
+
+  return Math.min(maximum, Math.max(minimum, numericValue));
+}
+
+/**
+ * Normalize a rectangle without applying document-specific viewport limits.
+ *
+ * Viewport-specific fitting belongs to the later rendering/geometry phase.
+ * Phase 6 guarantees only that geometry is finite and structurally valid.
+ *
+ * @param {*} candidate
+ * @param {object} fallback
+ * @returns {{left:number, top:number, width:number, height:number}}
+ */
+function normalizeOuterRectangle(candidate, fallback) {
+  return {
+    left: normalizeNumber(candidate?.left, fallback.left, 0),
+    top: normalizeNumber(candidate?.top, fallback.top, 0),
+    width: normalizeNumber(candidate?.width, fallback.width, 1),
+    height: normalizeNumber(candidate?.height, fallback.height, 1)
+  };
+}
+
+/**
+ * Normalize the inner rectangle and guarantee containment within the outer
+ * rectangle.
+ *
+ * Exact production minimum dimensions are deliberately deferred until the
+ * geometry interaction phase. Phase 6 guarantees positive dimensions and
+ * containment only.
+ *
+ * @param {*} candidate
+ * @param {object} fallback
+ * @param {object} outer
+ * @returns {{left:number, top:number, width:number, height:number}}
+ */
+function normalizeInnerRectangle(candidate, fallback, outer) {
+  const width = normalizeNumber(
+    candidate?.width,
+    fallback.width,
+    1,
+    outer.width
+  );
+
+  const height = normalizeNumber(
+    candidate?.height,
+    fallback.height,
+    1,
+    outer.height
+  );
+
+  const maximumLeft = outer.left + outer.width - width;
+  const maximumTop = outer.top + outer.height - height;
+
+  const left = normalizeNumber(
+    candidate?.left,
+    fallback.left,
+    outer.left,
+    maximumLeft
+  );
+
+  const top = normalizeNumber(
+    candidate?.top,
+    fallback.top,
+    outer.top,
+    maximumTop
+  );
+
+  return {
+    left,
+    top,
+    width,
+    height
+  };
+}
+
+/**
+ * Normalize and validate a complete canonical Focus Window state.
+ *
+ * This is the only function that constructs authoritative state from
+ * untrusted or partially complete candidate state.
+ *
+ * @param {*} candidate
+ * @returns {object}
+ */
+function normalizeCanonicalState(candidate = {}) {
+  const defaults = createDefaultState();
+
+  const outer = normalizeOuterRectangle(
+    candidate?.outer,
+    defaults.outer
+  );
+
+  const inner = normalizeInnerRectangle(
+    candidate?.inner,
+    defaults.inner,
+    outer
+  );
+
+  return {
+    schemaVersion: STATE_SCHEMA_VERSION,
+
+    active:
+      typeof candidate?.active === "boolean"
+        ? candidate.active
+        : defaults.active,
+
+    persist:
+      typeof candidate?.persist === "boolean"
+        ? candidate.persist
+        : defaults.persist,
+
+    outer,
+
+    inner,
+
+    dimming: {
+      outer: normalizeNumber(
+        candidate?.dimming?.outer,
+        defaults.dimming.outer,
+        0,
+        1
+      ),
+
+      ring: normalizeNumber(
+        candidate?.dimming?.ring,
+        defaults.dimming.ring,
+        0,
+        1
+      )
+    },
+
+    filters: {
+      brightness: normalizeNumber(
+        candidate?.filters?.brightness,
+        defaults.filters.brightness,
+        0
+      ),
+
+      contrast: normalizeNumber(
+        candidate?.filters?.contrast,
+        defaults.filters.contrast,
+        0
+      ),
+
+      invert:
+        typeof candidate?.filters?.invert === "boolean"
+          ? candidate.filters.invert
+          : defaults.filters.invert
+    },
+
+    locks: {
+      movement:
+        typeof candidate?.locks?.movement === "boolean"
+          ? candidate.locks.movement
+          : defaults.locks.movement,
+
+      overlay:
+        typeof candidate?.locks?.overlay === "boolean"
+          ? candidate.locks.overlay
+          : defaults.locks.overlay
+    }
+  };
+}
+
+/**
+ * Compare two canonical states.
+ *
+ * normalizeCanonicalState() always creates properties in a stable order, so
+ * serialized equality is suitable for this Phase 6 development check.
+ *
+ * @param {object} first
+ * @param {object} second
+ * @returns {boolean}
+ */
+function statesEqual(first, second) {
+  const normalizedFirst = normalizeCanonicalState(first);
+  const normalizedSecond = normalizeCanonicalState(second);
+
+  return (
+    JSON.stringify(normalizedFirst) ===
+    JSON.stringify(normalizedSecond)
+  );
+}
 
 /**
  * Return the storage key belonging to one Firefox tab.
@@ -27,90 +295,7 @@ function getTabStorageKey(tabId) {
 }
 
 /**
- * Keep the temporary development counter within a predictable range.
- *
- * The counter exists only to prove that arbitrary tab-owned state can
- * survive navigation. It is not part of the production Focus Window state.
- *
- * @param {*} value
- * @returns {number}
- */
-function normalizeCounter(value) {
-  const numericValue = Number(value);
-
-  if (!Number.isFinite(numericValue)) {
-    return 0;
-  }
-
-  const integerValue = Math.trunc(numericValue);
-
-  return Math.max(-999999, Math.min(999999, integerValue));
-}
-
-/**
- * Construct a validated minimal persistent-state object.
- *
- * @param {object} candidate
- * @returns {object}
- */
-function normalizePersistentState(candidate = {}) {
-  return {
-    schemaVersion: STATE_SCHEMA_VERSION,
-    persist: true,
-    counter: normalizeCounter(candidate.counter)
-  };
-}
-
-/**
- * Retrieve the persistent session belonging to a tab.
- *
- * @param {number} tabId
- * @returns {Promise<object|null>}
- */
-async function getPersistentState(tabId) {
-  const key = getTabStorageKey(tabId);
-  const stored = await browser.storage.session.get(key);
-  const candidate = stored[key];
-
-  if (!candidate || candidate.persist !== true) {
-    return null;
-  }
-
-  return normalizePersistentState(candidate);
-}
-
-/**
- * Save the persistent session belonging to a tab.
- *
- * @param {number} tabId
- * @param {object} state
- * @returns {Promise<object>}
- */
-async function setPersistentState(tabId, state) {
-  const key = getTabStorageKey(tabId);
-  const normalized = normalizePersistentState(state);
-
-  await browser.storage.session.set({
-    [key]: normalized
-  });
-
-  return normalized;
-}
-
-/**
- * Remove persistent state belonging to one tab.
- *
- * @param {number} tabId
- * @returns {Promise<void>}
- */
-async function clearPersistentState(tabId) {
-  const key = getTabStorageKey(tabId);
-
-  await browser.storage.session.remove(key);
-}
-
-/**
- * Verify that a runtime message originated from an ordinary Firefox tab.
+ * Return the sender's Firefox tab ID.
  *
  * @param {browser.runtime.MessageSender} sender
  * @returns {number|null}
@@ -122,10 +307,115 @@ function getSenderTabId(sender) {
 }
 
 /**
- * Handle messages sent by content.js.
+ * Retrieve authoritative persistent state for a tab.
  *
- * Returning tabId in development responses makes tab ownership visually
- * obvious during the proof-of-concept phase.
+ * A stored record is considered a persistent Focus Window session only when
+ * its normalized Persist value is true.
+ *
+ * @param {number} tabId
+ * @returns {Promise<object|null>}
+ */
+async function getPersistentState(tabId) {
+  const key = getTabStorageKey(tabId);
+  const result = await browser.storage.session.get(key);
+  const storedCandidate = result[key];
+
+  if (!storedCandidate) {
+    return null;
+  }
+
+  const normalized = normalizeCanonicalState(storedCandidate);
+
+  if (!normalized.persist) {
+    return null;
+  }
+
+  return cloneState(normalized);
+}
+
+/**
+ * Store authoritative persistent state for a tab.
+ *
+ * Calling this helper always represents an already-established persistent
+ * session, so Persist is forced true.
+ *
+ * @param {number} tabId
+ * @param {object} candidate
+ * @returns {Promise<object>}
+ */
+async function setPersistentState(tabId, candidate) {
+  const key = getTabStorageKey(tabId);
+
+  const normalized = normalizeCanonicalState({
+    ...candidate,
+    persist: true
+  });
+
+  await browser.storage.session.set({
+    [key]: cloneState(normalized)
+  });
+
+  return cloneState(normalized);
+}
+
+/**
+ * Remove a tab-owned persistent session.
+ *
+ * @param {number} tabId
+ * @returns {Promise<void>}
+ */
+async function clearPersistentState(tabId) {
+  await browser.storage.session.remove(
+    getTabStorageKey(tabId)
+  );
+}
+
+/**
+ * Phase 6 development test:
+ *
+ * Save -> retrieve -> normalize/reconstruct -> compare.
+ *
+ * The test operates only on a tab that already owns a persistent session.
+ *
+ * @param {number} tabId
+ * @param {object} candidate
+ * @returns {Promise<object>}
+ */
+async function runCanonicalRoundTripTest(tabId, candidate) {
+  const existingState = await getPersistentState(tabId);
+
+  if (!existingState) {
+    return {
+      ok: false,
+      passed: false,
+      error: "Enable Persist before running the canonical state round-trip test."
+    };
+  }
+
+  const expected = normalizeCanonicalState({
+    ...candidate,
+    persist: true
+  });
+
+  await setPersistentState(tabId, expected);
+
+  const retrieved = await getPersistentState(tabId);
+
+  const passed =
+    retrieved !== null &&
+    statesEqual(expected, retrieved);
+
+  return {
+    ok: true,
+    passed,
+    state: retrieved,
+    expected: cloneState(expected),
+    retrieved: cloneState(retrieved)
+  };
+}
+
+/**
+ * Handle content-script messages.
  *
  * @param {object} message
  * @param {browser.runtime.MessageSender} sender
@@ -148,38 +438,40 @@ async function handleContentMessage(message, sender) {
       console.log(
         `${LOG_PREFIX} Tab ${tabId} content ready.`,
         persistentState
-          ? `Persistent state found; counter=${persistentState.counter}.`
-          : "No persistent state."
+          ? "Persistent canonical state found."
+          : "No persistent session."
       );
 
       return {
         ok: true,
         tabId,
-        state: persistentState
+        state: persistentState,
+        defaultState: createDefaultState()
       };
     }
 
     case "FOCUS_WINDOW_SET_PERSIST": {
       if (message.enabled === true) {
-        const persistentState = await setPersistentState(tabId, {
-          counter: message.counter
-        });
+        const state = await setPersistentState(
+          tabId,
+          message.state ?? createDefaultState()
+        );
 
         console.log(
-          `${LOG_PREFIX} Tab ${tabId} Persist ON; counter=${persistentState.counter}.`
+          `${LOG_PREFIX} Tab ${tabId} Persist ON.`
         );
 
         return {
           ok: true,
           tabId,
-          state: persistentState
+          state
         };
       }
 
       await clearPersistentState(tabId);
 
       console.log(
-        `${LOG_PREFIX} Tab ${tabId} Persist OFF; tab-owned record removed.`
+        `${LOG_PREFIX} Tab ${tabId} Persist OFF; tab-owned state removed.`
       );
 
       return {
@@ -189,14 +481,13 @@ async function handleContentMessage(message, sender) {
       };
     }
 
-    case "FOCUS_WINDOW_SET_COUNTER": {
+    case "FOCUS_WINDOW_REPLACE_STATE": {
+      /*
+       * An ordinary state update may replace an existing persistent session,
+       * but it may never create persistence after Persist has been disabled.
+       */
       const existingState = await getPersistentState(tabId);
 
-      /*
-       * A counter update must never recreate persistence after Persist
-       * has been turned off. Only an explicit SET_PERSIST enabled=true
-       * operation may establish a persistent session.
-       */
       if (!existingState) {
         return {
           ok: false,
@@ -205,19 +496,32 @@ async function handleContentMessage(message, sender) {
         };
       }
 
-      const persistentState = await setPersistentState(tabId, {
-        ...existingState,
-        counter: message.counter
-      });
-
-      console.log(
-        `${LOG_PREFIX} Tab ${tabId} persistent counter updated to ${persistentState.counter}.`
+      const state = await setPersistentState(
+        tabId,
+        message.state
       );
 
       return {
         ok: true,
         tabId,
-        state: persistentState
+        state
+      };
+    }
+
+    case "FOCUS_WINDOW_DEV_ROUND_TRIP_STATE": {
+      const result = await runCanonicalRoundTripTest(
+        tabId,
+        message.state
+      );
+
+      console.log(
+        `${LOG_PREFIX} Tab ${tabId} canonical round trip:`,
+        result.passed ? "PASS" : "FAIL"
+      );
+
+      return {
+        tabId,
+        ...result
       };
     }
 
@@ -231,27 +535,30 @@ async function handleContentMessage(message, sender) {
 }
 
 /*
- * Content-script messages.
- *
- * The promise returned by handleContentMessage becomes the reply delivered
- * to browser.runtime.sendMessage() in content.js.
+ * Content/background messaging.
  */
 browser.runtime.onMessage.addListener((message, sender) => {
   return handleContentMessage(message, sender).catch((error) => {
-    console.error(`${LOG_PREFIX} Message handling failed.`, error);
+    console.error(
+      `${LOG_PREFIX} Message handling failed.`,
+      error
+    );
 
     return {
       ok: false,
-      error: error instanceof Error ? error.message : String(error)
+      error:
+        error instanceof Error
+          ? error.message
+          : String(error)
     };
   });
 });
 
 /*
- * Firefox toolbar button.
+ * Firefox toolbar toggle.
  *
- * The background layer identifies the target tab from the action event and
- * sends a toggle instruction only to that tab's content script.
+ * Failure to reach a content script on a protected page does not modify
+ * persistent tab state.
  */
 browser.action.onClicked.addListener((tab) => {
   if (!Number.isInteger(tab?.id)) {
@@ -271,12 +578,6 @@ browser.action.onClicked.addListener((tab) => {
       );
     })
     .catch((error) => {
-      /*
-       * This is expected on Firefox-protected pages or other documents
-       * where the content script is not permitted to run.
-       *
-       * Failing to reach the page must not destroy tab-owned persistence.
-       */
       console.debug(
         `${LOG_PREFIX} Toolbar message could not reach Tab ${tabId}.`,
         error
@@ -285,16 +586,13 @@ browser.action.onClicked.addListener((tab) => {
 });
 
 /*
- * Persistent state belongs to the lifetime of the live Firefox tab.
- *
- * When the tab closes, explicitly remove its state so the record cannot
- * later become associated with an unrelated tab.
+ * Tab-lifetime cleanup.
  */
 browser.tabs.onRemoved.addListener((tabId) => {
   clearPersistentState(tabId)
     .then(() => {
       console.log(
-        `${LOG_PREFIX} Tab ${tabId} closed; tab-owned persistent state removed.`
+        `${LOG_PREFIX} Tab ${tabId} closed; persistent state removed.`
       );
     })
     .catch((error) => {
@@ -305,4 +603,6 @@ browser.tabs.onRemoved.addListener((tabId) => {
     });
 });
 
-console.log(`${LOG_PREFIX} Background state layer initialized.`);
+console.log(
+  `${LOG_PREFIX} Canonical-state background layer initialized.`
+);
