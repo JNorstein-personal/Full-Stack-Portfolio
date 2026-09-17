@@ -13,7 +13,7 @@ Version `0.4.0` adds optional **per-tab persistence across webpage navigation** 
 
 ## Distribution Status
 
-**Current source/release-package version:** `0.4.0`
+**Current source/release-candidate version:** `0.4.0`
 
 **Current public Mozilla Add-ons release before the 0.4.0 update:** `0.3.0`
 
@@ -25,7 +25,7 @@ Version `0.4.0` adds optional **per-tab persistence across webpage navigation** 
 
 **Availability:** Installable through Mozilla Add-ons and Firefox's Add-ons Manager
 
-Version `0.4.0` is the current tested release package being prepared as an update to the existing public AMO listing.
+Version `0.4.0` is the current tested release candidate being prepared as an update to the existing public AMO listing.
 
 The currently published AMO release remains `0.3.0` until Mozilla accepts and publishes the `0.4.0` update.
 
@@ -756,14 +756,13 @@ Focus-Window-Reader-Aid/
 Defines:
 
 * Manifest V3.
-* Extension identity and version.
+* Extension name, description, and version.
 * Firefox toolbar action.
 * Background script.
 * Content script.
 * Content stylesheet.
 * `storage` permission.
 * `<all_urls>` host permission.
-* Firefox data-collection declaration.
 * `document_idle` content-script injection.
 
 ---
@@ -911,19 +910,13 @@ Persistent state is associated with a live Firefox tab and is removed when that 
 
 ---
 
-## Firefox Data Collection Declaration
+## Firefox-Specific AMO Metadata
 
-The Firefox-specific manifest configuration declares:
+The current release-candidate manifest contains the runtime fields proven necessary for the tested extension, but it does not yet declare a Firefox-specific extension ID or a `data_collection_permissions` block.
 
-```json
-"data_collection_permissions": {
-  "required": [
-    "none"
-  ]
-}
-```
+Those Firefox-specific AMO manifest details remain part of the Phase 20 release gate. Before packaging and submission, the exact extension identity associated with the existing public AMO listing and the applicable Mozilla submission requirements must be verified. If the manifest requires additional AMO-specific metadata, `manifest.json` and this README should be updated together before the final package is created.
 
-This reflects the extension's local visual-assistance design.
+The tested extension behavior remains local-first and does not require transmission of webpage content, telemetry, analytics, advertising data, or behavioral-tracking data for its core operation.
 
 ---
 
@@ -1072,7 +1065,7 @@ The tested areas include:
 * Restricted-page transitions.
 * Unsupported backdrop-filter fallback behavior.
 
-Runtime code should not be considered release-ready solely because of this behavioral matrix; code-quality review, packaging verification, and AMO submission preparation remain separate release phases.
+Functional regression and Phase 18 code-quality review are complete. Packaging verification and AMO submission preparation remain separate release phases.
 
 ---
 
@@ -1106,7 +1099,7 @@ Version `0.4.0` is a clean rewrite of the persistence implementation around a ta
 
 ## 0.4.0 — September 2026
 
-**Status:** Tested release package being prepared for submission to the existing public Mozilla Add-ons listing.
+**Status:** Tested release candidate being prepared for submission to the existing public Mozilla Add-ons listing.
 
 The exact public publication date should be added after Mozilla accepts and publishes the release.
 
@@ -1149,7 +1142,7 @@ The final 0.3.0 release was a functional public release on Mozilla Add-ons. Howe
 
 Version 0.4.0 is therefore a standalone clean rewrite. Its tab-owned canonical-state model, persistence architecture, rendering lifecycle, suppression behavior, and navigation handling were designed and validated independently rather than inherited from the earlier implementation.
 
-The earlier versions remain in the project history because they document the evolution of the concept and the development process, not because their architecture remains authoritative.
+The earlier versions, including the failed and experimental persistence prototype that preceded the standalone clean rewrite, remain in the project history because they document the evolution of the concept, the development process, and approaches that were deliberately superseded; their architecture is not authoritative for version `0.4.0`.
 
 ---
 
@@ -1157,18 +1150,14 @@ The earlier versions remain in the project history because they document the evo
 
 The `0.4.0` rewrite was developed incrementally around persistence-first testing.
 
-Major implementation milestones were committed separately so the repository history distinguishes:
+The current monorepo preserves meaningful milestone history for the release candidate, including:
 
-* Persistence proof-of-concept work.
-* Canonical state introduction.
-* Renderer implementation.
-* Geometry restoration.
-* Dimming restoration.
-* Filter restoration.
-* Fixed-toolbar behavior.
-* Lock behavior.
-* Document suppression.
-* Full persistence regression testing.
+* Proof that persistent tab-owned state survives supported navigation.
+* Completion of the `0.4.0` persistence regression matrix.
+* Migration of the tested standalone rewrite into the portfolio monorepo.
+* Production cleanup that removed development-only scaffolding before release.
+
+More granular feature development occurred during the standalone clean rewrite before the tested candidate was migrated into the monorepo. Those implementation stages remain documented in the project plan and this README rather than being represented as artificial retrospective commits.
 
 Development of this version has used AI assistance for implementation drafting, code review support, test-procedure drafting, and documentation assistance.
 
@@ -1268,4 +1257,4 @@ The existing public AMO release is `0.3.0`.
 
 Version `0.4.0` has completed its planned functional regression testing and is being prepared as the next public update.
 
-The remaining pre-release work consists of code-quality review, repository/release documentation review, final packaging validation, and AMO submission.
+With code-quality review and repository/release documentation review complete, the remaining pre-release work consists of Phase 20 release packaging and validation, verification of the existing AMO extension identity and any required Firefox-specific manifest metadata, regression testing against the exact packaged source, generation of the final SHA-256 package hash, and AMO submission.
