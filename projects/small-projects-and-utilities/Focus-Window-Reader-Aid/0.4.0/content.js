@@ -2,7 +2,7 @@
 
 /*
  * Focus Window Reader Aid 0.4.0
- * Phase 13 — Close, Escape, and Firefox Toolbar Toggle Semantics
+ * Production content renderer and interaction layer.
  */
 
 (() => {
@@ -55,15 +55,11 @@
     persistButton:
       '[data-fwra-action="persist"]',
 
-    rendererStatus:
-      '[data-fwra-role="renderer-status"]',
-
     geometryStatus:
       '[data-fwra-role="geometry-status"]'
   };
 
   let state = null;
-  let tabId = null;
 
   let visible = false;
 
@@ -77,7 +73,6 @@
   let renderSuppressed = false;
 
   let busy = false;
-  let rendererStatus = "Not tested";
 
   let interaction = null;
 
@@ -109,14 +104,6 @@
 
   const BACKDROP_FILTER_SUPPORTED =
     detectBackdropFilterSupport();
-
-  console.log(
-    `${LOG_PREFIX} Backdrop-filter support: ${
-      BACKDROP_FILTER_SUPPORTED
-        ? "YES"
-        : "NO"
-    }.`
-  );
 
   function cloneState(value) {
     return JSON.parse(
@@ -661,23 +648,6 @@
           class="fwra-geometry-status"
           data-fwra-role="geometry-status"
         ></div>
-
-        <div class="fwra-render-test">
-          <button
-            type="button"
-            class="fwra-control-button fwra-control-button--development"
-            data-fwra-action="renderer-test"
-          >
-            Test Renderer Idempotency
-          </button>
-
-          <span
-            class="fwra-render-test__status"
-            data-fwra-role="renderer-status"
-          >
-            Not tested
-          </span>
-        </div>
       </section>
 
       <div
@@ -729,10 +699,6 @@
       root
     );
 
-    console.log(
-      `${LOG_PREFIX} Focus Window root created.`
-    );
-
     return root;
   }
 
@@ -771,10 +737,6 @@
     );
 
     root.remove();
-
-    console.log(
-      `${LOG_PREFIX} Focus Window root destroyed.`
-    );
   }
 
   function renderGeometry(
@@ -1021,11 +983,6 @@
         SELECTORS.persistButton
       );
 
-    const rendererStatusElement =
-      root.querySelector(
-        SELECTORS.rendererStatus
-      );
-
     const geometryStatusElement =
       root.querySelector(
         SELECTORS.geometryStatus
@@ -1190,9 +1147,6 @@
       busy ||
       interaction !== null;
 
-    rendererStatusElement.textContent =
-      rendererStatus;
-
     geometryStatusElement.textContent =
       `Outer ${canonicalState.outer.left},${canonicalState.outer.top} · ` +
       `${canonicalState.outer.width}×${canonicalState.outer.height} | ` +
@@ -1279,63 +1233,6 @@
     );
   }
 
-  function countRoots() {
-    return document.querySelectorAll(
-      SELECTORS.root
-    ).length;
-  }
-
-  function runRendererIdempotencyTest() {
-    if (
-      !state ||
-      !visible ||
-      renderSuppressed ||
-      interaction ||
-      state.locks.overlay
-    ) {
-      rendererStatus =
-        state?.locks?.overlay
-          ? "Unavailable while overlay locked"
-          : "Unavailable";
-
-      renderFocusWindow(state);
-      return;
-    }
-
-    const testState =
-      cloneState(state);
-
-    for (
-      let index = 0;
-      index < 10;
-      index += 1
-    ) {
-      renderFocusWindow(
-        testState
-      );
-    }
-
-    const rootCount =
-      countRoots();
-
-    rendererStatus =
-      rootCount === 1
-        ? "PASS — 10 renders, 1 root"
-        : `FAIL — ${rootCount} roots`;
-
-    if (rootCount === 1) {
-      console.log(
-        `${LOG_PREFIX} Renderer idempotency PASS: 10 renders produced exactly 1 root.`
-      );
-    } else {
-      console.error(
-        `${LOG_PREFIX} Renderer idempotency FAIL: expected 1 root, found ${rootCount}.`
-      );
-    }
-
-    renderFocusWindow(state);
-  }
-
   function queuePersistentStateWrite(
     snapshot,
     reason
@@ -1370,10 +1267,6 @@
                 "Persistent state update was rejected."
             );
           }
-
-          console.log(
-            `${LOG_PREFIX} Persistent canonical state updated (${reason}).`
-          );
         })
         .catch((error) => {
           console.error(
@@ -1626,9 +1519,7 @@
    *
    * It must never be sent to background.js or written to browser storage.
    */
-  function suppressCurrentDocument(
-    reason
-  ) {
+  function suppressCurrentDocument() {
     if (
       !state ||
       renderSuppressed
@@ -1645,14 +1536,6 @@
     cancelGeometryInteraction();
 
     destroyFocusWindow();
-
-    console.log(
-      `${LOG_PREFIX} Current document suppressed (${reason}); Persist remains ${
-        state.persist
-          ? "On"
-          : "Off"
-      }.`
-    );
   }
 
   /*
@@ -1661,9 +1544,7 @@
    * Therefore a second toolbar click on the same suppressed document may
    * explicitly render it again without altering persistent ownership.
    */
-  function showCurrentDocument(
-    reason
-  ) {
+  function showCurrentDocument() {
     if (!state) {
       return;
     }
@@ -1674,14 +1555,7 @@
     visible =
       true;
 
-    rendererStatus =
-      "Not tested";
-
     renderFocusWindow(state);
-
-    console.log(
-      `${LOG_PREFIX} Current document rendering restored (${reason}).`
-    );
   }
 
   function handleDocumentKeyDown(
@@ -1704,9 +1578,7 @@
     event.preventDefault();
     event.stopPropagation();
 
-    suppressCurrentDocument(
-      "escape"
-    );
+    suppressCurrentDocument();
   }
 
   function alternateFrame(
@@ -2472,9 +2344,6 @@
           );
         }
 
-        tabId =
-          response.tabId;
-
         state =
           normalizeStateGeometry(
             response.state
@@ -2557,13 +2426,7 @@
         break;
 
       case "close":
-        suppressCurrentDocument(
-          "close-button"
-        );
-        break;
-
-      case "renderer-test":
-        runRendererIdempotencyTest();
+        suppressCurrentDocument();
         break;
 
       default:
@@ -2644,9 +2507,6 @@
         );
       }
 
-      tabId =
-        response.tabId;
-
       /*
        * Every newly loaded supported document starts unsuppressed.
        * Suppression is intentionally never restored from storage.
@@ -2686,9 +2546,6 @@
         visible =
           false;
       }
-
-      rendererStatus =
-        "Not tested";
 
       renderFocusWindow(state);
     } catch (error) {
@@ -2739,13 +2596,9 @@
         !renderSuppressed &&
         getRoot()
       ) {
-        suppressCurrentDocument(
-          "firefox-toolbar-toggle"
-        );
+        suppressCurrentDocument();
       } else {
-        showCurrentDocument(
-          "firefox-toolbar-toggle"
-        );
+        showCurrentDocument();
       }
 
       return Promise.resolve({

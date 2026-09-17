@@ -2,21 +2,26 @@
   "manifest_version": 3,
   "name": "Focus Window Reader Aid",
   "version": "0.4.0",
-  "description": "Assistive reading focus overlay for Firefox. Version 0.4.0 clean-rewrite persistence prototype.",
+  "description": "Adjustable focus overlay for visual tracking support with lockable controls, visual filters, and per-tab persistence.",
+
   "permissions": [
     "storage"
   ],
+
   "host_permissions": [
     "<all_urls>"
   ],
+
   "background": {
     "scripts": [
       "background.js"
     ]
   },
+
   "action": {
     "default_title": "Toggle Focus Window Reader Aid"
   },
+
   "content_scripts": [
     {
       "matches": [
