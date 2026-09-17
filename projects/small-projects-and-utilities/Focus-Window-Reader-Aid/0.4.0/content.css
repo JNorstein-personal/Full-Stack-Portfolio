@@ -1,0 +1,223 @@
+/*
+ * Focus Window Reader Aid 0.4.0
+ * Phase 2-4 persistence proof-of-concept styling.
+ *
+ * This file contains presentation only.
+ * It contains no persistence or state-management logic.
+ */
+
+#fwra-persistence-test-root {
+  all: initial;
+
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 2147483647;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  width: min(320px, calc(100vw - 32px));
+  padding: 14px;
+
+  box-sizing: border-box;
+
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+
+  color: #ffffff;
+  background: #1f2937;
+
+  border: 2px solid #ffffff;
+  border-radius: 8px;
+
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.35),
+    0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+#fwra-persistence-test-root,
+#fwra-persistence-test-root * {
+  box-sizing: border-box;
+}
+
+#fwra-persistence-test-root .fwra-test__heading {
+  all: initial;
+
+  display: block;
+
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.3;
+
+  color: #ffffff;
+}
+
+#fwra-persistence-test-root .fwra-test__row {
+  all: initial;
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size: 12px;
+  line-height: 1.4;
+
+  color: #d1d5db;
+}
+
+#fwra-persistence-test-root .fwra-test__counter-row {
+  all: initial;
+
+  display: grid;
+  grid-template-columns: 42px 1fr 42px;
+  align-items: center;
+  gap: 8px;
+
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+#fwra-persistence-test-root .fwra-test__counter {
+  all: initial;
+
+  display: block;
+
+  min-width: 80px;
+  padding: 7px 10px;
+
+  font-family:
+    ui-monospace,
+    "Cascadia Code",
+    "SFMono-Regular",
+    Consolas,
+    monospace;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+
+  color: #ffffff;
+  background: #111827;
+
+  border: 1px solid #6b7280;
+  border-radius: 5px;
+}
+
+#fwra-persistence-test-root .fwra-test__button {
+  all: unset;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 34px;
+  padding: 6px 10px;
+
+  box-sizing: border-box;
+
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+
+  color: #111827;
+  background: #f9fafb;
+
+  border: 2px solid transparent;
+  border-radius: 5px;
+
+  cursor: pointer;
+  user-select: none;
+}
+
+#fwra-persistence-test-root .fwra-test__button:hover {
+  background: #e5e7eb;
+}
+
+#fwra-persistence-test-root .fwra-test__button:focus-visible {
+  border-color: #60a5fa;
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+#fwra-persistence-test-root .fwra-test__button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+#fwra-persistence-test-root .fwra-test__counter-button {
+  width: 42px;
+  min-width: 42px;
+  padding-right: 0;
+  padding-left: 0;
+
+  font-size: 20px;
+}
+
+#fwra-persistence-test-root .fwra-test__persist-button {
+  width: 100%;
+}
+
+#fwra-persistence-test-root[data-persist="on"] .fwra-test__persist-button {
+  font-weight: 700;
+}
+
+#fwra-persistence-test-root .fwra-test__instructions {
+  all: initial;
+
+  display: block;
+
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size: 12px;
+  line-height: 1.4;
+
+  color: #d1d5db;
+}
+
+@media (max-width: 420px) {
+  #fwra-persistence-test-root {
+    top: 8px;
+    left: 8px;
+
+    width: calc(100vw - 16px);
+    max-height: calc(100vh - 16px);
+
+    overflow: auto;
+  }
+}
