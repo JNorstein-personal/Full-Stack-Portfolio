@@ -1,4 +1,4 @@
-\# Norstein-Dashiell Wedding Website
+# Norstein-Dashiell Wedding Website
 
 
 
@@ -34,7 +34,7 @@ with its backend API available beneath:
 
 
 
-\## Project Status
+## Project Status
 
 
 
@@ -54,7 +54,7 @@ The complete RSVP backend and guest-facing RSVP workflow are specified but are n
 
 
 
-\## Core Technology
+## Core Technology
 
 
 
@@ -62,63 +62,63 @@ The planned application architecture uses:
 
 
 
-\### Front End
+### Front End
 
 
 
-\* React
+* React
 
-\* Vite
+* Vite
 
-\* JavaScript
+* JavaScript
 
-\* HTML
+* HTML
 
-\* CSS
+* CSS
 
-\* React Router
+* React Router
 
-\* Responsive web design
-
-
-
-\### Back End
+* Responsive web design
 
 
 
-\* Node.js
-
-\* Express
-
-\* Environment-based configuration
-
-\* Server-side validation
-
-\* Security middleware
-
-\* Rate limiting
+### Back End
 
 
 
-\### Deployment
+* Node.js
+
+* Express
+
+* Environment-based configuration
+
+* Server-side validation
+
+* Security middleware
+
+* Rate limiting
 
 
 
-\* Ubuntu Server
-
-\* Git-based Windows-to-Ubuntu deployment workflow
-
-\* Production client build
-
-\* Reverse-proxy routing
-
-\* HTTPS in the production deployment
-
-\* Self-hosted infrastructure
+### Deployment
 
 
 
-\## Project Structure
+* Ubuntu Server
+
+* Git-based Windows-to-Ubuntu deployment workflow
+
+* Production client build
+
+* Reverse-proxy routing
+
+* HTTPS in the production deployment
+
+* Self-hosted infrastructure
+
+
+
+## Project Structure
 
 
 
@@ -198,7 +198,7 @@ The root package is intended to coordinate the client and server while allowing 
 
 
 
-\## Public Application Routes
+## Public Application Routes
 
 
 
@@ -242,7 +242,7 @@ Unknown `/wedding/\*` destinations are intended to remain inside the wedding app
 
 
 
-\## Shared Site Shell
+## Shared Site Shell
 
 
 
@@ -250,23 +250,23 @@ All public pages are intended to use a common application shell containing:
 
 
 
-\* Skip-to-content navigation
+* Skip-to-content navigation
 
-\* Shared page container
+* Shared page container
 
-\* Sticky site header
+* Sticky site header
 
-\* Desktop navigation
+* Desktop navigation
 
-\* Accessible mobile navigation
+* Accessible mobile navigation
 
-\* Prominent RSVP access
+* Prominent RSVP access
 
-\* Shared main-content structure
+* Shared main-content structure
 
-\* Footer
+* Footer
 
-\* Consistent heading and layout system
+* Consistent heading and layout system
 
 
 
@@ -274,7 +274,7 @@ The application is being designed so that essential functionality does not depen
 
 
 
-\## Responsive and Accessible Design
+## Responsive and Accessible Design
 
 
 
@@ -286,29 +286,29 @@ Planned accessibility features include:
 
 
 
-\* Keyboard-accessible navigation
+* Keyboard-accessible navigation
 
-\* Skip-to-content support
+* Skip-to-content support
 
-\* Visible `:focus-visible` treatment
+* Visible `:focus-visible` treatment
 
-\* Semantic headings
+* Semantic headings
 
-\* Accessible form labels and legends
+* Accessible form labels and legends
 
-\* Text-based status communication
+* Text-based status communication
 
-\* Responsive single-column form behavior on narrow screens
+* Responsive single-column form behavior on narrow screens
 
-\* Touch-appropriate interactive controls
+* Touch-appropriate interactive controls
 
-\* Reduced-motion support
+* Reduced-motion support
 
-\* Meaning that does not depend solely on color
+* Meaning that does not depend solely on color
 
-\* Accessible mobile menu state
+* Accessible mobile menu state
 
-\* Avoidance of keyboard traps
+* Avoidance of keyboard traps
 
 
 
@@ -316,7 +316,7 @@ Representative layouts will be tested across phone, tablet, laptop, and desktop 
 
 
 
-\## Design System
+## Design System
 
 
 
@@ -328,35 +328,35 @@ Planned shared style responsibilities include:
 
 
 
-\* Typography roles
+* Typography roles
 
-\* Type scale
+* Type scale
 
-\* Semantic colors
+* Semantic colors
 
-\* Spacing
+* Spacing
 
-\* Readable content widths
+* Readable content widths
 
-\* Control geometry
+* Control geometry
 
-\* Focus indicators
+* Focus indicators
 
-\* Buttons
+* Buttons
 
-\* Links
+* Links
 
-\* Form controls
+* Form controls
 
-\* Status messages
+* Status messages
 
-\* Cards
+* Cards
 
-\* Decorative surfaces
+* Decorative surfaces
 
-\* Responsive foundations
+* Responsive foundations
 
-\* Reduced-motion behavior
+* Reduced-motion behavior
 
 
 
@@ -364,7 +364,7 @@ Shared design tokens are intended to allow changes to typography, spacing, color
 
 
 
-\## Shared Components
+## Shared Components
 
 
 
@@ -372,25 +372,25 @@ Reusable component families are planned for common interaction patterns, includi
 
 
 
-\* Primary and secondary buttons
+* Primary and secondary buttons
 
-\* Status messages
+* Status messages
 
-\* Content cards
+* Content cards
 
-\* External links
+* External links
 
-\* Form controls
+* Form controls
 
-\* Page containers
+* Page containers
 
-\* Content sections
+* Content sections
 
-\* Header and navigation
+* Header and navigation
 
-\* Skip link
+* Skip link
 
-\* Footer
+* Footer
 
 
 
@@ -398,7 +398,7 @@ The goal is to establish one consistent interaction and design language across t
 
 
 
-\## Centralized Wedding Configuration
+## Centralized Wedding Configuration
 
 
 
@@ -410,21 +410,21 @@ Centralized application data will include information such as:
 
 
 
-\* Wedding date
+* Wedding date
 
-\* General location
+* General location
 
-\* RSVP deadline
+* RSVP deadline
 
-\* RSVP assistance information
+* RSVP assistance information
 
-\* Navigation labels
+* Navigation labels
 
-\* Reusable guest-facing labels
+* Reusable guest-facing labels
 
-\* Gift-policy content
+* Gift-policy content
 
-\* Venue and schedule configuration
+* Venue and schedule configuration
 
 
 
@@ -432,7 +432,7 @@ The application supports two planned event configurations:
 
 
 
-\### Configuration A
+### Configuration A
 
 
 
@@ -440,7 +440,7 @@ Ceremony at Warinanco Park with reception at Sphinx.
 
 
 
-\### Configuration B
+### Configuration B
 
 
 
@@ -456,7 +456,7 @@ Pages that depend upon venue or schedule configuration are intended to consume t
 
 
 
-\## RSVP System
+## RSVP System
 
 
 
@@ -468,41 +468,41 @@ The architecture is intended to support:
 
 
 
-\* Invitation-code lookup
+* Invitation-code lookup
 
-\* Personalized RSVP forms
+* Personalized RSVP forms
 
-\* Server-side validation
+* Server-side validation
 
-\* Initial responses
+* Initial responses
 
-\* Response revisions
+* Response revisions
 
-\* Conditional questions
+* Conditional questions
 
-\* Additional-guest handling
+* Additional-guest handling
 
-\* Attendance and dietary logic
+* Attendance and dietary logic
 
-\* Idempotent submissions
+* Idempotent submissions
 
-\* Version history
+* Version history
 
-\* Current-response storage
+* Current-response storage
 
-\* Deadline enforcement
+* Deadline enforcement
 
-\* Confirmation workflow
+* Confirmation workflow
 
-\* Guest confirmation
+* Guest confirmation
 
-\* Administrative notification
+* Administrative notification
 
-\* Delivery-warning handling
+* Delivery-warning handling
 
-\* Safe retry behavior
+* Safe retry behavior
 
-\* Confirmation-page refresh handling
+* Confirmation-page refresh handling
 
 
 
@@ -514,7 +514,7 @@ Production invitation records are not used during ordinary development.
 
 
 
-\## Client/API Boundary
+## Client/API Boundary
 
 
 
@@ -550,7 +550,7 @@ This preserves the same browser-facing API path between development and deployme
 
 
 
-\## Environment Configuration
+## Environment Configuration
 
 
 
@@ -574,27 +574,27 @@ Server configuration is expected to include values for responsibilities such as:
 
 
 
-\* Application environment
+* Application environment
 
-\* Server port
+* Server port
 
-\* Site base path
+* Site base path
 
-\* Google integration
+* Google integration
 
-\* RSVP deadline
+* RSVP deadline
 
-\* Time zone
+* Time zone
 
-\* Administrative notifications
+* Administrative notifications
 
-\* Email provider
+* Email provider
 
-\* SMS provider
+* SMS provider
 
-\* Allowed origin
+* Allowed origin
 
-\* Reverse-proxy behavior
+* Reverse-proxy behavior
 
 
 
@@ -602,7 +602,7 @@ Actual secrets are not stored in tracked environment files.
 
 
 
-\## Security and Privacy
+## Security and Privacy
 
 
 
@@ -614,25 +614,25 @@ The repository is intended to exclude:
 
 
 
-\* Production invitation spreadsheets
+* Production invitation spreadsheets
 
-\* Real invitation codes
+* Real invitation codes
 
-\* Guest identities and RSVP data
+* Guest identities and RSVP data
 
-\* Google service-account credentials
+* Google service-account credentials
 
-\* Email credentials
+* Email credentials
 
-\* SMS credentials
+* SMS credentials
 
-\* Administrative destinations
+* Administrative destinations
 
-\* Local `.env` files
+* Local `.env` files
 
-\* Protected server-secret files
+* Protected server-secret files
 
-\* Private working materials
+* Private working materials
 
 
 
@@ -644,7 +644,7 @@ Development uses fictional or otherwise non-production configuration until produ
 
 
 
-\## Git and Source-Control Boundaries
+## Git and Source-Control Boundaries
 
 
 
@@ -672,7 +672,7 @@ The project is intended to remain reproducible from committed source files, depe
 
 
 
-\## Windows-to-Ubuntu Workflow
+## Windows-to-Ubuntu Workflow
 
 
 
@@ -736,7 +736,7 @@ The project includes an early deployment proof specifically so that path handlin
 
 
 
-\## Deployment Requirements
+## Deployment Requirements
 
 
 
@@ -788,7 +788,7 @@ The final production configuration will include additional security, deployment,
 
 
 
-\## Documentation
+## Documentation
 
 
 
@@ -800,37 +800,37 @@ These include documentation concerning:
 
 
 
-\* Requirements
+* Requirements
 
-\* Architectural decisions
+* Architectural decisions
 
-\* Content inventory
+* Content inventory
 
-\* Link inventory
+* Link inventory
 
-\* Sitemap
+* Sitemap
 
-\* Route inventory
+* Route inventory
 
-\* Page outlines
+* Page outlines
 
-\* Wireframes
+* Wireframes
 
-\* RSVP system design
+* RSVP system design
 
-\* RSVP API contract
+* RSVP API contract
 
-\* RSVP configuration examples
+* RSVP configuration examples
 
-\* RSVP form-schema examples
+* RSVP form-schema examples
 
-\* RSVP test cases
+* RSVP test cases
 
-\* Visual design system
+* Visual design system
 
-\* Development and deployment planning
+* Development and deployment planning
 
-\* Current accelerated workstream planning
+* Current accelerated workstream planning
 
 
 
@@ -842,7 +842,7 @@ That approach has since been replaced by an accelerated implementation model in 
 
 
 
-\## Current Development Workstream
+## Current Development Workstream
 
 
 
@@ -854,41 +854,41 @@ Its principal objectives include:
 
 
 
-\* React/Vite client foundation
+* React/Vite client foundation
 
-\* Node.js/Express server foundation
+* Node.js/Express server foundation
 
-\* Portable client/server project structure
+* Portable client/server project structure
 
-\* Git and privacy boundaries
+* Git and privacy boundaries
 
-\* Development/production configuration boundaries
+* Development/production configuration boundaries
 
-\* Design tokens and global CSS
+* Design tokens and global CSS
 
-\* Licensed typography setup
+* Licensed typography setup
 
-\* Shared controls
+* Shared controls
 
-\* Shared navigation and layout shell
+* Shared navigation and layout shell
 
-\* Canonical browser routes
+* Canonical browser routes
 
-\* Centralized site content
+* Centralized site content
 
-\* Centralized Configuration A/B data
+* Centralized Configuration A/B data
 
-\* Development design-system calibration
+* Development design-system calibration
 
-\* Relative client/API boundary
+* Relative client/API boundary
 
-\* Production client build
+* Production client build
 
-\* Ubuntu deployment proof
+* Ubuntu deployment proof
 
-\* Initial launch-oriented content
+* Initial launch-oriented content
 
-\* Reproducible README documentation
+* Reproducible README documentation
 
 
 
@@ -896,7 +896,7 @@ The workstream is complete only when the application foundation has been exercis
 
 
 
-\## Development Priorities
+## Development Priorities
 
 
 
@@ -928,7 +928,7 @@ Decorative refinement is intentionally secondary to producing a reliable, access
 
 
 
-\## Portfolio Focus
+## Portfolio Focus
 
 
 
@@ -936,43 +936,43 @@ This project is intended to demonstrate practical work involving:
 
 
 
-\* Full-stack web development
+* Full-stack web development
 
-\* React application architecture
+* React application architecture
 
-\* Node.js/Express backend development
+* Node.js/Express backend development
 
-\* Client/server separation
+* Client/server separation
 
-\* REST-style API architecture
+* REST-style API architecture
 
-\* Responsive interface development
+* Responsive interface development
 
-\* Accessible interaction design
+* Accessible interaction design
 
-\* Design-system implementation
+* Design-system implementation
 
-\* Form architecture
+* Form architecture
 
-\* Application state design
+* Application state design
 
-\* Data privacy boundaries
+* Data privacy boundaries
 
-\* Environment configuration
+* Environment configuration
 
-\* Git-based development workflow
+* Git-based development workflow
 
-\* Cross-platform Windows/Linux development
+* Cross-platform Windows/Linux development
 
-\* Self-hosted deployment
+* Self-hosted deployment
 
-\* Reverse-proxy architecture
+* Reverse-proxy architecture
 
-\* Requirements-driven software development
+* Requirements-driven software development
 
-\* Technical documentation
+* Technical documentation
 
-\* Iterative project management
+* Iterative project management
 
 
 
@@ -980,7 +980,7 @@ The project is particularly intended to demonstrate the progression from extensi
 
 
 
-\## Development and AI-Assistance Disclosure
+## Development and AI-Assistance Disclosure
 
 
 
@@ -988,11 +988,11 @@ AI-assisted tools may be used during project planning, research, documentation, 
 
 
 
-\## Author
+## Author
 
 
 
-\*\*Joshua Norstein\*\*
+**Joshua Norstein**
 
 
 
