@@ -2,7 +2,7 @@
 
 Portfolio repository for software development, full-stack web development, systems administration, networking, infrastructure, and related technical projects developed by **Joshua Norstein**.
 
-I am completing a B.S. in Science, Mathematics & Technology with a concentration in Computer Science at SUNY Empire State University. This repository is intended to document representative academic, personal, production-oriented, and independently developed work while demonstrating both finished implementations and ongoing engineering projects.
+I am completing a B.S. in Science, Mathematics & Technology with a concentration in Computer Science at SUNY Empire State University (Prospective graduation date: 12/11/2026). This repository is intended to document representative academic, personal, production-oriented, and independently developed work while demonstrating both finished implementations and ongoing engineering projects.
 
 The projects represented here span:
 
@@ -128,7 +128,7 @@ Current and planned areas include:
 * self-hosted deployment;
 * integration with other Loreweaver services.
 
-Repository migration and organization of existing local project materials remain in progress.
+Repository migration and organization of existing local project materials remain in progress, but current priority is on the completion and launch of Norstein-Dashiell Wedding Website; once this is concluded, more focus can be shifted to this project.
 
 ---
 
