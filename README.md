@@ -1,428 +1,396 @@
-# Self-Hosted Linux Infrastructure, Networking & Homelab Administration
+# Full-Stack Portfolio
 
-This project documents the design, deployment, administration, security hardening, recovery, and continued development of a self-hosted Linux homelab environment.
+Portfolio repository for software development, full-stack web development, systems administration, networking, infrastructure, and related technical projects developed by **Joshua Norstein**.
 
-Unlike the application-development projects in this portfolio, this project focuses primarily on infrastructure engineering and systems administration: Linux server administration, networking, containerization, identity and access management, secure remote access, storage architecture, wireless infrastructure, monitoring, printing/scanning, backup and recovery, and operational troubleshooting.
+I am completing a B.S. in Science, Mathematics & Technology with a concentration in Computer Science at SUNY Empire State University. This repository is intended to document representative academic, personal, production-oriented, and independently developed work while demonstrating both finished implementations and ongoing engineering projects.
 
-The environment is actively used rather than existing solely as a demonstration lab. Changes are therefore introduced conservatively, with configuration inspection, rollback planning, testing, and post-change verification.
+The projects represented here span:
 
-## Architecture Overview
+* full-stack web development;
+* React and component-based frontend development;
+* Node.js/Express backend development;
+* REST-style API design;
+* responsive and accessible interface development;
+* C# and Godot application/game development;
+* Linux systems administration;
+* Docker/Podman containerization;
+* networking and cybersecurity;
+* identity and access management;
+* self-hosted infrastructure;
+* data integration;
+* testing, validation, and debugging;
+* technical documentation;
+* Git/GitHub development workflows.
 
-The environment centers on:
+---
 
-* GMKtec NucBox M6 Ultra running Ubuntu 26.04 LTS
-* NanoPi R4S running OpenWrt as the private router, firewall, DHCP/DNS authority, NAT gateway, and LAN gateway
-* TP-Link unmanaged Ethernet switch
-* Ubiquiti UniFi U6+ wireless access point
-* self-hosted UniFi OS Server / UniFi Network management
-* Docker and Docker Compose application workloads
-* Podman for the UniFi OS Server runtime
-* external ext4 storage for persistent bulk service data
-* Tailscale for private remote administration
-* Cloudflare Tunnel and Cloudflare Access for deliberately published web services
-* Keycloak for centralized application identity and SSO/OIDC where supported
-* CUPS and SANE/AirScan for centralized printer/scanner infrastructure
+## Portfolio Repository Status
 
-The NanoPi remains the routing and firewall authority. The UniFi environment manages wireless infrastructure but does not replace the existing router.
+This repository is an actively maintained portfolio of my software development, systems, and infrastructure work.
 
-## Browser-First User Architecture
+Several projects represented on my résumé began as local academic, personal, or production projects before I adopted a more consistent Git/GitHub workflow and began reorganizing my work into this portfolio. The underlying projects therefore exist locally in varying stages of development, while preparation of their public repository versions is an ongoing process.
 
-A core design principle is now:
+As a result, projects listed on my résumé may exist locally in a more advanced state than the version currently committed here, and some projects may not yet have been fully migrated into this repository.
 
-**Browser-first for end users; native protocols for administration.**
+Preparing a project for portfolio publication may include:
 
-The homelab supports six human identities: one infrastructure administrator, four additional trusted users, and one deliberately restricted Guest identity.
+* reviewing and organizing its existing source and documentation;
+* removing private, production, or environment-specific information;
+* establishing an appropriate repository structure;
+* creating or revising project documentation;
+* adding `.gitignore` and environment boundaries;
+* reviewing credentials, secrets, generated files, and user data;
+* preserving useful development history where practical;
+* committing representative project materials according to current Git and security practices.
 
-Most users are nontechnical end users. Wherever technically practical, remotely accessible applications intended for them are therefore designed to be used through authenticated browser interfaces rather than requiring VPN configuration, command-line tools, native network protocols, IP addresses, ports, or local driver installation.
+Repository status should therefore not be interpreted as a complete inventory of all locally developed work.
 
-The intended user experience is:
+For the clearest examples of my current work, begin with the projects under **Recommended Starting Points** below. I update that section as additional projects are prepared and brought up to date.
+
+---
+
+## Recommended Starting Points
+
+### [Norstein-Dashiell Wedding Website](projects/norstein-dashiell-wedding-site/)
+
+A custom full-stack production web application being developed using **React, Vite, React Router, Node.js, and Express**.
+
+The project demonstrates full-stack application architecture, responsive and accessible component development, REST-style API design, personalized RSVP workflows, server-side validation, Google Sheets integration, automated email workflows, testing, privacy/security boundaries, environment configuration, and deployment to self-hosted Ubuntu infrastructure.
+
+This is currently one of the most active application-development projects in the portfolio.
+
+### [Self-Hosted Linux Infrastructure, Networking & Homelab Administration](projects/homelab-infrastructure/)
+
+An operational self-hosted Linux environment designed, deployed, secured, and administered as an ongoing infrastructure project.
+
+The project demonstrates practical work with **Ubuntu Linux, OpenWrt, Docker, Docker Compose, Podman, PostgreSQL, Nextcloud, Keycloak, OIDC/SSO, Tailscale, Cloudflare Tunnel/Access, UniFi, CUPS, networking, firewalls, storage, backup/recovery, monitoring, and identity/access management**.
+
+Unlike a demonstration-only lab, this environment supports active services and users, so infrastructure changes are developed using inspection, rollback planning, controlled implementation, testing, persistence verification, and documentation.
+
+### [Focus Window Reader Aid — Firefox Add-on](projects/small-projects-and-utilities/Focus-Window-Reader-Aid/0.4.0/)
+
+A lightweight assistive Firefox add-on that provides an adjustable visual focus overlay for webpages to support reading, visual tracking, concentration, and reduction of surrounding visual distraction.
+
+The project demonstrates browser-extension development, JavaScript, CSS, DOM interaction, extension state management, accessibility-oriented UI design, per-tab persistence across webpage navigation, regression testing, release preparation, and Mozilla Add-ons packaging.
+
+The current portfolio version is **0.4.0**.
+
+---
+
+## Projects
+
+### Full-Stack and Web Application Development
+
+#### [Norstein-Dashiell Wedding Website](projects/norstein-dashiell-wedding-site/)
+
+**Status:** Active development
+
+Custom full-stack wedding application developed as a production web project rather than a template-based event page.
+
+Primary areas of work include:
+
+* React/Vite frontend architecture;
+* React Router application routing;
+* Node.js/Express backend services;
+* REST-style API design;
+* personalized invitation and RSVP workflows;
+* Google Sheets-backed administrative data;
+* automated email workflows;
+* server-side validation and error handling;
+* idempotent and revision-capable submissions;
+* responsive and accessible interface development;
+* privacy and production-data separation;
+* Git-based Windows-to-Ubuntu deployment;
+* self-hosted production infrastructure.
+
+See the project README and documentation for current implementation details.
+
+---
+
+#### Loreweaver Creations Full-Stack Web Platform
+
+**Status:** Early development
+
+Public-facing web platform for Loreweaver Creations and its publishing and creative services.
+
+The project is intended to grow beyond a static company website into a maintainable application supporting structured content, catalog-oriented information, interactive features, and integration with other Loreweaver-hosted services.
+
+Current and planned areas include:
+
+* React;
+* Vite;
+* Node.js;
+* JavaScript;
+* HTML/CSS;
+* responsive and accessible interface development;
+* reusable component architecture;
+* structured content and catalog management;
+* self-hosted deployment;
+* integration with other Loreweaver services.
+
+Repository migration and organization of existing local project materials remain in progress.
+
+---
+
+#### Lor-E — Self-Hosted RAG-Enabled Personal AI Assistant
+
+**Status:** Early development — conceptual work transitioning into architectural planning
+
+Lor-E is a planned local-first personal AI assistant intended to combine local language-model inference, Retrieval-Augmented Generation, persistent project knowledge, semantic retrieval, and conversational context.
+
+The project is being developed as the Fall 2026 term project for **CSCI 4005 — Software Engineering**, with a functional prototype targeted for completion by the end of the semester.
+
+Current work focuses on requirements and architecture, including:
+
+* Retrieval-Augmented Generation;
+* document ingestion;
+* chunking and embeddings;
+* semantic search;
+* vector storage;
+* persistent project knowledge;
+* source-grounded responses;
+* modular model/retrieval components;
+* local inference;
+* browser-based interaction;
+* self-hosted deployment architecture.
+
+Implementation has not yet reached the coding stage, and repository publication will follow as the architecture and prototype develop.
+
+---
+
+#### [H/exicon ONLINE](projects/hexicon/)
+
+**Status:** In development
+
+Turn-based asynchronous online multiplayer digital board game being developed using **C# and Godot 4**.
+
+The project demonstrates:
+
+* object-oriented application architecture;
+* procedural board generation;
+* game-state and rules systems;
+* UI development;
+* multiplayer-oriented design;
+* maintainable and extensible gameplay systems;
+* cross-platform planning for Windows/Steam and Android;
+* integration with self-hosted Linux services.
+
+The current development effort is being reorganized from earlier experimental work into a cleaner portfolio-oriented implementation.
+
+---
+
+### Systems, Networking, and Infrastructure
+
+#### [Self-Hosted Linux Infrastructure, Networking & Homelab Administration](projects/homelab-infrastructure/)
+
+**Status:** Operational and under active development
+
+Self-hosted Linux infrastructure used for real services rather than as a demonstration-only environment.
+
+Major areas include:
+
+* Ubuntu Linux administration;
+* Docker and Docker Compose;
+* Podman;
+* OpenWrt routing and firewalling;
+* UniFi wireless infrastructure;
+* DHCP and DNS;
+* IPv4/IPv6 networking;
+* Tailscale remote administration;
+* Cloudflare Tunnel and Cloudflare Access;
+* Keycloak and OpenID Connect;
+* Nextcloud;
+* PostgreSQL;
+* service monitoring;
+* Linux filesystem administration;
+* ext4 storage;
+* backup and recovery;
+* printing/scanning infrastructure;
+* service hardening;
+* troubleshooting and change control.
+
+See the project README for current architecture, deployment history, security practices, recovery methodology, and active workstreams.
+
+---
+
+### Small Projects and Utilities
+
+This area contains smaller applications, utilities, experiments, assistive tools, and focused technical projects that do not require the scope of the primary portfolio projects.
+
+#### [Focus Window Reader Aid](projects/small-projects-and-utilities/Focus-Window-Reader-Aid/0.4.0/)
+
+**Platform:** Firefox
+**Current portfolio version:** 0.4.0
+
+Assistive browser add-on providing an adjustable focus-window overlay intended to support reading and visual tracking while reducing surrounding visual distraction.
+
+Representative skills and practices include:
+
+* Firefox WebExtension development;
+* JavaScript;
+* CSS;
+* DOM manipulation;
+* browser/tab state management;
+* persistence across webpage navigation;
+* accessibility-oriented interaction design;
+* regression testing;
+* release cleanup;
+* extension packaging and distribution preparation.
+
+Additional small projects and utilities will be added to this section as they are prepared for portfolio publication.
+
+---
+
+## Repository Organization
+
+The repository is organized primarily beneath:
 
 ```text
-User
-  ↓
-Authenticated Loreweaver web access
-  ↓
-Authorized browser application
-  ↓
-Internal service/backend
+Full-Stack-Portfolio/
+│
+├── projects/
+│   ├── homelab-infrastructure/
+│   ├── norstein-dashiell-wedding-site/
+│   ├── hexicon/
+│   ├── loreweaver-creations-site/
+│   ├── small-projects-and-utilities/
+│   │   └── Focus-Window-Reader-Aid/
+│   │       └── 0.4.0/
+│   └── ...
+│
+└── README.md
 ```
 
-Examples include:
+Individual projects may contain their own:
 
-* Nextcloud
-* planned browser-based printing
-* planned browser-based scanning
-* private wiki content
-* chatbot/assistant services
-* private website tools
-* selected wedding-administration tools
-* future shared applications
+* `README.md`;
+* requirements;
+* architecture documentation;
+* design decisions;
+* implementation notes;
+* source code;
+* tests;
+* deployment documentation;
+* sanitized configuration examples;
+* project-specific supporting materials.
 
-Administrative protocols such as SSH, Cockpit, Portainer, native IPP, direct service ports, and recovery interfaces remain private administrator tools.
+Exact organization varies where the nature of the project requires a different structure.
 
-## Hosted and Managed Services
+---
 
-Current or actively maintained services include:
+## Development Approach
 
-* Nextcloud
-* PostgreSQL
-* Keycloak
-* Uptime Kuma
-* Portainer
-* Cockpit
-* OpenSSH
-* Cloudflare Tunnel
-* Tailscale
-* UniFi Network
-* CUPS
-* SANE / sane-airscan
-* Brother MFC-J1205W network printing and scanning
+These projects are intended not only to demonstrate particular programming languages or technologies, but also the engineering practices used to develop and maintain them.
 
-The environment also supports development and future deployment of public websites, private browser applications, game servers, and other self-hosted workloads.
+Where appropriate, project work includes:
 
-## Networking
+1. defining requirements and scope;
+2. separating architectural decisions from implementation details;
+3. identifying security and privacy boundaries;
+4. establishing source-control and secret-handling rules;
+5. implementing in discrete, testable steps;
+6. validating changes before proceeding;
+7. maintaining rollback or recovery options for consequential changes;
+8. testing expected and failure behavior;
+9. documenting the resulting architecture and operational requirements;
+10. preparing the project for reproducible development or deployment.
 
-The network was deliberately restructured from an earlier configuration in which the server relied primarily on the household Wi-Fi network.
+Not every project uses every practice listed above. The level of process applied is proportional to the project's scope, risk, and maturity.
 
-The current architecture uses:
+---
 
-* wired Ethernet as the server's primary network path;
-* the NanoPi-managed private LAN as the trusted infrastructure network;
-* household Wi-Fi as a fallback connection rather than the primary server route;
-* the UniFi U6+ as the managed wireless access layer;
-* Tailscale as the primary remote-administration fabric.
+## Git and Portfolio Development
 
-A legacy standalone WireGuard deployment was retained only until its dependencies were audited and Tailscale was proven to replace its required administrative functions. It was then retired along with obsolete public-service firewall and routing configuration.
+My earlier academic and personal development work used Git with varying levels of consistency. During 2026 I began applying a more systematic Git/GitHub workflow across my portfolio projects.
 
-## Wireless and IoT Design
+Current practices emphasize:
 
-The Ubiquiti U6+ is managed through a self-hosted UniFi Network environment running on the GMKtec.
+* meaningful repository organization;
+* incremental commits;
+* descriptive commit messages;
+* `.gitignore` and environment boundaries;
+* protection of credentials and production data;
+* project-level READMEs;
+* requirements and architecture documentation where useful;
+* preservation of reproducible source and configuration;
+* separation of generated/runtime data from source control;
+* release-oriented cleanup before publishing representative builds.
 
-The long-term human Wi-Fi model is designed around independently revocable credentials rather than sharing one universal wireless password among all users. Wi-Fi credentials remain separate from Keycloak/application passwords.
+Because older projects are being brought into this structure gradually, repository history may begin later than the actual development history of a project.
 
-A dedicated `Loreweaver IOT` wireless network is operational for the Brother multifunction printer and future IoT devices.
+---
 
-The IoT network currently shares the private LAN while application deployment is completed. Dedicated VLAN/firewall segmentation remains a future hardening option.
+## Security, Privacy, and Sensitive Data
 
-## Identity and Access Management
+Projects involving production systems, infrastructure, authentication, event data, or other private information are sanitized before publication.
 
-Keycloak provides the centralized application identity layer where supported.
+This repository is not intended to contain items such as:
 
-Two realms have distinct responsibilities:
+* real passwords;
+* API tokens;
+* OAuth/OIDC secrets;
+* cryptographic private keys;
+* tunnel credentials;
+* database passwords;
+* live `.env` files;
+* private production data;
+* personal RSVP information;
+* private infrastructure backups;
+* recovery archives;
+* generated service databases;
+* other credentials or sensitive user information.
 
-* `master` — Keycloak administration
-* `loreweaver` — human application identities and service OIDC
+Where representative configuration is useful for portfolio purposes, sanitized examples may be provided instead.
 
-The application realm contains:
-
-* five named trusted user identities;
-* one restricted Guest identity.
-
-Trusted users are grouped separately from Guest so applications can enforce service-specific authorization.
-
-Infrastructure administration remains administrator-only.
-
-Machine credentials, database passwords, API tokens, client secrets, cryptographic keys, and tunnel credentials remain separate from human application credentials.
-
-## Nextcloud and OIDC
-
-Nextcloud is integrated with the production Keycloak `loreweaver` realm through the third-party `user_oidc` application.
-
-The completed design includes:
-
-* centralized Keycloak authentication;
-* trusted-user authorization;
-* deliberate Guest exclusion;
-* Cloudflare Access as an outer web-access layer;
-* loopback-only backend publication;
-* a retained local Nextcloud administrator account for break-glass recovery;
-* a direct recovery login path independent of external OIDC.
-
-The implementation was developed incrementally with pre-change recovery points, client/scope inspection, reverse-proxy validation, controlled secret handling, user-by-user testing, logout/recovery verification, and a final post-OIDC recovery boundary.
-
-## Application Exposure Model
-
-A major security objective is to distinguish human-facing web access from direct infrastructure exposure.
-
-Docker-hosted application backends such as:
-
-* Keycloak
-* Nextcloud
-* Uptime Kuma
-* Portainer
-
-use loopback-only host bindings where appropriate rather than publishing indiscriminately on every host interface.
-
-External browser access, where intentionally provided, is routed through Cloudflare Tunnel and protected using the selected Cloudflare Access and application-level authentication controls.
-
-Administrative services such as SSH, Cockpit, UniFi management, and Portainer remain private and restricted to trusted network/Tailscale paths.
-
-Legacy public Palworld firewall and WAN-forwarding rules were removed. Future game-server deployment is intended to prefer private/Tailscale access rather than unrestricted public port forwarding.
-
-## Printing and Scanning
-
-A Brother MFC-J1205W is connected to the dedicated IoT wireless network with a stable DHCP reservation.
-
-The GMKtec acts as the print/scan intermediary.
-
-### Printing
-
-CUPS has been configured with one authoritative Brother queue.
-
-Work completed includes:
-
-* Brother Linux driver installation
-* successful local physical test printing
-* stable network printer addressing
-* removal of an automatically duplicated cups-browsed queue
-* default-printer configuration
-* explicit CUPS listener configuration
-* private-LAN firewall access
-* administrator Tailscale access
-* successful remote TCP/HTTP validation over Tailscale
-
-Native IPP remains available as an administrator/power-user path.
-
-The production user experience is being revised toward browser-based printing so ordinary users do not need to install network printers or understand CUPS/IPP configuration.
-
-### Scanning
-
-The Brother scanner is available through both the Brother Linux backend and driverless eSCL/AirScan.
-
-A real local AirScan scan has been successfully completed and validated.
-
-Raw network SANE (`saned`) remains disabled.
-
-The planned production approach is a browser-based scanner interface layered over the existing SANE/AirScan backend rather than exposing the raw scanner protocol directly.
-
-Browser printing and scanning are the current active deployment workstream.
-
-## Storage and Recovery
-
-The server's storage architecture was rebuilt to eliminate an earlier accidental dependency on a directory that had been treated as though it were an external mount point.
-
-The external 2 TB data disk now uses:
-
-* Linux-native ext4
-* a persistent filesystem UUID
-* a deliberate `/srv/loreweaver` hierarchy
-* service-specific persistent storage paths
-
-Historical data was staged, restored, and verified before the original filesystem was replaced.
-
-The recovery process included:
-
-* pre-migration staging
-* SHA-256 integrity verification
-* synchronized application/database recovery points
-* protected recovery archives
-* configuration backups
-* whole-set checksum validation
-* preservation of rollback copies before consequential changes
-
-The external storage volume is treated as primary storage, not as an independent backup.
-
-Independent/offsite backup and recurring restoration testing remain required operational work.
-
-## Security Practices
-
-Security work includes:
-
-* restrictive host firewall defaults
-* separation of public services from administrative interfaces
-* Tailscale-based private administration
-* retirement of obsolete standalone WireGuard infrastructure
-* removal of stale WAN NAT and firewall rules
-* loopback-only Docker backend bindings
-* Cloudflare Access protection for selected web interfaces
-* SSH public-key authentication
-* service-specific identities and credentials
-* centralized application identity through Keycloak
-* break-glass recovery paths
-* deliberate IPv4, IPv6, Docker, Podman, UFW, and Tailscale exposure review
-* avoidance of raw infrastructure protocols as ordinary remote user interfaces
-
-Machine credentials, API tokens, database passwords, cryptographic keys, tunnel credentials, recovery archives, and other secrets are not committed to this repository.
-
-## Operational Method
-
-Infrastructure changes normally follow this sequence:
-
-1. Inspect the current runtime state.
-2. Identify dependencies before modifying configuration.
-3. Create rollback material before consequential changes.
-4. Change only the minimum required configuration.
-5. Validate syntax or configuration structure before deployment.
-6. Apply the change.
-7. Verify local service health.
-8. Verify network reachability and intended access restrictions.
-9. Verify unintended interfaces and access paths remain blocked.
-10. Perform restart or reboot persistence testing where relevant.
-11. Update documentation after the final architecture is established.
-
-This method is especially important for networking, storage, identity, firewall, database, and backup operations where an incorrect assumption can cause service or data loss.
-
-## Technologies and Skills Demonstrated
-
-This project demonstrates practical experience with:
-
-* Ubuntu Linux administration
-* OpenWrt
-* Docker and Docker Compose
-* Podman
-* Ethernet and Wi-Fi networking
-* DHCP and DNS
-* routing and interface metrics
-* IPv4 and IPv6
-* UFW and firewall policy
-* NAT and port forwarding
-* UniFi wireless infrastructure
-* Tailscale
-* WireGuard migration and retirement
-* Cloudflare Tunnel
-* Cloudflare Access
-* TLS/HTTPS
-* Keycloak
-* OpenID Connect
-* PostgreSQL
-* Nextcloud
-* Portainer
-* Uptime Kuma
-* SSH
-* CUPS / IPP
-* SANE / AirScan / eSCL
-* Linux filesystem administration
-* ext4
-* persistent mounts and filesystem UUIDs
-* backup and disaster-recovery planning
-* performance and connectivity testing
-* service monitoring
-* troubleshooting
-* technical documentation
-* change control
-
-## Current Project Status
-
-The environment is operational and remains under active development.
-
-Infrastructure inventory, recovery, storage migration, wired-network repair, self-hosted UniFi deployment, administrative-access hardening, credential rotation, secret cleanup, legacy-service cleanup, and the major Phase M security work are complete.
-
-Phase N is now in progress.
-
-### Completed Phase N identity work
-
-The six-user authorization model and Nextcloud OIDC integration are complete.
-
-The current production identity architecture includes:
-
-* the dedicated Keycloak `loreweaver` application realm;
-* five trusted user identities;
-* a restricted Guest identity;
-* trusted-user group authorization;
-* Nextcloud `user_oidc`;
-* Cloudflare Access as an outer gate;
-* a validated direct local-admin recovery path;
-* a verified post-OIDC recovery point.
-
-### Plex
-
-Plex was brought through a successful first-launch validation using the official Docker image, pinned image identity, persistent configuration, GPU access, and protected recovery material.
-
-It remains stopped, unclaimed, and deliberately deferred because it is currently lower priority than production user services.
-
-### Print/Scan
-
-The Brother MFC-J1205W is operational on the IoT wireless network.
-
-Current completed work includes:
-
-* stable DHCP addressing;
-* successful local printing;
-* a single authoritative CUPS queue;
-* successful local AirScan/eSCL scanning;
-* restricted CUPS LAN/Tailscale access;
-* remote administrator IPP transport validation;
-* raw `saned` remaining disabled.
-
-The next implementation target is authenticated **browser-based Print/Scan access** for ordinary users.
-
-The same browser-first principle will guide future remote human-facing applications wherever practical.
-
-## Remaining Major Work
-
-Major remaining items include:
-
-* browser-based authenticated printing;
-* browser-based authenticated scanning;
-* integration of human-facing services into a coherent authenticated portal/navigation experience;
-* six independently revocable human Wi-Fi credentials;
-* optional IoT VLAN segmentation;
-* final storage-permission hardening;
-* Loreweaver Creations production web infrastructure;
-* Norstein-Dashiell wedding-site deployment;
-* wiki/chatbot/editor services;
-* monitoring completion;
-* routine backup schedules;
-* independent/offsite backups;
-* recurring restoration testing;
-* final security and IPv6 exposure review;
-* final architecture diagrams and portfolio documentation.
-
-## Repository Scope and Secret Handling
-
-This repository contains project documentation and may include sanitized configuration examples suitable for demonstrating infrastructure design and administration.
-
-It does **not** contain:
-
-* real passwords
-* API or authentication tokens
-* private keys
-* tunnel credentials
-* database credentials
-* live `.env` files
-* database dumps
-* application user data
-* recovery archives
-* private server backups
-* generated service databases or volumes
-* Tailscale state
-* live OAuth/OIDC client secrets
-
-Live operational configuration is reviewed and sanitized before any representative version is committed.
+---
 
 ## Development and AI Assistance
 
-This project is developed and maintained by Joshua Norstein.
+The projects in this portfolio are developed and maintained by **Joshua Norstein**.
 
-AI-assisted tools may be used during development for tasks such as proofreading documentation, troubleshooting, configuration review, syntax and error checking, research assistance, and identifying potential problems.
+AI-assisted tools may be used during development for tasks such as:
 
-Infrastructure architecture and configuration decisions are evaluated by the project author. Operational changes are executed, tested, verified, and maintained by the project author.
+* research assistance;
+* brainstorming and planning;
+* proofreading;
+* documentation refinement;
+* syntax checking;
+* debugging assistance;
+* code review;
+* configuration review;
+* identifying possible implementation or security issues.
 
-Project-specific source code, configuration work, architecture, and documentation are authored by the developer unless otherwise identified. Third-party and open-source software is used in accordance with its applicable licenses and attribution requirements.
+AI assistance does not replace responsibility for the resulting work.
 
-## Third-Party Software
+Project architecture, technical decisions, implementation choices, configuration changes, testing, verification, debugging, source-control operations, and maintenance are evaluated and carried out by the project author unless otherwise identified.
 
-This project administers and integrates third-party and open-source software including:
+Third-party and open-source libraries, frameworks, applications, assets, and other dependencies remain the work of their respective authors and are used according to their applicable licenses and attribution requirements.
 
-* Ubuntu
-* OpenWrt
-* Docker
-* Docker Compose
-* Podman
-* Nextcloud
-* PostgreSQL
-* Keycloak
-* Portainer
-* Uptime Kuma
-* Tailscale
-* Cloudflare services
-* Ubiquiti UniFi software
-* CUPS
-* SANE / sane-airscan
-* Brother Linux printer/scanner software
+---
 
-Nextcloud `user_oidc` is used as the OpenID Connect user backend for the Keycloak integration. It is third-party software licensed under AGPL-3.0-or-later and is not authored by this project.
+## Current Portfolio Development
 
-Browser-based printing and scanning frontends are currently being evaluated and will be documented here once their final implementations are selected and deployed.
+This repository will continue to evolve as:
 
-These third-party components are not authored by this project. This repository documents their configuration and integration within the homelab environment rather than redistributing their source code.
+* locally developed projects are migrated and sanitized for publication;
+* active projects reach additional implementation milestones;
+* project documentation is consolidated;
+* older work is reorganized according to current repository practices;
+* smaller utilities are prepared for inclusion;
+* completed work is refined for employer review.
+
+For the most representative current material, see **Recommended Starting Points** near the top of this README.
+
+---
+
+## Author
+
+**Joshua Norstein**
+
+Computer Science student and technology professional focused on full-stack software development, Linux systems, networking, cybersecurity, and self-hosted infrastructure.
+
+GitHub:
+https://github.com/JNorstein-personal
+
+Portfolio Repository:
+https://github.com/JNorstein-personal/Full-Stack-Portfolio
