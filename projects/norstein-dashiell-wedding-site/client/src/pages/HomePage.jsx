@@ -10,7 +10,7 @@ function HomePage() {
     <PageContainer>
       <ContentSection labelledBy="welcome-heading">
         <p className="subtitle">
-          {siteContent.wedding.date.display}
+          {siteContent.wedding.date.fullDisplay}
         </p>
 
         <h1 id="welcome-heading">
@@ -19,10 +19,14 @@ function HomePage() {
 
         <div className="prose-width">
           <p>
-            Welcome to our wedding website.
-            Additional event details and guest
-            resources will be added as the site is
-            completed.
+            Welcome to our wedding website. We’re looking
+            forward to celebrating with you and have gathered
+            the information you’ll need to plan for the day
+            here.
+          </p>
+
+          <p>
+            {siteContent.wedding.generalLocation}
           </p>
 
           <Link
@@ -34,26 +38,113 @@ function HomePage() {
         </div>
       </ContentSection>
 
-      <ContentSection labelledBy="information-heading">
-        <h2 id="information-heading">
-          Wedding Information
+      <ContentSection labelledBy="planning-heading">
+        <h2 id="planning-heading">
+          Plan Your Visit
         </h2>
 
         <div className="prose-width">
           <p>
-            {siteContent.wedding.generalLocation}
+            Start with the information most useful for
+            preparing for the wedding:
+          </p>
+
+          <ul>
+            <li>
+              <Link to="/theme">
+                Theme and Attire
+              </Link>
+            </li>
+            <li>
+              <Link to="/venues">
+                Venues
+              </Link>
+            </li>
+            <li>
+              <Link to="/travel">
+                Travel
+              </Link>
+            </li>
+          </ul>
+        </div>
+      </ContentSection>
+
+      <ContentSection labelledBy="information-heading">
+        <h2 id="information-heading">
+          Wedding Day
+        </h2>
+
+        <div className="prose-width">
+          {activeEventConfiguration.schedule.map((event) => (
+            <div key={event.id}>
+              <h3>{event.label}</h3>
+
+              <p>
+                <strong>{event.venueName}</strong>
+                <br />
+                {event.time}
+              </p>
+            </div>
+          ))}
+
+          <p>
+            {activeEventConfiguration.receptionDescription}
           </p>
 
           <p>
-            <strong>Current event plan:</strong>{" "}
-            {activeEventConfiguration.displayName}
+            <Link to="/venues">
+              View venue information
+            </Link>
+            {" · "}
+            <Link to="/schedule">
+              View the wedding schedule
+            </Link>
+          </p>
+        </div>
+      </ContentSection>
+
+      <ContentSection labelledBy="story-heading">
+        <h2 id="story-heading">
+          Our Story
+        </h2>
+
+        <div className="prose-width">
+          <p>
+            We’ll share more about us, and the path that
+            brought us to May 1, 2027 on our 'Our Story' page.
           </p>
 
           <p>
-            Use the navigation to access information
-            about attire, venues, travel, schedule,
-            and other wedding resources as they
-            become available.
+            <Link to="/story">
+              Read Our Story
+            </Link>
+          </p>
+        </div>
+      </ContentSection>
+
+      <ContentSection labelledBy="rsvp-reminder-heading">
+        <h2 id="rsvp-reminder-heading">
+          RSVP Reminder
+        </h2>
+
+        <div className="prose-width">
+          <p>
+            Please RSVP by{" "}
+            <strong>
+              {siteContent.rsvp.deadline.display}
+            </strong>
+            . Online responses may be revised as needed
+            before the deadline.
+          </p>
+
+          <p>
+            Need help with your RSVP? Email{" "}
+            <a
+              href={`mailto:${siteContent.rsvp.assistanceEmail}`}
+            >
+              {siteContent.rsvp.assistanceEmail}
+            </a>
+            .
           </p>
         </div>
       </ContentSection>

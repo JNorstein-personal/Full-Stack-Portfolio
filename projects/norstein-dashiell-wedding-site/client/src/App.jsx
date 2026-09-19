@@ -9,8 +9,10 @@ import WeddingLayout from "./components/layout/WeddingLayout";
 import HomePage from "./pages/HomePage";
 import NotFoundPage from "./pages/NotFoundPage";
 import PlaceholderPage from "./pages/PlaceholderPage";
+import PrivacyPage from "./pages/PrivacyPage";
 import RsvpConfirmationPage from "./pages/RsvpConfirmationPage";
 import RsvpPage from "./pages/RsvpPage";
+import StoryPage from "./pages/StoryPage";
 
 const DesignSystemPage = import.meta.env.DEV
   ? lazy(() => import("./pages/DesignSystemPage"))
@@ -47,12 +49,7 @@ function App() {
 
         <Route
           path="story"
-          element={
-            <PlaceholderPage
-              title="Our Story"
-              message="Our Story page content is being prepared."
-            />
-          }
+          element={<StoryPage />}
         />
 
         <Route
@@ -117,12 +114,7 @@ function App() {
 
         <Route
           path="privacy"
-          element={
-            <PlaceholderPage
-              title="Privacy"
-              message="Wedding website privacy information is being prepared."
-            />
-          }
+          element={<PrivacyPage />}
         />
 
         {import.meta.env.DEV && DesignSystemPage && (
