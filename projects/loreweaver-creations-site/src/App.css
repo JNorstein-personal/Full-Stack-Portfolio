@@ -107,12 +107,23 @@
   text-align: center;
 }
 
+.coming-soon-logo {
+  display: block;
+
+  width: min(25rem, 85vw);
+  height: auto;
+
+  margin: 0 auto 1rem;
+
+  object-fit: contain;
+}
+
 .eyebrow {
   margin: 0 0 1.25rem;
 
   color: #d8b36c;
 
-  font-size: 0.78rem;
+  font-size: 1.17rem;
   font-weight: 700;
   letter-spacing: 0.28em;
   text-transform: uppercase;

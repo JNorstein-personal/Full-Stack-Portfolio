@@ -1,4 +1,4 @@
-import './App.css'
+import "./App.css";
 
 function App() {
   return (
@@ -13,13 +13,15 @@ function App() {
         aria-hidden="true"
       />
 
-      <section
-        className="coming-soon-card"
-        aria-labelledby="page-title"
-      >
-        <p className="eyebrow">Coming Soon</p>
-
-        <h1 id="page-title">Loreweaver Creations</h1>
+      <section className="coming-soon-card" aria-labelledby="page-title">
+        <img
+          className="coming-soon-logo"
+          src="/loreweaver-creations-logo.png"
+          alt="Loreweaver Creations"
+        />
+        <p className="eyebrow" id="page-title">
+          Coming Soon
+        </p>
 
         <p className="tagline">Stories take many forms.</p>
 
@@ -30,8 +32,8 @@ function App() {
         </div>
 
         <p className="message">
-          A new home for publishing, digital projects, and creative work
-          is being woven.
+          A new home for publishing, digital projects, and creative work is
+          being woven.
         </p>
 
         <p className="status">
@@ -43,7 +45,7 @@ function App() {
         © {new Date().getFullYear()} Loreweaver Creations
       </footer>
     </main>
-  )
+  );
 }
 
-export default App
+export default App;
