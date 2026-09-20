@@ -13,7 +13,8 @@
     "verify:google-sheets-store": "node scripts/verifyGoogleSheetsStore.js",
     "audit:production-invitations": "node scripts/auditProductionInvitations.js",
     "load:production-invitations": "node scripts/loadProductionInvitations.js",
-    "verify:resend-email": "node scripts/verifyResendEmail.js"
+    "verify:resend-email": "node scripts/verifyResendEmail.js",
+    "resend:rsvp-confirmation": "node scripts/manualResend.js"
   },
   "keywords": [],
   "author": "",

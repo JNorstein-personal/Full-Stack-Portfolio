@@ -400,3 +400,50 @@ test(
     );
   },
 );
+
+
+test(
+  "manual resend normalizes an invalid delivery status to uncertain before recording",
+  async () => {
+    const fixture =
+      createFixture();
+
+    await seedCurrent(
+      fixture.store,
+    );
+
+    const service =
+      createManualResendService({
+        invitationService:
+          fixture.invitationService,
+        rsvpStore:
+          fixture.store,
+        deliveryService: {
+          async resendGuest() {
+            return "provider-specific-value";
+          },
+        },
+        now: () => NOW,
+      });
+
+    const result =
+      await service.resend(
+        "ABC123",
+      );
+
+    assert.equal(
+      result.result,
+      "uncertain",
+    );
+
+    assert.equal(
+      (
+        await fixture.store
+          .listResendRecords(
+            "party-example",
+          )
+      )[0].guest.status,
+      "uncertain",
+    );
+  },
+);

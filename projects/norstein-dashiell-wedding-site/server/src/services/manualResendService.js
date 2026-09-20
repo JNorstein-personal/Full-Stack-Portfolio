@@ -1,6 +1,9 @@
 const {
   buildResendRecord,
 } = require("./deliveryRecord");
+const {
+  normalizeTransportStatus,
+} = require("./emailTransport");
 
 function createManualResendService({
   invitationService,
@@ -87,14 +90,16 @@ function createManualResendService({
 
       try {
         status =
-          await deliveryService
-            .resendGuest({
-              invitation,
-              rsvp: current,
-              confirmation:
-                current.confirmation,
-              action,
-            });
+          normalizeTransportStatus(
+            await deliveryService
+              .resendGuest({
+                invitation,
+                rsvp: current,
+                confirmation:
+                  current.confirmation,
+                action,
+              }),
+          );
       } catch {
         status = "uncertain";
       }
