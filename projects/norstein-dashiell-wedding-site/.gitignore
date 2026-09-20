@@ -1,4 +1,4 @@
-# Dependencies
+﻿# Dependencies
 node_modules/
 
 # Production builds
@@ -37,8 +37,7 @@ Thumbs.db
 ~$*.pptx
 
 # Private planning documents
+**/WORKSTREAM *.docx
 **/Loreweaver Creations Wedding Website Plan Detail Phase 1-3 - Fully Revised.docx
 **/Loreweaver Creations Wedding Website Plan Detail Phase 4-8.docx
-**/WORKSTREAM PLAN Loreweaver Creations Wedding Website.docx
-**/WORKSTREAM 1 Loreweaver Creations Wedding Website.docx
 **/Wedding Website Development and Deployment Plan - Revised.docx
