@@ -12,8 +12,8 @@ It establishes:
 - Which routes may be indexed by public search engines.
 - How the manual invitation-code RSVP process operates without placing invitation codes in URLs.
 - Which pages read from the centralized active-event configuration.
-- How lookup, profile-controlled form rendering, submission, validation, uncertain-outcome, closed-RSVP, service-unavailable, confirmation-delivery-warning, confirmation-refresh, and unknown-route states are handled.
-- How zero, one, or multiple authorized additional guests and the approved default or reduced substantive question profile remain controlled states of one reusable RSVP route rather than separate browser destinations.
+- How lookup, spreadsheet-authoritative personalized-form rendering, submission, validation, uncertain-outcome, closed-RSVP, service-unavailable, confirmation-delivery-warning, confirmation-refresh, and unknown-route states are handled.
+- How invitation-specific singular/plural wording, maximum attendance, zero or more authorized named `Plus1` allocations, coordinated attendance totals, and Reception-only attendee-detail rows remain controlled states of one reusable RSVP route rather than separate browser destinations.
 
 This inventory covers browser-facing website routes and controlled browser states. Backend API endpoints are documented separately in `docs/rsvp-api-contract.md`, while the authoritative Phase 3 data flow, invitation-configuration rules, and finalized privacy/security architecture are maintained in `docs/rsvp-system-design.md`. Route and state obligations must remain consistent across those documents, `docs/requirements.md`, `docs/decisions.md`, `docs/content-inventory.md`, `docs/page-outlines.md`, `docs/sitemap.md`, `docs/wireframes.md`, `docs/link-inventory.md`, and `docs/rsvp-test-cases.md`.
 
@@ -29,7 +29,7 @@ All browser-facing production routes must begin with `/wedding/`.
 
 The routes listed in this document are the canonical routes. Direct navigation and browser refresh must work for each route without producing a generic server 404 response.
 
-Equivalent trailing-slash variations may be normalized or redirected to the canonical form, but the application must not place invitation codes, guest identities, confirmation destinations, RSVP answers, question-profile identifiers, additional-guest allowances, or other personalized information in a path, query string, or URL fragment.
+Equivalent trailing-slash variations may be normalized or redirected to the canonical form, but the application must not place invitation codes, guest identities, confirmation destinations, RSVP answers, Plus 1 allocation identifiers or prompt-owner names, maximum-attendance values, Reception attendee details, or other personalized information in a path, query string, or URL fragment.
 
 Internal links beneath `https://www.loreweavercreations.com/wedding/` must open in the same browser tab.
 
@@ -125,7 +125,7 @@ Confirm that the guest has reached the correct wedding website and direct the gu
 - Read repeated event information from centralized content or configuration.
 - Remain publicly indexable.
 
-The static QR code printed on all 56 invitations opens this route.
+The static QR code printed on all 57 assigned invitations opens this route.
 
 ### `/wedding/rsvp/` — RSVP Entry and Validated Form
 
@@ -167,7 +167,7 @@ The guest must be able to correct the entry and try again.
 
 #### Validated blank-form state
 
-After the backend validates an invitation code, the applicable personalized RSVP form must render on `/wedding/rsvp/` without changing the browser to a code-bearing, profile-bearing, or allowance-bearing route.
+After the backend validates an invitation code, the personalized RSVP form must render on `/wedding/rsvp/` without changing the browser to a code-bearing or invitation-configuration-bearing route.
 
 The invitation code and private configuration values must not appear in:
 
@@ -179,21 +179,20 @@ The invitation code and private configuration values must not appear in:
 
 The backend may return only the limited configuration required to render the applicable blank form, including:
 
-- The reviewed invitation or household greeting.
+- The reviewed invitation or household form heading.
 - The explicit singular or plural wording mode.
 - The invitation's maximum permitted attendance.
-- The nonnegative integer additional-guest allowance.
-- The approved `default` or `reduced-attendance-dietary` question profile.
-- The approved labels, options, conditions, and validation constraints belonging to that profile.
+- Zero or more authorized named `Plus1` allocations, each represented by a stable non-name allocation identifier and the guest-facing prompt required for that allocation.
+- The approved labels, options, conditions, validation constraints, and operational-confirmation capabilities belonging to the single reusable RSVP schema.
 
-The browser must not infer wording mode, maximum attendance, additional-guest allowance, or question profile from guest names, greeting text, party size, or any other client-visible value.
+The browser must not infer wording mode, maximum attendance, Plus 1 eligibility, allocation ownership, or any other invitation authorization from guest names, greeting text, party size, or other client-visible content. Those values come only from the validated backend response.
 
 Every validated form must:
 
 - Load blank even when a previous response exists.
 - Avoid displaying previously stored RSVP answers or confirmation destinations.
 - Explain how initial submissions differ from partial revisions.
-- Explain that omitted revision fields mean only “leave the stored value unchanged.”
+- Explain that omitted revision fields mean only “leave the stored value unchanged,” except where an authoritative dependency rule makes stored data inapplicable.
 - Provide explicit replace and clear controls or values wherever a guest may need to change or remove previously stored information.
 - Treat a submitted zero, replacement value, decline selection, or explicit clear instruction according to its defined meaning rather than as an omitted field.
 - Require the guest to enter the operational confirmation method and the destination applicable to a currently enabled production confirmation channel for every initial submission and revision.
@@ -204,36 +203,55 @@ Every validated form must:
 - Explain that newly submitted operational confirmation fields replace the stored confirmation method, destination, and applicable authorization state.
 - Display the concise privacy notice linked to `/wedding/privacy`.
 
-##### Default question-profile state
+##### Spreadsheet-authoritative reusable RSVP state
 
-The `default` profile contains the approved party-level attendance or decline questions, the applicable additional-guest control, four age-category attendance totals, and one party-level dietary response.
+The personalized RSVP form uses one reusable substantive structure for every validated production invitation.
 
-The additional-guest control is selected from the explicit integer allowance:
+**Attendance and decline**
 
-- An allowance of zero renders no additional-guest question and does not authorize an additional-guest value.
-- An allowance of one renders the approved Yes-or-No `+1` question.
-- An allowance greater than one renders a bounded whole-number control permitting a response from zero through the configured allowance.
+- Present three coordinated checkboxes: `Ceremony`, `Reception`, and the invitation-specific decline wording.
+- Use `Regretfully, I am unable to attend.` for singular wording mode and `Regretfully, we are unable to attend.` for plural wording mode.
+- Ceremony and Reception may both be selected.
+- Selecting Ceremony or Reception disables the decline control.
+- Selecting the decline control disables Ceremony and Reception.
+- A valid attending state includes Ceremony, Reception, or both; a valid decline state includes neither event selection.
 
-The form must not request the name of any additional guest. The sum of the four age-category totals must remain within the invitation's maximum attendance. The applicable additional-guest answer or count must remain within the configured allowance.
+**Authorized named Plus 1 allocations**
 
-##### Reduced attendance-and-dietary profile state
+- If the validated invitation has no authorized `Plus1` allocation derived from Column E, render no Plus 1 question and authorize no Plus 1 response.
+- For each authorized allocation, render exactly one Yes/No question using the allocation's backend-supplied named-invitee prompt, such as `Will [Named Invitee] be accompanied by a +1?`
+- Multiple allocations render multiple independent Yes/No questions; they are not collapsed into an aggregate count control.
+- The Plus 1 question identifies the named invitee who owns the allocation. It does not ask for the additional guest's name.
+- The backend must reject any allocation identifier or Plus 1 response that is not authorized for the validated invitation.
 
-The approved `reduced-attendance-dietary` profile contains only:
+**Attendance totals**
 
-- Ceremony and Reception attendance selections or the mutually exclusive invitation-specific decline response.
-- One party-level dietary response.
+When the resulting RSVP is attending:
 
-The reduced profile must not render, accept, or imply:
+- Render four numerical dials for Adults 21+, Young Adults 18–20, Children 3–17, and Children under 3.
+- Each value is a nonnegative whole number.
+- The four values represent the complete attending party, including any attending Plus 1 guests.
+- The backend-calculated `overallAttendance` must be at least 1 and must not exceed the invitation's `maximumAttendance`.
+- Each dial's currently available maximum is the invitation's maximum attendance minus the values already allocated to the other three dials, preventing the combined total from exceeding the authorized maximum.
+- During a revision, an omitted category remains unchanged unless another controlling change makes the stored totals inapplicable; an explicit zero replaces a previously positive value with zero.
 
-- An additional-guest question or value.
-- Any of the four age-category attendance totals.
-- An overall attendance total derived from those categories.
+**Reception attendee details**
 
-The identity and production code of the invitation using the reduced profile remain private and must not be exposed through route behavior, metadata, errors, or public documentation.
+When Reception is selected:
 
-No other substantive question profile may be rendered without a later recorded decision and coordinated updates to the governing documents.
+- Render exactly one attendee-detail row for each person represented by `overallAttendance`.
+- Each row contains a required attendee-name field with a maximum length of 100 characters.
+- Each row contains an optional food-allergy/dietary-preference field with a maximum length of 1000 characters.
+- The attendee-detail rows include all Reception attendees, including any attending Plus 1 guest.
+- Ceremony-only attendance renders no Reception attendee-detail rows.
+- Removing Reception clears stored Reception attendee-detail data.
+- If `overallAttendance` changes while Reception remains selected, the browser must collect and submit a complete replacement attendee-detail list whose length matches the new total.
 
-The backend must independently validate the invitation code, configured question profile, additional-guest allowance, submitted RSVP changes, explicit clear operations, operational confirmation fields, deadline, authorization, and complete resulting RSVP whenever a response is submitted. The existence of validated client-side state must not substitute for server-side authorization.
+**Decline dependency**
+
+A resulting full decline clears attendance-dependent Plus 1 responses, attendance totals, and Reception attendee details before final validation. Operational confirmation information remains required.
+
+The backend must independently validate the invitation code, named Plus 1 allocation authorization, attendance selections, attendance totals, Reception attendee-detail cardinality and field lengths, submitted RSVP changes, explicit clear operations, operational confirmation fields, deadline, authorization, and complete resulting RSVP whenever a response is submitted. The existence of validated client-side state must not substitute for server-side authorization.
 
 #### Submission-in-progress state
 
@@ -254,8 +272,10 @@ When the backend rejects an initial submission or the complete merged result of 
 - Permit correction without revealing omitted stored RSVP values.
 - State or imply only that the submitted response was not accepted; it must not claim that an RSVP version was stored.
 - Preserve the distinction between omission, replacement, explicit zero, and explicit clear instructions.
-- Identify profile-inapplicable or unauthorized fields without revealing private configuration details.
-- Reject additional-guest values for an allowance of zero, counts above the configured allowance, and age-total or additional-guest fields submitted to the reduced profile.
+- Identify unauthorized or inapplicable fields without revealing private configuration details.
+- Reject Plus 1 responses for invitations with no authorized allocation, unknown or duplicated allocation identifiers, invalid Yes/No values, or responses that exceed the invitation-specific allocation set.
+- Reject negative, fractional, incomplete, or excessive attendance totals.
+- Reject Reception attendee-detail data when Reception is not selected, incorrect attendee-detail cardinality, blank required attendee names, attendee names longer than 100 characters, or dietary/allergy values longer than 1000 characters.
 
 #### Submission-uncertain state
 
@@ -291,27 +311,31 @@ This route must use appropriate metadata, crawler directives, and server behavio
 **Purpose:**
 Confirm that a valid initial RSVP or revision was recorded successfully.
 
-The route may display temporary personalized confirmation state returned after a successful submission. It must not use a distinct route for a question profile, additional-guest allowance, or invitation.
+The route may display temporary personalized confirmation state returned after a successful submission. It must not use a distinct route for an invitation, named Plus 1 allocation set, maximum-attendance value, or Reception attendee count.
 
 The confirmation experience must include:
 
 - A clear success heading stating that the RSVP was recorded.
 - Whether the action was an initial submission or revision.
-- The complete current guest-facing RSVP after any partial revision was merged, limited to fields belonging to the invitation's approved question profile.
+- The complete current guest-facing RSVP after any partial revision was merged.
 - Ceremony and Reception selections or decline status.
-- The authorized additional-guest response where the default profile and configured allowance make that field applicable.
-- All four attendance age-category totals and the derived overall total where the default profile includes those fields.
-- The complete party-level dietary response.
+- Each authorized named-invitee Plus 1 response that is part of the complete resulting RSVP.
+- All four attendance age-category totals and the backend-calculated overall attendance total when the party is attending.
+- When Reception is selected, the complete current Reception attendee-detail list, including each attendee name and the corresponding food-allergy/dietary-preference value when one was supplied.
 - Submission or revision timestamp.
 - The selected guest confirmation method.
 - Guest confirmation delivery-attempt status.
 - A limited administrative-email delivery-attempt status or notice without exposing the administrative destination.
-- Revision instructions explaining that the guest returns to `/wedding/rsvp/`, re-enters the code and operational confirmation fields, submits only intended profile-permitted changes or explicit clear operations, and receives a complete updated confirmation.
+- Revision instructions explaining that the guest returns to `/wedding/rsvp/`, re-enters the code and operational confirmation fields, submits only intended changes or explicit clear operations, and receives a complete updated confirmation.
 - The deadline.
 - A return-to-site link.
 - Assistance instructions.
 
-A field absent from the invitation's approved profile must be omitted from the confirmation rather than represented with an invented zero, blank placeholder, or “not applicable” value. In particular, the reduced profile confirmation does not display an additional-guest response, age-category totals, or an overall total derived from those categories.
+Attendance-dependent values that are inapplicable in the complete resulting RSVP must be omitted rather than represented with invented zeros, blank placeholders, or “not applicable” rows. In particular:
+
+- A fully declined RSVP contains no Plus 1 responses, attendance totals, overall attendance total, or Reception attendee details.
+- Ceremony-only attendance contains no Reception attendee-detail list.
+- An invitation with no authorized Column E `Plus1` allocation contains no Plus 1 summary row.
 
 After storage, the guest confirmation and protected administrative email attempts are independent. Failure, delay, or uncertainty in one channel must not prevent the other channel from being attempted, must not roll back the RSVP, and must not create another RSVP version.
 
@@ -325,7 +349,7 @@ The route must not expose:
 - Credentials.
 - Another party's information.
 - Invitation codes in the URL.
-- Private question-profile assignments or additional-guest allowances beyond the controls and summary values required for the validated party.
+- Private source-row data, allocation-owner mappings beyond the guest-facing prompts required for the validated party, or other invitation configuration not needed in the confirmation.
 
 Confirmation details do not need to survive a browser refresh. If temporary confirmation state is unavailable, the route must display a safe fallback explaining that the submission may already have been processed and directing the guest to consult the email or text confirmation or return to `/wedding/rsvp/` for assistance or another revision.
 
@@ -473,7 +497,7 @@ Provide the complete public explanation of RSVP information handling.
   Message is described as available only when the finalized production
   provider/disclosure gate has been satisfied.
 - Explain transactional-only RSVP mobile-number use.
-- Explain the private dietary/allergy information boundary.
+- Explain that Reception attendee names and per-attendee dietary/allergy information are collected only for parties attending the Reception, are private RSVP information, and are limited to the submitting party's own confirmation surfaces, protected administrative confirmation, and authorized private records.
 - Explain in plain language that personalized RSVP data is kept out of
   personalized browser URLs, public indexing, analytics, and ordinary logs
   according to the approved data-minimization rules.
@@ -517,13 +541,13 @@ The invitation-launch application must not create or distribute any code-bearing
 - `/wedding/rsvp?code=XXX-XXX`
 - `/wedding/rsvp/#XXX-XXX`
 
-The application must not place a question-profile identifier or additional-guest allowance in a browser route, query string, or fragment. It must not create routes such as:
+The application must not place invitation-specific form configuration in a browser route, query string, or fragment. It must not create routes such as:
 
-- `/wedding/rsvp/default`
-- `/wedding/rsvp/reduced-attendance-dietary`
-- `/wedding/rsvp/additional-guests/2`
+- `/wedding/rsvp/plus-one/2`
+- `/wedding/rsvp/maximum-attendance/4`
+- `/wedding/rsvp/reception-attendees/3`
 
-The project must not create separate routes or React pages for individual invitation codes, guest households, additional-guest allowances, or question profiles.
+The project must not create separate routes or React pages for individual invitation codes, guest households, named Plus 1 allocation sets, maximum-attendance values, or Reception attendee counts.
 
 Synthetic examples of prohibited code-specific source patterns include:
 
@@ -531,7 +555,7 @@ Synthetic examples of prohibited code-specific source patterns include:
 - `RSVPDEF456.jsx`
 - `RSVPGHI789.jsx`
 
-One reusable RSVP entry and form-rendering route must serve every valid invitation through backend-controlled invitation configuration. Shared profile-aware components may be used internally, but the reduced profile and additional-guest variants must be selected from configuration rather than implemented as guest-specific pages.
+One reusable RSVP entry and form-rendering route must serve every valid invitation through backend-controlled invitation configuration. Invitation-specific wording, maximum attendance, named Plus 1 allocation prompts, and response-dependent Reception attendee rows are controlled data or state within that reusable route rather than guest-specific pages.
 
 The project must not create separate public routes for:
 
@@ -595,12 +619,12 @@ The following routes may be indexed:
 The following routes and states must not be indexed:
 
 - `/wedding/rsvp/`
-- The lookup-in-progress, invalid-code, validated personalized-form—including default-profile and reduced-profile variants and zero-, one-, or multiple-additional-guest controls—submission-in-progress, validation-failure, submission-uncertain, closed, and service-unavailable states on `/wedding/rsvp/`.
+- The lookup-in-progress, invalid-code, validated personalized-form—including zero or more authorized named Plus 1 controls, attendance-dial states, and Reception attendee-detail states—submission-in-progress, validation-failure, submission-uncertain, closed, and service-unavailable states on `/wedding/rsvp/`.
 - `/wedding/rsvp/confirmation`, including initial-success, revision-success, guest-delivery-warning, administrative-delivery-warning, and refresh-without-temporary-state variants.
 - `/wedding/not-found`
 - Any unmatched `/wedding/*` route.
 
-No page title, description, canonical URL, structured data, analytics event, or crawler-visible metadata may contain an invitation code, guest identity, RSVP response, confirmation destination, `clientSubmissionId`, question-profile assignment, additional-guest allowance, RSVP version, provider payload, or other personalized information.
+No page title, description, canonical URL, structured data, analytics event, or crawler-visible metadata may contain an invitation code, guest identity, RSVP response, confirmation destination, `clientSubmissionId`, named Plus 1 allocation identifier or ownership mapping, maximum-attendance value, Reception attendee detail, RSVP version, provider payload, or other personalized information.
 
 ---
 
@@ -636,9 +660,10 @@ state is lost.
 
 Analytics associated with RSVP or confirmation routes must be
 non-personalized and must not receive invitation codes, invited-party
-identities derived from invitation records, RSVP answers, dietary/allergy
-information, contact destinations, `clientSubmissionId`, question-profile
-assignments, allowances, versions, or provider payloads.
+identities derived from invitation records, RSVP answers, attendee names,
+dietary/allergy information, contact destinations, `clientSubmissionId`,
+named Plus 1 allocation identifiers or ownership mappings, maximum-attendance
+values, versions, or provider payloads.
 
 Analytics must not be required for the RSVP flow to function.
 
@@ -691,19 +716,20 @@ The exact server rewrite and reverse-proxy configuration will be documented duri
 Phase 2 Step 1 remains complete when:
 
 - Every approved public page has one stable route.
-- RSVP code entry and every validated blank-form variant share `/wedding/rsvp/` without exposing invitation codes, profile identifiers, or additional-guest allowances in URLs.
+- RSVP code entry and every validated blank-form variant share `/wedding/rsvp/` without exposing invitation codes or invitation-specific configuration in URLs.
 - The confirmation route is separate and non-indexed.
 - Submission-in-progress, validation-failure, submission-uncertain, service-unavailable, closed-RSVP, delivery-warning, and refresh-without-state behavior are documented as controlled route states rather than invitation-specific routes.
-- The validated form receives only the explicit wording mode, integer additional-guest allowance, maximum attendance, approved question profile, and schema information needed for the validated invitation.
-- The `default` and `reduced-attendance-dietary` profiles remain controlled states of the same reusable RSVP route.
-- Zero, one, and multiple authorized additional guests produce the correct default-profile controls without requesting names.
-- The reduced profile omits and rejects additional-guest and age-category-total fields.
+- The validated form receives only the reviewed form heading, explicit wording mode, maximum attendance, zero or more authorized named Plus 1 allocation prompts, confirmation-channel capabilities, and reusable schema information needed for the validated invitation.
+- One spreadsheet-authoritative substantive RSVP structure serves every validated invitation; no production profile selector is required.
+- Invitations with no Column E `Plus1` allocation render no Plus 1 controls; each authorized allocation renders one independent named-invitee Yes/No control.
+- Attending parties use four coordinated numerical age-category dials whose combined total is at least 1 and does not exceed `maximumAttendance`.
+- Reception attendance renders exactly one attendee-detail row per attending party member; Ceremony-only attendance renders none.
 - Explicit replace and clear operations are distinguished from omitted revision fields.
 - Operational confirmation fields are required again for revisions and replace their stored counterparts; Text Message and applicable SMS authorization are available in production only after the finalized provider gate is satisfied.
-- Profile-inapplicable fields are omitted from confirmations rather than represented by invented values.
+- Attendance-dependent fields that are inapplicable to the complete resulting RSVP are omitted from confirmations rather than represented by invented values.
 - Guest and administrative delivery attempts are independent after storage, and limited delivery statuses are represented on the confirmation route.
 - The Privacy page has a stable public route.
-- No route or source page is created for an individual invitation, question profile, or additional-guest allowance.
+- No route or source page is created for an individual invitation, named Plus 1 allocation set, maximum-attendance value, or Reception attendee count.
 - The not-found route and unmatched-route behavior are documented.
 - Search-indexing treatment is documented.
 - RSVP and confirmation browser responses use the finalized no-store policy.

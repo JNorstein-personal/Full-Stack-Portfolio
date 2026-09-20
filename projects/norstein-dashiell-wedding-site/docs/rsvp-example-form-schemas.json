@@ -1,13 +1,12 @@
 {
-  "documentPurpose": "Phase 3 Steps 6–9 development-only examples defining the common personalized RSVP question/form schema shape and finalized conditional/dependency behavior, synchronized through Phase 3 Step 14 with the finalized SMS production-enablement and privacy/security boundaries. The complete production question bank remains deferred to Phase 4.",
-  "schemaVersion": "phase3-step14",
+  "documentPurpose": "Development-only reusable RSVP form-schema example synchronized with the spreadsheet-authoritative invitation model approved on September 20, 2026. The schema defines one reusable form whose conditional regions are driven by the validated invitation configuration and the guest's current attendance selections. It contains no production invitation codes, real guest identities, stored RSVP answers, provider credentials, or protected administrative destinations.",
+  "schemaVersion": "spreadsheet-authoritative-2026-09-20",
   "permanentQuestionIds": {
     "substantive": [
       "eventAttendance",
-      "declineAttendance",
-      "additionalGuestAttendance",
+      "additionalGuestResponses",
       "attendanceTotals",
-      "dietaryPreferences"
+      "receptionAttendeeDetails"
     ],
     "operational": [
       "confirmationMethod",
@@ -18,34 +17,51 @@
   },
   "documentationNotes": {
     "developmentOnly": true,
-    "productionQuestionBankDeferredToPhase4": true,
-    "submissionPayloadEncodingFinalizedInPhase3Step8": true,
-    "detailedDependencyRulesFinalizedInPhase3Step9": true,
-    "dietaryApplicability": "Dietary information is applicable to any attending state (Ceremony only, Reception only, or both), remains optional, and is cleared only when the party fully declines.",
-    "declinedAttendanceTotalsRepresentation": "Attendance totals are inapplicable and omitted for a full decline rather than retained as a synthetic four-zero object.",
-    "multipleAdditionalGuestLabelStatus": "provisional",
-    "operationalConfirmationCopyStatus": "provider-gated-final-rule: development examples may use provider-neutral placeholder text; production Text Message confirmation remains disabled until the selected provider's required disclosure/authorization wording is verified and implemented",
     "storedAnswersIncluded": false,
-    "namedGuestScopeUsed": false,
-    "phase3PrivacySecurityRulesFinalized": true,
-    "smsProviderSelectionRequiredDuringPhase3": false,
-    "productionTextMessageEnabledBeforeProviderGate": false,
-    "productionConfirmationOptionsRule": "confirmationOptions.textMessage may be true in production only after the selected SMS provider, required guest-facing disclosure/authorization copy, backend-only credentials/sender configuration, and production-flow testing satisfy the finalized Phase 3 Step 14 gate",
+    "productionInvitationDataIncluded": false,
+    "singleReusableSubstantiveSchema": true,
+    "namedPlusOneQuestionsAreInvitationSpecific": true,
+    "plusOneSource": "Only allocation definitions returned in invitation.additionalGuestAllocations produce Plus 1 questions. An empty allocation array produces no Plus 1 questions.",
+    "attendancePresentation": "Ceremony, Reception, and the invitation-specific decline statement are coordinated checkbox choices in one attendance region. Decline is mutually exclusive with Ceremony and Reception.",
+    "attendanceTotalsPresentation": "The four age-category values are presented as coordinated numerical dials or equivalent whole-number controls. Their complete sum is overallAttendance and cannot exceed invitation.maximumAttendance.",
+    "receptionAttendeeDetailsApplicability": "Reception attendee-detail rows exist only when Reception is selected. Exactly one row is required for each person included in overallAttendance.",
+    "receptionAttendeeNameMaximumLength": 100,
+    "dietaryPreferenceMaximumLength": 1000,
+    "ceremonyOnlyDietaryCollection": false,
+    "blankLookupInvariant": "Lookup returns schema and invitation configuration only; it never includes stored RSVP answers or stored confirmation destinations.",
+    "operationalConfirmationCopyStatus": "Provider-gated. Email is available. Production Text Message remains disabled until the selected provider's disclosure, authorization, backend-secret, sender-configuration, and production-flow requirements are satisfied.",
     "transactionalMobileNumberUse": "A confirmation mobile number is operational RSVP contact data used only for the requested transactional RSVP confirmation and approved manual resend unless a later recorded decision separately authorizes another use."
   },
   "conditionLanguage": {
-    "always": "Boolean true means the question is always displayed when it belongs to the selected profile.",
+    "always": "Boolean true means the region is always present in the validated blank form.",
+    "attendanceIncludes": "String event value that must be present in the current eventAttendance selection.",
+    "attendanceExcludes": "String event value that must not be present in the current eventAttendance selection.",
+    "invitationArrayNotEmpty": "Invitation-property path whose authorized array must contain at least one item.",
+    "confirmationOptionEnabled": "confirmationOptions property that must be true before the related operational option is rendered.",
     "fieldEquals": "Two-item array [questionId, expectedValue]; true when the current page-entered value equals expectedValue.",
     "fieldNotEquals": "Two-item array [questionId, disallowedValue]; true when the current page-entered value does not equal disallowedValue.",
-    "fieldHasAnySelection": "Question ID whose current array value must contain at least one selection.",
-    "configurationEquals": "Two-item array [configurationKey, expectedValue]; evaluated from the limited authorized configuration returned by the backend.",
     "all": "Array of conditions; every nested condition must be true.",
+    "any": "Array of conditions; at least one nested condition must be true.",
     "not": "Negates one nested condition."
   },
+  "repeatableRegionLanguage": {
+    "repeatFromInvitationArray": "Create one control instance for each authorized object in the referenced invitation array. The stable source object's id is the submission key and its prompt is display-only copy.",
+    "repeatCountFromDerivedValue": "Create exactly the number of rows represented by the referenced backend/client-derived value after the current attendance totals validate.",
+    "completeReplacementWhenSubmitted": "When a repeatable region marked this way is submitted during a revision, the submitted array replaces the complete stored array for that region."
+  },
   "validationExtensions": {
-    "sumMinimumWhenApplicable": "For an applicable number-group, the complete merged group sum must be at least this value.",
-    "sumMaximumFrom": "The complete merged number-group sum must not exceed the referenced authorized invitation value.",
-    "effectiveAdditionalGuestCountMustNotExceedSum": "When true, the effective authorized additional-guest count must not exceed the complete merged attendance-total sum."
+    "allowedAttendanceSets": "The complete eventAttendance value must be exactly one of the listed closed-set arrays, ignoring order where stated.",
+    "authorizedAllocationIdsOnly": "Every additional-guest response key must match an id in invitation.additionalGuestAllocations; unknown or duplicate ids are rejected.",
+    "allAuthorizedAllocationsRequiredWhenNewlyApplicable": "On an initial attending response or a transition from decline to attendance, every authorized allocation requires an explicit yes/no answer.",
+    "yesCountMustNotExceedOverallAttendance": "The number of authorized Plus 1 responses equal to yes cannot exceed derived overallAttendance.",
+    "coordinatedNumberGroup": "Each age-category control is a nonnegative whole number. The UI dynamically constrains each control to remaining authorized capacity while the backend independently validates the final sum.",
+    "dynamicMaximumFormula": "For each age-category control, the current UI maximum is invitation.maximumAttendance minus the sum of the other three current category values.",
+    "sumMinimumWhenApplicable": "When attending, the complete attendance-total sum must be at least 1.",
+    "sumMaximumFrom": "The complete attendance-total sum must not exceed the referenced invitation value.",
+    "repeatCountEqualsOverallAttendance": "When Reception is selected, the Reception attendee-detail array length must equal the complete derived overallAttendance.",
+    "nonblankTrimmedString": "After ordinary trimming, the value must contain at least one character.",
+    "maximumLength": "String length may not exceed the configured maximum.",
+    "backendAuthoritative": "Browser visibility and client validation never authorize otherwise-invalid data; Express independently applies all configuration and complete-result rules."
   },
   "productionEnablementRules": {
     "textMessageConfirmation": {
@@ -59,7 +75,7 @@
         "Test the completed production Text Message confirmation flow."
       ],
       "whenGateIsNotSatisfied": "Production confirmationOptions.textMessage must be false; do not render the Text Message choice or invent provider-specific disclosure language.",
-      "schemaShapeInvariant": "The permanent confirmationMethod value textMessage and smsAuthorization question ID remain part of the reusable schema vocabulary even when the production channel is disabled."
+      "schemaShapeInvariant": "The permanent confirmationMethod value textMessage and smsAuthorization question ID remain part of the reusable schema vocabulary even while the production channel is disabled."
     },
     "privacySecurityBoundary": {
       "developmentExamplesContainProductionInvitationData": false,
@@ -73,122 +89,132 @@
     {
       "id": "dependency-processing-order",
       "scope": "backend-authoritative",
-      "rule": "Authorize request fields and operations, determine initial versus revision, merge submitted changes with stored values, preserve omissions, resolve attendance/decline, clear values made inapplicable by full decline, require newly applicable mandatory values, validate the complete result, then store only if valid."
+      "rule": "Authorize request fields and allocation identifiers, determine initial versus revision, merge submitted changes with stored values, preserve permitted omissions, resolve the complete attendance state, clear values made inapplicable by attendance changes, require newly applicable mandatory structures, validate the complete result, then store only if valid."
     },
     {
-      "id": "attendance-decline-valid-states",
+      "id": "attendance-valid-states",
       "scope": "substantive",
-      "rule": "A valid complete RSVP is either attending with one or more eventAttendance selections and declineAttendance=false, or declining with eventAttendance=[] and declineAttendance=true."
-    },
-    {
-      "id": "attendance-decline-mutual-exclusion",
-      "scope": "substantive",
-      "rule": "A complete RSVP must not contain both a nonempty eventAttendance array and declineAttendance=true."
+      "rule": "A valid complete eventAttendance value is exactly Ceremony, Reception, Ceremony plus Reception, or decline. Decline cannot coexist with either attending event."
     },
     {
       "id": "initial-attendance-decision-required",
       "scope": "substantive",
-      "rule": "An initial response must establish a valid attendance or decline state; eventAttendance=[] with declineAttendance=false is invalid."
+      "rule": "An initial response must establish exactly one valid attendance state from the approved closed set."
     },
     {
-      "id": "full-decline-clears-dependent-substantive-data",
+      "id": "plus-one-questions-authorized-only",
       "scope": "substantive",
-      "rule": "When the complete resulting RSVP fully declines, eventAttendance becomes [], additionalGuestAttendance and attendanceTotals become inapplicable and are removed, and dietaryPreferences is cleared. Operational confirmation remains required."
+      "rule": "A Plus 1 control exists only for an allocation object in invitation.additionalGuestAllocations. A party with an empty allocation array receives no Plus 1 controls and cannot submit additionalGuestResponses."
     },
     {
-      "id": "dietary-applicable-to-any-attendance",
+      "id": "plus-one-response-required-when-newly-applicable",
       "scope": "substantive",
-      "rule": "dietaryPreferences is optional but applicable whenever the party attends Ceremony, Reception, or both. It is not Reception-only. A full decline clears it."
+      "rule": "For an initial attending RSVP or a transition from decline to attendance, each authorized Plus 1 allocation requires exactly one yes/no response. On an ordinary revision that remains attending, omitted authorized allocation responses remain unchanged."
     },
     {
-      "id": "additional-guest-applicability",
+      "id": "plus-one-response-authorization",
       "scope": "substantive",
-      "rule": "additionalGuestAttendance is applicable only for an attending default-profile RSVP with additionalGuestAllowance>0. It is required on an initial attending response and whenever it becomes newly applicable after a prior decline."
-    },
-    {
-      "id": "additional-guest-value-bounds",
-      "scope": "substantive",
-      "rule": "Allowance 1 uses yes/no. Allowance greater than 1 uses a whole number from 0 through additionalGuestAllowance. Allowance 0 and the reduced profile reject the field."
-    },
-    {
-      "id": "additional-guest-within-overall-attendance",
-      "scope": "substantive",
-      "rule": "For an attending default-profile RSVP, the effective additional-guest count must not exceed overallAttendance because attendanceTotals represents the complete attending party."
+      "rule": "Every additionalGuestResponses key must be an authorized allocation id for the validated invitation. The guest-facing prompt text is never used as an authorization key."
     },
     {
       "id": "attendance-totals-applicability",
       "scope": "substantive",
-      "rule": "attendanceTotals is applicable only to an attending default-profile RSVP. All four categories are required on an initial attending response and whenever the totals become newly applicable after a prior decline."
+      "rule": "attendanceTotals applies whenever the party attends Ceremony, Reception, or both. All four age categories are required on an initial attending response and whenever totals become newly applicable after a full decline."
     },
     {
       "id": "attendance-totals-validation",
       "scope": "substantive",
-      "rule": "Each attendance-total category is a nonnegative whole number. overallAttendance is their server-calculated sum, must be at least 1 while attending, and must not exceed invitation.maximumAttendance."
+      "rule": "Each age category is a nonnegative whole number. overallAttendance is the server-calculated sum, must be at least 1 while attending, and must not exceed invitation.maximumAttendance."
+    },
+    {
+      "id": "attendance-dial-remaining-capacity",
+      "scope": "browser-and-backend",
+      "rule": "The browser presents the four age categories as coordinated numerical dials or equivalent controls whose current maxima reflect remaining authorized capacity. The backend independently rejects any complete sum above invitation.maximumAttendance."
     },
     {
       "id": "attendance-totals-partial-revision",
       "scope": "substantive",
-      "rule": "For a revision that remains attending, omitted nested attendance-total categories remain unchanged and explicit zero is an ordinary replacement value."
+      "rule": "For a revision that remains attending, omitted nested age-category values remain unchanged and explicit zero is an ordinary replacement value."
     },
     {
-      "id": "no-age-category-inference",
+      "id": "plus-one-count-within-attendance",
       "scope": "substantive",
-      "rule": "Changing additionalGuestAttendance does not cause the backend to guess or automatically change an age-category total; the complete merged totals must independently validate."
+      "rule": "The number of authorized Plus 1 responses equal to yes cannot exceed complete overallAttendance. Changing a Plus 1 answer does not cause the backend to guess or alter an age-category total."
     },
     {
-      "id": "reduced-profile-closed-set",
+      "id": "reception-details-applicability",
       "scope": "substantive",
-      "rule": "The reduced-attendance-dietary profile accepts only attendance/decline and party-level dietary information. It never accepts additionalGuestAttendance or attendanceTotals."
+      "rule": "receptionAttendeeDetails applies only when Reception is selected. It is absent for Ceremony-only attendance and full decline."
+    },
+    {
+      "id": "reception-details-cardinality",
+      "scope": "substantive",
+      "rule": "When Reception is selected, receptionAttendeeDetails contains exactly one row per person in complete overallAttendance. Each row requires a nonblank attendeeName of at most 100 characters and may contain dietaryPreferences of at most 1000 characters."
+    },
+    {
+      "id": "reception-details-replacement",
+      "scope": "substantive",
+      "rule": "When receptionAttendeeDetails is submitted, it replaces the complete applicable attendee-detail array. If Reception remains selected and overallAttendance is unchanged, omission on revision leaves the stored array unchanged. If Reception becomes newly selected or overallAttendance changes while Reception remains selected, a complete replacement array is required."
+    },
+    {
+      "id": "reception-removal-clears-details",
+      "scope": "substantive",
+      "rule": "If the complete result removes Reception, stored receptionAttendeeDetails is automatically cleared before final validation."
+    },
+    {
+      "id": "full-decline-clears-dependent-substantive-data",
+      "scope": "substantive",
+      "rule": "A complete decline clears additionalGuestResponses, attendanceTotals, derived overallAttendance, and receptionAttendeeDetails. Operational confirmation remains required."
     },
     {
       "id": "revision-omission-means-unchanged",
       "scope": "substantive",
-      "rule": "For revisions, an omitted substantive field remains unchanged unless an authoritative controlling-state rule makes that stored field inapplicable."
+      "rule": "For revisions, omission means leave the stored value unchanged only where the applicable field's patch rules permit it and no controlling attendance/cardinality rule makes the stored value inapplicable or requires complete replacement."
     },
     {
       "id": "email-confirmation-dependency",
       "scope": "operational",
-      "rule": "confirmationMethod=email requires a valid newly entered confirmationEmail and makes confirmationMobile and smsAuthorization inapplicable."
+      "rule": "confirmationMethod=email requires a newly entered valid confirmationEmail and makes confirmationMobile and smsAuthorization inapplicable for that submission."
     },
     {
       "id": "text-confirmation-dependency",
       "scope": "operational",
-      "rule": "confirmationMethod=textMessage requires a valid newly entered confirmationMobile, makes confirmationEmail inapplicable, and requires smsAuthorization=true only when centralized configuration requires transactional SMS authorization."
-    },
-    {
-      "id": "text-confirmation-production-enablement-gate",
-      "scope": "backend-authoritative-operational",
-      "rule": "In production, confirmationMethod=textMessage is authorized only when centralized configuration reports that the Phase 3 Step 14 SMS-provider enablement gate is satisfied. Otherwise Text Message is not advertised in confirmationOptions and a submitted textMessage method is not accepted merely because the reusable development schema vocabulary contains that value."
+      "rule": "confirmationMethod=textMessage is accepted only when confirmationOptions.textMessage is enabled. It requires a newly entered valid confirmationMobile and requires smsAuthorization=true when confirmationOptions.smsAuthorizationRequired is true."
     },
     {
       "id": "backend-authority-over-visibility",
       "scope": "backend-authoritative",
-      "rule": "React visibility and usability validation do not authorize a value. Express independently enforces profile, allowance, dependency, and complete-result rules."
+      "rule": "Client visibility and usability validation do not authorize values. Express independently validates attendance, allocation ids, age totals, Reception-detail cardinality and lengths, operational dependencies, deadline, environment, and all complete-result invariants."
     }
   ],
   "formSchemas": [
     {
-      "schemaId": "default-allowance-0",
-      "exampleConfigurationCode": "DEV001",
-      "questionProfile": "default",
-      "appliesWhen": {
-        "questionProfile": "default",
-        "additionalGuestAllowance": {
-          "equals": 0
-        }
-      },
+      "schemaId": "spreadsheet-authoritative-rsvp",
+      "appliesTo": "Every active invitation configuration produced from the authoritative Invitees List spreadsheet.",
+      "developmentExampleConfigurationCodes": [
+        "DEV001",
+        "DEV002",
+        "DEV003",
+        "DEV004",
+        "DEV005",
+        "DEV006",
+        "DEV007",
+        "DEV008",
+        "DEV009",
+        "DEV010"
+      ],
       "questions": [
         {
           "id": "eventAttendance",
           "scope": "party",
           "type": "checkbox-group",
-          "label": "Event attendance",
+          "label": "Attendance",
           "labelVariants": {
             "singular": "I will be attending (check all that apply):",
             "plural": "We will be attending (check all that apply):"
           },
-          "requiredOnInitial": false,
-          "requiredWhenVisible": false,
+          "requiredOnInitial": true,
+          "requiredWhenVisible": true,
           "options": [
             {
               "value": "ceremony",
@@ -197,530 +223,95 @@
             {
               "value": "reception",
               "label": "Reception"
+            },
+            {
+              "value": "decline",
+              "labelVariants": {
+                "singular": "Regretfully, I am unable to attend.",
+                "plural": "Regretfully, we are unable to attend."
+              }
             }
           ],
           "displayCondition": {
             "always": true
           },
           "validation": {
-            "allowedValues": [
-              "ceremony",
-              "reception"
-            ],
-            "maximumSelections": 2
-          },
-          "patchBehavior": {
-            "omittedOnRevision": "leaveUnchanged",
-            "replaceOperation": "replace"
-          },
-          "clearBehavior": {
-            "when": {
-              "fieldEquals": [
-                "declineAttendance",
-                true
-              ]
-            },
-            "action": "clear"
-          },
-          "helpText": "Select Ceremony, Reception, or both for an attending state. For a revision, omission leaves the stored event selection unchanged; a full decline clears event selections."
-        },
-        {
-          "id": "declineAttendance",
-          "scope": "party",
-          "type": "checkbox",
-          "label": "Unable to attend",
-          "labelVariants": {
-            "singular": "Regretfully, I am unable to attend.",
-            "plural": "Regretfully, we are unable to attend."
-          },
-          "requiredOnInitial": false,
-          "requiredWhenVisible": false,
-          "options": [
-            {
-              "value": true,
-              "label": "Unable to attend"
-            }
-          ],
-          "displayCondition": {
-            "always": true
-          },
-          "validation": {
-            "allowedValues": [
-              true,
-              false
-            ]
-          },
-          "patchBehavior": {
-            "omittedOnRevision": "leaveUnchanged",
-            "replaceOperation": "replace"
-          },
-          "clearBehavior": {
-            "whenValue": true,
-            "clearQuestionIds": [
-              "eventAttendance",
-              "attendanceTotals",
-              "dietaryPreferences"
-            ]
-          },
-          "helpText": "Attendance and decline are mutually exclusive. A revision may omit this field to leave the stored status unchanged; a resulting full decline clears attendance-dependent substantive data."
-        },
-        {
-          "id": "attendanceTotals",
-          "scope": "party",
-          "type": "number-group",
-          "label": "To better accommodate the seating & dietary needs of our guests, please list the total number of attendees in your party:",
-          "requiredOnInitial": true,
-          "requiredWhenVisible": true,
-          "options": [],
-          "displayCondition": {
-            "all": [
-              {
-                "fieldHasAnySelection": "eventAttendance"
-              },
-              {
-                "fieldEquals": [
-                  "declineAttendance",
-                  false
-                ]
-              }
-            ]
-          },
-          "validation": {
-            "fields": [
-              {
-                "id": "adults21Plus",
-                "label": "Adults, ages 21 and older",
-                "wholeNumber": true,
-                "minimum": 0
-              },
-              {
-                "id": "youngAdults18To20",
-                "label": "Young Adults, ages 18–20",
-                "wholeNumber": true,
-                "minimum": 0
-              },
-              {
-                "id": "children3To17",
-                "label": "Children, ages 3–17",
-                "wholeNumber": true,
-                "minimum": 0
-              },
-              {
-                "id": "childrenUnder3",
-                "label": "Children under 3",
-                "wholeNumber": true,
-                "minimum": 0
-              }
-            ],
-            "sumMaximumFrom": "invitation.maximumAttendance",
-            "sumMinimumWhenApplicable": 1
-          },
-          "patchBehavior": {
-            "omittedOnRevision": "leaveUnchanged",
-            "omittedNestedFieldOnRevision": "leaveUnchanged",
-            "replaceOperation": "replace",
-            "explicitZero": "replace"
-          },
-          "clearBehavior": {
-            "when": {
-              "fieldEquals": [
-                "declineAttendance",
-                true
-              ]
-            },
-            "action": "clear"
-          },
-          "helpText": "Required for an attending default-profile response. The four-category sum is the complete attending party, including additional guests, must be at least one, and must not exceed maximumAttendance. A full decline makes the totals inapplicable."
-        },
-        {
-          "id": "dietaryPreferences",
-          "scope": "party",
-          "type": "textarea",
-          "label": "Please list any food allergies or dietary preferences for the members of your party.",
-          "requiredOnInitial": false,
-          "requiredWhenVisible": false,
-          "options": [],
-          "displayCondition": {
-            "all": [
-              {
-                "fieldHasAnySelection": "eventAttendance"
-              },
-              {
-                "fieldEquals": [
-                  "declineAttendance",
-                  false
-                ]
-              }
-            ]
-          },
-          "validation": {
-            "maximumLength": 1000
-          },
-          "patchBehavior": {
-            "omittedOnRevision": "leaveUnchanged",
-            "replaceOperation": "replace",
-            "clearOperation": "clear"
-          },
-          "clearBehavior": {
-            "when": {
-              "fieldEquals": [
-                "declineAttendance",
-                true
-              ]
-            },
-            "action": "clear"
-          },
-          "helpText": "One optional free-text response applies to the entire attending party. It is applicable to Ceremony-only, Reception-only, or combined attendance and is automatically cleared on full decline."
-        },
-        {
-          "id": "confirmationMethod",
-          "scope": "operational",
-          "type": "radio",
-          "label": "Confirmation method",
-          "requiredOnInitial": true,
-          "requiredWhenVisible": true,
-          "options": [
-            {
-              "value": "email",
-              "label": "Email"
-            },
-            {
-              "value": "textMessage",
-              "label": "Text message"
-            }
-          ],
-          "displayCondition": {
-            "always": true
-          },
-          "validation": {
-            "allowedValues": [
-              "email",
-              "textMessage"
-            ]
-          },
-          "patchBehavior": {
-            "omittedOnRevision": "invalidWhenRequired",
-            "replaceOperation": "replace"
-          },
-          "clearBehavior": {
-            "bySelectedValue": {
-              "email": [
-                "confirmationMobile",
-                "smsAuthorization"
+            "allowedCompleteSelections": [
+              [
+                "ceremony"
               ],
-              "textMessage": [
-                "confirmationEmail"
+              [
+                "reception"
+              ],
+              [
+                "ceremony",
+                "reception"
+              ],
+              [
+                "decline"
               ]
-            }
-          },
-          "helpText": "Required for every initial submission and revision. Email requires a valid email destination. The reusable development schema includes Text Message, but production may render/accept it only when confirmationOptions reports that the Step 14 provider/disclosure gate is satisfied. When enabled, Text Message requires a valid SMS-capable mobile destination plus transactional authorization when configured. New operational values replace stored counterparts."
-        },
-        {
-          "id": "confirmationEmail",
-          "scope": "operational",
-          "type": "email",
-          "label": "Email address",
-          "requiredOnInitial": false,
-          "requiredWhenVisible": true,
-          "options": [],
-          "displayCondition": {
-            "fieldEquals": [
-              "confirmationMethod",
-              "email"
-            ]
-          },
-          "validation": {
-            "format": "email"
-          },
-          "patchBehavior": {
-            "omittedOnRevision": "invalidWhenRequired",
-            "replaceOperation": "replace"
-          },
-          "clearBehavior": {
-            "when": {
-              "fieldNotEquals": [
-                "confirmationMethod",
-                "email"
-              ]
-            },
-            "action": "clear"
-          },
-          "helpText": "Required when Email is selected. The complete current RSVP will be sent to the newly entered address."
-        },
-        {
-          "id": "confirmationMobile",
-          "scope": "operational",
-          "type": "tel",
-          "label": "SMS-capable mobile number",
-          "requiredOnInitial": false,
-          "requiredWhenVisible": true,
-          "options": [],
-          "displayCondition": {
-            "fieldEquals": [
-              "confirmationMethod",
-              "textMessage"
-            ]
-          },
-          "validation": {
-            "format": "sms-capable-mobile-number"
-          },
-          "patchBehavior": {
-            "omittedOnRevision": "invalidWhenRequired",
-            "replaceOperation": "replace"
-          },
-          "clearBehavior": {
-            "when": {
-              "fieldNotEquals": [
-                "confirmationMethod",
-                "textMessage"
-              ]
-            },
-            "action": "clear"
-          },
-          "helpText": "Required when Text message is selected. The complete current RSVP will be sent to the newly entered mobile number."
-        },
-        {
-          "id": "smsAuthorization",
-          "scope": "operational",
-          "type": "consent",
-          "label": "Transactional text-message authorization",
-          "requiredOnInitial": false,
-          "requiredWhenVisible": true,
-          "options": [
-            {
-              "value": true,
-              "label": "I authorize the required transactional RSVP confirmation text message."
-            }
-          ],
-          "displayCondition": {
-            "all": [
-              {
-                "fieldEquals": [
-                  "confirmationMethod",
-                  "textMessage"
-                ]
-              },
-              {
-                "configurationEquals": [
-                  "smsAuthorizationRequired",
-                  true
-                ]
-              }
-            ]
-          },
-          "validation": {
-            "requiredValue": true
-          },
-          "patchBehavior": {
-            "omittedOnRevision": "invalidWhenRequired",
-            "replaceOperation": "replace"
-          },
-          "clearBehavior": {
-            "whenAny": [
-              {
-                "fieldNotEquals": [
-                  "confirmationMethod",
-                  "textMessage"
-                ]
-              },
-              {
-                "configurationEquals": [
-                  "smsAuthorizationRequired",
-                  false
-                ]
-              }
             ],
-            "action": "clear"
-          },
-          "helpText": "Development-only provider-neutral placeholder. In production this control is rendered and required only when Text Message confirmation is enabled and the selected provider's verified disclosure/authorization wording applies. The permanent question ID remains smsAuthorization; do not invent provider-specific production copy before the Step 14 gate is satisfied."
-        }
-      ],
-      "formValidationRules": [
-        {
-          "id": "attendance-or-decline-required",
-          "rule": "A complete response must be either attending with Ceremony, Reception, or both and decline=false, or declining with no event selections and decline=true."
-        },
-        {
-          "id": "attendance-decline-mutual-exclusion",
-          "rule": "A complete RSVP must not simultaneously contain event attendance and a decline response."
-        },
-        {
-          "id": "operational-confirmation-required",
-          "rule": "Every initial submission and revision requires confirmationMethod plus the applicable newly entered destination and any required SMS authorization."
-        },
-        {
-          "id": "revision-omission-means-unchanged",
-          "rule": "For substantive RSVP fields, omission on revision means leave the stored value unchanged unless a controlling full-decline result makes that field inapplicable. Replacement, explicit zero, and explicit clear remain distinct operations."
-        },
-        {
-          "id": "attendance-totals-required-when-attending",
-          "rule": "When the complete result is attending, attendanceTotals is required. Initial or newly applicable totals must include all four nonnegative whole-number categories; their sum must be at least 1 and must not exceed invitation.maximumAttendance."
-        },
-        {
-          "id": "attendance-totals-partial-revision",
-          "rule": "For a revision that remains attending, omitted attendance-total categories remain unchanged and explicit zero is a replacement value."
-        },
-        {
-          "id": "additional-guest-not-authorized",
-          "rule": "This invitation has additionalGuestAllowance=0, so no additionalGuestAttendance question may be rendered or submitted."
-        },
-        {
-          "id": "dietary-any-attendance",
-          "rule": "dietaryPreferences is optional but applicable to Ceremony-only, Reception-only, or combined attendance. It is not Reception-only and is cleared when the complete result fully declines."
-        },
-        {
-          "id": "decline-clears-inapplicable-party-data",
-          "rule": "A fully declining result sets eventAttendance to an empty array, clears dietaryPreferences, and removes any applicable additionalGuestAttendance and attendanceTotals before final validation."
-        },
-        {
-          "id": "operational-channel-dependency",
-          "rule": "Email requires confirmationEmail and excludes confirmationMobile/smsAuthorization. Text Message requires confirmationMobile, excludes confirmationEmail, and requires smsAuthorization=true only when centralized configuration requires it."
-        },
-        {
-          "id": "backend-authority",
-          "rule": "Client visibility and usability validation do not authorize values; the backend independently applies all profile, allowance, dependency, and complete-result rules."
-        }
-      ],
-      "dependencyRuleRefs": [
-        "dependency-processing-order",
-        "attendance-decline-valid-states",
-        "attendance-decline-mutual-exclusion",
-        "initial-attendance-decision-required",
-        "full-decline-clears-dependent-substantive-data",
-        "dietary-applicable-to-any-attendance",
-        "revision-omission-means-unchanged",
-        "email-confirmation-dependency",
-        "text-confirmation-dependency",
-        "backend-authority-over-visibility",
-        "attendance-totals-applicability",
-        "attendance-totals-validation",
-        "attendance-totals-partial-revision"
-      ]
-    },
-    {
-      "schemaId": "default-allowance-1",
-      "exampleConfigurationCode": "DEV002",
-      "questionProfile": "default",
-      "appliesWhen": {
-        "questionProfile": "default",
-        "additionalGuestAllowance": {
-          "equals": 1
-        }
-      },
-      "questions": [
-        {
-          "id": "eventAttendance",
-          "scope": "party",
-          "type": "checkbox-group",
-          "label": "Event attendance",
-          "labelVariants": {
-            "singular": "I will be attending (check all that apply):",
-            "plural": "We will be attending (check all that apply):"
-          },
-          "requiredOnInitial": false,
-          "requiredWhenVisible": false,
-          "options": [
-            {
-              "value": "ceremony",
-              "label": "Ceremony"
-            },
-            {
-              "value": "reception",
-              "label": "Reception"
-            }
-          ],
-          "displayCondition": {
-            "always": true
-          },
-          "validation": {
-            "allowedValues": [
+            "selectionOrderSemanticallySignificant": false,
+            "minimumSelections": 1,
+            "maximumSelections": 2,
+            "declineMutuallyExclusiveWith": [
               "ceremony",
               "reception"
-            ],
-            "maximumSelections": 2
-          },
-          "patchBehavior": {
-            "omittedOnRevision": "leaveUnchanged",
-            "replaceOperation": "replace"
-          },
-          "clearBehavior": {
-            "when": {
-              "fieldEquals": [
-                "declineAttendance",
-                true
-              ]
-            },
-            "action": "clear"
-          },
-          "helpText": "Select Ceremony, Reception, or both for an attending state. For a revision, omission leaves the stored event selection unchanged; a full decline clears event selections."
-        },
-        {
-          "id": "declineAttendance",
-          "scope": "party",
-          "type": "checkbox",
-          "label": "Unable to attend",
-          "labelVariants": {
-            "singular": "Regretfully, I am unable to attend.",
-            "plural": "Regretfully, we are unable to attend."
-          },
-          "requiredOnInitial": false,
-          "requiredWhenVisible": false,
-          "options": [
-            {
-              "value": true,
-              "label": "Unable to attend"
-            }
-          ],
-          "displayCondition": {
-            "always": true
-          },
-          "validation": {
-            "allowedValues": [
-              true,
-              false
             ]
           },
           "patchBehavior": {
             "omittedOnRevision": "leaveUnchanged",
-            "replaceOperation": "replace"
+            "replaceOperation": "replace",
+            "replaceValueIsCompleteSelection": true
           },
           "clearBehavior": {
-            "whenValue": true,
+            "whenReplacementContains": "decline",
             "clearQuestionIds": [
-              "eventAttendance",
-              "additionalGuestAttendance",
+              "additionalGuestResponses",
               "attendanceTotals",
-              "dietaryPreferences"
+              "receptionAttendeeDetails"
             ]
           },
-          "helpText": "Attendance and decline are mutually exclusive. A revision may omit this field to leave the stored status unchanged; a resulting full decline clears attendance-dependent substantive data."
+          "helpText": "Choose Ceremony, Reception, or both when attending. The decline choice is mutually exclusive with both attending options."
         },
         {
-          "id": "additionalGuestAttendance",
-          "scope": "party",
-          "type": "radio",
-          "label": "Will you be accompanied by a +1?",
-          "requiredOnInitial": true,
+          "id": "additionalGuestResponses",
+          "scope": "authorized-allocation-list",
+          "type": "repeated-radio",
+          "label": "Additional guest attendance",
+          "requiredOnInitial": false,
           "requiredWhenVisible": true,
-          "options": [
-            {
-              "value": "yes",
-              "label": "Yes"
-            },
-            {
-              "value": "no",
-              "label": "No"
-            }
-          ],
+          "repeatFromInvitationArray": "invitation.additionalGuestAllocations",
+          "instanceShape": {
+            "submissionKeyFrom": "allocation.id",
+            "labelFrom": "allocation.prompt",
+            "options": [
+              {
+                "value": "yes",
+                "label": "Yes"
+              },
+              {
+                "value": "no",
+                "label": "No"
+              }
+            ]
+          },
           "displayCondition": {
             "all": [
               {
-                "fieldHasAnySelection": "eventAttendance"
+                "invitationArrayNotEmpty": "invitation.additionalGuestAllocations"
               },
               {
-                "fieldEquals": [
-                  "declineAttendance",
-                  false
+                "attendanceExcludes": "decline"
+              },
+              {
+                "any": [
+                  {
+                    "attendanceIncludes": "ceremony"
+                  },
+                  {
+                    "attendanceIncludes": "reception"
+                  }
                 ]
               }
             ]
@@ -730,134 +321,173 @@
               "yes",
               "no"
             ],
-            "configurationRequirement": {
-              "additionalGuestAllowanceEquals": 1
-            }
+            "authorizedAllocationIdsOnly": true,
+            "duplicateAllocationIdsRejected": true,
+            "allAuthorizedAllocationsRequiredOnInitialAttending": true,
+            "allAuthorizedAllocationsRequiredWhenNewlyApplicable": true,
+            "yesCountMustNotExceedDerived": "overallAttendance"
           },
           "patchBehavior": {
-            "omittedOnRevision": "leaveUnchanged",
-            "replaceOperation": "replace",
-            "clearOperation": "clear"
+            "omittedWholeRegionOnRevision": "leaveUnchangedWhenStillApplicable",
+            "omittedAuthorizedAllocationOnRevision": "leaveThatAllocationUnchangedWhenStillApplicable",
+            "replaceOperation": "replace"
           },
           "clearBehavior": {
-            "when": {
-              "fieldEquals": [
-                "declineAttendance",
-                true
-              ]
-            },
+            "whenAttendanceContains": "decline",
             "action": "clear"
           },
-          "helpText": "Required while this authorized party is attending. Use Yes or No; no additional-guest name is requested. A full decline clears the stored response."
+          "helpText": "This section appears only when the validated invitation contains one or more authorized Plus 1 allocations. One Yes/No question is rendered for each authorized named-invitee allocation; no general Plus 1 question is offered to other parties."
         },
         {
           "id": "attendanceTotals",
           "scope": "party",
-          "type": "number-group",
+          "type": "coordinated-number-dial-group",
           "label": "To better accommodate the seating & dietary needs of our guests, please list the total number of attendees in your party:",
           "requiredOnInitial": true,
           "requiredWhenVisible": true,
-          "options": [],
+          "fields": [
+            {
+              "id": "adults21Plus",
+              "label": "Adults, ages 21 and older",
+              "type": "number-dial",
+              "wholeNumber": true,
+              "minimum": 0,
+              "dynamicMaximum": "invitation.maximumAttendance - sum(other attendanceTotals fields)"
+            },
+            {
+              "id": "youngAdults18To20",
+              "label": "Young Adults, ages 18–20",
+              "type": "number-dial",
+              "wholeNumber": true,
+              "minimum": 0,
+              "dynamicMaximum": "invitation.maximumAttendance - sum(other attendanceTotals fields)"
+            },
+            {
+              "id": "children3To17",
+              "label": "Children, ages 3–17",
+              "type": "number-dial",
+              "wholeNumber": true,
+              "minimum": 0,
+              "dynamicMaximum": "invitation.maximumAttendance - sum(other attendanceTotals fields)"
+            },
+            {
+              "id": "childrenUnder3",
+              "label": "Children under 3",
+              "type": "number-dial",
+              "wholeNumber": true,
+              "minimum": 0,
+              "dynamicMaximum": "invitation.maximumAttendance - sum(other attendanceTotals fields)"
+            }
+          ],
           "displayCondition": {
             "all": [
               {
-                "fieldHasAnySelection": "eventAttendance"
+                "attendanceExcludes": "decline"
               },
               {
-                "fieldEquals": [
-                  "declineAttendance",
-                  false
+                "any": [
+                  {
+                    "attendanceIncludes": "ceremony"
+                  },
+                  {
+                    "attendanceIncludes": "reception"
+                  }
                 ]
               }
             ]
           },
           "validation": {
-            "fields": [
-              {
-                "id": "adults21Plus",
-                "label": "Adults, ages 21 and older",
-                "wholeNumber": true,
-                "minimum": 0
-              },
-              {
-                "id": "youngAdults18To20",
-                "label": "Young Adults, ages 18–20",
-                "wholeNumber": true,
-                "minimum": 0
-              },
-              {
-                "id": "children3To17",
-                "label": "Children, ages 3–17",
-                "wholeNumber": true,
-                "minimum": 0
-              },
-              {
-                "id": "childrenUnder3",
-                "label": "Children under 3",
-                "wholeNumber": true,
-                "minimum": 0
-              }
-            ],
-            "sumMaximumFrom": "invitation.maximumAttendance",
+            "allFieldsRequiredWhenNewlyApplicable": true,
+            "wholeNumbersOnly": true,
+            "minimumPerField": 0,
             "sumMinimumWhenApplicable": 1,
-            "effectiveAdditionalGuestCountMustNotExceedSum": true
+            "sumMaximumFrom": "invitation.maximumAttendance",
+            "derivedField": {
+              "id": "overallAttendance",
+              "formula": "adults21Plus + youngAdults18To20 + children3To17 + childrenUnder3"
+            },
+            "coordinatedNumberGroup": true
           },
           "patchBehavior": {
-            "omittedOnRevision": "leaveUnchanged",
-            "omittedNestedFieldOnRevision": "leaveUnchanged",
-            "replaceOperation": "replace",
-            "explicitZero": "replace"
+            "omittedWholeRegionOnRevision": "leaveUnchangedWhenStillApplicable",
+            "omittedNestedFieldOnRevision": "leaveThatCategoryUnchangedWhenStillApplicable",
+            "explicitZero": "replaceWithZero",
+            "replaceOperation": "replace"
           },
           "clearBehavior": {
-            "when": {
-              "fieldEquals": [
-                "declineAttendance",
-                true
-              ]
-            },
+            "whenAttendanceContains": "decline",
             "action": "clear"
           },
-          "helpText": "Required for an attending default-profile response. The four-category sum is the complete attending party, including additional guests, must be at least one, and must not exceed maximumAttendance. A full decline makes the totals inapplicable."
+          "helpText": "The four numerical dials describe the complete attending party. As one dial increases, the available maximum on the others must reflect the remaining capacity. The backend independently enforces the final maximum attendance."
         },
         {
-          "id": "dietaryPreferences",
-          "scope": "party",
-          "type": "textarea",
-          "label": "Please list any food allergies or dietary preferences for the members of your party.",
+          "id": "receptionAttendeeDetails",
+          "scope": "repeated-attendee",
+          "type": "repeatable-group",
+          "label": "Reception attendee names and dietary information",
           "requiredOnInitial": false,
-          "requiredWhenVisible": false,
-          "options": [],
+          "requiredWhenVisible": true,
+          "repeatCountFromDerivedValue": "overallAttendance",
+          "fields": [
+            {
+              "id": "attendeeName",
+              "type": "text",
+              "label": "Attendee name",
+              "required": true,
+              "validation": {
+                "nonblankTrimmedString": true,
+                "maximumLength": 100
+              }
+            },
+            {
+              "id": "dietaryPreferences",
+              "type": "textarea",
+              "label": "Food allergies or dietary preferences",
+              "required": false,
+              "validation": {
+                "maximumLength": 1000
+              }
+            }
+          ],
           "displayCondition": {
             "all": [
               {
-                "fieldHasAnySelection": "eventAttendance"
+                "attendanceIncludes": "reception"
               },
               {
-                "fieldEquals": [
-                  "declineAttendance",
-                  false
-                ]
+                "attendanceExcludes": "decline"
               }
             ]
           },
           "validation": {
-            "maximumLength": 1000
+            "repeatCountEqualsDerivedValue": "overallAttendance",
+            "attendeeNameRequiredForEveryRow": true,
+            "attendeeNameMaximumLength": 100,
+            "dietaryPreferencesMaximumLength": 1000,
+            "duplicateNamesPermitted": true,
+            "serverDoesNotInferNamesFromInvitationConfiguration": true
           },
           "patchBehavior": {
-            "omittedOnRevision": "leaveUnchanged",
-            "replaceOperation": "replace",
-            "clearOperation": "clear"
+            "completeReplacementWhenSubmitted": true,
+            "omittedOnRevision": "leaveUnchangedOnlyWhenReceptionRemainsSelectedAndOverallAttendanceIsUnchanged",
+            "replacementRequiredWhen": [
+              "Reception becomes newly selected",
+              "overallAttendance changes while Reception remains selected"
+            ],
+            "replaceOperation": "replace"
           },
           "clearBehavior": {
-            "when": {
-              "fieldEquals": [
-                "declineAttendance",
-                true
-              ]
-            },
+            "whenAny": [
+              {
+                "attendanceExcludes": "reception"
+              },
+              {
+                "attendanceIncludes": "decline"
+              }
+            ],
             "action": "clear"
           },
-          "helpText": "One optional free-text response applies to the entire attending party. It is applicable to Ceremony-only, Reception-only, or combined attendance and is automatically cleared on full decline."
+          "helpText": "When Reception is selected, provide one attendee name for every person attending the party's Reception. Dietary/allergy information is optional and is collected separately for each listed attendee."
         },
         {
           "id": "confirmationMethod",
@@ -880,10 +510,9 @@
             "always": true
           },
           "validation": {
-            "allowedValues": [
-              "email",
-              "textMessage"
-            ]
+            "allowedValuesFromConfirmationOptions": true,
+            "emailAlwaysAvailable": true,
+            "textMessageRequires": "confirmationOptions.textMessage == true"
           },
           "patchBehavior": {
             "omittedOnRevision": "invalidWhenRequired",
@@ -900,7 +529,7 @@
               ]
             }
           },
-          "helpText": "Required for every initial submission and revision. Email requires a valid email destination. The reusable development schema includes Text Message, but production may render/accept it only when confirmationOptions reports that the Step 14 provider/disclosure gate is satisfied. When enabled, Text Message requires a valid SMS-capable mobile destination plus transactional authorization when configured. New operational values replace stored counterparts."
+          "helpText": "Required for every initial submission and revision. Newly entered operational values replace their stored counterparts. Text Message is rendered and accepted only when centralized configuration enables it."
         },
         {
           "id": "confirmationEmail",
@@ -909,7 +538,6 @@
           "label": "Email address",
           "requiredOnInitial": false,
           "requiredWhenVisible": true,
-          "options": [],
           "displayCondition": {
             "fieldEquals": [
               "confirmationMethod",
@@ -941,11 +569,17 @@
           "label": "SMS-capable mobile number",
           "requiredOnInitial": false,
           "requiredWhenVisible": true,
-          "options": [],
           "displayCondition": {
-            "fieldEquals": [
-              "confirmationMethod",
-              "textMessage"
+            "all": [
+              {
+                "confirmationOptionEnabled": "textMessage"
+              },
+              {
+                "fieldEquals": [
+                  "confirmationMethod",
+                  "textMessage"
+                ]
+              }
             ]
           },
           "validation": {
@@ -964,23 +598,20 @@
             },
             "action": "clear"
           },
-          "helpText": "Required when Text message is selected. The complete current RSVP will be sent to the newly entered mobile number."
+          "helpText": "Required only when Text Message confirmation is enabled and selected."
         },
         {
           "id": "smsAuthorization",
           "scope": "operational",
-          "type": "consent",
+          "type": "checkbox",
           "label": "Transactional text-message authorization",
           "requiredOnInitial": false,
           "requiredWhenVisible": true,
-          "options": [
-            {
-              "value": true,
-              "label": "I authorize the required transactional RSVP confirmation text message."
-            }
-          ],
           "displayCondition": {
             "all": [
+              {
+                "confirmationOptionEnabled": "textMessage"
+              },
               {
                 "fieldEquals": [
                   "confirmationMethod",
@@ -988,8 +619,8 @@
                 ]
               },
               {
-                "configurationEquals": [
-                  "smsAuthorizationRequired",
+                "fieldEquals": [
+                  "confirmationOptions.smsAuthorizationRequired",
                   true
                 ]
               }
@@ -1003,930 +634,84 @@
             "replaceOperation": "replace"
           },
           "clearBehavior": {
-            "whenAny": [
-              {
-                "fieldNotEquals": [
-                  "confirmationMethod",
-                  "textMessage"
-                ]
-              },
-              {
-                "configurationEquals": [
-                  "smsAuthorizationRequired",
-                  false
-                ]
-              }
-            ],
+            "when": {
+              "fieldNotEquals": [
+                "confirmationMethod",
+                "textMessage"
+              ]
+            },
             "action": "clear"
           },
-          "helpText": "Development-only provider-neutral placeholder. In production this control is rendered and required only when Text Message confirmation is enabled and the selected provider's verified disclosure/authorization wording applies. The permanent question ID remains smsAuthorization; do not invent provider-specific production copy before the Step 14 gate is satisfied."
+          "helpText": "Provider-specific production authorization language must be supplied only after the SMS production-enablement gate is satisfied."
         }
       ],
       "formValidationRules": [
         {
-          "id": "attendance-or-decline-required",
-          "rule": "A complete response must be either attending with Ceremony, Reception, or both and decline=false, or declining with no event selections and decline=true."
+          "id": "attendance-required",
+          "rule": "The complete eventAttendance selection must be Ceremony, Reception, Ceremony plus Reception, or decline. Decline is mutually exclusive with both attending events."
         },
         {
-          "id": "attendance-decline-mutual-exclusion",
-          "rule": "A complete RSVP must not simultaneously contain event attendance and a decline response."
+          "id": "authorized-plus-one-controls-only",
+          "rule": "Render and accept Plus 1 responses only for objects in invitation.additionalGuestAllocations. Empty allocations mean no Plus 1 controls and no accepted Plus 1 responses."
         },
         {
-          "id": "operational-confirmation-required",
-          "rule": "Every initial submission and revision requires confirmationMethod plus the applicable newly entered destination and any required SMS authorization."
-        },
-        {
-          "id": "revision-omission-means-unchanged",
-          "rule": "For substantive RSVP fields, omission on revision means leave the stored value unchanged unless a controlling full-decline result makes that field inapplicable. Replacement, explicit zero, and explicit clear remain distinct operations."
+          "id": "plus-one-responses-required-when-newly-applicable",
+          "rule": "Every authorized allocation requires yes/no on an initial attending response or when attendance becomes newly applicable after a decline."
         },
         {
           "id": "attendance-totals-required-when-attending",
-          "rule": "When the complete result is attending, attendanceTotals is required. Initial or newly applicable totals must include all four nonnegative whole-number categories; their sum must be at least 1 and must not exceed invitation.maximumAttendance."
+          "rule": "All four age-category totals are required when newly applicable. Each is a nonnegative whole number; the sum is at least 1 and no greater than invitation.maximumAttendance."
         },
         {
-          "id": "attendance-totals-partial-revision",
-          "rule": "For a revision that remains attending, omitted attendance-total categories remain unchanged and explicit zero is a replacement value."
+          "id": "coordinated-dial-capacity",
+          "rule": "The UI must prevent the four age-category dials from collectively exceeding invitation.maximumAttendance, while the backend independently validates the final sum."
         },
         {
-          "id": "additional-guest-authorization",
-          "rule": "additionalGuestAttendance is required while this default-profile party is attending and its allowance is positive. Allowance 1 uses yes/no; larger allowances use whole numbers from zero through the allowance."
+          "id": "reception-details-cardinality",
+          "rule": "When Reception is selected, receptionAttendeeDetails contains exactly one row per derived overallAttendance and every row contains a nonblank attendeeName of at most 100 characters."
         },
         {
-          "id": "additional-guest-within-overall-attendance",
-          "rule": "The effective attending additional-guest count must not exceed the complete attendance-total sum; changing the additional-guest response does not automatically alter age-category totals."
+          "id": "reception-dietary-length",
+          "rule": "Each Reception attendee row may contain an optional dietaryPreferences value of at most 1000 characters."
         },
         {
-          "id": "dietary-any-attendance",
-          "rule": "dietaryPreferences is optional but applicable to Ceremony-only, Reception-only, or combined attendance. It is not Reception-only and is cleared when the complete result fully declines."
+          "id": "reception-details-complete-replacement",
+          "rule": "If Reception becomes newly selected or overallAttendance changes while Reception remains selected, a revision must submit the complete replacement receptionAttendeeDetails array."
         },
         {
-          "id": "decline-clears-inapplicable-party-data",
-          "rule": "A fully declining result sets eventAttendance to an empty array, clears dietaryPreferences, and removes any applicable additionalGuestAttendance and attendanceTotals before final validation."
-        },
-        {
-          "id": "operational-channel-dependency",
-          "rule": "Email requires confirmationEmail and excludes confirmationMobile/smsAuthorization. Text Message requires confirmationMobile, excludes confirmationEmail, and requires smsAuthorization=true only when centralized configuration requires it."
-        },
-        {
-          "id": "backend-authority",
-          "rule": "Client visibility and usability validation do not authorize values; the backend independently applies all profile, allowance, dependency, and complete-result rules."
-        }
-      ],
-      "dependencyRuleRefs": [
-        "dependency-processing-order",
-        "attendance-decline-valid-states",
-        "attendance-decline-mutual-exclusion",
-        "initial-attendance-decision-required",
-        "full-decline-clears-dependent-substantive-data",
-        "dietary-applicable-to-any-attendance",
-        "revision-omission-means-unchanged",
-        "email-confirmation-dependency",
-        "text-confirmation-dependency",
-        "backend-authority-over-visibility",
-        "attendance-totals-applicability",
-        "attendance-totals-validation",
-        "attendance-totals-partial-revision",
-        "additional-guest-applicability",
-        "additional-guest-value-bounds",
-        "additional-guest-within-overall-attendance",
-        "no-age-category-inference"
-      ]
-    },
-    {
-      "schemaId": "default-allowance-multiple",
-      "exampleConfigurationCode": "DEV003",
-      "questionProfile": "default",
-      "appliesWhen": {
-        "questionProfile": "default",
-        "additionalGuestAllowance": {
-          "greaterThan": 1
-        }
-      },
-      "questions": [
-        {
-          "id": "eventAttendance",
-          "scope": "party",
-          "type": "checkbox-group",
-          "label": "Event attendance",
-          "labelVariants": {
-            "singular": "I will be attending (check all that apply):",
-            "plural": "We will be attending (check all that apply):"
-          },
-          "requiredOnInitial": false,
-          "requiredWhenVisible": false,
-          "options": [
-            {
-              "value": "ceremony",
-              "label": "Ceremony"
-            },
-            {
-              "value": "reception",
-              "label": "Reception"
-            }
-          ],
-          "displayCondition": {
-            "always": true
-          },
-          "validation": {
-            "allowedValues": [
-              "ceremony",
-              "reception"
-            ],
-            "maximumSelections": 2
-          },
-          "patchBehavior": {
-            "omittedOnRevision": "leaveUnchanged",
-            "replaceOperation": "replace"
-          },
-          "clearBehavior": {
-            "when": {
-              "fieldEquals": [
-                "declineAttendance",
-                true
-              ]
-            },
-            "action": "clear"
-          },
-          "helpText": "Select Ceremony, Reception, or both for an attending state. For a revision, omission leaves the stored event selection unchanged; a full decline clears event selections."
-        },
-        {
-          "id": "declineAttendance",
-          "scope": "party",
-          "type": "checkbox",
-          "label": "Unable to attend",
-          "labelVariants": {
-            "singular": "Regretfully, I am unable to attend.",
-            "plural": "Regretfully, we are unable to attend."
-          },
-          "requiredOnInitial": false,
-          "requiredWhenVisible": false,
-          "options": [
-            {
-              "value": true,
-              "label": "Unable to attend"
-            }
-          ],
-          "displayCondition": {
-            "always": true
-          },
-          "validation": {
-            "allowedValues": [
-              true,
-              false
-            ]
-          },
-          "patchBehavior": {
-            "omittedOnRevision": "leaveUnchanged",
-            "replaceOperation": "replace"
-          },
-          "clearBehavior": {
-            "whenValue": true,
-            "clearQuestionIds": [
-              "eventAttendance",
-              "additionalGuestAttendance",
-              "attendanceTotals",
-              "dietaryPreferences"
-            ]
-          },
-          "helpText": "Attendance and decline are mutually exclusive. A revision may omit this field to leave the stored status unchanged; a resulting full decline clears attendance-dependent substantive data."
-        },
-        {
-          "id": "additionalGuestAttendance",
-          "scope": "party",
-          "type": "number",
-          "label": "How many additional guests will accompany your party?",
-          "requiredOnInitial": true,
-          "requiredWhenVisible": true,
-          "options": [],
-          "displayCondition": {
-            "all": [
-              {
-                "fieldHasAnySelection": "eventAttendance"
-              },
-              {
-                "fieldEquals": [
-                  "declineAttendance",
-                  false
-                ]
-              }
-            ]
-          },
-          "validation": {
-            "wholeNumber": true,
-            "minimum": 0,
-            "maximumFrom": "invitation.additionalGuestAllowance",
-            "configurationRequirement": {
-              "additionalGuestAllowanceGreaterThan": 1
-            }
-          },
-          "patchBehavior": {
-            "omittedOnRevision": "leaveUnchanged",
-            "replaceOperation": "replace",
-            "explicitZero": "replace",
-            "clearOperation": "clear"
-          },
-          "clearBehavior": {
-            "when": {
-              "fieldEquals": [
-                "declineAttendance",
-                true
-              ]
-            },
-            "action": "clear"
-          },
-          "helpText": "Required while this authorized party is attending. Permitted whole-number values run from zero through the configured allowance. A full decline clears the stored response. Final guest-facing wording remains subject to content approval."
-        },
-        {
-          "id": "attendanceTotals",
-          "scope": "party",
-          "type": "number-group",
-          "label": "To better accommodate the seating & dietary needs of our guests, please list the total number of attendees in your party:",
-          "requiredOnInitial": true,
-          "requiredWhenVisible": true,
-          "options": [],
-          "displayCondition": {
-            "all": [
-              {
-                "fieldHasAnySelection": "eventAttendance"
-              },
-              {
-                "fieldEquals": [
-                  "declineAttendance",
-                  false
-                ]
-              }
-            ]
-          },
-          "validation": {
-            "fields": [
-              {
-                "id": "adults21Plus",
-                "label": "Adults, ages 21 and older",
-                "wholeNumber": true,
-                "minimum": 0
-              },
-              {
-                "id": "youngAdults18To20",
-                "label": "Young Adults, ages 18–20",
-                "wholeNumber": true,
-                "minimum": 0
-              },
-              {
-                "id": "children3To17",
-                "label": "Children, ages 3–17",
-                "wholeNumber": true,
-                "minimum": 0
-              },
-              {
-                "id": "childrenUnder3",
-                "label": "Children under 3",
-                "wholeNumber": true,
-                "minimum": 0
-              }
-            ],
-            "sumMaximumFrom": "invitation.maximumAttendance",
-            "sumMinimumWhenApplicable": 1,
-            "effectiveAdditionalGuestCountMustNotExceedSum": true
-          },
-          "patchBehavior": {
-            "omittedOnRevision": "leaveUnchanged",
-            "omittedNestedFieldOnRevision": "leaveUnchanged",
-            "replaceOperation": "replace",
-            "explicitZero": "replace"
-          },
-          "clearBehavior": {
-            "when": {
-              "fieldEquals": [
-                "declineAttendance",
-                true
-              ]
-            },
-            "action": "clear"
-          },
-          "helpText": "Required for an attending default-profile response. The four-category sum is the complete attending party, including additional guests, must be at least one, and must not exceed maximumAttendance. A full decline makes the totals inapplicable."
-        },
-        {
-          "id": "dietaryPreferences",
-          "scope": "party",
-          "type": "textarea",
-          "label": "Please list any food allergies or dietary preferences for the members of your party.",
-          "requiredOnInitial": false,
-          "requiredWhenVisible": false,
-          "options": [],
-          "displayCondition": {
-            "all": [
-              {
-                "fieldHasAnySelection": "eventAttendance"
-              },
-              {
-                "fieldEquals": [
-                  "declineAttendance",
-                  false
-                ]
-              }
-            ]
-          },
-          "validation": {
-            "maximumLength": 1000
-          },
-          "patchBehavior": {
-            "omittedOnRevision": "leaveUnchanged",
-            "replaceOperation": "replace",
-            "clearOperation": "clear"
-          },
-          "clearBehavior": {
-            "when": {
-              "fieldEquals": [
-                "declineAttendance",
-                true
-              ]
-            },
-            "action": "clear"
-          },
-          "helpText": "One optional free-text response applies to the entire attending party. It is applicable to Ceremony-only, Reception-only, or combined attendance and is automatically cleared on full decline."
-        },
-        {
-          "id": "confirmationMethod",
-          "scope": "operational",
-          "type": "radio",
-          "label": "Confirmation method",
-          "requiredOnInitial": true,
-          "requiredWhenVisible": true,
-          "options": [
-            {
-              "value": "email",
-              "label": "Email"
-            },
-            {
-              "value": "textMessage",
-              "label": "Text message"
-            }
-          ],
-          "displayCondition": {
-            "always": true
-          },
-          "validation": {
-            "allowedValues": [
-              "email",
-              "textMessage"
-            ]
-          },
-          "patchBehavior": {
-            "omittedOnRevision": "invalidWhenRequired",
-            "replaceOperation": "replace"
-          },
-          "clearBehavior": {
-            "bySelectedValue": {
-              "email": [
-                "confirmationMobile",
-                "smsAuthorization"
-              ],
-              "textMessage": [
-                "confirmationEmail"
-              ]
-            }
-          },
-          "helpText": "Required for every initial submission and revision. Email requires a valid email destination. The reusable development schema includes Text Message, but production may render/accept it only when confirmationOptions reports that the Step 14 provider/disclosure gate is satisfied. When enabled, Text Message requires a valid SMS-capable mobile destination plus transactional authorization when configured. New operational values replace stored counterparts."
-        },
-        {
-          "id": "confirmationEmail",
-          "scope": "operational",
-          "type": "email",
-          "label": "Email address",
-          "requiredOnInitial": false,
-          "requiredWhenVisible": true,
-          "options": [],
-          "displayCondition": {
-            "fieldEquals": [
-              "confirmationMethod",
-              "email"
-            ]
-          },
-          "validation": {
-            "format": "email"
-          },
-          "patchBehavior": {
-            "omittedOnRevision": "invalidWhenRequired",
-            "replaceOperation": "replace"
-          },
-          "clearBehavior": {
-            "when": {
-              "fieldNotEquals": [
-                "confirmationMethod",
-                "email"
-              ]
-            },
-            "action": "clear"
-          },
-          "helpText": "Required when Email is selected. The complete current RSVP will be sent to the newly entered address."
-        },
-        {
-          "id": "confirmationMobile",
-          "scope": "operational",
-          "type": "tel",
-          "label": "SMS-capable mobile number",
-          "requiredOnInitial": false,
-          "requiredWhenVisible": true,
-          "options": [],
-          "displayCondition": {
-            "fieldEquals": [
-              "confirmationMethod",
-              "textMessage"
-            ]
-          },
-          "validation": {
-            "format": "sms-capable-mobile-number"
-          },
-          "patchBehavior": {
-            "omittedOnRevision": "invalidWhenRequired",
-            "replaceOperation": "replace"
-          },
-          "clearBehavior": {
-            "when": {
-              "fieldNotEquals": [
-                "confirmationMethod",
-                "textMessage"
-              ]
-            },
-            "action": "clear"
-          },
-          "helpText": "Required when Text message is selected. The complete current RSVP will be sent to the newly entered mobile number."
-        },
-        {
-          "id": "smsAuthorization",
-          "scope": "operational",
-          "type": "consent",
-          "label": "Transactional text-message authorization",
-          "requiredOnInitial": false,
-          "requiredWhenVisible": true,
-          "options": [
-            {
-              "value": true,
-              "label": "I authorize the required transactional RSVP confirmation text message."
-            }
-          ],
-          "displayCondition": {
-            "all": [
-              {
-                "fieldEquals": [
-                  "confirmationMethod",
-                  "textMessage"
-                ]
-              },
-              {
-                "configurationEquals": [
-                  "smsAuthorizationRequired",
-                  true
-                ]
-              }
-            ]
-          },
-          "validation": {
-            "requiredValue": true
-          },
-          "patchBehavior": {
-            "omittedOnRevision": "invalidWhenRequired",
-            "replaceOperation": "replace"
-          },
-          "clearBehavior": {
-            "whenAny": [
-              {
-                "fieldNotEquals": [
-                  "confirmationMethod",
-                  "textMessage"
-                ]
-              },
-              {
-                "configurationEquals": [
-                  "smsAuthorizationRequired",
-                  false
-                ]
-              }
-            ],
-            "action": "clear"
-          },
-          "helpText": "Development-only provider-neutral placeholder. In production this control is rendered and required only when Text Message confirmation is enabled and the selected provider's verified disclosure/authorization wording applies. The permanent question ID remains smsAuthorization; do not invent provider-specific production copy before the Step 14 gate is satisfied."
-        }
-      ],
-      "formValidationRules": [
-        {
-          "id": "attendance-or-decline-required",
-          "rule": "A complete response must be either attending with Ceremony, Reception, or both and decline=false, or declining with no event selections and decline=true."
-        },
-        {
-          "id": "attendance-decline-mutual-exclusion",
-          "rule": "A complete RSVP must not simultaneously contain event attendance and a decline response."
+          "id": "decline-clears-dependent-data",
+          "rule": "A complete decline clears Plus 1 responses, attendance totals, derived overallAttendance, and Reception attendee details before final validation."
         },
         {
           "id": "operational-confirmation-required",
           "rule": "Every initial submission and revision requires confirmationMethod plus the applicable newly entered destination and any required SMS authorization."
         },
         {
-          "id": "revision-omission-means-unchanged",
-          "rule": "For substantive RSVP fields, omission on revision means leave the stored value unchanged unless a controlling full-decline result makes that field inapplicable. Replacement, explicit zero, and explicit clear remain distinct operations."
-        },
-        {
-          "id": "attendance-totals-required-when-attending",
-          "rule": "When the complete result is attending, attendanceTotals is required. Initial or newly applicable totals must include all four nonnegative whole-number categories; their sum must be at least 1 and must not exceed invitation.maximumAttendance."
-        },
-        {
-          "id": "attendance-totals-partial-revision",
-          "rule": "For a revision that remains attending, omitted attendance-total categories remain unchanged and explicit zero is a replacement value."
-        },
-        {
-          "id": "additional-guest-authorization",
-          "rule": "additionalGuestAttendance is required while this default-profile party is attending and its allowance is positive. Allowance 1 uses yes/no; larger allowances use whole numbers from zero through the allowance."
-        },
-        {
-          "id": "additional-guest-within-overall-attendance",
-          "rule": "The effective attending additional-guest count must not exceed the complete attendance-total sum; changing the additional-guest response does not automatically alter age-category totals."
-        },
-        {
-          "id": "dietary-any-attendance",
-          "rule": "dietaryPreferences is optional but applicable to Ceremony-only, Reception-only, or combined attendance. It is not Reception-only and is cleared when the complete result fully declines."
-        },
-        {
-          "id": "decline-clears-inapplicable-party-data",
-          "rule": "A fully declining result sets eventAttendance to an empty array, clears dietaryPreferences, and removes any applicable additionalGuestAttendance and attendanceTotals before final validation."
-        },
-        {
-          "id": "operational-channel-dependency",
-          "rule": "Email requires confirmationEmail and excludes confirmationMobile/smsAuthorization. Text Message requires confirmationMobile, excludes confirmationEmail, and requires smsAuthorization=true only when centralized configuration requires it."
-        },
-        {
           "id": "backend-authority",
-          "rule": "Client visibility and usability validation do not authorize values; the backend independently applies all profile, allowance, dependency, and complete-result rules."
+          "rule": "Client visibility and usability validation do not authorize values; the backend independently validates the complete resulting RSVP."
         }
       ],
       "dependencyRuleRefs": [
         "dependency-processing-order",
-        "attendance-decline-valid-states",
-        "attendance-decline-mutual-exclusion",
+        "attendance-valid-states",
         "initial-attendance-decision-required",
-        "full-decline-clears-dependent-substantive-data",
-        "dietary-applicable-to-any-attendance",
-        "revision-omission-means-unchanged",
-        "email-confirmation-dependency",
-        "text-confirmation-dependency",
-        "backend-authority-over-visibility",
+        "plus-one-questions-authorized-only",
+        "plus-one-response-required-when-newly-applicable",
+        "plus-one-response-authorization",
         "attendance-totals-applicability",
         "attendance-totals-validation",
+        "attendance-dial-remaining-capacity",
         "attendance-totals-partial-revision",
-        "additional-guest-applicability",
-        "additional-guest-value-bounds",
-        "additional-guest-within-overall-attendance",
-        "no-age-category-inference"
-      ]
-    },
-    {
-      "schemaId": "reduced-attendance-dietary",
-      "exampleConfigurationCode": "DEV004",
-      "questionProfile": "reduced-attendance-dietary",
-      "appliesWhen": {
-        "questionProfile": "reduced-attendance-dietary",
-        "additionalGuestAllowance": {
-          "ignoredForSubstantiveRendering": true
-        }
-      },
-      "questions": [
-        {
-          "id": "eventAttendance",
-          "scope": "party",
-          "type": "checkbox-group",
-          "label": "Event attendance",
-          "labelVariants": {
-            "singular": "I will be attending (check all that apply):",
-            "plural": "We will be attending (check all that apply):"
-          },
-          "requiredOnInitial": false,
-          "requiredWhenVisible": false,
-          "options": [
-            {
-              "value": "ceremony",
-              "label": "Ceremony"
-            },
-            {
-              "value": "reception",
-              "label": "Reception"
-            }
-          ],
-          "displayCondition": {
-            "always": true
-          },
-          "validation": {
-            "allowedValues": [
-              "ceremony",
-              "reception"
-            ],
-            "maximumSelections": 2
-          },
-          "patchBehavior": {
-            "omittedOnRevision": "leaveUnchanged",
-            "replaceOperation": "replace"
-          },
-          "clearBehavior": {
-            "when": {
-              "fieldEquals": [
-                "declineAttendance",
-                true
-              ]
-            },
-            "action": "clear"
-          },
-          "helpText": "Select Ceremony, Reception, or both for an attending state. For a revision, omission leaves the stored event selection unchanged; a full decline clears event selections."
-        },
-        {
-          "id": "declineAttendance",
-          "scope": "party",
-          "type": "checkbox",
-          "label": "Unable to attend",
-          "labelVariants": {
-            "singular": "Regretfully, I am unable to attend.",
-            "plural": "Regretfully, we are unable to attend."
-          },
-          "requiredOnInitial": false,
-          "requiredWhenVisible": false,
-          "options": [
-            {
-              "value": true,
-              "label": "Unable to attend"
-            }
-          ],
-          "displayCondition": {
-            "always": true
-          },
-          "validation": {
-            "allowedValues": [
-              true,
-              false
-            ]
-          },
-          "patchBehavior": {
-            "omittedOnRevision": "leaveUnchanged",
-            "replaceOperation": "replace"
-          },
-          "clearBehavior": {
-            "whenValue": true,
-            "clearQuestionIds": [
-              "eventAttendance",
-              "dietaryPreferences"
-            ]
-          },
-          "helpText": "Attendance and decline are mutually exclusive. A revision may omit this field to leave the stored status unchanged; a resulting full decline clears attendance-dependent substantive data."
-        },
-        {
-          "id": "dietaryPreferences",
-          "scope": "party",
-          "type": "textarea",
-          "label": "Please list any food allergies or dietary preferences for the members of your party.",
-          "requiredOnInitial": false,
-          "requiredWhenVisible": false,
-          "options": [],
-          "displayCondition": {
-            "all": [
-              {
-                "fieldHasAnySelection": "eventAttendance"
-              },
-              {
-                "fieldEquals": [
-                  "declineAttendance",
-                  false
-                ]
-              }
-            ]
-          },
-          "validation": {
-            "maximumLength": 1000
-          },
-          "patchBehavior": {
-            "omittedOnRevision": "leaveUnchanged",
-            "replaceOperation": "replace",
-            "clearOperation": "clear"
-          },
-          "clearBehavior": {
-            "when": {
-              "fieldEquals": [
-                "declineAttendance",
-                true
-              ]
-            },
-            "action": "clear"
-          },
-          "helpText": "One optional free-text response applies to the entire attending party. It is applicable to Ceremony-only, Reception-only, or combined attendance and is automatically cleared on full decline."
-        },
-        {
-          "id": "confirmationMethod",
-          "scope": "operational",
-          "type": "radio",
-          "label": "Confirmation method",
-          "requiredOnInitial": true,
-          "requiredWhenVisible": true,
-          "options": [
-            {
-              "value": "email",
-              "label": "Email"
-            },
-            {
-              "value": "textMessage",
-              "label": "Text message"
-            }
-          ],
-          "displayCondition": {
-            "always": true
-          },
-          "validation": {
-            "allowedValues": [
-              "email",
-              "textMessage"
-            ]
-          },
-          "patchBehavior": {
-            "omittedOnRevision": "invalidWhenRequired",
-            "replaceOperation": "replace"
-          },
-          "clearBehavior": {
-            "bySelectedValue": {
-              "email": [
-                "confirmationMobile",
-                "smsAuthorization"
-              ],
-              "textMessage": [
-                "confirmationEmail"
-              ]
-            }
-          },
-          "helpText": "Required for every initial submission and revision. Email requires a valid email destination. The reusable development schema includes Text Message, but production may render/accept it only when confirmationOptions reports that the Step 14 provider/disclosure gate is satisfied. When enabled, Text Message requires a valid SMS-capable mobile destination plus transactional authorization when configured. New operational values replace stored counterparts."
-        },
-        {
-          "id": "confirmationEmail",
-          "scope": "operational",
-          "type": "email",
-          "label": "Email address",
-          "requiredOnInitial": false,
-          "requiredWhenVisible": true,
-          "options": [],
-          "displayCondition": {
-            "fieldEquals": [
-              "confirmationMethod",
-              "email"
-            ]
-          },
-          "validation": {
-            "format": "email"
-          },
-          "patchBehavior": {
-            "omittedOnRevision": "invalidWhenRequired",
-            "replaceOperation": "replace"
-          },
-          "clearBehavior": {
-            "when": {
-              "fieldNotEquals": [
-                "confirmationMethod",
-                "email"
-              ]
-            },
-            "action": "clear"
-          },
-          "helpText": "Required when Email is selected. The complete current RSVP will be sent to the newly entered address."
-        },
-        {
-          "id": "confirmationMobile",
-          "scope": "operational",
-          "type": "tel",
-          "label": "SMS-capable mobile number",
-          "requiredOnInitial": false,
-          "requiredWhenVisible": true,
-          "options": [],
-          "displayCondition": {
-            "fieldEquals": [
-              "confirmationMethod",
-              "textMessage"
-            ]
-          },
-          "validation": {
-            "format": "sms-capable-mobile-number"
-          },
-          "patchBehavior": {
-            "omittedOnRevision": "invalidWhenRequired",
-            "replaceOperation": "replace"
-          },
-          "clearBehavior": {
-            "when": {
-              "fieldNotEquals": [
-                "confirmationMethod",
-                "textMessage"
-              ]
-            },
-            "action": "clear"
-          },
-          "helpText": "Required when Text message is selected. The complete current RSVP will be sent to the newly entered mobile number."
-        },
-        {
-          "id": "smsAuthorization",
-          "scope": "operational",
-          "type": "consent",
-          "label": "Transactional text-message authorization",
-          "requiredOnInitial": false,
-          "requiredWhenVisible": true,
-          "options": [
-            {
-              "value": true,
-              "label": "I authorize the required transactional RSVP confirmation text message."
-            }
-          ],
-          "displayCondition": {
-            "all": [
-              {
-                "fieldEquals": [
-                  "confirmationMethod",
-                  "textMessage"
-                ]
-              },
-              {
-                "configurationEquals": [
-                  "smsAuthorizationRequired",
-                  true
-                ]
-              }
-            ]
-          },
-          "validation": {
-            "requiredValue": true
-          },
-          "patchBehavior": {
-            "omittedOnRevision": "invalidWhenRequired",
-            "replaceOperation": "replace"
-          },
-          "clearBehavior": {
-            "whenAny": [
-              {
-                "fieldNotEquals": [
-                  "confirmationMethod",
-                  "textMessage"
-                ]
-              },
-              {
-                "configurationEquals": [
-                  "smsAuthorizationRequired",
-                  false
-                ]
-              }
-            ],
-            "action": "clear"
-          },
-          "helpText": "Development-only provider-neutral placeholder. In production this control is rendered and required only when Text Message confirmation is enabled and the selected provider's verified disclosure/authorization wording applies. The permanent question ID remains smsAuthorization; do not invent provider-specific production copy before the Step 14 gate is satisfied."
-        }
-      ],
-      "formValidationRules": [
-        {
-          "id": "attendance-or-decline-required",
-          "rule": "A complete response must be either attending with Ceremony, Reception, or both and decline=false, or declining with no event selections and decline=true."
-        },
-        {
-          "id": "attendance-decline-mutual-exclusion",
-          "rule": "A complete RSVP must not simultaneously contain event attendance and a decline response."
-        },
-        {
-          "id": "operational-confirmation-required",
-          "rule": "Every initial submission and revision requires confirmationMethod plus the applicable newly entered destination and any required SMS authorization."
-        },
-        {
-          "id": "revision-omission-means-unchanged",
-          "rule": "For substantive RSVP fields, omission on revision means leave the stored value unchanged unless a controlling full-decline result makes that field inapplicable. Replacement, explicit zero, and explicit clear remain distinct operations."
-        },
-        {
-          "id": "reduced-profile-closed-set",
-          "rule": "The reduced-attendance-dietary profile never renders or accepts additionalGuestAttendance or attendanceTotals."
-        },
-        {
-          "id": "dietary-any-attendance",
-          "rule": "dietaryPreferences is optional but applicable to Ceremony-only, Reception-only, or combined attendance. It is not Reception-only and is cleared when the complete result fully declines."
-        },
-        {
-          "id": "decline-clears-inapplicable-party-data",
-          "rule": "A fully declining result sets eventAttendance to an empty array, clears dietaryPreferences, and removes any applicable additionalGuestAttendance and attendanceTotals before final validation."
-        },
-        {
-          "id": "operational-channel-dependency",
-          "rule": "Email requires confirmationEmail and excludes confirmationMobile/smsAuthorization. Text Message requires confirmationMobile, excludes confirmationEmail, and requires smsAuthorization=true only when centralized configuration requires it."
-        },
-        {
-          "id": "backend-authority",
-          "rule": "Client visibility and usability validation do not authorize values; the backend independently applies all profile, allowance, dependency, and complete-result rules."
-        }
-      ],
-      "dependencyRuleRefs": [
-        "dependency-processing-order",
-        "attendance-decline-valid-states",
-        "attendance-decline-mutual-exclusion",
-        "initial-attendance-decision-required",
+        "plus-one-count-within-attendance",
+        "reception-details-applicability",
+        "reception-details-cardinality",
+        "reception-details-replacement",
+        "reception-removal-clears-details",
         "full-decline-clears-dependent-substantive-data",
-        "dietary-applicable-to-any-attendance",
         "revision-omission-means-unchanged",
         "email-confirmation-dependency",
         "text-confirmation-dependency",
-        "backend-authority-over-visibility",
-        "reduced-profile-closed-set"
+        "backend-authority-over-visibility"
       ]
     }
   ]

@@ -35,22 +35,23 @@ Date:
 ## Decision 002 — Invitation Codes
 
 Decision:
-The authoritative private production invitation source is the couple-supplied `Invitees List` spreadsheet. It contains 56 active invitation records corresponding to the 56 printed invitations.
+The authoritative private production invitation source is the couple-supplied `Invitees List` spreadsheet. The current spreadsheet contains **57 active invitation records** corresponding to 57 assigned printed invitations.
 
-The spreadsheet supplies the in-use invitation codes and the private invited-party account information required to begin invitation-configuration work. The actual production codes and guest details must remain in private project data and must not be copied into public documentation, frontend source files, public repositories, browser responses, analytics, page metadata, or ordinary application logs.
+The spreadsheet supplies the in-use invitation codes and the private invited-party information required to build production invitation configurations. The actual production codes and guest details must remain in private project data and must not be copied into public documentation, frontend source files, public repositories, browser URLs, analytics, page metadata, referrer data, or ordinary application logs.
 
-Phase 3 Step 2 Audit:
+Current source audit:
 
-* All 56 supplied invitation codes normalize successfully under the approved invitation-code rules.
-* All 56 normalized six-character lookup keys are unique.
+* All 57 supplied invitation codes normalize successfully under the approved invitation-code rules.
+* All 57 normalized six-character lookup keys are unique.
 * No two supplied codes collide after normalization.
-* Each production code maps to one populated primary invited-party record.
+* Each production code maps to one populated invited-party record.
 * The supplied display values already use the approved `XXX-XXX` presentation format.
+* A separate production placeholder code is not required by the current authoritative source.
 
 Implementation Requirement:
 The application must load invitation records dynamically and must not contain form-building or validation logic that assumes a permanently fixed number of invitations.
 
-The production source must be transformed into private backend configuration records rather than imported into the public React application. Test and placeholder codes must remain separate from the active production source and must be disabled in production.
+Production records must remain separate from fictional development fixtures and disabled test records.
 
 Status:
 Final
@@ -59,7 +60,7 @@ Date:
 7/23/2026
 
 Clarified:
-7/29/2026
+9/19/2026
 
 ## Decision 003 — RSVP Deadline
 
@@ -119,7 +120,7 @@ Date:
 ## Decision 008 — QR Code Page Access
 
 Decision: 
-Each of the 56 printed invitations includes the same static QR code for https://www.loreweavercreations.com/wedding/
+Each of the 57 assigned printed invitations includes the same static QR code for https://www.loreweavercreations.com/wedding/
 
 Status:
 Final
@@ -181,7 +182,7 @@ Clarified:
 ## Decision 011 — Earliest Invitation Mailing Date
 
 Decision:
-The 56 printed invitations are intended to be mailed no earlier than October 1, 2026.
+The 57 assigned printed invitations are intended to be mailed no earlier than October 1, 2026.
 
 Implementation Requirement:
 The invitation-launch version of the website must be operational, tested, and displaying the confirmed event configuration before the printed invitations are mailed.
@@ -257,58 +258,65 @@ Date:
 ## Decision 015 — Final RSVP Question Set
 
 Decision:
-The online RSVP system will use approved invitation-specific substantive question profiles derived from the authoritative private `Invitees List` spreadsheet. Each online profile must remain consistent with the substantive response information intended for the corresponding printed invitation.
+The couple-supplied private `Invitees List` spreadsheet and its bottom-row notes are authoritative for the substantive RSVP questions and how those questions are presented.
 
-### Default RSVP Question Profile
+All active production invitations use one reusable spreadsheet-authoritative form structure. Invitation-specific variation comes from the source row rather than from separate production question structures.
 
-The default guest-facing substantive question set is:
+### Attendance Control
 
-1. Invitation-specific attendance wording using either “I” or “We”:
-   * “I will be attending” or “We will be attending.”
-   * Guests may check Ceremony, Reception, or both.
-2. Invitation-specific decline wording using either “I am” or “We are”:
-   * “Regretfully, I am unable to attend” or “Regretfully, we are unable to attend.”
-3. Conditional additional-guest attendance when the invitation authorizes one or more additional guests:
-   * An invitation with an additional-guest allowance of zero receives no additional-guest question.
-   * An invitation with an allowance of one uses “Will you be accompanied by a +1?” with Yes and No answers.
-   * An invitation with an allowance greater than one asks how many additional guests will accompany the invited party and permits only whole-number values from zero through the authorized allowance.
-   * The form does not request an additional guest’s name.
-4. Party attendance totals under the prompt:
-   * “To better accommodate the seating & dietary needs of our guests, please list the total number of attendees in your party.”
-   * Adults, ages 21 and older.
-   * Young Adults, ages 18–20.
-   * Children, ages 3–17.
-   * Children under 3.
-5. One party-level free-text response requesting food allergies or dietary preferences for the members of the party.
+The attendance interface is one coordinated three-checkbox group:
 
-### Approved Reduced RSVP Question Profile
+1. `Ceremony`
+2. `Reception`
+3. `Regretfully, I am unable to attend` or `Regretfully, we are unable to attend`, using the explicit `I/We wording` value from the source row.
 
-One invitation record in the authoritative private source is explicitly marked for a reduced substantive profile. That profile contains only:
+Ceremony and Reception may be selected independently or together. Selecting either attending event disables the decline checkbox. Selecting decline disables Ceremony and Reception.
 
-1. Ceremony and Reception attendance or the applicable mutually exclusive decline response.
-2. One party-level food-allergy or dietary-preference response.
+### Named `Plus1` Questions
 
-The reduced profile does not display an additional-guest question or the four age-category attendance-total fields. This is the only approved reduced substantive profile currently recorded. The private configuration identifies the applicable invitation without reproducing its code or guest identity in public documentation.
+When Column E contains one or more `Plus1` allocations:
+
+* Render one Yes/No question for each allocation.
+* Use the label `Will [Named Invitee] be accompanied by a +1?`
+* When multiple `Plus1` entries appear in one row, the parenthesized invitee name following each `Plus1` identifies the named invitee for that question.
+* A single unparenthesized `Plus1` is associated with the primary named invitee for that row.
+* Do not request the additional guest's own name.
+
+### Attendance Totals
+
+For an attending RSVP, render numerical dial controls for:
+
+* Adults, ages 21 and older.
+* Young Adults, ages 18–20.
+* Children, ages 3–17.
+* Children under 3.
+
+Each dial begins at zero and its current upper bound is the invitation maximum from Column F minus the values already allocated to the other age-category dials. The backend enforces the equivalent invariant that the total does not exceed the invitation maximum.
+
+### Reception Attendee Names and Dietary Information
+
+This section appears only when Reception is selected.
+
+For every attending party member represented by the total attendance count, render:
+
+1. An attendee-name field with a 100-character maximum.
+2. A food-allergy / dietary-preference field with a 1000-character maximum.
+
+The number of attendee-detail pairs must equal the complete attendance total. This data is cleared when Reception is no longer selected or the party fully declines.
 
 ### Operational Online Fields
 
-Every online initial submission and revision—including the reduced profile—must separately collect the operational contact and delivery fields required to send confirmations:
+Every online initial submission and revision must separately collect the operational confirmation fields required for the selected confirmation channel:
 
 * Confirmation method.
 * The applicable email address or SMS-capable mobile number.
 * Any required transactional text-message authorization.
 
-These operational fields are not substantive RSVP questions and do not expand the mail-in-equivalent question profile.
+These operational fields are not substantive RSVP questions.
 
 ### Closed-Set Rule
 
-The RSVP system must not ask for individual named-guest attendance, an additional guest’s name, named-child attendance, accessibility details, lodging plans, transportation needs, a message to the couple, entrée selections, or any other unapproved substantive guest-facing question.
-
-Invitation-specific variation is limited to:
-
-* Singular or plural wording mode.
-* The authorized additional-guest allowance and corresponding control.
-* The approved default or reduced question profile.
+Do not add accessibility, lodging, transportation, message-to-couple, entrée-selection, separate named-person attendance, or other substantive questions unless the authoritative source and project decisions are later revised.
 
 Status:
 Final
@@ -317,7 +325,7 @@ Date:
 7/25/2026
 
 Clarified:
-7/29/2026
+9/19/2026
 
 ## Decision 016 — Blank RSVP Forms and Partial Revisions
 
@@ -521,33 +529,33 @@ Date:
 ## Decision 023 — Production Invitation Configuration Mapping
 
 Decision:
-Each of the 56 rows in the authoritative private `Invitees List` spreadsheet will produce one private invitation-party configuration record.
+Each of the **57 rows** in the authoritative private `Invitees List` spreadsheet produces one private invitation-party configuration record.
 
-The initial transformation uses the following source-to-configuration mapping:
+The source-to-configuration mapping is:
 
-* `inviteCode` — the Guest ID normalized to the canonical six-character lookup key; the `XXX-XXX` form is retained only for approved display.
-* `partyDisplayName` and greeting source — derived from the supplied first-name and last-name account fields and reviewed before guest-facing publication.
-* `wordingMode` — taken directly from the supplied `I/We Invite Language` value rather than inferred in the browser.
-* `maximumAttendance` — taken from `Total Potential Attendees`.
-* `additionalGuestAllowance` — a nonnegative integer equal to the number of `Plus1` allocations recorded for the invitation. The supplied production records currently use allowances from zero through three.
-* Child-allocation information — retained as private administrative context where useful, but not transformed into named-child RSVP questions.
-* `questionProfile` — `default` unless the source note explicitly assigns the approved reduced attendance-and-dietary profile.
-* `active` and `environment` — set through protected backend configuration so production records can be distinguished from disabled development or testing records.
+* `inviteCode` — Guest ID normalized to the canonical six-character lookup key; `XXX-XXX` is retained only for approved display.
+* `partyDisplayName` — use `Attendee Names Clarification` when populated; otherwise concatenate `First Name(s)` and `Last Name(s)` for the guest-facing form heading.
+* `wordingMode` — taken directly from `I/We wording`; `I` maps to singular and `we` maps to plural.
+* `maximumAttendance` — taken from `Total Potential Attendees (Including Plus1 and Kids)`.
+* `additionalGuestAllocations` — one private allocation record per `Plus1`, including the named invitee used in the question label. Multiple allocations use the names supplied in parentheses in Column E.
+* `active` and `environment` — protected backend configuration values distinguishing active production records from disabled development/testing records.
+
+The current authoritative source does not require separate production invitation-specific form-configuration assignments. All 57 active production invitations use the same spreadsheet-authoritative substantive form model, with invitation-specific variation supplied by the row-level heading, wording mode, `Plus1` allocations, and maximum attendance.
 
 Production-Source Validation Summary:
 
-* 56 invitation records are present.
-* 34 records use singular `I` wording and 22 use plural `We` wording.
+* 57 invitation records are present.
+* 35 records use singular `I` wording and 22 use plural `we` wording.
 * 23 records authorize at least one additional guest.
-* 26 total additional-guest allocations are represented.
+* 26 total `Plus1` allocations are represented.
 * Two invitations authorize more than one additional guest.
-* One invitation uses the approved reduced substantive question profile.
-* The sum of the supplied maximum-attendance values is 114.
+* The sum of the supplied maximum-attendance values is 115.
+* No active production placeholder code is required.
 
 Implementation Requirement:
-The transformation must be repeatable and validated. Import or configuration-generation logic must reject malformed codes, duplicate normalized keys, missing required source values, unsupported wording modes, negative or non-whole-number allowances, allowance values incompatible with the supplied maximum attendance, unknown question profiles, or any other ambiguous production record.
+The transformation must be repeatable and validated. It must reject malformed codes, duplicate normalized keys, missing required source values, unsupported wording modes, malformed `Plus1` allocation text, invalid maximum-attendance values, allocation counts incompatible with maximum attendance, ambiguous heading data, or other contradictory records.
 
-The real source spreadsheet, generated production configuration, and any mapping that associates a code with guest names must remain private and outside public source control and frontend build output.
+The real source spreadsheet, generated production configuration, and code-to-party/name mappings remain private and outside public source control and frontend build output.
 
 Status:
 Final
@@ -555,7 +563,8 @@ Final
 Date:
 7/29/2026
 
----
+Clarified:
+9/19/2026
 
 ## Decision 024 — Phase 3 RSVP Privacy and Security Standard
 
@@ -619,8 +628,7 @@ Analytics must not receive:
 * Mobile numbers.
 * Confirmation destinations.
 * `clientSubmissionId` values.
-* Question-profile assignments.
-* Additional-guest allowances.
+* Invitation-specific form-configuration details, including `Plus1` allocation mappings and derived additional-guest counts.
 * RSVP version numbers.
 * Delivery-provider payloads.
 
@@ -712,17 +720,17 @@ Malformed, unknown, inactive, or environment-ineligible invitation codes must co
 
 ### Protected Administrative Confirmation and Dietary-Information Boundary
 
-The protected administrative RSVP confirmation is private correspondence and may contain the complete current RSVP, including party-level dietary or allergy information.
+The protected administrative RSVP confirmation is private correspondence and may contain the complete current RSVP, including applicable Reception attendee names and dietary/allergy information.
 
-Party-level dietary or allergy information may also appear in:
+Reception attendee names and dietary/allergy information may also appear in:
 
 * The submitting party's own temporary on-screen confirmation.
 * The submitting party's own selected email or text-message confirmation.
 * The authorized private administrative workbook and records required to operate the RSVP.
 
-Dietary or allergy information must not appear in analytics, public pages, public metadata, ordinary logs, unrelated administrative messages, or another invited party's response.
+Reception attendee names and dietary/allergy information must not appear in analytics, public pages, public metadata, ordinary logs, unrelated administrative messages, or another invited party's response.
 
-This rule preserves the already-approved requirement that guest and administrative confirmations contain the complete current RSVP while restricting dietary information to the submitting party and authorized private administrative surfaces.
+This rule preserves the already-approved requirement that guest and administrative confirmations contain the complete current RSVP while restricting attendee-name and dietary/allergy information to the submitting party and authorized private administrative surfaces.
 
 ### Mobile Numbers and SMS Use
 
@@ -762,7 +770,7 @@ No later than July 30, 2027, the active RSVP system must delete or irreversibly 
 
 * Current RSVP responses.
 * Superseded RSVP versions.
-* Party-level dietary or allergy text.
+* Reception attendee names and dietary/allergy text.
 * Guest confirmation email addresses.
 * Guest confirmation mobile numbers.
 * SMS authorization records.
@@ -876,7 +884,7 @@ Approved
 ### SITE-005 — Static Invitation QR Code
 
 **Requirement:**
-The static QR code printed on all 56 invitations must open:
+The static QR code printed on all 57 assigned invitations must open:
 
 `https://www.loreweavercreations.com/wedding/`
 
@@ -1083,7 +1091,7 @@ The application must use one reusable RSVP form-building system rather than a se
 Required
 
 **Completion Test:**
-The same React renderer and backend form-building process serve every invitation while applying the configured singular or plural wording, authorized additional-guest allowance, maximum attendance, and approved default or reduced question profile. No invitation requires a separately coded React page.
+The same React renderer and backend form-building process serve every invitation while applying the spreadsheet-authoritative party heading, singular or plural wording, authorized named-invitee `Plus1` allocation configuration, maximum attendance, coordinated attendance controls, age-category dials, and Reception-only attendee-detail rules. No invitation requires a separately coded React page.
 
 **Status:**
 Final
@@ -1093,19 +1101,16 @@ Final
 ### RSVP-004 — Invitation-Specific Questions
 
 **Requirement:**
-Every invitation must use the approved closed RSVP question set, with variation limited to invitation-specific singular or plural wording and conditional plus-one eligibility.
+Every active production invitation must use the spreadsheet-authoritative closed RSVP question structure. Invitation-specific variation is limited to the source-controlled party heading, singular or plural wording, named `Plus1` allocations, maximum attendance, and the resulting repeated attendee-detail count.
 
 **Priority:**
 Required
 
 **Completion Test:**
-Single-person invitations display “I” wording, multi-person invitations display “We” wording, plus-one-eligible invitations display the Yes/No plus-one question, and no invitation receives an unapproved substantive question.
+The validated invitation renders the correct `I` or `We` wording, exactly one Yes/No question for each authorized named-invitee `Plus1` allocation, four bounded age-category dials for an attending response, and exactly one attendee-name/dietary pair per attending party member when Reception is selected. No invitation receives an unapproved substantive question.
 
 **Status:**
-Superseded
-
-**Superseded By:**
-Decision 015 and RSVP-065. Production invitations now use an approved default or reduced question profile, and additional-guest controls are determined by an integer allowance rather than a Boolean-only plus-one flag.
+Final
 
 ---
 
@@ -1118,7 +1123,7 @@ The browser must not receive invitation records belonging to other households or
 Required
 
 **Completion Test:**
-A personalized-form API response contains only the configuration needed to render the requested party’s blank form—such as wording mode, additional-guest allowance, party maximum, approved question profile, and permitted question schema—and contains no other codes, other guest identities, stored RSVP answers, confirmation destinations, private notes, source-spreadsheet rows, or unrelated configuration records.
+A personalized-form API response contains only the configuration needed to render the requested party’s blank form—such as wording mode, `Plus1` allocation configuration, party maximum, authorized invitation configuration, and permitted question schema—and contains no other codes, other guest identities, stored RSVP answers, confirmation destinations, private notes, source-spreadsheet rows, or unrelated configuration records.
 
 **Status:**
 Final
@@ -1140,7 +1145,7 @@ The six-character value is used for internal lookup and is formatted as `XXX-XXX
 
 Runtime validation checks format and existence. It does not re-enforce the historical code-generation rule concerning the minimum number of letters.
 
-The 56 production codes in the authoritative private source all pass these rules and produce 56 unique canonical keys with no normalization collision.
+The 57 production codes in the authoritative private source all pass these rules and produce 57 unique canonical keys with no normalization collision.
 
 **Status:**
 Final
@@ -1182,18 +1187,16 @@ Final
 ### RSVP-009 — Production Invitation Count
 
 **Requirement:**
-The production invitation configuration must contain 56 active invitation codes corresponding to the 56 printed invitations.
+The production invitation configuration must contain 57 active invitation codes corresponding to the 57 populated records in the authoritative `Invitees List`.
 
 **Priority:**
 Required
 
 **Completion Test:**
-The authoritative private `Invitees List` source contains exactly 56 populated production records. Before launch, each record is transformed into one active private configuration, each normalized code resolves to its intended invited party, no normalized key is duplicated, and no placeholder or testing record is enabled as production.
+The authoritative private source contains exactly 57 populated production records. Before launch, each row transforms into one active private configuration, each normalized code resolves to its intended invited party, no normalized key is duplicated, and no placeholder or testing record is enabled as production.
 
 **Status:**
 Final
-
----
 
 ### RSVP-010 — Disabled Placeholder and Test Codes
 
@@ -1226,7 +1229,7 @@ A household containing multiple invited people can record accepting and declinin
 Superseded
 
 **Superseded By:**
-RSVP-051, RSVP-052, RSVP-053, and RSVP-065. Attendance is recorded at the invitation-party level through event selections and the fields included by the invitation’s approved question profile.
+RSVP-051, RSVP-052, RSVP-053, and RSVP-065. Attendance is recorded at the invitation-party level through event selections and the fields included by the invitation’s authorized invitation configuration.
 
 ---
 
@@ -1252,40 +1255,30 @@ RSVP-052 and RSVP-055. The finalized RSVP form does not collect individual named
 ### RSVP-013 — Authorized Plus Ones
 
 **Requirement:**
-The Yes/No question “Will you be accompanied by a +1?” must appear only for invitation codes that authorize a plus one.
+Each authorized `Plus1` allocation in the authoritative source must render as its own Yes/No question associated with the named invitee.
 
 **Priority:**
 Required
 
 **Completion Test:**
-Eligible invitations display the plus-one Yes/No question, ineligible invitations do not receive it, and no plus-one name field is displayed.
+Rows without `Plus1` receive no plus-one question. A row with one `Plus1` receives one question using `Will [Named Invitee] be accompanied by a +1?`. A row with multiple `Plus1` allocations receives one such question for each allocation using the parenthesized invitee names from the source. No field requests the additional guest's own name.
 
 **Status:**
-Superseded
-
-**Superseded By:**
-RSVP-064. Production configuration supports an integer additional-guest allowance, including invitations that authorize two or three additional guests.
-
----
+Final
 
 ### RSVP-014 — Invited Children
 
 **Requirement:**
-Invited children must receive separate attendance controls where children are included in the invitation.
+Invited children are represented in the attendance-total dials rather than through separate named-child attendance controls.
 
 **Priority:**
 Required
 
 **Completion Test:**
-Each named invited child can be marked attending or declining independently.
+Children ages 3–17 and children under 3 are counted through their respective numerical dials. The form does not create named-child attendance checkboxes solely because Column E records children.
 
 **Status:**
-Superseded
-
-**Superseded By:**
-RSVP-065. The default profile represents children through party totals for ages 3–17 and under 3 rather than named-child controls; the approved reduced profile does not collect age-category totals.
-
----
+Final
 
 ### RSVP-015 — Buffet-Style Brunch
 
@@ -1305,43 +1298,33 @@ Final
 
 ---
 
-### RSVP-016 — Dietary Information Per Guest
+### RSVP-016 — Reception Attendee Dietary Information
 
 **Requirement:**
-The RSVP form must collect food allergies and dietary preferences for each attending guest.
+When Reception is selected, the form must collect one attendee name plus one food-allergy/dietary-preference field for each attending party member.
 
 **Priority:**
 Required
 
 **Completion Test:**
-An attending guest may have an associated food-allergy or dietary-preference response, while a declining guest does not retain an active dietary response.
+The number of attendee-detail pairs equals the complete attendance total. Every pair contains a required attendee-name field limited to 100 characters and an optional dietary/allergy field limited to 1000 characters. Ceremony-only attendance does not display this section.
 
 **Status:**
-Superseded
+Final
 
-**Superseded By:**
-RSVP-056. Dietary information is now collected through one party-level free-text response.
-
----
-
-### RSVP-017 — Conditional Dietary Fields
+### RSVP-017 — Conditional Reception Attendee Details
 
 **Requirement:**
-Food-allergy and dietary-preference fields must appear only where relevant.
+Reception attendee name/dietary pairs appear only when Reception is part of the complete attendance selection.
 
 **Priority:**
 Required
 
 **Completion Test:**
-Marking a guest as attending displays the corresponding dietary field; changing the guest to declining hides and clears that answer.
+Selecting Reception makes the attendee-detail list applicable and requires exactly one entry per attending party member. Ceremony-only attendance and full decline make the list inapplicable. Removing Reception or fully declining clears the stored list during authoritative dependency processing.
 
 **Status:**
-Superseded
-
-**Superseded By:**
-RSVP-056. The finalized form uses one party-level dietary field rather than guest-specific conditional fields.
-
----
+Final
 
 ### RSVP-018 — Accessibility Questions
 
@@ -1358,7 +1341,7 @@ Applicable invitations can request accessibility assistance and display a detail
 Superseded
 
 **Superseded By:**
-Decision 015 and RSVP-065. Accessibility questions are not part of either approved RSVP question profile.
+Decision 015 and RSVP-065. Accessibility questions are not part of the spreadsheet-authoritative production RSVP question structure.
 
 ---
 
@@ -1377,7 +1360,7 @@ Applicable invitations display configured travel questions, while invitations wi
 Superseded
 
 **Superseded By:**
-Decision 015 and RSVP-065. Lodging and transportation questions are not part of either approved RSVP question profile; hotel and transportation information belongs on public planning pages.
+Decision 015 and RSVP-065. Lodging and transportation questions are not part of the spreadsheet-authoritative production RSVP question structure; hotel and transportation information belongs on public planning pages.
 
 ---
 
@@ -1498,18 +1481,16 @@ Approved
 ### RSVP-027 — Unauthorized Questions
 
 **Requirement:**
-The backend must reject answers for substantive questions outside the invitation’s approved question profile or outside its authorized additional-guest allowance.
+The backend must reject substantive fields, dynamic allocation identifiers, or attendee-detail structures that are not authorized by the validated invitation configuration and the spreadsheet-authoritative question set.
 
 **Priority:**
 Required
 
 **Completion Test:**
-An unknown question ID, an accessibility or travel question, an additional-guest value for an invitation with no allowance, an additional-guest count above the configured allowance, attendance-total fields submitted to the reduced profile, or any other unauthorized field produces a validation failure and no unauthorized data is stored.
+Unknown question IDs, unknown `Plus1` allocation IDs, extra attendee-detail entries, malformed attendee-detail objects, accessibility/travel/message/entrée fields, or any other unsupported substantive field cause rejection and no unauthorized data is stored.
 
 **Status:**
 Final
-
----
 
 ### RSVP-028 — Unauthorized Guest IDs
 
@@ -1533,36 +1514,32 @@ Decision 015 and RSVP-055. The finalized party-level payload does not use named-
 ### RSVP-029 — Maximum Attendance
 
 **Requirement:**
-The backend must enforce the invitation’s maximum attendance and additional-guest allowance whenever the applicable question profile supplies attendance totals or an additional-guest response.
+The backend must enforce each invitation's Column-F maximum attendance.
 
 **Priority:**
 Required
 
 **Completion Test:**
-For the default profile, the sum of Adults, Young Adults, Children ages 3–17, and Children under 3 cannot exceed the invitation maximum. Any additional-guest response must remain between zero and the configured allowance and must be compatible with the complete party total.
+Adults 21+, Young Adults 18–20, Children 3–17, and Children under 3 are nonnegative whole numbers. Their sum is at least one when attending and never exceeds `maximumAttendance`. The browser's four dials apply the same limit interactively by reducing each dial's maximum according to the values already allocated to the other dials.
 
-For the approved reduced profile, attendance-total and additional-guest fields are not authorized and are rejected if submitted.
+The number of attending authorized `Plus1` allocations cannot exceed the complete attendance total.
 
 **Status:**
 Final
-
----
 
 ### RSVP-030 — Clearing Inapplicable Answers
 
 **Requirement:**
-Attendance selections, decline status, authorized additional-guest responses, applicable party totals, and dietary information must remain internally consistent according to the invitation’s question profile.
+The backend must clear stored values that become inapplicable because of a controlling attendance change.
 
 **Priority:**
 Required
 
 **Completion Test:**
-Selecting the decline option clears Ceremony and Reception selections and clears dependent values that no longer apply. Selecting Ceremony or Reception clears the decline option. Additional-guest values outside the configured allowance are rejected. Default-profile totals must remain compatible with the invitation maximum. The reduced profile must not retain or accept fields that are absent from that profile.
+A full decline clears event attendance, per-allocation `Plus1` responses, attendance totals, and Reception attendee details. Changing from Reception attendance to Ceremony-only clears Reception attendee details. Operational confirmation remains required.
 
 **Status:**
 Final
-
----
 
 ### RSVP-031 — Initial Response Creation
 
@@ -1573,9 +1550,9 @@ A first-time RSVP submission must create one current party-level response withou
 Required
 
 **Completion Test:**
-When no response exists for the invitation, the backend requires every substantive field required by that invitation’s approved question profile and creates one response containing event selections or decline status, the authorized additional-guest response when applicable, age-category totals when the profile includes them, the party dietary response, selected confirmation method and destination, any required transactional SMS authorization, timestamp, version, and client submission identifier.
+When no response exists for the invitation, the backend requires every substantive field made applicable by that invitation’s authorized configuration and the guest’s current selections. The stored response contains Ceremony/Reception selections or decline status, one response for each applicable named-invitee `Plus1` allocation, all four age-category totals for an attending response, the complete Reception attendee-name/dietary list when Reception is selected, the selected confirmation method and destination, any required transactional SMS authorization, timestamp, version, and client submission identifier.
 
-Fields omitted from the invitation’s approved profile are not required, stored as fabricated answers, or accepted from the browser.
+Conditionally inapplicable fields are not required, stored as fabricated answers, or accepted from the browser.
 
 **Status:**
 Final
@@ -1665,9 +1642,9 @@ Every successful initial submission or revision must trigger an administrative e
 Required
 
 **Completion Test:**
-The administrative email identifies the invitation, states whether the action is new or revised, and contains the complete current RSVP for the invitation’s approved profile. This includes event attendance or decline status, the additional-guest response when applicable, age-category totals and overall attendance total when applicable, party-level food-allergy or dietary-preference text, guest confirmation method and destination, submission version, and timestamp.
+The administrative email identifies the invitation, states whether the action is new or revised, and contains the complete current RSVP. This includes Ceremony/Reception or decline status, each applicable named-invitee `Plus1` response, all four age-category totals and overall attendance when attending, the Reception attendee-name/dietary list when Reception is selected, guest confirmation method and destination, submission version, and timestamp.
 
-The email does not invent or display fields that are not part of the applicable invitation profile.
+The email does not invent or display fields that are not applicable to the invitation’s spreadsheet-authoritative form configuration and current attendance state.
 
 **Status:**
 Final
@@ -1689,7 +1666,7 @@ Administrative alerts omit food-allergy or dietary-preference text.
 Superseded
 
 **Superseded By:**
-Decision 017, RSVP-036, and PRIVACY-016. The couple’s administrative email must contain the complete current RSVP, including the party-level dietary response, and must therefore be handled as a protected private message.
+Decision 017, RSVP-036, and PRIVACY-016. The couple’s administrative email must contain the complete current RSVP, including the applicable Reception attendee-name/dietary list, and must therefore be handled as a protected private message.
 
 ---
 
@@ -1760,15 +1737,15 @@ Final
 ### RSVP-042 — On-Screen Confirmation
 
 **Requirement:**
-After the initial submission or merged revision is stored, the on-screen confirmation page must display the complete current guest-facing RSVP summary for the applicable invitation profile together with the approved limited confirmation metadata.
+After the initial submission or merged revision is stored, the on-screen confirmation page must display the complete current guest-facing RSVP summary for the invitation’s spreadsheet-authoritative form configuration and current attendance state together with the approved limited confirmation metadata.
 
 **Priority:**
 Required
 
 **Completion Test:**
-A successful submission displays the recorded Ceremony and Reception selections or decline status, the additional-guest response when applicable, age-category and overall totals when applicable, party-level dietary response, whether the action was an initial submission or revision, submission timestamp, selected guest confirmation channel, guest-delivery status, and a limited administrative-attempt status.
+A successful submission displays the recorded Ceremony and Reception selections or decline status, each applicable named-invitee `Plus1` response, all four age-category totals and overall attendance when attending, the Reception attendee-name/dietary list when Reception is selected, whether the action was an initial submission or revision, submission timestamp, selected guest confirmation channel, guest-delivery status, and a limited administrative-attempt status.
 
-The confirmation omits profile fields that do not apply and does not expose the administrative email address, private spreadsheet fields, administrative notes, provider credentials, internal identifiers, or another invitation record.
+The confirmation omits fields that are not applicable to the invitation’s current form state and does not expose the administrative email address, private spreadsheet fields, administrative notes, provider credentials, internal identifiers, or another invitation record.
 
 **Status:**
 Final
@@ -1922,109 +1899,88 @@ Final
 ### RSVP-052 — Ceremony and Reception Attendance Selection
 
 **Requirement:**
-The RSVP form must allow guests to select Ceremony, Reception, or both under the applicable “I/We will be attending” prompt.
+The browser must present Ceremony, Reception, and the applicable decline wording as one coordinated three-checkbox attendance interface.
 
 **Priority:**
 Required
 
 **Completion Test:**
-A valid attending response may contain Ceremony only, Reception only, or both Ceremony and Reception.
+Ceremony and Reception may be checked independently or together. Selecting either disables the decline checkbox. Selecting decline disables Ceremony and Reception. The backend still validates the authoritative event-selection and decline values independently of the browser state.
 
 **Status:**
 Final
-
----
 
 ### RSVP-053 — Mutually Exclusive Decline Response
 
 **Requirement:**
-The invitation-specific “Regretfully, I am/We are unable to attend” response must be mutually exclusive with Ceremony and Reception attendance selections.
+The decline checkbox must use the explicit singular/plural wording mode from the invitation configuration and remain mutually exclusive with Ceremony and Reception.
 
 **Priority:**
 Required
 
 **Completion Test:**
-A submission cannot simultaneously record a decline and attendance at either event.
+Singular invitations display `Regretfully, I am unable to attend.` and plural invitations display `Regretfully, we are unable to attend.` Selecting decline prevents Ceremony/Reception selection and vice versa.
 
 **Status:**
 Final
 
----
-
-### RSVP-054 — Conditional Plus-One Question
+### RSVP-054 — Named-Invitee `Plus1` Questions
 
 **Requirement:**
-The plus-one question must be a Yes/No control and must be included only for invitation codes that authorize a plus one.
+Each source `Plus1` allocation must create one named-invitee Yes/No question.
 
 **Priority:**
 Required
 
 **Completion Test:**
-Eligible invitations display “Will you be accompanied by a +1?” with Yes and No options; ineligible invitations do not receive the question; no plus-one name question exists.
+The question is `Will [Named Invitee] be accompanied by a +1?`. Multiple allocations render in succession as separate questions using the source-specified associated invitee names. No additional-guest name is requested.
 
 **Status:**
-Superseded
-
-**Superseded By:**
-RSVP-064. The production source includes invitations that authorize more than one additional guest, requiring an integer allowance and a count control when the allowance exceeds one.
-
----
+Final
 
 ### RSVP-055 — Party Totals by Age Category
 
 **Requirement:**
-The form must collect the total number of attendees in the party through four numeric age categories.
+Every attending production RSVP must collect the complete party total through four age-category numerical dials.
 
 **Priority:**
 Required
 
 **Completion Test:**
-The submitted response contains nonnegative whole-number values for Adults ages 21+, Young Adults ages 18–20, Children ages 3–17, and Children under 3, and the calculated total does not exceed the invitation maximum.
-
-**Status:**
-Superseded
-
-**Superseded By:**
-RSVP-065. The four age-category totals remain required for the default profile but are intentionally omitted from the single approved reduced profile.
-
----
-
-### RSVP-056 — Party-Level Dietary Response
-
-**Requirement:**
-The form must provide one party-level free-text field for food allergies or dietary preferences affecting members of the attending party.
-
-**Priority:**
-Required
-
-**Completion Test:**
-The response stores one dietary text value associated with the invitation party rather than separate values for named guests.
+The four dials represent Adults 21+, Young Adults 18–20, Children 3–17, and Children under 3. Each accepts whole numbers from zero up to the remaining available capacity, and the final sum is between one and the invitation maximum.
 
 **Status:**
 Final
 
----
-
-### RSVP-057 — Closed RSVP Question Set and Mail-In Parity
+### RSVP-056 — Reception Attendee Names and Dietary Responses
 
 **Requirement:**
-The online RSVP form must contain the same substantive questions as the alternative mail-in RSVP form and no additional substantive guest-facing questions.
+When Reception is selected, the form must collect attendee-specific name and dietary/allergy information rather than one party-level dietary field.
 
 **Priority:**
 Required
 
 **Completion Test:**
-The production form contains only event attendance or decline, conditional plus-one status, the four age-category totals, and the party-level dietary field. It contains no individual named-guest attendance, plus-one name, accessibility, lodging, transportation, message-to-couple, or entrée-selection question.
-
-The separately required confirmation method, confirmation email address, SMS-capable mobile number, and SMS authorization controls are treated as operational online fields and not as additional substantive RSVP questions.
+The form renders exactly one attendee-detail pair for each person in the complete attendance total. `attendeeName` is required and limited to 100 characters; `dietaryPreferences` is optional and limited to 1000 characters. The list is absent for Ceremony-only attendance and full decline.
 
 **Status:**
-Superseded
+Final
 
-**Superseded By:**
-Decision 015 and RSVP-065. Production uses an approved default profile and one approved reduced profile, while preserving a closed substantive question set and separate required operational confirmation fields.
+### RSVP-057 — Closed RSVP Question Set and Spreadsheet Parity
 
----
+**Requirement:**
+The substantive online RSVP questions must remain consistent with the authoritative spreadsheet bottom-row display notes.
+
+**Priority:**
+Required
+
+**Completion Test:**
+The production form contains only the coordinated attendance triad, authorized named-invitee `Plus1` Yes/No questions, the four age-category dials, and Reception-only repeating attendee-name/dietary pairs. It does not introduce accessibility, lodging, transportation, message-to-couple, entrée-selection, or separate named-person attendance questions.
+
+The separately required confirmation method, confirmation destination, and any applicable SMS authorization remain operational online fields.
+
+**Status:**
+Final
 
 ### RSVP-058 — Blank Personalized Form on Every Load
 
@@ -2058,23 +2014,19 @@ Final
 
 ---
 
-### RSVP-060 — Explicit Clearing and Merged-State Validation
+### RSVP-060 — Explicit Replacement, Dependency Clearing, and Merged-State Validation
 
 **Requirement:**
-The RSVP interface and backend must represent omission, replacement, explicit zero, attendance or decline changes, and explicit clearing as distinct operations and must validate the complete merged result of every revision according to the invitation’s approved profile.
+The RSVP interface and backend must distinguish omission from intentional replacement and must validate the complete merged result of every revision.
 
 **Priority:**
 Required
 
 **Completion Test:**
-A guest can explicitly remove prior dietary information, replace an applicable positive age-category total with zero, change between attending and declining, change event selections, and change or clear an applicable additional-guest response without relying on an omitted blank field to mean “delete.” Omission means only “leave unchanged.”
-
-The final merged response cannot contain conflicting attendance and decline states, additional-guest data outside the configured allowance, negative totals, totals above the invitation maximum, fields unauthorized by the applicable question profile, retained dependent values that no longer apply, or other internally inconsistent values.
+Omitted substantive fields remain unchanged. Explicit zero remains a valid age-total replacement. Attendance changes may automatically clear now-inapplicable `Plus1`, totals, or Reception attendee-detail data. If Reception remains selected but the complete attendance count changes, the attendee-detail list must be replaced with a complete list whose length matches the new total. If the list is omitted and remains applicable without a count change, the stored list remains unchanged.
 
 **Status:**
 Final
-
----
 
 ### RSVP-061 — Guest Confirmation Method and Destination
 
@@ -2101,13 +2053,13 @@ Every guest confirmation and administrative confirmation must contain the comple
 Required
 
 **Completion Test:**
-The confirmation contains the current attendance or decline status, applicable plus-one response, all four age-category totals, overall attendance total, party-level dietary response, timestamp, revision status, and assistance information. A revision confirmation does not contain only the fields changed in that submission.
+The confirmation contains the current attendance or decline status, each applicable named-invitee `Plus1` response, all four age-category totals and overall attendance when attending, the Reception attendee-name/dietary list when Reception is selected, timestamp, revision status, and assistance information. A revision confirmation does not contain only the fields changed in that submission.
 
 **Status:**
 Superseded
 
 **Superseded By:**
-RSVP-068. Confirmations must contain every applicable field in the invitation’s approved current profile without inventing fields that the profile does not collect.
+RSVP-068. Confirmations must contain every applicable field in the invitation’s spreadsheet-authoritative current form state without inventing inapplicable fields.
 
 ---
 
@@ -2127,99 +2079,83 @@ Final
 
 ---
 
-### RSVP-064 — Authorized Additional-Guest Attendance
+### RSVP-064 — Authorized `Plus1` Allocation Attendance
 
 **Requirement:**
-Each invitation configuration must store a nonnegative integer `additionalGuestAllowance`, and the RSVP interface must render the applicable additional-guest control without requesting an additional guest’s name.
+Each invitation configuration must store the count and named-invitee mapping of its authorized `Plus1` allocations.
 
 **Priority:**
 Required
 
 **Completion Test:**
-An allowance of zero produces no additional-guest question. An allowance of one produces “Will you be accompanied by a +1?” with Yes and No answers. An allowance greater than one produces a whole-number or select control asking how many additional guests will accompany the party, with permitted values from zero through the configured allowance.
-
-The backend rejects negative values, fractional values, values above the allowance, and any additional-guest field submitted for an invitation whose profile does not authorize that field.
+Zero allocations produce no `Plus1` question. Each allocation produces a separate Yes/No response keyed by a stable non-name allocation identifier and labeled `Will [Named Invitee] be accompanied by a +1?`. Unknown allocation IDs or missing applicable allocation responses are rejected. The form never requests the additional guest's own name.
 
 **Status:**
 Final
 
----
-
-### RSVP-065 — Approved Invitation Question Profiles
+### RSVP-065 — Spreadsheet-Authoritative Question Structure
 
 **Requirement:**
-Every production invitation must explicitly select an approved substantive RSVP question profile.
+All active production invitations use the same reusable substantive form structure defined by the authoritative `Invitees List` spreadsheet.
 
 **Priority:**
 Required
 
 **Completion Test:**
-The `default` profile contains attendance or decline, the applicable additional-guest control, four attendance totals by age category, and one party-level dietary response.
+Every active invitation supports the coordinated attendance triad, attendance totals, and Reception-only attendee-detail list. `Plus1` questions appear only for source allocations and are labeled per associated named invitee. The current authoritative source defines one production substantive form structure rather than separate production question profiles.
 
-The approved `reduced-attendance-dietary` profile contains only attendance or decline and one party-level dietary response. It does not render or accept an additional-guest answer or age-category totals.
-
-Both profiles exclude individual named-guest attendance, additional-guest names, named-child controls, accessibility, lodging, transportation, message-to-couple, and entrée-selection questions. Every online initial submission and revision still requires the separate operational confirmation method, applicable destination, and any required transactional SMS authorization.
-
-No other production question profile is enabled without a later recorded decision.
+Every online initial submission and revision still requires the separate operational confirmation method, applicable destination, and any required transactional SMS authorization.
 
 **Status:**
 Final
-
----
 
 ### RSVP-066 — Authoritative Production Invitation Source
 
 **Requirement:**
-The couple-supplied private `Invitees List` spreadsheet must serve as the authoritative source for the 56 initial production invitation configurations.
+The couple-supplied private `Invitees List` spreadsheet is the authoritative source for the 57 active production invitation configurations and the controlling substantive form-display notes.
 
 **Priority:**
 Required
 
 **Completion Test:**
-The source contains 56 populated invitation records; every supplied code normalizes successfully; the 56 canonical keys are unique; each key maps to one invited-party record; and the source is stored and processed only within approved private project locations.
+The source contains 57 populated invitation records; every supplied code normalizes successfully; the 57 canonical keys are unique; each key maps to one invited-party record; and the source is stored and processed only within approved private project locations.
 
 The real production codes and guest details do not appear in public documentation, frontend source, public repositories, public assets, analytics, metadata, or ordinary logs.
 
 **Status:**
 Final
 
----
-
 ### RSVP-067 — Invitees List Configuration Mapping
 
 **Requirement:**
-The private invitation-configuration transformation must map each source row into a validated party-level record using documented fields and must reject ambiguous or contradictory source data.
+The private production transformation must reproduce the authoritative spreadsheet's row-level heading, wording, maximum-attendance, and `Plus1` allocation semantics.
 
 **Priority:**
 Required
 
 **Completion Test:**
-The transformation maps the normalized Guest ID to `inviteCode`, the source name fields to reviewed party-display content, `I/We Invite Language` to explicit `wordingMode`, `Total Potential Attendees` to `maximumAttendance`, the number of `Plus1` allocations to `additionalGuestAllowance`, and the source note to the approved `questionProfile` where applicable.
+The transformation maps Guest ID to `inviteCode`; Column G to `partyDisplayName` when present or otherwise combines Columns C and D; Column I to `wordingMode`; Column F to `maximumAttendance`; and Column E to the named `additionalGuestAllocations` needed to render one question per allocation.
 
-Missing required fields, duplicate normalized keys, unsupported wording values, invalid maximum-attendance values, negative or fractional additional-guest allowances, allowances incompatible with maximum attendance, and unknown question profiles cause the production transformation to fail before deployment.
+The transformation rejects malformed codes, duplicate normalized keys, unsupported wording values, invalid maximum attendance, malformed/ambiguous `Plus1` allocation text, allocation counts incompatible with the maximum, or ambiguous party-display data.
 
 **Status:**
 Final
-
----
 
 ### RSVP-068 — Complete Applicable RSVP in Confirmations
 
 **Requirement:**
-Every guest and administrative confirmation must contain the complete current RSVP according to the invitation’s approved question profile.
+Every guest and administrative confirmation must contain the complete current RSVP under the spreadsheet-authoritative form model.
 
 **Priority:**
 Required
 
 **Completion Test:**
-Every confirmation includes current attendance or decline status, party-level dietary information, timestamp, revision status, and assistance information. It also includes the additional-guest response and age-category or overall totals only when those fields belong to the applicable profile.
+Every confirmation includes current Ceremony/Reception selections or decline status, each applicable named-invitee `Plus1` response, all four age-category totals and overall attendance when attending, and the Reception attendee-name/dietary list when Reception is selected, plus timestamp, revision status, and assistance information.
 
-A revision confirmation contains the complete merged current RSVP rather than only the changed fields. The confirmation does not invent, label as zero, or display a not-applicable profile field merely because another profile uses it.
+A revision confirmation contains the complete merged current RSVP rather than only the fields changed in that submission.
 
 **Status:**
 Final
-
----
 
 ## CONTENT Requirements
 
@@ -2899,9 +2835,9 @@ The private Google Sheets workbook must serve as the initial administrative inte
 Required
 
 **Completion Test:**
-The couple can review and maintain invitation records, wording mode, maximum attendance, additional-guest allowance, question profile, event selections or decline status, applicable additional-guest responses, applicable age-category and overall attendance totals, party-level dietary responses, guest confirmation methods, destinations, authorization states, client submission identifiers, timestamps, versions, merged current responses, and separate per-channel delivery statuses through the private workbook.
+The couple can review and maintain invitation records, wording mode, maximum attendance, `Plus1` allocation configuration, question structure, event selections or decline status, each applicable named-invitee `Plus1` response, age-category and overall attendance totals, Reception attendee-name/dietary lists, guest confirmation methods, destinations, authorization states, client submission identifiers, timestamps, versions, merged current responses, and separate per-channel delivery statuses through the private workbook.
 
-The workbook clearly distinguishes fields that are not applicable to the reduced profile from unanswered fields in the default profile.
+The workbook distinguishes inapplicable conditional fields from unanswered applicable fields, including `Plus1` allocations and Reception-only attendee details.
 
 **Status:**
 Final
@@ -3333,9 +3269,9 @@ One invited party must never receive another invited party’s personalized info
 Required
 
 **Completion Test:**
-A valid invitation-code lookup returns only the configuration needed for that party’s blank form, including its greeting, singular or plural wording, additional-guest allowance, permitted party maximum, question profile, and approved questions. It does not return the party’s stored answers or confirmation destinations and does not reveal another invitation record.
+A valid invitation-code lookup returns only the configuration needed for that party’s blank form, including its greeting, singular or plural wording, `Plus1` allocation configuration, permitted party maximum, question structure, and approved questions. It does not return the party’s stored answers or confirmation destinations and does not reveal another invitation record.
 
-Testing confirms that changing submitted invitation codes, question identifiers, additional-guest values, or profile fields cannot retrieve or authorize another party’s information.
+Testing confirms that changing submitted invitation codes, question identifiers, `Plus1` allocation identifiers or values, attendee-detail structures, or invitation-configuration fields cannot retrieve or authorize another party’s information.
 
 **Status:**
 Final
@@ -3414,7 +3350,7 @@ Administrative alerts omit the party’s food-allergy or dietary-preference text
 Superseded
 
 **Superseded By:**
-Decision 017, RSVP-036, PRIVACY-016, and Decision 024. The protected administrative confirmation must contain the complete current RSVP, including the party-level dietary response, and must therefore be treated as private correspondence rather than as a non-sensitive generic alert.
+Decision 017, RSVP-036, PRIVACY-016, and Decision 024. The protected administrative confirmation must contain the complete current RSVP, including the applicable Reception attendee-name/dietary list, and must therefore be treated as private correspondence rather than as a non-sensitive generic alert.
 
 ---
 
@@ -3445,7 +3381,7 @@ Required
 **Completion Test:**
 `/wedding/rsvp/` and `/wedding/rsvp/confirmation` use appropriate page-level crawler directives and production server no-index behavior. `/wedding/not-found` and unmatched wedding routes are likewise excluded.
 
-No invitation code, guest identity, RSVP answer, confirmation destination, question-profile assignment, additional-guest allowance, or other personalized value appears in page titles, descriptions, canonical URLs, structured data, social-preview data, or other crawler-visible metadata.
+No invitation code, guest identity, RSVP answer, confirmation destination, invitation-specific form-configuration detail, `Plus1` allocation configuration, or other personalized value appears in page titles, descriptions, canonical URLs, structured data, social-preview data, or other crawler-visible metadata.
 
 The public `/wedding/privacy` page remains indexable.
 
@@ -3457,15 +3393,15 @@ Final
 ### PRIVACY-012 — Limited Confirmation Display
 
 **Requirement:**
-The on-screen RSVP confirmation must display the complete current guest-facing RSVP for the applicable question profile and approved limited status metadata while excluding private administrative and system information.
+The on-screen RSVP confirmation must display the complete current guest-facing RSVP for the applicable question structure and approved limited status metadata while excluding private administrative and system information.
 
 **Priority:**
 Required
 
 **Completion Test:**
-The confirmation page may display event selections or decline status, an additional-guest response when applicable, applicable age-category and overall attendance totals, party-level dietary response, whether the action was an initial submission or revision, selected confirmation method, submission time, revision instructions, guest-delivery status, and a limited administrative-attempt status.
+The confirmation page may display event selections or decline status, each applicable named-invitee `Plus1` response, all four age-category totals and overall attendance when attending, the Reception attendee-name/dietary list when Reception is selected, whether the action was an initial submission or revision, selected confirmation method, submission time, revision instructions, guest-delivery status, and a limited administrative-attempt status.
 
-It omits fields that are not part of the invitation’s profile and does not display the protected administrative address, spreadsheet row numbers, internal identifiers, administrative notes, provider credentials, unrelated party data, or other private backend information.
+It omits fields that are not applicable to the invitation’s current form state and does not display the protected administrative address, spreadsheet row numbers, internal identifiers, administrative notes, provider credentials, unrelated party data, or other private backend information.
 
 The confirmation route uses the finalized Step 13 temporary-state behavior and does not add a sensitive URL, public recovery endpoint, or persistent browser copy solely to survive refresh.
 
@@ -3533,7 +3469,7 @@ Required
 **Completion Test:**
 The recipient address is maintained in protected backend configuration; the email is not sent to public or shared distribution lists; the message contains no unrelated invitation records or backend secrets; and access to the receiving mailbox is restricted to the couple or explicitly authorized administrators.
 
-Complete party-level dietary/allergy information is allowed in this protected administrative confirmation because the already-approved confirmation model requires the complete current RSVP.
+Complete applicable Reception attendee-name and dietary/allergy information is allowed in this protected administrative confirmation because the already-approved confirmation model requires the complete current RSVP.
 
 **Status:**
 Final
@@ -3581,7 +3517,7 @@ Analytics instrumentation must not receive personalized RSVP or invitation data.
 Required
 
 **Completion Test:**
-Analytics payloads contain none of the following: invitation codes, guest/party identities derived from invitation records, RSVP answers, dietary/allergy information, email addresses, mobile numbers, confirmation destinations, `clientSubmissionId` values, question-profile assignments, additional-guest allowances, RSVP versions, or delivery-provider payloads.
+Analytics payloads contain none of the following: invitation codes, guest/party identities derived from invitation records, RSVP answers, Reception attendee names, dietary/allergy information, email addresses, mobile numbers, confirmation destinations, `clientSubmissionId` values, invitation-specific form-configuration details, `Plus1` allocation configurations, RSVP versions, or delivery-provider payloads.
 
 If analytics are present on RSVP or confirmation routes, they are limited to non-personalized aggregate event names and are not required for RSVP operation.
 
@@ -3659,28 +3595,19 @@ Final
 
 ---
 
-### PRIVACY-024 — Dietary and Allergy Information Boundary
+### PRIVACY-024 — Reception Attendee Names and Dietary/Allergy Information Boundary
 
 **Requirement:**
-Party-level dietary or allergy information is private RSVP content.
+Reception attendee names and dietary/allergy responses are sensitive RSVP information and must be confined to the submitting party's authorized confirmation surfaces, the protected private data store, and protected administrative confirmations.
 
 **Priority:**
 Required
 
 **Completion Test:**
-Complete dietary/allergy information appears only in:
-
-* The submitting party’s own temporary on-screen confirmation.
-* The submitting party’s selected email or text-message confirmation.
-* The protected administrative confirmation.
-* Authorized private administrative records required to operate the RSVP.
-
-It does not appear in analytics, public pages, public metadata, ordinary logs, unrelated administrative messages, another invited party’s data, or public troubleshooting output.
+Per-attendee names and dietary/allergy text do not appear in analytics, public pages or metadata, ordinary logs, unrelated administrative output, or another invited party's data. They may appear in the submitting party's temporary on-screen confirmation and selected confirmation message because those surfaces contain that party's complete current RSVP.
 
 **Status:**
 Final
-
----
 
 ### PRIVACY-025 — SMS Provider Disclosure Gate
 
@@ -4254,7 +4181,7 @@ One reusable RSVP form-building system must serve every invitation.
 Required
 
 **Completion Test:**
-All 56 active production invitations are rendered through the same maintained form-building architecture rather than through separately coded React pages.
+All 57 active production invitations are rendered through the same maintained form-building architecture rather than through separately coded React pages.
 
 **Status:**
 Proposed
@@ -4326,7 +4253,7 @@ The invitation configuration must distinguish active production codes from disab
 Required
 
 **Completion Test:**
-The 56 records from the authoritative private production source are enabled only in the production configuration after validation. Placeholder, synthetic example, and development-only codes are explicitly marked inactive or isolated to a nonproduction environment and cannot retrieve or submit a production RSVP.
+The 57 records from the authoritative private production source are enabled only in the production configuration after validation. Placeholder, synthetic example, and development-only codes are explicitly marked inactive or isolated to a nonproduction environment and cannot retrieve or submit a production RSVP.
 
 **Status:**
 Final
@@ -4426,9 +4353,9 @@ Conditional RSVP behavior must be represented through reusable rules rather than
 Required
 
 **Completion Test:**
-Reusable configuration controls singular or plural wording, additional-guest allowance and control type, approved question profile, mutual exclusivity between attendance and decline, and validation of applicable party totals.
+Reusable configuration controls singular or plural wording, `Plus1` allocation configuration and control type, authorized invitation configuration, mutual exclusivity between attendance and decline, and validation of applicable party totals.
 
-The one approved reduced profile is selected through configuration rather than a separately coded guest-specific component. No accessibility, travel, additional-guest-name, named-guest, named-child, message-to-couple, or entrée-selection question is introduced through invitation-specific component logic.
+The single spreadsheet-authoritative production question structure is driven by reusable configuration and dependency rules rather than separately coded invitation-specific components. No accessibility, travel, additional-guest-name, separate named-person attendance, message-to-couple, or entrée-selection question is introduced through invitation-specific component logic.
 
 **Status:**
 Final
@@ -4502,13 +4429,13 @@ Proposed
 ### MAINTAINABILITY-018 — Documented RSVP Data Structures
 
 **Requirement:**
-Invitation records, approved RSVP question profiles, blank-form configuration responses, initial submission payloads, partial-revision payloads, merged current responses, spreadsheet columns, client submission identifiers, and confirmation-delivery records must use documented structures.
+Invitation records, approved RSVP question structures, blank-form configuration responses, initial submission payloads, partial-revision payloads, merged current responses, spreadsheet columns, client submission identifiers, and confirmation-delivery records must use documented structures.
 
 **Priority:**
 Required
 
 **Completion Test:**
-A developer can determine the expected fields and allowed values for wording mode, question profile, maximum attendance, additional-guest allowance and response, event selections, decline status, every applicable age-category total, overall attendance total, party-level dietary text, confirmation method, email address, mobile number, SMS authorization, omission as no change, replacement, explicit zero, explicit clearing, client submission identifiers, timestamps, versions, and separate guest and administrative delivery results without reverse-engineering individual components.
+A developer can determine the expected fields and allowed values for wording mode, question structure, maximum attendance, `Plus1` allocation configuration and response, event selections, decline status, every applicable age-category total, overall attendance total, Reception attendee-name/dietary entries, confirmation method, email address, mobile number, SMS authorization, omission as no change, replacement, explicit zero, explicit clearing, client submission identifiers, timestamps, versions, and separate guest and administrative delivery results without reverse-engineering individual components.
 
 The structures distinguish an inapplicable field from an omitted revision field and from a stored value that is explicitly cleared.
 

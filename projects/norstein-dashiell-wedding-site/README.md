@@ -18,13 +18,15 @@ with its backend API available beneath:
 
 ## Project Status
 
-**Active development — Workstream 1 application foundation complete**
+**Active development — Workstream 2 RSVP backend implementation underway**
 
-The project has completed its initial application-foundation workstream, establishing the client/server structure, shared application shell, canonical routing, centralized wedding and event configuration, reusable design-system foundations, relative client/API boundary, initial launch-oriented content, and an Ubuntu deployment proof.
+Workstream 1 is complete. It established the client/server structure, shared application shell, canonical routing, centralized wedding and event configuration, reusable design-system foundations, relative client/API boundary, initial launch-oriented content, and an Ubuntu deployment proof.
 
-The current implementation includes a navigable React application beneath `/wedding/`, a Node.js/Express API foundation beneath `/wedding/api/`, dedicated Home, RSVP, Our Story, Privacy, confirmation, and Not Found experiences where appropriate for the present development stage, and structural placeholders for public pages scheduled for later implementation.
+The current application includes a navigable React application beneath `/wedding/`, a Node.js/Express API foundation beneath `/wedding/api/`, dedicated Home, RSVP, Our Story, Privacy, confirmation, and Not Found experiences where appropriate for the present development stage, and structural placeholders for public pages scheduled for later implementation.
 
-The complete RSVP backend and guest-facing RSVP workflow are extensively specified but are not yet fully implemented. Subsequent workstreams will build those capabilities on top of the completed application foundation.
+Workstream 2 is now converting the finalized RSVP architecture into backend code. The implementation already includes centralized server environment validation, reusable invitation-code normalization, and development-only invitation fixture support. The governing RSVP documentation and development fixture definitions have been reconciled to the current spreadsheet-authoritative invitation model before lookup, submission, persistence, delivery, and production-data transformation proceed.
+
+The complete lookup/submission lifecycle, durable RSVP storage, Google Sheets integration, confirmation delivery, and full guest-facing RSVP workflow are not yet complete and must not be inferred from the existing backend foundation.
 
 ## Core Technology
 
@@ -83,6 +85,7 @@ norstein-dashiell-wedding-site/
 │   │   ├── config/
 │   │   ├── middleware/
 │   │   ├── routes/
+│   │   ├── rsvp/
 │   │   ├── services/
 │   │   └── validation/
 │   ├── secrets/
@@ -229,32 +232,95 @@ Pages that depend upon venue or schedule configuration consume the same centrali
 
 ## RSVP System
 
-The RSVP system is a major component of the overall project, but its complete implementation occurs after the initial application foundation.
+The RSVP system is the primary focus of the current backend workstream. Its governing architecture is already specified; implementation is proceeding against fictional development data before protected production invitation data is introduced.
 
-The architecture is intended to support:
+### Access and lookup model
 
-* Invitation-code lookup
-* Personalized RSVP forms
-* Server-side validation
+Guests use the shared route:
+
+```text
+/wedding/rsvp/
+```
+
+and manually enter the six-character invitation code printed with their invitation. Invitation codes are submitted to the backend in request bodies rather than embedded in personalized browser URLs.
+
+A successful lookup returns only the limited invitation configuration required to construct a **blank** authorized form. It does not return previously stored RSVP answers, prior confirmation destinations, response history, or another party's information.
+
+### Spreadsheet-authoritative production configuration
+
+The current private source contains **57 active assigned production invitation records**. Real invitation codes, guest identities, and source-to-party mappings remain outside the public client and public documentation.
+
+Each production configuration is derived privately from the authoritative source and includes only the values needed by the backend, such as:
+
+* Reviewed party/form heading
+* Explicit singular or plural wording mode
+* Maximum permitted attendance
+* Zero or more authorized named `Plus1` allocations
+* Active/environment state
+
+Production RSVP behavior no longer uses separate substantive question profiles or a generic aggregate additional-guest allowance.
+
+### Reusable substantive RSVP structure
+
+Every production invitation uses the same reusable substantive form structure, with invitation-specific variation supplied only by authorized configuration.
+
+The form supports:
+
+* Ceremony attendance
+* Reception attendance
+* Mutually exclusive singular/plural decline wording
+* Zero or more named-invitee Plus 1 Yes/No questions
+* Four numerical attendance-category dials
+* Reception-only attendee details
+* Operational confirmation fields
+
+A Plus 1 question appears **only** when the private invitation configuration contains a corresponding `Plus1` authorization. Each authorized allocation produces one independent question such as:
+
+```text
+Will [Named Invitee] be accompanied by a +1?
+```
+
+An invitation with no authorized `Plus1` allocation receives no Plus 1 question and cannot submit an authorized Plus 1 response. Multiple allocations remain separate Yes/No questions rather than becoming a numeric guest-count control.
+
+The four attendance categories are:
+
+* Adults, ages 21 and older
+* Young Adults, ages 18–20
+* Children, ages 3–17
+* Children under 3
+
+Their combined value represents the complete attending party and must remain between 1 and the invitation's authorized maximum whenever the party is attending.
+
+When Reception is selected, the form requires exactly one attendee-detail record per member of the attending party. Each record contains:
+
+* Attendee name — required, maximum 100 characters
+* Food allergies or dietary preferences — optional, maximum 1000 characters
+
+Ceremony-only attendance does not collect Reception attendee-detail records. Removing Reception clears those records, and a full decline clears all attendance-dependent Plus 1 responses, attendance totals, and Reception attendee details.
+
+### Submission and revision model
+
+The architecture supports:
+
+* Server-side authorization and validation
 * Initial responses
-* Response revisions
-* Conditional questions
-* Additional-guest handling
-* Attendance and dietary logic
-* Idempotent submissions
-* Version history
-* Current-response storage
-* Deadline enforcement
-* Confirmation workflow
+* Blank-form partial revisions
+* Omitted-field-means-unchanged semantics
+* Explicit replacement, explicit zero, and explicit clear behavior
+* Dependency clearing
+* Idempotent submissions and safe retries
+* Current-response storage and version history
+* Backend-authoritative deadline enforcement
 * Guest confirmation
-* Administrative notification
-* Delivery-warning handling
-* Safe retry behavior
-* Confirmation-page refresh handling
+* Protected administrative confirmation
+* Independent delivery-warning handling
+* Confirmation-page refresh fallback
+
+Operational confirmation information is entered again for every initial submission and revision. Email is the required baseline channel. Text Message remains disabled in production until its separate provider/disclosure/authorization/testing gate is satisfied.
 
 The RSVP interface is designed around clearly defined application states rather than assuming that every request succeeds immediately.
 
-Production invitation records are not used during ordinary development.
+Production invitation records are not used during ordinary development. Development and automated tests use fictional fixtures so that backend work can proceed without exposing real invitation codes or guest identities.
 
 ## Client/API Boundary
 
@@ -309,6 +375,8 @@ The repository is intended to exclude:
 * Production invitation spreadsheets
 * Real invitation codes
 * Guest identities and RSVP data
+* Reception attendee names and dietary/allergy responses
+* Private Plus 1 allocation mappings
 * Google service-account credentials
 * Email credentials
 * SMS credentials
@@ -448,23 +516,39 @@ Completed foundation work includes:
 
 The application foundation has been exercised as a navigable application, its production client build has been validated, and its intended `/wedding/` and `/wedding/api/` deployment architecture has been proven on the Ubuntu deployment environment.
 
-Later workstreams will build the complete RSVP backend and guest workflow, remaining public-site content, production deployment, and subsequent operational features on this foundation.
+## Current RSVP Backend Workstream
+
+Workstream 2 builds the RSVP backend and private data layer on top of the completed foundation.
+
+Implemented or established at the current stage:
+
+* Centralized environment parsing and validation
+* Development/production configuration separation
+* Reusable invitation-code normalization and display formatting
+* Fictional development invitation fixtures
+* Automated tests for the implemented backend foundations
+* Spreadsheet-authoritative RSVP architecture and development fixture definitions
+* Public/private source-control boundaries for invitation data
+
+The next implementation stages add the private invitation service, lookup endpoint, submission validation and revision merge logic, persistence, idempotency, deadline/rate-limit/cache behavior, production transformation, confirmation delivery, and the associated automated tests.
+
+The current production source is treated as private backend input. It is not copied into the React client, committed to public source control, or used as ordinary development test data.
 
 ## Development Priorities
 
 Under schedule pressure, the project prioritizes:
 
-1. Correct architecture
-2. Git and privacy safety
-3. Route structure
-4. Shared application shell
-5. Design-system foundations
-6. Form, status, and focus behavior
+1. Correct architecture and contract fidelity
+2. Git, credential, and private-data safety
+3. Server-side RSVP authorization and validation
+4. Reliable storage, revision, and idempotency behavior
+5. Confirmation and delivery correctness
+6. Accessible form, status, and focus behavior
 7. Centralized configuration
-8. Successful production build
-9. Ubuntu deployment proof
+8. Reproducible production builds
+9. Proven Ubuntu deployment behavior
 
-Decorative refinement is intentionally secondary to producing a reliable, accessible, secure, and reproducible application foundation.
+Decorative refinement remains secondary to producing a reliable, accessible, secure, privacy-conscious, and reproducible production application.
 
 ## Portfolio Focus
 
@@ -494,8 +578,9 @@ The project is particularly intended to demonstrate the progression from extensi
 
 ## Development and AI-Assistance Disclosure
 
-AI-assisted tools may be used during project planning, research, documentation, architecture review, debugging, code review, and implementation support.
+This project is developed and maintained by Joshua Norstein. AI-assisted tools may be used as development aids for tasks such as planning, research, proofreading documentation, troubleshooting, syntax and error checking, architecture review, code review, and implementation support. Final project decisions, integration, testing, repository management, and maintenance remain the developer's responsibility.
 
+Third-party and open-source libraries, frameworks, packages, tools, templates, assets, and other external material remain the work of their respective authors and are used in accordance with their applicable licenses and attribution requirements. Material adapted from an external source should be identified and attributed where its license or terms require it.
 ## Author
 
 **Joshua Norstein**

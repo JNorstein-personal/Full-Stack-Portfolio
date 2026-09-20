@@ -1,24 +1,26 @@
 # RSVP Preliminary Test Cases
 
-**Project:** Loreweaver Creations Wedding Website  
-**Phase:** Phase 3 — RSVP System Design and Planning  
-**Step:** Phase 3 Step 12 — Define Preliminary RSVP Test Cases; revised through Phase 3 Step 14 — Finalize Phase 3 Privacy and Security Rules  
-**Document:** `docs/rsvp-test-cases.md`  
-**Status:** Preliminary test catalog finalized through Phase 3 Step 14; test execution occurs during later implementation/testing and lifecycle phases  
-**Phase 3 status:** Complete  
-**Last updated:** August 21, 2026
+**Project:** Loreweaver Creations Wedding Website
+**Phase:** Phase 3 — RSVP System Design and Planning; spreadsheet-authoritative revision
+**Step:** Phase 3 Step 12 test catalog, synchronized through the spreadsheet-authoritative RSVP revision
+**Document:** `docs/rsvp-test-cases.md`
+**Status:** Controlling preliminary test catalog; execution occurs during implementation, integration, production-gate, and lifecycle testing
+**Phase 3 status:** Complete; RSVP data/form model revised September 20, 2026
+**Last updated:** September 20, 2026
 
 ---
 
 ## 1. Purpose
 
-This document is the controlling preliminary test catalog for the Loreweaver Creations wedding RSVP system as designed through Phase 3 Step 14.
+This document is the controlling preliminary test catalog for the Loreweaver Creations wedding RSVP system.
 
-It translates the approved RSVP requirements, decisions, API contract, form schemas, browser-state model, Step 11 fictional development archetypes, finalized Step 13 temporary-confirmation/refresh-fallback behavior, and finalized Step 14 privacy/security standard into testable cases.
+It translates the current approved requirements, decisions, API contract, one reusable form schema, fictional development configurations, thirteen-state browser model, temporary-confirmation/refresh-fallback behavior, and finalized privacy/security standard into testable cases.
 
-This document defines **expected behavior**. It does not claim that application code already exists or that any test has already passed.
+The private couple-supplied `Invitees List` spreadsheet is authoritative for production invitation configuration and for the intended substantive RSVP presentation. The current production-source audit contains 57 active assigned invitation records. Those aggregate results are validation targets, not hard-coded renderer assumptions.
 
-The test catalog must be executed against development or testing fixtures unless a later production-validation procedure explicitly requires otherwise. Active production invitation records and real guest data must not be used as ordinary test fixtures.
+This document defines **expected behavior**. It does not claim that application code already exists or that any listed test has already passed.
+
+Tests must use development or testing fixtures unless a controlled production-transformation validation explicitly requires the private source. Active production invitation codes, real guest identities, and private RSVP records must not be copied into ordinary automated fixtures, public documentation, or public source.
 
 ---
 
@@ -39,27 +41,29 @@ The test cases in this file must remain consistent with the current approved ver
 
 The current Development and Deployment Plan is also a sequencing and coverage reference.
 
-Where an older planning example conflicts with a later approved project document or decision, the later approved project document or decision controls.
+Where an older planning example conflicts with the authoritative spreadsheet or a later approved project document, the spreadsheet-authoritative revision controls.
 
 In particular:
 
-- The current system uses integer `additionalGuestAllowance`, supporting zero, one, or multiple authorized additional guests.
-- Party-level dietary information is applicable to Ceremony-only, Reception-only, or combined attendance and is cleared only by a full decline.
-- The current browser submission contract does **not** use client-supplied `expectedVersion`.
-- `409 Conflict` is not an ordinary production RSVP result under the current contract.
-- The RSVP interface uses the thirteen-state Phase 3 Step 10 model.
-- Step 11 development fixtures are preferred for RSVP testing.
-- Phase 3 Step 12 establishes this controlling preliminary test catalog.
-- Phase 3 Step 13 finalizes the temporary successful-confirmation lifecycle and State 12 — Confirmation Refresh Fallback behavior.
-- A browser refresh, direct navigation, bookmark/new-tab visit, or history traversal does not itself determine the visible confirmation state; usable temporary successful state continues to render State 9, 10, or 11, while absent or unusable successful state renders State 12.
-- State 12 is presentation and recovery guidance only: it does not automatically perform lookup, replay a submission, create or silently reuse a `clientSubmissionId`, or retrieve a saved RSVP.
-- The initial implementation requires no short-lived confirmation token, public confirmation-recovery endpoint, public saved-RSVP endpoint, code-bearing confirmation URL, or intentional persistent browser storage solely to make the on-screen summary survive refresh.
-- Phase 3 Step 14 finalizes the complete privacy/security standard, including `Cache-Control: no-store, max-age=0`, analytics/logging exclusions, exact initial production rate limits, trusted-proxy handling, backend-only credentials, production/development separation, guest-safe errors, SMS-provider gating, HTTPS, and RSVP-data retirement.
+- The current production source contains 57 active assigned invitation records, 57 unique normalized codes, 35 singular `I` wording records, 22 plural `We` wording records, 23 invitations with at least one authorized `Plus1` allocation, 26 total `Plus1` allocations, two invitations with more than one allocation, and combined maximum-attendance capacity of 115.
+- No production placeholder invitation is required by the active architecture.
+- Production rendering uses one reusable RSVP form schema; the former `default` / `reduced-attendance-dietary` production-profile architecture is retired.
+- A party receives a Plus 1 question **only** when its private invitation configuration contains the corresponding Column E `Plus1` allocation.
+- Each authorized allocation renders one named-invitee Yes/No prompt and uses a stable private-authorized allocation ID for submission.
+- A party with no authorized allocations receives no Plus 1 control and may not submit `additionalGuestResponses`.
+- Attendance is represented by one closed-set `eventAttendance` value: Ceremony, Reception, both, or full decline.
+- Every attending response uses four coordinated numerical age-category dials whose authoritative sum is `overallAttendance`; the sum must be 1 through `maximumAttendance`.
+- Reception attendee details are applicable only when Reception is selected and contain exactly one attendee-name/dietary pair per `overallAttendance`.
+- Attendee names are required and limited to 100 characters; dietary/allergy text is optional per attendee and limited to 1000 characters.
+- The current browser submission contract does **not** use client-supplied `expectedVersion`; ordinary `409 Conflict` is not part of the contract.
+- The RSVP interface continues to use the thirteen-state model.
+- Development fixtures are preferred for implementation testing; `DEV999` remains the inactive guard fixture.
+- State 12 — Confirmation Refresh Fallback remains presentation/recovery guidance only and does not retrieve a saved RSVP or replay a submission automatically.
+- The finalized privacy/security standard continues to require no-store responses, analytics/logging minimization, exact initial rate limits, trusted-proxy handling, backend-only credentials, environment separation, guest-safe errors, SMS-provider gating, HTTPS, and RSVP-data retirement.
 - Invitation codes are limited access tokens rather than passwords; no public guest directory, code-recovery search, fuzzy/close-match suggestion, public saved-RSVP endpoint, or code-bearing personalized route is permitted.
-- The initial production lookup limit is 10 requests per 15-minute rolling window per client IP.
-- The initial production submission limits are 6 requests per 15-minute rolling window per client IP and 6 requests per 15-minute rolling window per normalized invitation code.
-- Active RSVP-operational data is retired no later than July 30, 2027 unless a minimal record is temporarily required for a concrete documented administrative need.
-- Protected backups containing retired RSVP-operational data expire no later than August 29, 2027.
+- The initial lookup limit remains 10 requests per 15-minute rolling window per client IP.
+- The initial submission limits remain 6 requests per 15-minute rolling window per client IP and 6 requests per 15-minute rolling window per normalized invitation code.
+- Active RSVP-operational data is retired no later than July 30, 2027 unless a minimal record is temporarily required for a concrete documented administrative need; protected backups containing retired RSVP-operational data expire no later than August 29, 2027.
 
 ---
 
@@ -67,18 +71,16 @@ In particular:
 
 ### 3.1 Test-case identifiers
 
-Test cases use the following prefixes:
-
 | Prefix | Area |
 |---|---|
 | `CODE` | Invitation-code normalization and lookup |
 | `APIH` | API health and endpoint boundaries |
-| `CONF` | Invitation configuration and form-schema selection |
+| `CONF` | Invitation configuration and reusable form-schema behavior |
 | `BLANK` | Blank-form and lookup privacy boundaries |
-| `ATT` | Attendance and decline logic |
-| `ADD` | Additional-guest behavior |
-| `TOTAL` | Attendance-total behavior |
-| `DIET` | Dietary behavior |
+| `ATT` | Attendance and decline behavior |
+| `ADD` | Authorized named-`Plus1` behavior |
+| `TOTAL` | Attendance-total and coordinated-dial behavior |
+| `DIET` | Reception attendee-detail and per-attendee dietary/allergy behavior |
 | `INIT` | Initial-submission behavior |
 | `REV` | Revision and merge behavior |
 | `CHAN` | Guest confirmation-channel behavior |
@@ -89,12 +91,12 @@ Test cases use the following prefixes:
 | `PAGE` | Confirmation route and refresh behavior |
 | `TIME` | Deadline and countdown behavior |
 | `A11Y` | Accessibility behavior |
-| `PRIV` | Finalized Phase 3 privacy, security, caching, logging, credential, transport, and retention boundaries |
+| `PRIV` | Privacy, security, caching, logging, credential, transport, and retention boundaries |
 
 ### 3.2 Status labels
 
-- **Required** — supported by the finalized Phase 3 design and must be implemented and executed when the relevant implementation, production-gate, or lifecycle condition exists.
-- Phase 3 contains no remaining **Provisional** or **Deferred** RSVP test area. A test that can be executed only after provider selection, production deployment, or a future lifecycle date is still **Required**; its execution timing does not make the requirement provisional.
+- **Required** — supported by the current finalized design and must be implemented and executed when the relevant implementation, production-gate, or lifecycle condition exists.
+- A test whose execution depends on production provider selection, deployment, or a future lifecycle date remains **Required**; execution timing does not make the requirement provisional.
 
 ### 3.3 General execution rule
 
@@ -106,29 +108,31 @@ For every server-side RSVP test, verify both:
 For every browser-facing test, verify both:
 
 1. The visible state or behavior.
-2. That no prohibited information is exposed through URLs, metadata, analytics payloads, or browser-visible response content.
+2. That no prohibited information is exposed through URLs, metadata, analytics payloads, browser storage, or unnecessary response content.
 
 ---
 
 ## 4. Development Fixture Registry
 
-Use the Step 11 fictional fixtures as the default test inputs.
+Use the fictional development fixtures defined in `rsvp-example-configurations.json` as the default test inputs.
 
-| Fixture | Primary purpose | `wordingMode` | `questionProfile` | `maximumAttendance` | `additionalGuestAllowance` | Active |
-|---|---|---|---|---:|---:|---|
-| `DEV001` / `DEV-001` | Archetype A — singular, no additional guest | `singular` | `default` | 1 | 0 | Yes |
-| `DEV005` / `DEV-005` | Archetype B — plural household, no additional guest | `plural` | `default` | 4 | 0 | Yes |
-| `DEV006` / `DEV-006` | Archetype C — singular, one additional guest | `singular` | `default` | 2 | 1 | Yes |
-| `DEV002` / `DEV-002` | Archetype D — plural household, one additional guest | `plural` | `default` | 5 | 1 | Yes |
-| `DEV007` / `DEV-007` | Archetype E — Ceremony-only scenario | `plural` | `default` | 3 | 0 | Yes |
-| `DEV008` / `DEV-008` | Archetype F — Reception-only scenario | `plural` | `default` | 3 | 0 | Yes |
-| `DEV009` / `DEV-009` | Archetype G — full-decline scenario | `plural` | `default` | 4 | 1 | Yes |
-| `DEV010` / `DEV-010` | Archetype H — existing-response revision | `plural` | `default` | 4 | 1 | Yes |
-| `DEV003` / `DEV-003` | Archetype I — multiple additional guests | `plural` | `default` | 7 | 3 | Yes |
-| `DEV004` / `DEV-004` | Archetype J — reduced profile | `plural` | `reduced-attendance-dietary` | 2 | 0 | Yes |
-| `DEV999` / `DEV-999` | Disabled-development guard fixture | `singular` | `default` | 2 | 1 | No |
+| Fixture | Primary purpose | `wordingMode` | `maximumAttendance` | Authorized named `Plus1` allocations | Active |
+|---|---|---|---:|---:|---|
+| `DEV001` / `DEV-001` | Singular, no Plus 1 | `singular` | 1 | 0 | Yes |
+| `DEV002` / `DEV-002` | Plural household, no Plus 1 | `plural` | 5 | 0 | Yes |
+| `DEV003` / `DEV-003` | Singular, one named Plus 1 allocation | `singular` | 2 | 1 | Yes |
+| `DEV004` / `DEV-004` | Plural household, one named Plus 1 allocation | `plural` | 4 | 1 | Yes |
+| `DEV005` / `DEV-005` | Ceremony-only scenario fixture | `plural` | 4 | 0 | Yes |
+| `DEV006` / `DEV-006` | Reception-only scenario fixture | `singular` | 2 | 1 | Yes |
+| `DEV007` / `DEV-007` | Combined Ceremony + Reception scenario | `plural` | 3 | 0 | Yes |
+| `DEV008` / `DEV-008` | Existing-response revision scenario | `plural` | 3 | 0 | Yes |
+| `DEV009` / `DEV-009` | Multiple named Plus 1 allocations | `plural` | 7 | 3 | Yes |
+| `DEV010` / `DEV-010` | Capacity-boundary scenario | `plural` | 4 | 1 | Yes |
+| `DEV999` / `DEV-999` | Disabled-development guard fixture | `plural` | 2 | 1 | No |
 
-`DEV999` is not a guest-flow archetype. It exists to test inactive/environment-ineligible lookup behavior.
+`DEV999` is not an ordinary guest-flow fixture. It exists to test inactive/environment-ineligible lookup behavior.
+
+The allocation prompts and IDs in these fixtures are fictional. They test the same structural behavior required by production without exposing production identities or codes.
 
 Use a separately reserved synthetic unknown code such as `UNK-404` only in a test environment where it has been confirmed not to exist.
 
@@ -166,7 +170,7 @@ Use a separately reserved synthetic unknown code such as `UNK-404` only in a tes
 | `CODE-026` | Lookup backend unavailable | Cause a known pre-result backend failure. | Backend returns `503 Service Unavailable`; browser enters Service Unavailable and does not imply RSVP storage. | Required |
 | `CODE-027` | Stale browser after deadline | Send lookup after authoritative deadline. | Backend returns `410 Gone`; no personalized blank form is returned. | Required |
 | `CODE-028` | Lookup method boundary | Attempt a code-bearing GET/personalized API URL that is not part of the contract. | No supported public code-bearing lookup route exists. | Required |
-| `CODE-029` | Lookup after prior RSVP exists | Use `DEV010` with a fictional stored response. | Lookup succeeds but reveals no stored-response existence indicator. | Required |
+| `CODE-029` | Lookup after prior RSVP exists | Use `DEV008` with a fictional stored response. | Lookup succeeds but reveals no stored-response existence indicator. | Required |
 | `CODE-030` | Submission revalidation | After a successful lookup, submit an RSVP with a malformed or unauthorized invitation code. | Backend independently renormalizes/revalidates; prior lookup does not authorize submission. | Required |
 
 ---
@@ -176,13 +180,13 @@ Use a separately reserved synthetic unknown code such as `UNK-404` only in a tes
 | ID | Context | Test | Expected result | Status |
 |---|---|---|---|---|
 | `APIH-001` | Backend healthy | `GET /wedding/api/health`. | Returns `200 OK` and `{ "status": "ok" }`. | Required |
-| `APIH-002` | Health endpoint | Inspect response. | Contains no invitation record, guest identity, RSVP answer, confirmation destination, dietary value, delivery record, spreadsheet row, or administrative information. | Required |
+| `APIH-002` | Health endpoint | Inspect response. | Contains no invitation record, guest identity, RSVP answer, confirmation destination, attendee-detail value, delivery record, spreadsheet row, or administrative information. | Required |
 | `APIH-003` | Health endpoint | Simulate unavailable Google Sheets while the application process itself can still answer health. | Health is not required by the current contract to prove Google Sheets reachability. | Required |
 | `APIH-004` | Health endpoint | Simulate unavailable email/SMS providers while application process remains healthy. | Health is not required to prove delivery-provider availability. | Required |
 | `APIH-005` | Route boundary | Verify public RSVP browser route vs API route. | Browser interaction remains under `/wedding/rsvp/`; backend operations remain under `/wedding/api/`. | Required |
-| `APIH-006` | React fallback | Request `/wedding/api/health`, `/lookup`, or `/submit` through production routing. | React browser-route fallback does not intercept valid API endpoints. | Required |
-| `APIH-007` | API inventory | Enumerate public RSVP endpoints. | Only the documented health, lookup, and submit endpoints are required by the current contract; no public saved-RSVP, directory, recovery, or admin endpoint is introduced. | Required |
-| `APIH-008` | Dynamic records | Change the number of development invitation records. | Endpoint logic continues to work without assuming a permanently fixed count of 56. | Required |
+| `APIH-006` | React fallback | Request `/wedding/api/health`, lookup, or submit through production routing. | React browser-route fallback does not intercept valid API endpoints. | Required |
+| `APIH-007` | API inventory | Enumerate public RSVP endpoints. | Only documented health, lookup, and submit endpoints are required; no public saved-RSVP, directory, recovery, or admin endpoint is introduced. | Required |
+| `APIH-008` | Dynamic records | Change the number of development invitation records in a controlled fixture registry. | Endpoint and renderer logic continue to work without assuming that the production count is permanently 57. | Required |
 
 ---
 
@@ -190,28 +194,28 @@ Use a separately reserved synthetic unknown code such as `UNK-404` only in a tes
 
 | ID | Fixture | Test | Expected result | Status |
 |---|---|---|---|---|
-| `CONF-001` | `DEV001` | Lookup valid singular fixture. | Guest-facing wording uses singular variants supplied by configuration. | Required |
-| `CONF-002` | `DEV005` | Lookup valid plural fixture. | Guest-facing wording uses plural variants supplied by configuration. | Required |
+| `CONF-001` | `DEV001` | Lookup valid singular fixture. | Guest-facing attendance wording uses the singular variants supplied by configuration. | Required |
+| `CONF-002` | `DEV002` | Lookup valid plural fixture. | Guest-facing attendance wording uses the plural variants supplied by configuration. | Required |
 | `CONF-003` | Any fixture | Alter display name without altering `wordingMode` in a controlled fixture copy. | Renderer follows explicit `wordingMode`; it does not infer singular/plural from names. | Required |
-| `CONF-004` | `DEV001` | Render `default`, allowance 0. | Includes attendance/decline, attendance totals, dietary, operational confirmation; no additional-guest question. | Required |
-| `CONF-005` | `DEV002` or `DEV006` | Render `default`, allowance 1. | Includes Yes/No `additionalGuestAttendance`. | Required |
-| `CONF-006` | `DEV003` | Render `default`, allowance 3. | Includes bounded whole-number/select additional-guest control allowing 0–3. | Required |
-| `CONF-007` | `DEV004` | Render reduced profile. | Includes attendance/decline, dietary, and operational confirmation only; no additional-guest or attendance-total fields. | Required |
+| `CONF-004` | `DEV001` | Render an invitation with `additionalGuestAllocations: []`. | No Plus 1 question is rendered; attendance, totals, and operational controls remain available as applicable. | Required |
+| `CONF-005` | `DEV003` | Render one authorized named `Plus1` allocation. | Exactly one Yes/No question is rendered using the configured named-invitee prompt and stable allocation ID. | Required |
+| `CONF-006` | `DEV009` | Render three authorized named `Plus1` allocations. | Exactly three independent named-invitee Yes/No questions are rendered; no aggregate additional-guest count control appears. | Required |
+| `CONF-007` | All active fixtures | Inspect form-schema selection. | Every fixture uses the same reusable `spreadsheet-authoritative-rsvp` schema; production rendering does not branch on a `questionProfile`. | Required |
 | `CONF-008` | `DEV001` | Verify maximum attendance. | `maximumAttendance` is 1 and is enforced by backend validation. | Required |
-| `CONF-009` | `DEV005` | Verify larger household maximum. | `maximumAttendance` is 4 and does not imply a named guest roster. | Required |
-| `CONF-010` | `DEV003` | Verify multiple-guest maximum. | `maximumAttendance` is 7 and allowance is 3; both are enforced independently. | Required |
+| `CONF-009` | `DEV002` | Verify larger household maximum. | `maximumAttendance` is 5 and does not itself reveal or create a guest roster. | Required |
+| `CONF-010` | `DEV009` | Verify multiple-allocation configuration. | `maximumAttendance` is 7 and exactly three authorized allocation definitions are present; authorization and party capacity are enforced independently. | Required |
 | `CONF-011` | `DEV999` | Validate fixture metadata. | `active` is false and fixture is not returned as an ordinary valid invitation. | Required |
-| `CONF-012` | Development fixtures | Inspect all active fixture records. | Every fixture is `environment: "development"` and is separated from production data. | Required |
-| `CONF-013` | All fixtures | Inspect configuration shape. | Rendering does not require a named-guest array. | Required |
-| `CONF-014` | All schemas | Enumerate substantive IDs. | Only `eventAttendance`, `declineAttendance`, authorized `additionalGuestAttendance`, authorized `attendanceTotals`, and `dietaryPreferences` are permitted. | Required |
-| `CONF-015` | All schemas | Check for named additional-guest field. | None exists. | Required |
-| `CONF-016` | All schemas | Check for named-child attendance fields. | None exists. Children are represented only through approved age totals where the default profile applies. | Required |
-| `CONF-017` | All schemas | Check closed-set exclusions. | No accessibility, lodging, transportation, message-to-couple, entrée-selection, or other unapproved substantive question is rendered. | Required |
-| `CONF-018` | Reduced profile | Maliciously request or inject `additionalGuestAttendance`. | Field remains unauthorized. | Required |
-| `CONF-019` | Reduced profile | Maliciously request or inject `attendanceTotals`. | Field remains unauthorized. | Required |
-| `CONF-020` | Default profile | Verify party-level dietary field. | One party-level dietary field exists while attending; no per-person dietary controls exist. | Required |
-| `CONF-021` | All fixtures | Alter browser-visible party name in a test double while keeping backend configuration fixed. | Browser does not infer `maximumAttendance`, allowance, or profile from display text. | Required |
-| `CONF-022` | Schema-example compatibility | Verify `DEV001`–`DEV004` references. | Existing form-schema example mappings remain valid: allowance 0, allowance 1, multiple allowance, reduced profile. | Required |
+| `CONF-012` | Development fixtures | Inspect all active fixture records. | Every fixture is `environment: "development"` and remains separated from production data. | Required |
+| `CONF-013` | All fixtures | Inspect configuration shape. | Each contains `wordingMode`, positive `maximumAttendance`, an `additionalGuestAllocations` array, protected `active`, and protected `environment`; no RSVP answers are embedded. | Required |
+| `CONF-014` | Reusable schema | Enumerate substantive IDs. | Exactly `eventAttendance`, `additionalGuestResponses`, `attendanceTotals`, and `receptionAttendeeDetails` are substantive regions. | Required |
+| `CONF-015` | Reusable schema | Inspect additional-guest rendering. | Each rendered Plus 1 prompt comes only from an authorized allocation; no separate field requests the additional guest's name at the allocation stage. | Required |
+| `CONF-016` | Reusable schema | Inspect age-total fields. | Exactly `adults21Plus`, `youngAdults18To20`, `children3To17`, and `childrenUnder3` are present in the coordinated dial group. | Required |
+| `CONF-017` | Reusable schema | Check closed-set exclusions. | No accessibility, lodging, transportation, message-to-couple, entrée-selection, named-child attendance, or other unapproved substantive region is rendered. | Required |
+| `CONF-018` | `DEV001` | Maliciously submit `additionalGuestResponses`. | Field is unauthorized because the invitation has no allocations. | Required |
+| `CONF-019` | `DEV003` | Submit a response keyed by an allocation ID not returned for that invitation. | Unauthorized allocation is rejected; the backend does not accept prompt text or arbitrary IDs as authorization. | Required |
+| `CONF-020` | Reception-selected fixture | Inspect attendee-detail rendering. | Exactly one attendee-name/dietary pair is rendered per `overallAttendance`; there is no single party-level dietary field. | Required |
+| `CONF-021` | Any fixture | Alter browser-visible party text in a test double while backend configuration stays fixed. | Browser does not infer `maximumAttendance` or Plus 1 authorization from display text. | Required |
+| `CONF-022` | Schema/config compatibility | Exercise `DEV001`, `DEV003`, `DEV006`, and `DEV009`. | The same reusable schema correctly handles no allocation, one allocation, Reception attendee details, and multiple named allocations from configuration/state. | Required |
 
 ---
 
@@ -220,23 +224,23 @@ Use a separately reserved synthetic unknown code such as `UNK-404` only in a tes
 | ID | Fixture | Test | Expected result | Status |
 |---|---|---|---|---|
 | `BLANK-001` | New `DEV001` | Lookup invitation with no stored RSVP. | Validated form loads blank. | Required |
-| `BLANK-002` | `DEV010` with fictional stored RSVP | Lookup invitation with existing response. | Validated form still loads blank. | Required |
-| `BLANK-003` | `DEV010` | Inspect lookup response for `existingResponse`, `currentResponse`, `hasResponse`, or equivalent. | None is returned. | Required |
-| `BLANK-004` | `DEV010` | Inspect lookup response for prior event attendance. | Not returned. | Required |
-| `BLANK-005` | `DEV010` | Inspect lookup response for prior decline state. | Not returned. | Required |
-| `BLANK-006` | `DEV010` | Inspect lookup response for prior additional-guest response. | Not returned. | Required |
-| `BLANK-007` | `DEV010` | Inspect lookup response for prior attendance totals. | Not returned. | Required |
-| `BLANK-008` | `DEV010` | Inspect lookup response for prior dietary response. | Not returned. | Required |
-| `BLANK-009` | `DEV010` | Inspect lookup response for prior confirmation method. | Not returned. | Required |
-| `BLANK-010` | `DEV010` | Inspect lookup response for prior email/mobile/SMS authorization. | Not returned. | Required |
-| `BLANK-011` | `DEV010` | Inspect lookup response for delivery history. | Not returned. | Required |
-| `BLANK-012` | Valid fixture | Inspect lookup response for `partyId`, workbook row, private notes, `active`, `environment`, or credentials. | None is returned. | Required |
-| `BLANK-013` | Valid fixture | Inspect lookup response top level. | Contains only the approved lookup boundary: `invitation`, `questions`, `confirmationOptions`. | Required |
-| `BLANK-014` | Valid fixture | Inspect `invitation`. | Contains only guest-facing values necessary to render the applicable blank form. | Required |
-| `BLANK-015` | Valid fixture | Verify code echo behavior. | Production invitation code is not returned merely to reproduce it after validation. | Required |
+| `BLANK-002` | `DEV008` with fictional stored RSVP | Lookup invitation with existing response. | Validated form still loads blank. | Required |
+| `BLANK-003` | `DEV008` | Inspect lookup response for `existingResponse`, `currentResponse`, `hasResponse`, or equivalent. | None is returned. | Required |
+| `BLANK-004` | `DEV008` | Inspect lookup response for prior `eventAttendance`. | Not returned. | Required |
+| `BLANK-005` | `DEV008` | Inspect lookup response for prior full-decline or attending state. | Not returned. | Required |
+| `BLANK-006` | `DEV008` | Inspect lookup response for prior `additionalGuestResponses`. | Not returned. | Required |
+| `BLANK-007` | `DEV008` | Inspect lookup response for prior `attendanceTotals` or `overallAttendance`. | Not returned. | Required |
+| `BLANK-008` | `DEV008` | Inspect lookup response for prior `receptionAttendeeDetails`, attendee names, or dietary/allergy text. | Not returned. | Required |
+| `BLANK-009` | `DEV008` | Inspect lookup response for prior confirmation method. | Not returned. | Required |
+| `BLANK-010` | `DEV008` | Inspect lookup response for prior email/mobile/SMS authorization. | Not returned. | Required |
+| `BLANK-011` | `DEV008` | Inspect lookup response for delivery history. | Not returned. | Required |
+| `BLANK-012` | Valid fixture | Inspect lookup response for `partyId`, workbook row, private notes, `active`, `environment`, credentials, or private source-column values. | None is returned. | Required |
+| `BLANK-013` | Valid fixture | Inspect lookup response top level. | Contains only `invitation`, `questions`, and `confirmationOptions`. | Required |
+| `BLANK-014` | Valid fixture | Inspect `invitation`. | Contains only guest-facing values needed to render the blank form, including authorized named `Plus1` allocation definitions where applicable. | Required |
+| `BLANK-015` | Valid fixture | Verify code echo behavior. | Invitation code is not returned merely to reproduce it after validation. | Required |
 | `BLANK-016` | Public route | Inspect search indexing outcome for RSVP and confirmation routes. | Personalized/transactional RSVP states are excluded from public indexing. | Required |
 | `BLANK-017` | Public route | Inspect concise privacy notice. | Notice is present on entry and validated form and links to `/wedding/privacy`. | Required |
-| `BLANK-018` | Invalid/unknown lookup | Inspect error content. | No name, close match, record count, spreadsheet detail, internal identifier, or backend detail is disclosed. | Required |
+| `BLANK-018` | Invalid/unknown lookup | Inspect error content. | No name, close match, record count, spreadsheet detail, internal identifier, allocation data, or backend detail is disclosed. | Required |
 
 ---
 
@@ -244,88 +248,88 @@ Use a separately reserved synthetic unknown code such as `UNK-404` only in a tes
 
 | ID | Fixture | Test | Expected result | Status |
 |---|---|---|---|---|
-| `ATT-001` | `DEV007` | Submit Ceremony only with `declineAttendance: false`. | Valid attending state. | Required |
-| `ATT-002` | `DEV008` | Submit Reception only with `declineAttendance: false`. | Valid attending state. | Required |
-| `ATT-003` | Default fixture | Submit Ceremony and Reception with `declineAttendance: false`. | Valid attending state. | Required |
-| `ATT-004` | `DEV009` | Submit full decline: empty event array and `declineAttendance: true`. | Valid declining state; dependent substantive values become inapplicable as defined. | Required |
-| `ATT-005` | Default fixture | Submit nonempty event selection and `declineAttendance: true`. | Rejected as contradictory; no new RSVP version. | Required |
-| `ATT-006` | Initial default fixture | Submit empty event array and `declineAttendance: false`. | Rejected; initial RSVP has not established a valid attendance/decline state. | Required |
-| `ATT-007` | Initial reduced fixture | Submit neither attendance nor decline. | Rejected as incomplete. | Required |
-| `ATT-008` | Existing attending response | Revise to full decline using complete attendance/decline pair. | Result becomes declined; stale dependent values are cleared/removed before final validation. | Required |
-| `ATT-009` | Existing declined response | Revise to attending. | Newly applicable required fields must be supplied according to profile and allowance. | Required |
-| `ATT-010` | Continuing attending response | Omit both attendance and decline in a revision. | Stored attendance/decline pair remains unchanged. | Required |
-| `ATT-011` | Revision | Intentionally change event selection. | Client sends the complete intended attendance/decline controlling pair; backend validates merged state. | Required |
-| `ATT-012` | Full decline | Include profile-authorized dependent values in the same request. | Full-decline rule removes now-inapplicable dependent values; valid decline remains possible. | Required |
-| `ATT-013` | Full decline | Include a field never authorized by the profile. | Authorization failure remains; decline does not make unauthorized fields acceptable. | Required |
-| `ATT-014` | Any attending profile | Submit dietary omitted. | Attendance remains valid because dietary is optional. | Required |
-| `ATT-015` | Default profile | Submit attending state without required attendance totals. | Rejected as incomplete. | Required |
-| `ATT-016` | Default positive allowance | Submit attending state without required additional-guest response. | Rejected as incomplete when the field is applicable/newly applicable. | Required |
-| `ATT-017` | Reduced profile | Submit valid attending state without totals/additional guest. | Valid if attendance/decline and operational confirmation are complete; no default-profile fields required. | Required |
-| `ATT-018` | Full decline | Inspect successful guest-facing RSVP. | `eventAttendance` is `[]`, `declineAttendance` is `true`, dietary is `null`, and inapplicable additional-guest/totals/overall values are omitted. | Required |
+| `ATT-001` | `DEV005` | Submit `eventAttendance: ["ceremony"]` with valid totals. | Valid Ceremony-only attending state; no Reception attendee-detail list is required. | Required |
+| `ATT-002` | `DEV006` | Submit `eventAttendance: ["reception"]` with valid allocation response, totals, and matching Reception attendee-detail list. | Valid Reception-only attending state. | Required |
+| `ATT-003` | `DEV007` | Submit `eventAttendance: ["ceremony", "reception"]` with valid totals and matching Reception details. | Valid combined attending state. | Required |
+| `ATT-004` | Any active fixture | Submit `eventAttendance: ["decline"]`. | Valid full decline; all attendance-dependent substantive structures become inapplicable and are cleared. | Required |
+| `ATT-005` | Any fixture | Submit a complete attendance value containing `decline` with `ceremony` or `reception`. | Rejected as contradictory; no new RSVP version. | Required |
+| `ATT-006` | Initial response | Submit `eventAttendance: []`. | Rejected because an initial RSVP has not established a complete valid attendance state. | Required |
+| `ATT-007` | Initial response | Omit `eventAttendance`. | Rejected as incomplete. | Required |
+| `ATT-008` | Existing attending response | Revise to `["decline"]`. | Result becomes declined; stored Plus 1 responses, attendance totals/derived total, and Reception attendee details are cleared before final validation. | Required |
+| `ATT-009` | Existing declined response | Revise to an attending state. | Every newly applicable authorized Plus 1 response and all four totals are required; Reception details are additionally required if Reception is selected. | Required |
+| `ATT-010` | Continuing attending response | Omit `eventAttendance` in a revision. | Stored attendance state remains unchanged. | Required |
+| `ATT-011` | Revision | Intentionally change attendance. | Client replaces the complete intended attendance state; backend validates the resulting dependencies. | Required |
+| `ATT-012` | Full decline | Include otherwise authorized stale dependent structures in the same request. | Full-decline processing clears those now-inapplicable values before storage; valid decline remains possible. | Required |
+| `ATT-013` | Full decline | Include an unknown substantive region or unauthorized allocation ID. | Authorization failure remains; decline does not make unauthorized content acceptable. | Required |
+| `ATT-014` | Ceremony-only attendance | Omit `receptionAttendeeDetails`. | Valid because Reception is not selected. | Required |
+| `ATT-015` | Any attending state | Omit newly required `attendanceTotals`. | Rejected as incomplete. | Required |
+| `ATT-016` | Invitation with authorized allocations | Omit one or more newly required `additionalGuestResponses` on initial attending submission or decline-to-attending transition. | Rejected as incomplete. | Required |
+| `ATT-017` | Reception attendance | Omit newly required `receptionAttendeeDetails`. | Rejected as incomplete. | Required |
+| `ATT-018` | Full decline | Inspect successful guest-facing RSVP. | `eventAttendance` is `["decline"]`; `additionalGuestResponses`, `attendanceTotals`, `overallAttendance`, and `receptionAttendeeDetails` are omitted. | Required |
 
 ---
 
-# 10. Additional-Guest Tests
+# 10. Authorized Named-`Plus1` Tests
 
 | ID | Fixture | Test | Expected result | Status |
 |---|---|---|---|---|
-| `ADD-001` | `DEV001` | Render form. | No `additionalGuestAttendance` control. | Required |
-| `ADD-002` | `DEV001` | Maliciously submit `additionalGuestAttendance`. | `403 Forbidden` authorization failure; no storage. | Required |
-| `ADD-003` | `DEV006` | Submit `"yes"`. | Represents one attending additional guest. | Required |
-| `ADD-004` | `DEV006` | Submit `"no"`. | Represents zero attending additional guests. | Required |
-| `ADD-005` | Allowance 1 | Submit numeric `1` instead of approved Yes/No representation. | Rejected unless later schema explicitly permits it; current contract uses `"yes"`/`"no"`. | Required |
-| `ADD-006` | `DEV003` | Submit integer `0`. | Valid additional-guest response while attending. | Required |
-| `ADD-007` | `DEV003` | Submit integer `3`. | Valid upper-bound response. | Required |
-| `ADD-008` | `DEV003` | Submit integer `4`. | Rejected above allowance. | Required |
-| `ADD-009` | `DEV003` | Submit negative number. | Rejected. | Required |
-| `ADD-010` | `DEV003` | Submit fractional number. | Rejected. | Required |
-| `ADD-011` | `DEV003` | Submit nonnumeric value. | Rejected. | Required |
-| `ADD-012` | Positive allowance | Set effective additional-guest count greater than overall attendance. | Rejected; complete result invalid. | Required |
-| `ADD-013` | Positive allowance | Change additional-guest response without adjusting totals when totals remain independently valid. | Backend does not invent an age-category change; merged totals are validated as submitted/stored. | Required |
-| `ADD-014` | Positive allowance | Change additional-guest response so existing totals become incompatible. | Rejected unless guest also supplies necessary total changes; backend does not guess. | Required |
-| `ADD-015` | Full decline from prior positive allowance | Decline after stored `"yes"` or positive count. | Additional-guest field is removed as inapplicable. | Required |
-| `ADD-016` | Any additional-guest fixture | Inspect form. | No additional guest name field exists. | Required |
+| `ADD-001` | `DEV001` | Render form. | No Plus 1 control is rendered because `additionalGuestAllocations` is empty. | Required |
+| `ADD-002` | `DEV001` | Maliciously submit `additionalGuestResponses`. | `403 Forbidden`; no storage. | Required |
+| `ADD-003` | `DEV003` | Submit `{ "plus1-dev003-a": "yes" }` while attending. | Valid authorized response representing that named invitee's Plus 1 attending. | Required |
+| `ADD-004` | `DEV003` | Submit `{ "plus1-dev003-a": "no" }` while attending. | Valid authorized response representing that allocation not attending. | Required |
+| `ADD-005` | `DEV003` | Use the guest-facing prompt or invitee name as the submission key instead of the stable allocation ID. | Rejected; authorization keys are stable allocation IDs only. | Required |
+| `ADD-006` | `DEV009` | Submit `yes` for all three authorized allocations with `overallAttendance >= 3`. | Valid when all other RSVP constraints are satisfied. | Required |
+| `ADD-007` | `DEV009` | Submit a mixed complete map of `yes` and `no`. | Valid; each allocation is independent. | Required |
+| `ADD-008` | `DEV009` | Add an unknown fourth allocation ID. | `403 Forbidden`; no storage. | Required |
+| `ADD-009` | Any authorized allocation | Submit numeric `1`, Boolean `true`, or another value instead of `"yes"`/`"no"`. | Rejected as invalid value. | Required |
+| `ADD-010` | `DEV009` initial attending | Omit one authorized allocation from the initial map. | Rejected as incomplete. | Required |
+| `ADD-011` | `DEV009` stored decline | Revise to attending but omit one authorized allocation response. | Rejected because every allocation is newly applicable after decline. | Required |
+| `ADD-012` | Authorized allocations | Produce more complete-result `yes` responses than `overallAttendance`. | Rejected as internally inconsistent. | Required |
+| `ADD-013` | Continuing attending revision | Change one allocation response while existing age totals remain independently valid. | Backend preserves omitted allocation responses and does not invent an age-category change. | Required |
+| `ADD-014` | Continuing attending revision | Change allocation responses so complete `yes` count becomes incompatible with merged `overallAttendance`. | Rejected unless the guest also supplies valid total changes; backend does not guess. | Required |
+| `ADD-015` | Prior positive Plus 1 response | Revise to full decline. | Entire stored `additionalGuestResponses` map is cleared as inapplicable. | Required |
+| `ADD-016` | Any authorized allocation fixture | Inspect Plus 1 section. | Allocation-stage controls never ask for the additional guest's name; attendee names are collected only in Reception attendee-detail rows when Reception is selected. | Required |
 
 ---
 
-# 11. Attendance-Total Tests
+# 11. Attendance-Total and Coordinated-Dial Tests
 
 | ID | Fixture | Test | Expected result | Status |
 |---|---|---|---|---|
-| `TOTAL-001` | Default attending | Supply four nonnegative whole-number categories with positive sum. | Valid if sum is within `maximumAttendance`. | Required |
-| `TOTAL-002` | Default attending | Supply all four categories as zero. | Rejected because overall attendance must be at least 1 while attending. | Required |
+| `TOTAL-001` | Any attending fixture | Supply four nonnegative whole-number categories with positive sum. | Valid if sum does not exceed `maximumAttendance`. | Required |
+| `TOTAL-002` | Any attending fixture | Supply all four categories as zero. | Rejected because `overallAttendance` must be at least 1 while attending. | Required |
 | `TOTAL-003` | `DEV001` | Supply total of 2. | Rejected above maximum 1. | Required |
-| `TOTAL-004` | `DEV005` | Supply total of 5. | Rejected above maximum 4. | Required |
-| `TOTAL-005` | Default attending | Supply negative category. | Rejected. | Required |
-| `TOTAL-006` | Default attending | Supply fractional category. | Rejected. | Required |
-| `TOTAL-007` | Default attending | Supply nonnumeric category. | Rejected. | Required |
-| `TOTAL-008` | Initial default attending | Omit one category. | Rejected as incomplete. | Required |
-| `TOTAL-009` | Decline-to-attendance revision | Omit one category after totals became newly applicable. | Rejected as incomplete; all four are newly required. | Required |
-| `TOTAL-010` | Continuing attending revision | Change one nested category and omit the other three. | Omitted nested categories remain unchanged; merged four-category object is validated. | Required |
-| `TOTAL-011` | Continuing attending revision | Replace a prior positive category with numeric `0`. | Zero is stored as an explicit replacement, not treated as omission. | Required |
-| `TOTAL-012` | Default attending | Verify server-calculated `overallAttendance`. | Equals the sum of the four authoritative categories. | Required |
-| `TOTAL-013` | Default attending with additional guest | Verify relationship to additional-guest count. | Effective additional-guest count does not exceed overall attendance. | Required |
-| `TOTAL-014` | Reduced profile | Submit `attendanceTotals`. | `403 Forbidden`; field is unauthorized. | Required |
-| `TOTAL-015` | Full decline | Inspect resulting stored/public state. | Attendance totals and overall attendance are omitted, not retained as a synthetic all-zero object. | Required |
+| `TOTAL-004` | `DEV002` | Supply total of 6. | Rejected above maximum 5. | Required |
+| `TOTAL-005` | Any attending fixture | Supply a negative category. | Rejected. | Required |
+| `TOTAL-006` | Any attending fixture | Supply a fractional category. | Rejected. | Required |
+| `TOTAL-007` | Any attending fixture | Supply nonnumeric content. | Rejected. | Required |
+| `TOTAL-008` | Initial attending | Omit one category. | Rejected as incomplete. | Required |
+| `TOTAL-009` | Decline-to-attendance revision | Omit one category after totals become newly applicable. | Rejected; all four are newly required. | Required |
+| `TOTAL-010` | Continuing attending revision | Change one nested category and omit the other three. | Omitted categories remain unchanged; complete merged totals are validated. | Required |
+| `TOTAL-011` | Continuing attending revision | Replace a prior positive category with numeric `0`. | Zero is stored as explicit replacement, not treated as omission. | Required |
+| `TOTAL-012` | Any attending fixture | Verify server-calculated `overallAttendance`. | Equals the authoritative sum of all four age categories. | Required |
+| `TOTAL-013` | Attending with named Plus 1 allocations | Verify relationship to complete Plus 1 map. | Number of `yes` responses does not exceed `overallAttendance`. | Required |
+| `TOTAL-014` | `DEV010`, max 4 | Set one dial to 2 and inspect the other three dial maxima. | Each other dial's available maximum reflects the remaining capacity of 2; reducing the first dial restores available capacity. | Required |
+| `TOTAL-015` | Full decline | Inspect resulting stored/public state. | Attendance totals and `overallAttendance` are omitted, not retained as a synthetic all-zero object. | Required |
 
 ---
 
-# 12. Dietary Tests
+# 12. Reception Attendee-Detail and Dietary/Allergy Tests
 
 | ID | Fixture | Test | Expected result | Status |
 |---|---|---|---|---|
-| `DIET-001` | `DEV007` Ceremony only | Supply dietary text. | Accepted; dietary applies to Ceremony-only attendance. | Required |
-| `DIET-002` | `DEV008` Reception only | Supply dietary text. | Accepted. | Required |
-| `DIET-003` | Combined attendance | Supply dietary text. | Accepted. | Required |
-| `DIET-004` | Any attending profile | Omit dietary text on initial response. | Valid; dietary is optional. | Required |
-| `DIET-005` | Existing dietary value | Revision `replace` with new text. | Stored dietary value is replaced. | Required |
-| `DIET-006` | Existing dietary value | Revision `clear`. | Stored dietary value is intentionally removed. | Required |
-| `DIET-007` | Existing dietary value | Omit dietary field in revision. | Stored dietary value remains unchanged. | Required |
-| `DIET-008` | Existing dietary value | Revise to full decline. | Dietary value is cleared automatically; successful guest-facing RSVP reports `null`. | Required |
-| `DIET-009` | Declined result | Attempt to preserve dietary text while fully declining. | Full-decline rule clears it before final valid state is stored. | Required |
-| `DIET-010` | Dietary field | Submit more than the configured maximum length of 1000 characters. | Rejected as invalid dietary text. | Required |
-| `DIET-011` | Any profile | Inspect rendering. | One party-level dietary field only; no per-person dietary fields. | Required |
-| `DIET-012` | Revision | Submit blank string as an attempted clear. | Blank string is not the documented clear mechanism; authorized `clear` expresses intentional removal. | Required |
+| `DIET-001` | Ceremony-only attendance | Inspect rendering and attempt submission of `receptionAttendeeDetails`. | No attendee-detail rows render; submitted Reception details are unauthorized because Reception is not selected. | Required |
+| `DIET-002` | `DEV006` Reception only, `overallAttendance = 2` | Supply exactly two complete attendee-detail rows. | Accepted when all names and dietary values satisfy validation. | Required |
+| `DIET-003` | Combined attendance, `overallAttendance = 3` | Supply exactly three attendee-detail rows. | Accepted. | Required |
+| `DIET-004` | Reception attendee row | Submit blank or whitespace-only `attendeeName`. | Rejected; every Reception attendee row requires a nonblank name. | Required |
+| `DIET-005` | Reception attendee row | Submit attendee name longer than 100 characters. | Rejected. | Required |
+| `DIET-006` | Reception attendee row | Submit empty `dietaryPreferences`. | Accepted; dietary/allergy information is optional per attendee. | Required |
+| `DIET-007` | Reception attendee row | Submit dietary/allergy text of 1000 characters. | Accepted if otherwise valid. | Required |
+| `DIET-008` | Reception attendee row | Submit dietary/allergy text longer than 1000 characters. | Rejected. | Required |
+| `DIET-009` | Reception, `overallAttendance = 3` | Submit only two attendee-detail rows. | Rejected because list length must exactly equal `overallAttendance`. | Required |
+| `DIET-010` | Reception, `overallAttendance = 2` | Submit three attendee-detail rows. | Rejected because list length exceeds `overallAttendance`. | Required |
+| `DIET-011` | Existing Reception RSVP | Revise while Reception remains selected and `overallAttendance` is unchanged, omitting `receptionAttendeeDetails`. | Stored attendee-detail list remains unchanged. | Required |
+| `DIET-012` | Existing Reception RSVP | Change `overallAttendance` while Reception remains selected without replacing the complete attendee-detail list. | Rejected; a complete replacement list with exactly the new number of rows is required. Removing Reception or fully declining instead clears the stored list automatically. | Required |
 
 ---
 
@@ -333,48 +337,48 @@ Use a separately reserved synthetic unknown code such as `UNK-404` only in a tes
 
 | ID | Fixture | Test | Expected result | Status |
 |---|---|---|---|---|
-| `INIT-001` | `DEV001` | Submit complete valid initial RSVP with email confirmation. | `201 Created`; one new RSVP version; `submission.action = "initial"`. | Required |
-| `INIT-002` | `DEV004` | Submit complete valid reduced-profile initial RSVP. | `201 Created`; no additional-guest or totals data created. | Required |
-| `INIT-003` | Positive allowance | Omit applicable additional-guest answer. | `400 Bad Request`; no storage. | Required |
-| `INIT-004` | Default attending | Omit one required attendance-total category. | `400 Bad Request`; no storage. | Required |
-| `INIT-005` | Any profile | Omit operational `confirmation`. | `400 Bad Request`; no storage. | Required |
-| `INIT-006` | Any profile | Omit `clientSubmissionId`. | `400 Bad Request`; no storage. | Required |
-| `INIT-007` | Any profile | Use malformed `clientSubmissionId`. | `400 Bad Request`. | Required |
-| `INIT-008` | Any profile | Inspect request top level. | Exactly `inviteCode`, `clientSubmissionId`, `confirmation`, and `changes` are used by the current contract. | Required |
-| `INIT-009` | Any profile | Add unsupported top-level `partyId`, `maximumAttendance`, or `questionProfile`. | Request may be rejected as malformed; client must not supply authoritative private values. | Required |
-| `INIT-010` | Any profile | Add `expectedVersion`. | Not permitted by current contract; request must not enter a version-conflict flow and must not produce ordinary `409` behavior. | Required |
-| `INIT-011` | Any profile | Use unknown operation name. | `400 Bad Request`. | Required |
-| `INIT-012` | Any profile | Use `replace` without `value`. | `400 Bad Request`. | Required |
-| `INIT-013` | Any profile | Use `clear` with a replacement `value`. | `400 Bad Request`. | Required |
-| `INIT-014` | Any profile | Successfully store response. | Storage completes before guest/admin delivery attempts begin. | Required |
-| `INIT-015` | Any profile | Inspect success response top level. | Exactly `submission`, `invitation`, `rsvp`, `confirmation`, `revisionPolicy`. | Required |
-| `INIT-016` | Any profile | Inspect success response privacy boundary. | Does not echo invite code, clientSubmissionId, email/mobile destination, SMS authorization, private version, partyId, workbook row, admin address, or provider internals. | Required |
+| `INIT-001` | `DEV001` | Submit complete valid initial Ceremony RSVP with email confirmation. | `201 Created`; one new RSVP version; `submission.action = "initial"`. | Required |
+| `INIT-002` | `DEV006` | Submit complete valid Reception RSVP with authorized Plus 1 response, totals, matching attendee-detail list, and operational confirmation. | `201 Created`; complete spreadsheet-authoritative RSVP is stored. | Required |
+| `INIT-003` | Invitation with authorized allocation | Omit applicable named Plus 1 response while attending. | `400 Bad Request`; no storage. | Required |
+| `INIT-004` | Any attending initial response | Omit one required attendance-total category. | `400 Bad Request`; no storage. | Required |
+| `INIT-005` | Any fixture | Omit operational `confirmation`. | `400 Bad Request`; no storage. | Required |
+| `INIT-006` | Any fixture | Omit `clientSubmissionId`. | `400 Bad Request`; no storage. | Required |
+| `INIT-007` | Any fixture | Use malformed `clientSubmissionId`. | `400 Bad Request`. | Required |
+| `INIT-008` | Any fixture | Inspect request top level. | Exactly `inviteCode`, `clientSubmissionId`, `confirmation`, and `changes` are used by the current contract. | Required |
+| `INIT-009` | Any fixture | Add unsupported authoritative/private top-level values such as `partyId`, `maximumAttendance`, or `additionalGuestAllocations`. | Rejected as malformed/unsupported; client does not supply authoritative private configuration. | Required |
+| `INIT-010` | Any fixture | Add `expectedVersion`. | Not permitted; request does not enter a version-conflict flow and ordinary `409` is not used. | Required |
+| `INIT-011` | Any fixture | Use unknown operation name. | `400 Bad Request`. | Required |
+| `INIT-012` | Any fixture | Use `replace` without `value`. | `400 Bad Request`. | Required |
+| `INIT-013` | Any fixture | Use unsupported generic `clear` operation on active substantive regions. | Rejected; current spreadsheet-authoritative substantive model uses dependency clearing and replacement rather than a generic client clear operation. | Required |
+| `INIT-014` | Any fixture | Successfully store response. | Storage completes before guest/admin delivery attempts begin. | Required |
+| `INIT-015` | Any fixture | Inspect success response top level. | Exactly `submission`, `invitation`, `rsvp`, `confirmation`, and `revisionPolicy`. | Required |
+| `INIT-016` | Any fixture | Inspect success response privacy boundary. | Does not echo invite code, `clientSubmissionId`, email/mobile destination, SMS authorization, private version, `partyId`, workbook row, admin address, or provider internals. | Required |
 
 ---
 
 # 14. Revision and Merge Tests
 
-Use `DEV010` and the Step 11 fictional stored response for revision-heavy cases unless another fixture better isolates the behavior.
+Use `DEV008` and a fictional stored response for revision-heavy cases unless another fixture better isolates the behavior.
 
 | ID | Test | Expected result | Status |
 |---|---|---|---|
-| `REV-001` | Lookup `DEV010` before revision. | Form loads blank; no stored answers or existence indicator returned. | Required |
-| `REV-002` | Submit a valid partial substantive revision. | Backend loads current response, merges submitted changes, validates complete result, writes one new revision version, returns `200 OK`. | Required |
-| `REV-003` | Omit an applicable substantive field. | Stored value remains unchanged unless a controlling full-decline rule makes it inapplicable. | Required |
-| `REV-004` | Replace a stored value. | Submitted replacement becomes authoritative after successful merge/storage. | Required |
+| `REV-001` | Lookup `DEV008` before revision. | Form loads blank; no stored answers or existence indicator is returned. | Required |
+| `REV-002` | Submit a valid partial substantive revision. | Backend loads current response, merges submitted changes, validates the complete result, writes one new revision version, and returns `200 OK`. | Required |
+| `REV-003` | Omit an applicable substantive region. | Stored value remains unchanged unless a controlling dependency makes it inapplicable. | Required |
+| `REV-004` | Replace a stored substantive value. | Submitted replacement becomes authoritative after successful merge/storage. | Required |
 | `REV-005` | Replace a prior positive attendance-total category with `0`. | Explicit zero replaces the prior value. | Required |
-| `REV-006` | Explicitly clear stored dietary text. | Dietary value is removed. | Required |
+| `REV-006` | Remove one attendee's previously stored dietary text while Reception remains selected and cardinality is unchanged. | Guest submits a complete replacement attendee-detail list with that attendee's `dietaryPreferences` set to an empty string; the new list replaces the old one. | Required |
 | `REV-007` | Submit only operational confirmation fields with `changes: {}`. | Valid revision if operational data is valid; new operational values replace stored ones. | Required |
-| `REV-008` | Revise attendance while leaving unrelated fields omitted. | Omitted values remain unchanged unless dependency rules make them inapplicable. | Required |
-| `REV-009` | Change attending response to full decline. | Attendance-dependent additional-guest/totals are removed; dietary cleared; operational confirmation still required. | Required |
-| `REV-010` | Change full decline to attending default profile, allowance 0. | All four attendance-total categories must be newly supplied. | Required |
-| `REV-011` | Change full decline to attending default profile, allowance 1. | All four totals plus applicable additional-guest answer must be newly supplied. | Required |
-| `REV-012` | Change full decline to attending reduced profile. | No additional-guest or totals fields are required or accepted. | Required |
-| `REV-013` | Submit a partial nested attendance-total replacement while continuing to attend. | Omitted nested categories remain unchanged; complete merged totals are validated. | Required |
-| `REV-014` | Submit revision that produces above-maximum merged total. | Rejected; current stored RSVP remains unchanged. | Required |
-| `REV-015` | Submit revision that produces contradictory attendance/decline state. | Rejected; no new version. | Required |
-| `REV-016` | Change confirmation method from email to text message. | Newly entered text-message operational values replace email-channel operational values; email no longer active. | Required |
-| `REV-017` | Change confirmation method from text message to email. | Newly entered email replaces mobile/SMS operational values; mobile/SMS values no longer active. | Required |
+| `REV-008` | Revise attendance while leaving unrelated fields omitted. | Omitted values remain unchanged unless dependency rules make them inapplicable or newly require replacement. | Required |
+| `REV-009` | Change attending response to full decline. | Plus 1 responses, totals/derived total, and Reception attendee details are cleared; operational confirmation remains required. | Required |
+| `REV-010` | Change full decline to Ceremony-only for an invitation with no Plus 1 allocations. | All four attendance-total categories must be newly supplied; Reception details are not required. | Required |
+| `REV-011` | Change full decline to Reception for an invitation with an authorized Plus 1 allocation. | All four totals, every authorized Plus 1 response, and a complete attendee-detail list matching `overallAttendance` are newly required. | Required |
+| `REV-012` | Add Reception to an existing Ceremony-only RSVP while `overallAttendance` remains unchanged. | A complete `receptionAttendeeDetails` replacement list is newly required. | Required |
+| `REV-013` | Submit a partial nested attendance-total replacement while continuing to attend and without changing Reception cardinality. | Omitted nested categories remain unchanged; complete merged totals are validated. | Required |
+| `REV-014` | Submit revision producing above-maximum merged total. | Rejected; current stored RSVP remains unchanged. | Required |
+| `REV-015` | Submit revision producing an invalid attendance selection such as `decline` plus `reception`. | Rejected; no new version. | Required |
+| `REV-016` | Change confirmation method from email to text message after the SMS gate is enabled. | Newly entered text-message operational values replace email-channel operational values; email destination is no longer active. | Required |
+| `REV-017` | Change confirmation method from text message to email. | Newly entered email replaces mobile/SMS operational values; mobile/SMS values are no longer active. | Required |
 | `REV-018` | Perform revision from a second browser/device with a new `clientSubmissionId`. | Backend merges against authoritative current response at processing time; no `409` merely because another version exists. | Required |
 | `REV-019` | Perform two distinct valid revisions before deadline, each with a new identifier. | Two new versions are created in order; latest successful version becomes current. | Required |
 | `REV-020` | Inspect confirmation after partial revision. | Displays complete merged current RSVP, not merely changed fields. | Required |
@@ -392,25 +396,25 @@ Use `DEV010` and the Step 11 fictional stored response for revision-heavy cases 
 | `CHAN-003` | Email | Supply invalid email format. | `400 Bad Request`. | Required |
 | `CHAN-004` | Email | Include `mobile`. | Rejected as contradictory/unauthorized channel data. | Required |
 | `CHAN-005` | Email | Include `smsAuthorization`. | Rejected as contradictory/unauthorized channel data. | Required |
-| `CHAN-006` | Text | Submit valid SMS-capable number when authorization required, with `smsAuthorization: true`. | Accepted. | Required |
+| `CHAN-006` | Text | Submit valid SMS-capable number when authorization required, with `smsAuthorization: true`. | Accepted only when Text Message is enabled by centralized configuration. | Required |
 | `CHAN-007` | Text | Omit mobile number. | `400 Bad Request`. | Required |
 | `CHAN-008` | Text | Supply invalid mobile format. | `400 Bad Request`. | Required |
 | `CHAN-009` | Text | Authorization-required configuration with missing `smsAuthorization`. | `400 Bad Request`. | Required |
 | `CHAN-010` | Text | Authorization-required configuration with `smsAuthorization: false`. | Rejected; required value is `true`. | Required |
 | `CHAN-011` | Text | Include email in text confirmation object. | Rejected as contradictory/unauthorized channel data. | Required |
 | `CHAN-012` | Text | Configuration does not require SMS authorization. | `smsAuthorization` is omitted rather than treated as a second choice. | Required |
-| `CHAN-013` | Any revision | Omit operational confirmation object because prior one exists. | Rejected; every revision requires newly entered operational confirmation. | Required |
+| `CHAN-013` | Any revision | Omit operational confirmation object because a prior one exists. | Rejected; every revision requires newly entered operational confirmation. | Required |
 | `CHAN-014` | Any revision | Submit new valid destination. | New operational destination replaces prior stored destination after successful storage. | Required |
-| `CHAN-015` | Guest confirmation | Inspect content for an initial RSVP. | Contains the complete current RSVP for the applicable profile. | Required |
+| `CHAN-015` | Guest confirmation | Inspect content for an initial RSVP. | Contains the complete current spreadsheet-authoritative guest-facing RSVP. | Required |
 | `CHAN-016` | Guest confirmation | Inspect content for a revision. | Contains the complete merged current RSVP, not only changed fields. | Required |
 | `CHAN-017` | SMS confirmation | Complete current RSVP requires multiple SMS segments. | Multiple segments are permitted; content still represents the complete current guest-facing RSVP. | Required |
-| `CHAN-018` | Guest confirmation | Inspect profile-inapplicable fields. | They are omitted rather than shown as zero, disabled, or `N/A`. | Required |
-| `CHAN-019` | Production configuration before SMS provider gate is satisfied | Inspect lookup `confirmationOptions`. | `textMessage` is not advertised as available in production; the application does not invent provider-specific authorization language. | Required |
-| `CHAN-020` | Production configuration after SMS provider gate is satisfied | Enable Text Message only after provider selection, verified required disclosure/authorization language, backend-only credentials/sender configuration, and production-flow testing. | `textMessage` may be advertised as available only after all gate conditions are satisfied. | Required |
-| `CHAN-021` | SMS authorization schema | Compare provider-specific approved copy with the form schema. | Permanent operational question ID remains `smsAuthorization`; only the verified guest-facing copy/configuration changes as required. | Required |
-| `CHAN-022` | Production Text Message disabled | Inspect alternative confirmation channel. | Email confirmation remains available according to centralized production configuration; disabling Text Message does not remove the approved email path. | Required |
-| `CHAN-023` | Submitted RSVP mobile number | Trace permitted use after successful submission/revision. | Number is used only for the guest-requested transactional RSVP confirmation and an approved manual resend unless a future recorded decision separately authorizes another purpose. | Required |
-| `CHAN-024` | Submitted RSVP mobile number | Attempt marketing, promotional, unrelated wedding messaging, or list-building use. | Prohibited; the RSVP mobile number is not repurposed. | Required |
+| `CHAN-018` | Guest confirmation | Inspect conditionally inapplicable structures. | They are omitted rather than shown as zero, disabled, blank, or `N/A`. | Required |
+| `CHAN-019` | Production before SMS provider gate is satisfied | Inspect lookup `confirmationOptions`. | `textMessage` is not advertised as available; the application does not invent provider-specific authorization language. | Required |
+| `CHAN-020` | Production after SMS provider gate is satisfied | Enable Text Message only after provider selection, verified required disclosure/authorization language, backend-only credentials/sender configuration, and production-flow testing. | `textMessage` may be advertised only after all gate conditions are satisfied. | Required |
+| `CHAN-021` | SMS authorization schema | Compare provider-specific approved copy with the form schema. | Permanent operational question ID remains `smsAuthorization`; only verified guest-facing copy/configuration changes as required. | Required |
+| `CHAN-022` | Production Text Message disabled | Inspect alternative confirmation channel. | Email remains available; disabling Text Message does not remove the approved email path. | Required |
+| `CHAN-023` | Submitted RSVP mobile number | Trace permitted use after successful submission/revision. | Number is used only for requested transactional RSVP confirmation and approved manual resend unless a future recorded decision authorizes another purpose. | Required |
+| `CHAN-024` | Submitted RSVP mobile number | Attempt marketing, promotional, unrelated wedding messaging, or list-building use. | Prohibited; RSVP mobile number is not repurposed. | Required |
 
 ---
 
@@ -420,22 +424,22 @@ Use `DEV010` and the Step 11 fictional stored response for revision-heavy cases 
 |---|---|---|---|
 | `ERR-001` | Malformed submission body. | `400 Bad Request`. | Required |
 | `ERR-002` | Missing required top-level property. | `400 Bad Request`. | Required |
-| `ERR-003` | Unknown top-level property. | May be rejected as `400 Bad Request`; client should not send it. | Required |
-| `ERR-004` | Unknown substantive question ID. | `403 Forbidden`. | Required |
-| `ERR-005` | Submit `additionalGuestAttendance` for allowance 0. | `403 Forbidden`. | Required |
-| `ERR-006` | Submit `additionalGuestAttendance` for reduced profile. | `403 Forbidden`. | Required |
-| `ERR-007` | Submit `attendanceTotals` for reduced profile. | `403 Forbidden`. | Required |
-| `ERR-008` | Use `clear` on a field whose schema does not authorize client clearing. | `403 Forbidden`. | Required |
-| `ERR-009` | Authorized field with invalid numeric content. | `400 Bad Request`. | Required |
-| `ERR-010` | Contradictory attendance/decline values. | `400 Bad Request`. | Required |
+| `ERR-003` | Unknown top-level property. | Rejected as `400 Bad Request` under the strict request envelope. | Required |
+| `ERR-004` | Unknown substantive region ID. | `403 Forbidden`. | Required |
+| `ERR-005` | Submit `additionalGuestResponses` for an invitation with no authorized allocations. | `403 Forbidden`. | Required |
+| `ERR-006` | Submit an unknown/unauthorized allocation ID inside `additionalGuestResponses`. | `403 Forbidden`. | Required |
+| `ERR-007` | Submit `receptionAttendeeDetails` when Reception is not selected in the complete resulting state. | `403 Forbidden`. | Required |
+| `ERR-008` | Use generic `clear` on an active substantive field when current schema does not authorize that client operation. | `403 Forbidden`. | Required |
+| `ERR-009` | Authorized attendance-total field with invalid numeric content. | `400 Bad Request`. | Required |
+| `ERR-010` | Contradictory attendance selection containing `decline` and an attending event. | `400 Bad Request`. | Required |
 | `ERR-011` | Reuse same identifier with materially different request. | `400 Bad Request`. | Required |
 | `ERR-012` | New logical submission/revision at or after deadline. | `410 Gone`. | Required |
-| `ERR-013` | Preload or exercise either finalized submission limit, then issue the next applicable request. | Exceeding 6 requests per 15-minute rolling window for the client IP or 6 per 15-minute rolling window for the normalized invitation code returns guest-safe `429 Too Many Requests`; no RSVP version or delivery attempt is created. | Required |
-| `ERR-014` | Known core failure before successful storage. | `503 Service Unavailable`; Service Unavailable state; no claim of storage. | Required |
+| `ERR-013` | Preload or exercise either finalized submission limit, then issue the next applicable request. | Exceeding 6 requests per 15-minute rolling window for client IP or normalized invitation code returns guest-safe `429`; no RSVP version or delivery attempt is created. | Required |
+| `ERR-014` | Known core failure before successful storage. | `503 Service Unavailable`; no claim of storage. | Required |
 | `ERR-015` | Browser receives no definitive response. | Do not synthesize `503`; use Submission Uncertain. | Required |
 | `ERR-016` | Existing newer private version on server, no malformed request. | No ordinary `409`; current contract does not use `expectedVersion` concurrency. | Required |
 | `ERR-017` | Validation error on partial revision. | Error response does not reveal omitted stored values. | Required |
-| `ERR-018` | Authorization error. | Guest-facing response does not disclose private allowance/profile/configuration details merely to explain the failure. | Required |
+| `ERR-018` | Authorization error. | Guest-facing response does not disclose private allocation/configuration details merely to explain the failure. | Required |
 
 ---
 
@@ -492,7 +496,7 @@ Use `DEV010` and the Step 11 fictional stored response for revision-heavy cases 
 
 # 19. Thirteen-State React Interface Tests
 
-The interface must render one top-level RSVP state at a time. Countdown, profile, allowance, delivery-warning category, and responsive layout are variants within these states.
+The interface must render one top-level RSVP state at a time. Countdown, invitation-specific named-`Plus1` allocation count, attendance-dependent regions, delivery-warning category, and responsive layout are variants within these states.
 
 | ID | State | Test | Expected result | Status |
 |---|---|---|---|---|
@@ -504,7 +508,7 @@ The interface must render one top-level RSVP state at a time. Countdown, profile
 | `STATE-006` | 3 — Invalid Invitation | Submit unknown/inactive code. | Same neutral guest-facing treatment; no record-existence disclosure. | Required |
 | `STATE-007` | 4 — Service Unavailable | Backend definitively returns pre-storage `503`. | Guest-safe unavailable message, assistance, no claim that RSVP was recorded. | Required |
 | `STATE-008` | 5 — Validated Blank Form | Valid lookup. | Personalized greeting and authorized blank questions; no stored answers/destinations. | Required |
-| `STATE-009` | 5 — Validated Blank Form | Switch among fixture profile/allowance variants. | Correct variant renders without creating extra top-level states/routes. | Required |
+| `STATE-009` | 5 — Validated Blank Form | Switch among fixtures with zero, one, and multiple authorized named `Plus1` allocations and among Ceremony/Reception attendance states. | Correct conditional controls render within the same reusable state and route; parties with no allocation receive no Plus 1 controls. | Required |
 | `STATE-010` | 6 — Validation Failure | Client-side usability validation fails. | Error summary/field errors; current page-entered values preserved. | Required |
 | `STATE-011` | 6 — Validation Failure | Server returns submission validation error. | Same conceptual state; no implication of storage; no omitted stored values revealed. | Required |
 | `STATE-012` | 7 — Submitting | Begin logical submission. | Submit action protected/disabled; progress announced; logical request and ID retained. | Required |
@@ -535,7 +539,7 @@ Phase 3 Step 13 finalizes this section. The ordinary source of a successful on-s
 | `PAGE-003` | Inspect confirmation URL. | No code, RSVP answer, confirmation destination, private version, token, or other personalized data appears in path/query/fragment. | Required |
 | `PAGE-004` | Inspect successful initial summary. | Shows complete current guest-facing RSVP and approved limited metadata. | Required |
 | `PAGE-005` | Inspect successful revision summary. | Shows complete merged RSVP and revision designation. | Required |
-| `PAGE-006` | Inspect profile-inapplicable fields. | Omitted, not fabricated as zero/blank/`N/A`. | Required |
+| `PAGE-006` | Inspect conditionally inapplicable RSVP structures. | Omitted rather than fabricated as zero, blank, or `N/A`. | Required |
 | `PAGE-007` | Inspect delivery warning. | Clearly states RSVP was recorded; warning relates to delivery only and preserves initial-versus-revision designation. | Required |
 | `PAGE-008` | Refresh/history traversal while a structurally usable successful response remains available. | Continue to render the applicable State 9, 10, or 11; the refresh/history action alone does not force State 12. | Required |
 | `PAGE-009` | Refresh `/wedding/rsvp/confirmation` after temporary successful state is absent. | State 12 — Confirmation Refresh Fallback is shown. | Required |
@@ -599,7 +603,7 @@ These cases reflect the current requirements and Step 10 browser-state model. Ex
 | `A11Y-001` | Inspect every RSVP control. | Persistent visible guest-facing label exists; placeholder alone is not the label. | Required |
 | `A11Y-002` | Inspect programmatic associations. | Assistive technology can determine labels, requiredness, help text, and associated error messages. | Required |
 | `A11Y-003` | Inspect attendance checkbox/radio groups. | Related controls use meaningful semantic/visual grouping and group labels/legends. | Required |
-| `A11Y-004` | Inspect four attendance-total inputs. | Group has an accessible legend/label and each category is identifiable. | Required |
+| `A11Y-004` | Inspect the four coordinated attendance-total dials. | Group has an accessible legend/label, each age category is identifiable, and dynamic maximum changes are communicated without relying on visual position alone. | Required |
 | `A11Y-005` | Keyboard-only navigation. | Guest can reach and operate all essential RSVP controls without mouse/touch. | Required |
 | `A11Y-006` | Mobile menu keyboard operation. | Menu opens, closes, and navigates by keyboard; closes after destination selection. | Required |
 | `A11Y-007` | Visible focus. | Current keyboard focus is clearly visible on every interactive element. | Required |
@@ -616,6 +620,8 @@ These cases reflect the current requirements and Step 10 browser-state model. Ex
 | `A11Y-018` | New-tab external link notices where linked from RSVP/privacy content. | New-tab behavior is identified accessibly. | Required |
 
 ---
+| `A11Y-019` | Inspect repeated named-`Plus1` controls. | Each authorized allocation has a persistent accessible label containing the configured named-invitee prompt; parties with no allocations receive no empty or hidden placeholder controls. | Required |
+| `A11Y-020` | Inspect Reception attendee-detail rows. | Each repeated row has an accessible group label or equivalent position context, and its attendee-name and dietary/allergy fields are distinguishable programmatically. | Required |
 
 # 23. Finalized Phase 3 Privacy and Security Tests
 
@@ -678,9 +684,9 @@ The test catalog defines expected behavior. Some production-gate and lifecycle t
 | `PRIV-051` | Compare production and development/test environments. | Production invitation data, DEV fixtures, production credentials, and development/test credentials remain separated. | Required |
 | `PRIV-052` | Present a syntactically valid development fixture to production. | Neutral unavailable/invalid behavior is returned without disclosing that the record exists in another environment. | Required |
 | `PRIV-053` | Inspect guest-safe error response body across `400`, `403`, `404`, `410`, `429`, and `503`. | No infrastructure, filesystem, workbook, provider, credential, private-recipient, record-ID, close-match, or environment-enumeration detail is exposed. | Required |
-| `PRIV-054` | Inspect submitting party's temporary on-screen confirmation. | Applicable party-level dietary/allergy response may appear as part of that party's complete current RSVP. | Required |
+| `PRIV-054` | Inspect submitting party's temporary on-screen confirmation. | Applicable per-attendee dietary/allergy information may appear as part of that party's complete current RSVP. | Required |
 | `PRIV-055` | Inspect submitting party's selected email/text confirmation. | Applicable dietary/allergy response may appear as part of that party's complete current RSVP. | Required |
-| `PRIV-056` | Inspect protected administrative confirmation. | Applicable dietary/allergy response may appear because the protected administrative message contains the complete current RSVP. | Required |
+| `PRIV-056` | Inspect protected administrative confirmation. | Applicable per-attendee dietary/allergy information may appear because the protected administrative message contains the complete current RSVP. | Required |
 | `PRIV-057` | Inspect analytics, public pages/metadata, ordinary logs, unrelated admin output, and another invited party's data. | Dietary/allergy text is absent from all prohibited surfaces. | Required |
 | `PRIV-058` | Production SMS gate not yet satisfied. | Text Message confirmation remains disabled; no invented provider-specific disclosure is shown. | Required |
 | `PRIV-059` | Production SMS gate satisfied. | Provider is selected; required sender/consent/carrier-rate/opt-out/help/other applicable wording is verified; credentials remain backend-only; production flow is tested before Text Message is enabled. | Required |
@@ -699,187 +705,167 @@ The test catalog defines expected behavior. Some production-gate and lifecycle t
 
 ---
 
-# 24. Step 11 Archetype Coverage Matrix
+# 24. Development-Fixture Coverage Matrix
 
-The preliminary suite must exercise every Step 11 archetype or guard fixture.
+The preliminary suite must exercise every active fictional fixture and the disabled guard fixture.
 
-| Archetype | Fixture | Minimum cases that must exercise it |
+| Fixture | Primary coverage | Minimum cases that must exercise it |
 |---|---|---|
-| A — Singular, no additional guest | `DEV001` | `CONF-001`, `CONF-004`, `CONF-008`, `ADD-001`, `ADD-002`, `TOTAL-003`, `INIT-001` |
-| B — Plural household, no additional guest | `DEV005` | `CONF-002`, `CONF-009`, `CONF-016`, `TOTAL-004` |
-| C — Singular, one additional guest | `DEV006` | `CONF-005`, `ADD-003`, `ADD-004`, `ADD-012` |
-| D — Plural household, one additional guest | `DEV002` | `CONF-005`, `ADD-003`, `TOTAL-013`, delivery/confirmation cases |
-| E — Ceremony only | `DEV007` | `ATT-001`, `DIET-001`, `STATE-009` |
-| F — Reception only | `DEV008` | `ATT-002`, `DIET-002` |
-| G — Entire party declines | `DEV009` | `ATT-004`, `ATT-012`, `DIET-008`, `ADD-015`, `TOTAL-015` |
-| H — Existing-response revision | `DEV010` | `BLANK-002`–`BLANK-011`, `REV-001`–`REV-022` as applicable |
-| I — Multiple additional guests | `DEV003` | `CONF-006`, `CONF-010`, `ADD-006`–`ADD-014` |
-| J — Reduced profile | `DEV004` | `CONF-007`, `CONF-018`, `CONF-019`, `TOTAL-014`, `INIT-002`, `ATT-017` |
-| Disabled guard fixture | `DEV999` | `CODE-014`, `CONF-011`, `PRIV-010` |
+| `DEV001` — singular, no Plus 1, max 1 | No-allocation authorization; smallest capacity | `CONF-001`, `CONF-004`, `CONF-008`, `ADD-001`, `ADD-002`, `TOTAL-003`, `INIT-001` |
+| `DEV002` — plural household, no Plus 1, max 5 | Plural wording; larger no-allocation household | `CONF-002`, `CONF-009`, `TOTAL-004` |
+| `DEV003` — singular, one named Plus 1 | Single allocation yes/no authorization | `CONF-005`, `ADD-003`–`ADD-005` |
+| `DEV004` — plural, one named Plus 1 | Plural single-allocation path | `CONF-005`, confirmation/delivery cases as applicable |
+| `DEV005` — Ceremony scenario | Ceremony-only dependencies | `ATT-001`, `DIET-001`, `STATE-009` |
+| `DEV006` — Reception scenario with one Plus 1 | Reception attendee-detail cardinality | `ATT-002`, `DIET-002`, `INIT-002` |
+| `DEV007` — combined attendance | Ceremony + Reception dependency behavior | `ATT-003`, `DIET-003` |
+| `DEV008` — revision scenario | Blank revision access and merge semantics | `BLANK-002`–`BLANK-011`, `REV-001`–`REV-022` as applicable |
+| `DEV009` — three named Plus 1 allocations | Multiple independent allocation responses | `CONF-006`, `CONF-010`, `ADD-006`–`ADD-014` |
+| `DEV010` — capacity boundary | Coordinated-dial remaining capacity | `TOTAL-014` and boundary-validation cases |
+| `DEV999` — disabled guard | Neutral inactive/environment handling | `CODE-014`, `CONF-011`, `PRIV-010` |
 
 ---
 
 # 25. Cross-Document Acceptance Checks
 
-Before treating Step 12 as complete, verify that the test catalog itself satisfies the following documentation checks.
-
 | ID | Check | Expected result |
 |---|---|---|
-| `DOC-001` | Compare test cases with current `rsvp-system-design.md`. | No test resurrects a superseded behavior such as personalized code-bearing URLs or Reception-only dietary applicability. |
-| `DOC-002` | Compare test cases with current `rsvp-api-contract.md`. | Status codes, request envelope, success envelope, idempotency, and no-`expectedVersion` behavior match the current contract. |
-| `DOC-003` | Compare with `rsvp-example-form-schemas.json`. | Question IDs, display/dependency rules, numeric bounds, and clear/replace semantics match. |
-| `DOC-004` | Compare with `rsvp-example-configurations.json`. | Fixture codes, profiles, allowances, maximums, and active flags match Step 11. |
-| `DOC-005` | Compare with `wireframes.md` and `page-outlines.md`. | All thirteen interface states, the finalized State 12 copy/actions, and associated accessibility behaviors are represented consistently. |
-| `DOC-006` | Compare with `sitemap.md` and `route-inventory.md`. | Canonical browser routes, refresh-without-temporary-state fallback, non-indexing, and no-code-in-URL behavior are represented. |
-| `DOC-007` | Compare with `requirements.md` and `decisions.md`. | Final requirements/decisions control over superseded entries is preserved. |
+| `DOC-001` | Compare test cases with current `rsvp-system-design.md`. | No test resurrects production question profiles, aggregate additional-guest counts, party-level dietary data, or a required production placeholder. |
+| `DOC-002` | Compare with current `rsvp-api-contract.md`. | Status codes, four-property request envelope, five-property success envelope, idempotency, and no-`expectedVersion` behavior match. |
+| `DOC-003` | Compare with `rsvp-example-form-schemas.json`. | Permanent IDs, repeated-allocation behavior, coordinated-dial rules, Reception-detail cardinality, and replacement/clearing semantics match. |
+| `DOC-004` | Compare with `rsvp-example-configurations.json`. | Fixture codes, wording modes, maximums, named allocation arrays, environment values, and active flags match. |
+| `DOC-005` | Compare with `wireframes.md` and `page-outlines.md`. | All thirteen interface states and spreadsheet-authoritative visible controls are represented consistently. |
+| `DOC-006` | Compare with `sitemap.md` and `route-inventory.md`. | Canonical routes, refresh fallback, non-indexing, and no-code-in-URL behavior are consistent. |
+| `DOC-007` | Compare with `requirements.md` and `decisions.md`. | Spreadsheet-authoritative requirements and later decisions control over superseded entries. |
 | `DOC-008` | Search this file for real production invitation codes or guest identities. | None present. |
-| `DOC-009` | Search for an active expected-version conflict test. | None exists; current tests instead verify that `expectedVersion` is not part of the contract and ordinary `409` is unused. |
-| `DOC-010` | Search for Boolean-only plus-one assumptions. | None; zero/one/multiple integer allowance model is used. |
-| `DOC-011` | Compare confirmation-refresh tests with current `rsvp-system-design.md`, `rsvp-api-contract.md`, `page-outlines.md`, and `wireframes.md`. | All five documents use the same temporary-state eligibility rule, State 12 trigger, final fallback meaning, actions, and prohibited automatic-recovery behavior. |
-| `DOC-012` | Search for a required confirmation token/recovery endpoint. | None exists; Step 13 explicitly requires no such mechanism for the initial implementation. |
-| `DOC-013` | Search for automatic lookup or submission replay from State 12. | None exists; State 12 is presentation/recovery guidance only. |
-| `DOC-014` | Search for an assumption that every browser refresh must force State 12. | None exists; usable temporary successful state continues to render State 9, 10, or 11. |
-| `DOC-015` | Compare Step 14 tests with approved `decisions.md`. | Cache, logging, analytics, rate-limit, credential, provider-gate, retention, HTTPS, and security-wording tests match the approved Step 14 decision set. |
-| `DOC-016` | Compare Step 14 tests with current `rsvp-system-design.md`. | Privacy/security architecture, trusted-proxy behavior, data retirement, and confirmation-state boundaries match. |
-| `DOC-017` | Compare Step 14 tests with current `rsvp-api-contract.md`. | `Cache-Control`, exact rate limits, `429` semantics, credential boundaries, SMS gate, logging exclusions, and endpoint inventory match the final Phase 3 contract. |
-| `DOC-018` | Search for any remaining active Step 14 future/provisional/deferred test requirement. | None remains; all finalized Step 14 obligations are represented as Required tests. |
-| `DOC-019` | Search for a test that requires provider-specific SMS copy before provider selection. | None exists; tests require the production enablement gate and verified applicable copy before Text Message is enabled. |
-| `DOC-020` | Search for a retention rule inconsistent with July 30 / August 29, 2027. | None exists. |
-
-
+| `DOC-009` | Search for active expected-version conflict tests. | None exists; ordinary `409` is unused. |
+| `DOC-010` | Search for aggregate or universal Plus 1 assumptions. | None; Plus 1 controls exist only per authorized named allocation and are absent for parties without allocations. |
+| `DOC-011` | Compare confirmation-refresh tests with current governing docs. | Same temporary-state eligibility, State 12 trigger, fallback meaning, actions, and prohibited automatic recovery behavior are used. |
+| `DOC-012` | Search for required confirmation token/recovery endpoint. | None exists. |
+| `DOC-013` | Search for automatic lookup/submission replay from State 12. | None exists. |
+| `DOC-014` | Search for an assumption that every browser refresh forces State 12. | None; usable temporary success may continue to render States 9–11. |
+| `DOC-015` | Compare privacy/security tests with approved decisions. | Cache, logging, analytics, limits, credentials, provider gate, retention, HTTPS, and security wording match. |
+| `DOC-016` | Compare with current `rsvp-system-design.md`. | Trusted-proxy behavior, retirement, environment separation, and browser privacy boundaries match. |
+| `DOC-017` | Compare with current `rsvp-api-contract.md`. | `Cache-Control`, exact rate limits, `429`, error families, SMS gate, and endpoint inventory match. |
+| `DOC-018` | Search for remaining active future/provisional/deferred privacy requirement. | None remains. |
+| `DOC-019` | Search for provider-specific SMS copy before provider selection. | None; production enablement requires verified applicable copy first. |
+| `DOC-020` | Search for retention rule inconsistent with July 30 / August 29, 2027. | None exists. |
+| `DOC-021` | Search for `questionProfile`, `additionalGuestAllowance`, aggregate `additionalGuestAttendance`, or active reduced-profile logic. | None exists as an operative test requirement. |
+| `DOC-022` | Search for a party-level dietary field assumption. | None; dietary/allergy information is per Reception attendee only. |
+| `DOC-023` | Verify production-source audit targets. | Documentation expects 57 active assigned records, 35 singular, 22 plural, 26 total Plus 1 allocations, and capacity 115 without hard-coding those figures into reusable renderer logic. |
 
 ---
 
-# 26. Phase 3 Step 14 Privacy/Security Traceability
+# 26. Privacy/Security Traceability
 
-Phase 3 Step 14 resolves every privacy/security subject that the Step 13 version of this catalog intentionally deferred.
-
-| Former deferred subject | Finalized Step 14 coverage |
+| Finalized subject | Coverage |
 |---|---|
-| Exact personalized-response `Cache-Control` | `PRIV-021`–`PRIV-029` |
-| Exact ordinary-log redaction rules | `PRIV-031`–`PRIV-037` |
-| Exact lookup rate-limit threshold/window | `CODE-025`, `PRIV-038`–`PRIV-039` |
-| Exact submission rate-limit threshold/window | `ERR-013`, `PRIV-040`–`PRIV-042` |
+| Personalized-response `Cache-Control` | `PRIV-021`–`PRIV-029` |
+| Ordinary-log redaction | `PRIV-031`–`PRIV-037` |
+| Lookup rate limit | `CODE-025`, `PRIV-038`–`PRIV-039` |
+| Submission rate limits | `ERR-013`, `PRIV-040`–`PRIV-042` |
 | `Retry-After` handling | `PRIV-043` |
-| Provider-specific SMS disclosure handling | `CHAN-019`–`CHAN-024`, `PRIV-058`–`PRIV-059` |
-| Final RSVP-data retention standard | `PRIV-063`–`PRIV-068` |
-| Credential-storage/deployment checks | `PRIV-044`–`PRIV-052`, `PRIV-061`–`PRIV-062` |
-| Personalized-response browser/cache behavior | `PRIV-021`–`PRIV-030` |
-| Server-log tests for invitation codes, answers, and confirmation destinations | `PRIV-031`–`PRIV-037` |
+| Provider-specific SMS disclosure gate | `CHAN-019`–`CHAN-024`, `PRIV-058`–`PRIV-059` |
+| RSVP-data retention | `PRIV-063`–`PRIV-068` |
+| Credential/deployment boundaries | `PRIV-044`–`PRIV-052`, `PRIV-061`–`PRIV-062` |
+| Browser/cache behavior | `PRIV-021`–`PRIV-030` |
+| Server-log exclusion of codes, answers, attendee details, and confirmation destinations | `PRIV-031`–`PRIV-037` |
+| Per-attendee dietary/allergy privacy | `PRIV-054`–`PRIV-057` |
 
-No active Step 14 future/deferred test identifier remains after Step 14.
+No active privacy/security test identifier is intentionally deferred.
 
 ---
 
-# 27. Phase 3 Step 12 Completion Check
+# 27. RSVP Test-Catalog Completion Check
 
-Phase 3 Step 12 is complete when this document has been reviewed against the current project files and the preliminary catalog includes, at minimum:
+The current test catalog is complete for implementation planning when it includes, at minimum:
 
 - Accepted and rejected invitation-code normalization.
 - Manual-entry and POST-body lookup.
 - Neutral malformed/unknown/inactive handling.
-- Lookup and submission rate-limit outcomes; at Step 12 the exact thresholds were intentionally deferred, and Step 14 now finalizes/tests them in Sections 16, 23, and 26.
-- Backend-unavailable and submission-uncertain distinction.
+- Final lookup and submission rate-limit behavior.
+- Backend-unavailable versus submission-uncertain distinction.
 - Singular and plural configuration wording.
-- Zero, one, and multiple additional-guest allowances.
-- Default and reduced question profiles.
-- Active and inactive development fixtures.
+- Zero, one, and multiple **named** `Plus1` allocation configurations.
+- Explicit proof that invitations with no Column E `Plus1` allocation render and authorize no Plus 1 question.
+- One reusable spreadsheet-authoritative form schema rather than production question-profile variants.
+- Active and inactive fictional fixtures.
 - Initial and revision blank-form behavior.
 - No stored-response existence indicator.
-- Omission, replacement, explicit zero, and explicit clear semantics.
-- Attendance-to-decline and decline-to-attendance transitions.
-- Newly applicable fields after decline-to-attendance.
+- Omission, replacement, explicit zero, and backend dependency-clearing semantics.
 - Ceremony-only, Reception-only, combined attendance, and full decline.
-- Contradictory attendance/decline rejection.
-- Maximum-attendance and attendance-total arithmetic.
-- Additional-guest bounds and relationship to complete attendance totals.
-- Dietary applicability for all attending states and clearing on decline.
-- Email and text-message confirmation dependencies.
-- Initial storage and revision storage.
-- Current-response replacement and version history.
+- Rejection of contradictory/empty complete attendance states.
+- Four age-category totals, coordinated dial maxima, derived `overallAttendance`, and maximum-capacity enforcement.
+- Stable allocation-ID authorization and Yes/No response validation.
+- Plus 1 `yes` count relationship to overall attendance without backend inference of age category or attendee name.
+- Reception-only attendee-detail applicability.
+- Exact Reception attendee-detail cardinality equal to `overallAttendance`.
+- Required attendee names with 100-character maximum.
+- Optional per-attendee dietary/allergy text with 1000-character maximum.
+- Required full attendee-detail replacement when Reception becomes newly applicable or Reception attendance cardinality changes.
+- Automatic attendee-detail clearing when Reception is removed or the party fully declines.
+- Email and provider-gated text-message confirmation dependencies.
+- Initial storage, revisions, current-response replacement, and version history.
 - Double-click, duplicate request, idempotent replay, materially changed reused identifier, and safe retry.
-- No active `expectedVersion`/ordinary `409` concurrency flow.
-- Independent guest and administrative delivery outcomes.
-- Manual resend without RSVP mutation.
-- All thirteen interface states.
-- Confirmation route and the Step 12 high-level refresh-fallback behavior that Phase 3 Step 13 has now finalized in Sections 19–20.
-- Before-countdown, countdown-start, cross-time-zone/device-clock, immediately-before-deadline, at-deadline, and after-deadline cases.
-- Labels, legends/grouping, keyboard operation, focus, validation summaries, status announcements, text enlargement, and reduced motion.
-- The privacy boundaries approved at Step 12, now expanded by the finalized Step 14 cache, analytics, logging, rate-limit, credential, SMS-gate, HTTPS, and retention tests.
-- All Step 11 development archetypes and the disabled `DEV999` guard fixture.
-- Explicit identification, at the time Step 12 was completed, of Step 13 confirmation-refresh details and Step 14 privacy/security details rather than inventing later-step requirements prematurely.
-
-Step 12 established this file as the controlling preliminary RSVP test catalog. Phase 3 Step 13 finalized the confirmation-refresh portions, and Phase 3 Step 14 now finalizes the remaining privacy/security portions.
+- No active `expectedVersion` / ordinary `409` concurrency flow.
+- Independent guest and administrative delivery outcomes and manual resend without RSVP mutation.
+- All thirteen browser states and finalized confirmation-refresh fallback behavior.
+- Deadline/countdown edge cases.
+- Labels, repeated-group semantics, keyboard operation, focus, validation summaries, status announcements, text enlargement, and reduced motion.
+- Final cache, analytics, logging, rate-limit, credential, SMS-gate, HTTPS, and retention tests.
+- Every active fictional fixture and disabled `DEV999` guard fixture.
+- Cross-document checks preventing the retired profile/aggregate-guest/party-dietary architecture from returning.
 
 ---
 
-# 28. Phase 3 Step 13 Completion Check
+# 28. Confirmation-Refresh Completion Check
 
-Phase 3 Step 13 is complete in this test catalog when all of the following are true:
+The confirmation-refresh portion is complete when all of the following remain true:
 
 - The ordinary successful confirmation source is the limited successful `POST /wedding/api/rsvp/submit` response passed into temporary React navigation/application state.
 - States 9, 10, and 11 require a structurally usable successful response with `submission.recorded: true`.
-- State selection uses `submission.action` and `confirmation.deliveryWarning` rather than assuming HTTP `200` means revision.
-- Refresh, direct navigation, bookmark/new-tab access, and history traversal do not themselves decide the state; usable successful state continues to render State 9, 10, or 11.
+- State selection uses `submission.action` and `confirmation.deliveryWarning`, not the HTTP status alone.
+- Refresh/direct navigation/history behavior is based on whether usable temporary successful state remains available.
 - Missing or unusable successful state renders State 12 — Confirmation Refresh Fallback.
-- State 12 uses the finalized heading `Confirmation Summary No Longer Available`.
-- State 12 communicates that the temporary on-screen summary is unavailable and that an RSVP may already have been recorded without asserting success or failure.
-- State 12 directs the guest to check the selected email or text-message confirmation.
-- State 12 explicitly discourages resubmitting the same response solely because the on-screen summary disappeared.
-- State 12 provides deliberate-revision guidance through `Return to RSVP` and assistance through `Contact for Help` / `RSVPhelp@loreweavercreations.com`.
-- `Return to RSVP` begins a new ordinary manual-entry interaction and remains subject to the backend-authoritative deadline.
-- State 12 performs no automatic lookup, automatic submission replay, new `clientSubmissionId` generation, silent identifier reuse, or undocumented saved-RSVP retrieval.
-- State 12 remains distinct from State 8 — Submission Uncertain; safe idempotent replay belongs to the explicit State 8 recovery workflow.
-- The initial implementation requires no short-lived confirmation token, public confirmation-recovery endpoint, public saved-RSVP endpoint, code-bearing confirmation URL, or persistent browser storage solely to make the summary survive refresh.
-- No sensitive summary information is moved into the URL.
-- State 12 focus/announcement, keyboard/touch actions, text-based meaning, sticky-header focus visibility, reduced-motion handling, and no-timed-redirect behavior are covered by required tests.
-- `rsvp-system-design.md`, `rsvp-api-contract.md`, `page-outlines.md`, `wireframes.md`, and this test catalog describe the same finalized Step 13 behavior.
-- At the time Step 13 was completed, Step 14 privacy/security details remained intentionally deferred; they are now finalized in Sections 23 and 26.
-
-With these conditions documented, the Step 13 confirmation-refresh portion remains synchronized and complete. Phase 3 Step 14 now supplies the finalized privacy/security requirements that follow.
+- State 12 heading remains `Confirmation Summary No Longer Available`.
+- State 12 states that the temporary on-screen summary is unavailable and that an RSVP may already have been recorded without asserting success or failure.
+- State 12 directs the guest to the selected email/text confirmation and discourages resubmitting solely because the on-screen summary disappeared.
+- Deliberate revision begins through `Return to RSVP` and manual code entry; assistance remains available through `RSVPhelp@loreweavercreations.com`.
+- State 12 performs no automatic lookup, submission replay, new identifier generation, silent identifier reuse, saved-RSVP retrieval, or confirmation-recovery API call.
+- State 12 remains distinct from State 8 — Submission Uncertain, where an explicit safe idempotent retry may reuse the original identifier.
+- No sensitive summary information is moved into the URL or intentionally persistent browser storage solely for refresh survival.
+- Accessibility coverage includes focus/announcement, keyboard/touch actions, text-based meaning, sticky-header visibility, reduced-motion handling, and no timed redirect.
 
 ---
 
-# 29. Phase 3 Step 14 Completion Check
+# 29. Privacy/Security Completion Check
 
-Phase 3 Step 14 is complete in this test catalog when all of the following are true:
+The privacy/security portion is complete when all of the following are true:
 
-- Invitation codes are tested as limited access tokens rather than passwords.
-- No public guest directory, code-recovery search, fuzzy/close-match suggestion, valid-code list, code-bearing personalized route, saved-RSVP endpoint, RSVP-history endpoint, administrative endpoint, or confirmation-recovery endpoint is required or exposed.
-- Lookup and submission continue to carry invitation codes only in request bodies.
-- Every lookup and submission response, successful or unsuccessful, is tested for `Cache-Control: no-store, max-age=0`.
-- Production RSVP and confirmation browser responses are tested for the same no-store policy.
-- Static non-personalized versioned assets remain eligible for ordinary cache optimization.
-- Temporary successful confirmation state is not intentionally promoted to persistent browser storage solely to survive refresh.
-- RSVP/confirmation/not-found transactional routes are tested for non-indexing while the public Privacy page remains indexable.
-- Personalized values are tested for exclusion from metadata and analytics.
-- Analytics failure/blocking is tested to ensure it cannot prevent RSVP operation.
-- Ordinary logs are tested to exclude raw/normalized invitation codes, RSVP request/response bodies, answers, dietary information, confirmation destinations, `clientSubmissionId`, workbook content, and secrets.
-- The restricted diagnostic-correlation exception is tested as pseudonymous, explicitly enabled, access-restricted, minimum-field, time-limited, and retired after use.
-- Lookup is tested against the finalized 10-requests-per-15-minute rolling window per-client-IP limit.
-- Submission is tested against both finalized 6-requests-per-15-minute rolling window limits: per client IP and per normalized invitation code.
-- Rate-limited submissions are tested to ensure they create no RSVP version and start no confirmation delivery attempt.
-- `Retry-After` is tested when supported by the selected rate-limiting implementation.
+- Invitation codes are treated as limited access tokens rather than passwords.
+- No public guest directory, code-recovery search, fuzzy/close-match suggestion, valid-code list, code-bearing personalized route, saved-RSVP endpoint, RSVP-history endpoint, administrative endpoint, or confirmation-recovery endpoint is exposed.
+- Lookup and submission carry codes only in request bodies.
+- Every lookup and submission response, successful or unsuccessful, uses `Cache-Control: no-store, max-age=0`.
+- Production RSVP and confirmation browser responses use the same no-store policy while safe static versioned assets may use ordinary caching.
+- Temporary successful confirmation state is not intentionally promoted to persistent storage solely to survive refresh.
+- RSVP/confirmation/not-found transactional routes are non-indexed while Privacy remains public/indexable.
+- Invitation codes, RSVP answers, named Plus 1 responses, attendance totals, Reception attendee names, dietary/allergy text, and confirmation destinations are excluded from public metadata and analytics.
+- Ordinary logs exclude raw/normalized invitation codes, request/response bodies, substantive answers, attendee names, dietary/allergy information, confirmation destinations, `clientSubmissionId`, workbook content, and secrets.
+- Restricted diagnostic correlation, when genuinely necessary, uses a pseudonymous non-reversible identifier and is explicitly enabled, access-restricted, minimum-field, time-limited, and retired after use.
+- Lookup is limited to 10 requests per 15-minute rolling window per client IP.
+- Submission is limited to 6 requests per 15-minute rolling window per client IP and 6 per normalized invitation code.
+- Rate-limited submissions create no RSVP version and no confirmation delivery attempt.
 - Trusted-proxy handling and spoofed forwarded-address rejection are tested.
-- Google, email, SMS, sender, and protected administrative-recipient credentials are tested for backend-only storage/exposure boundaries.
-- Private administrative workbook permissions and browser isolation are tested.
-- Production invitation data, development fixtures, and environment credentials are tested for separation.
-- Guest-safe error responses are tested across applicable error families without infrastructure, provider, credential, workbook, close-match, or environment-enumeration disclosure.
-- Dietary/allergy information is tested for presence only on the submitting party's own confirmation surfaces, the protected administrative confirmation, and authorized private records.
-- Dietary/allergy information is tested for absence from analytics, public pages/metadata, ordinary logs, unrelated administrative output, and other parties' data.
-- RSVP mobile numbers are tested as transactional-only.
-- Text Message confirmation is tested as disabled until provider selection, applicable disclosure/authorization review, backend-only credentials/sender configuration, and production-flow testing satisfy the approved production gate.
-- The permanent `smsAuthorization` question identifier remains stable.
-- Public privacy/security copy is tested to contain no unsupported absolute-security guarantee.
-- Production RSVP traffic is tested over HTTPS and ordinary HTTP redirects before private RSVP information can be submitted.
-- Active RSVP-operational data is scheduled/tested for retirement by July 30, 2027, subject only to a minimum documented exception.
-- Protected backups containing retired RSVP-operational data are scheduled/tested to expire by August 29, 2027.
-- Post-retirement aggregates are tested to remain non-identifying.
-- A separately retained private `Invitees List` is tested not to keep the active public RSVP application dependent on retired response history.
-- Step 14 creates no new public RSVP API endpoint.
-- `decisions.md`, `rsvp-system-design.md`, `rsvp-api-contract.md`, and this test catalog describe the same finalized Step 14 rules.
-- No active Phase 3 future, provisional, or deferred RSVP test requirement remains.
+- Google, email, SMS, sender, and protected administrative-recipient credentials remain backend-only.
+- The private administrative workbook is not browser-accessible and is permission restricted.
+- Production invitation data, development fixtures, and environment credentials remain separated.
+- Guest-safe errors reveal no infrastructure, provider, credential, workbook, close-match, allocation, or environment-enumeration detail.
+- Per-attendee dietary/allergy information appears only on the submitting party's authorized confirmation surfaces, protected administrative confirmation, and authorized private records; it is absent from analytics, public metadata, ordinary logs, unrelated output, and other parties' data.
+- RSVP mobile numbers remain transactional-only.
+- Text Message confirmation remains disabled until provider selection, applicable disclosure/authorization review, backend-only credential/sender configuration, and production-flow testing satisfy the gate.
+- Production RSVP traffic uses HTTPS and ordinary HTTP redirects before private data can be submitted.
+- Active RSVP-operational data is retired by July 30, 2027 subject only to a minimal documented exception, and protected backups containing retired data expire by August 29, 2027.
+- Post-retirement aggregates remain non-identifying; a separately retained private `Invitees List` does not keep the public RSVP application dependent on retired response history.
+- Privacy/security rules create no additional public RSVP API endpoint.
+- The current decisions, system design, API contract, schemas, and this catalog describe the same spreadsheet-authoritative data model and security boundaries.
 
-With these conditions documented, the RSVP test catalog is synchronized through **Phase 3 Step 14** and **Phase 3 — Design the RSVP System is complete**.
-
-The test catalog remains preliminary in the sense that application implementation and test execution occur in later project phases; the expected behavior itself is finalized through Phase 3.
+With these conditions documented, the test catalog is synchronized with the spreadsheet-authoritative RSVP revision and remains ready to drive implementation and integrated QA.

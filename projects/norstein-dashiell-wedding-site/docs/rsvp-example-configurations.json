@@ -7,53 +7,35 @@
     "greeting": "Welcome, Example Guest!",
     "wordingMode": "singular",
     "maximumAttendance": 1,
-    "additionalGuestAllowance": 0,
-    "questionProfile": "default",
-    "questionIds": [
-      "eventAttendance",
-      "declineAttendance",
-      "attendanceTotals",
-      "dietaryPreferences"
-    ],
+    "additionalGuestAllocations": [],
     "active": true,
     "environment": "development"
   },
   {
     "inviteCode": "DEV002",
     "inviteCodeDisplay": "DEV-002",
-    "partyId": "party-dev-archetype-d",
-    "partyDisplayName": "The Example Plus-One Household",
+    "partyId": "party-dev-archetype-b",
+    "partyDisplayName": "The Example Household",
     "greeting": "Welcome, Example Household!",
     "wordingMode": "plural",
     "maximumAttendance": 5,
-    "additionalGuestAllowance": 1,
-    "questionProfile": "default",
-    "questionIds": [
-      "eventAttendance",
-      "declineAttendance",
-      "additionalGuestAttendance",
-      "attendanceTotals",
-      "dietaryPreferences"
-    ],
+    "additionalGuestAllocations": [],
     "active": true,
     "environment": "development"
   },
   {
     "inviteCode": "DEV003",
     "inviteCodeDisplay": "DEV-003",
-    "partyId": "party-dev-archetype-i",
-    "partyDisplayName": "The Multiple-Guest Example Party",
-    "greeting": "Welcome, Example Party!",
-    "wordingMode": "plural",
-    "maximumAttendance": 7,
-    "additionalGuestAllowance": 3,
-    "questionProfile": "default",
-    "questionIds": [
-      "eventAttendance",
-      "declineAttendance",
-      "additionalGuestAttendance",
-      "attendanceTotals",
-      "dietaryPreferences"
+    "partyId": "party-dev-archetype-c",
+    "partyDisplayName": "Example Guest with Guest Option",
+    "greeting": "Welcome, Example Guest!",
+    "wordingMode": "singular",
+    "maximumAttendance": 2,
+    "additionalGuestAllocations": [
+      {
+        "id": "plus1-dev003-a",
+        "prompt": "Will Example Guest be accompanied by a +1?"
+      }
     ],
     "active": true,
     "environment": "development"
@@ -61,17 +43,16 @@
   {
     "inviteCode": "DEV004",
     "inviteCodeDisplay": "DEV-004",
-    "partyId": "party-dev-archetype-j",
-    "partyDisplayName": "The Reduced-Profile Example Party",
-    "greeting": "Welcome, Example Party!",
+    "partyId": "party-dev-archetype-d",
+    "partyDisplayName": "The Example Plus-One Household",
+    "greeting": "Welcome, Example Household!",
     "wordingMode": "plural",
-    "maximumAttendance": 2,
-    "additionalGuestAllowance": 0,
-    "questionProfile": "reduced-attendance-dietary",
-    "questionIds": [
-      "eventAttendance",
-      "declineAttendance",
-      "dietaryPreferences"
+    "maximumAttendance": 4,
+    "additionalGuestAllocations": [
+      {
+        "id": "plus1-dev004-a",
+        "prompt": "Will Example Adult One be accompanied by a +1?"
+      }
     ],
     "active": true,
     "environment": "development"
@@ -79,38 +60,28 @@
   {
     "inviteCode": "DEV005",
     "inviteCodeDisplay": "DEV-005",
-    "partyId": "party-dev-archetype-b",
-    "partyDisplayName": "The Example Household",
-    "greeting": "Welcome, Example Household!",
+    "partyId": "party-dev-archetype-e",
+    "partyDisplayName": "The Ceremony Scenario Example Party",
+    "greeting": "Welcome, Example Party!",
     "wordingMode": "plural",
     "maximumAttendance": 4,
-    "additionalGuestAllowance": 0,
-    "questionProfile": "default",
-    "questionIds": [
-      "eventAttendance",
-      "declineAttendance",
-      "attendanceTotals",
-      "dietaryPreferences"
-    ],
+    "additionalGuestAllocations": [],
     "active": true,
     "environment": "development"
   },
   {
     "inviteCode": "DEV006",
     "inviteCodeDisplay": "DEV-006",
-    "partyId": "party-dev-archetype-c",
-    "partyDisplayName": "Example Guest with Additional-Guest Allowance",
+    "partyId": "party-dev-archetype-f",
+    "partyDisplayName": "Example Reception Scenario Guest",
     "greeting": "Welcome, Example Guest!",
     "wordingMode": "singular",
     "maximumAttendance": 2,
-    "additionalGuestAllowance": 1,
-    "questionProfile": "default",
-    "questionIds": [
-      "eventAttendance",
-      "declineAttendance",
-      "additionalGuestAttendance",
-      "attendanceTotals",
-      "dietaryPreferences"
+    "additionalGuestAllocations": [
+      {
+        "id": "plus1-dev006-a",
+        "prompt": "Will Example Guest be accompanied by a +1?"
+      }
     ],
     "active": true,
     "environment": "development"
@@ -118,57 +89,48 @@
   {
     "inviteCode": "DEV007",
     "inviteCodeDisplay": "DEV-007",
-    "partyId": "party-dev-archetype-e",
-    "partyDisplayName": "The Ceremony-Only Example Party",
-    "greeting": "Welcome, Example Party!",
+    "partyId": "party-dev-archetype-g",
+    "partyDisplayName": "The Combined Attendance Example Household",
+    "greeting": "Welcome, Example Household!",
     "wordingMode": "plural",
     "maximumAttendance": 3,
-    "additionalGuestAllowance": 0,
-    "questionProfile": "default",
-    "questionIds": [
-      "eventAttendance",
-      "declineAttendance",
-      "attendanceTotals",
-      "dietaryPreferences"
-    ],
+    "additionalGuestAllocations": [],
     "active": true,
     "environment": "development"
   },
   {
     "inviteCode": "DEV008",
     "inviteCodeDisplay": "DEV-008",
-    "partyId": "party-dev-archetype-f",
-    "partyDisplayName": "The Reception-Only Example Party",
-    "greeting": "Welcome, Example Party!",
+    "partyId": "party-dev-archetype-h",
+    "partyDisplayName": "The Revision Example Household",
+    "greeting": "Welcome, Example Household!",
     "wordingMode": "plural",
     "maximumAttendance": 3,
-    "additionalGuestAllowance": 0,
-    "questionProfile": "default",
-    "questionIds": [
-      "eventAttendance",
-      "declineAttendance",
-      "attendanceTotals",
-      "dietaryPreferences"
-    ],
+    "additionalGuestAllocations": [],
     "active": true,
     "environment": "development"
   },
   {
     "inviteCode": "DEV009",
     "inviteCodeDisplay": "DEV-009",
-    "partyId": "party-dev-archetype-g",
-    "partyDisplayName": "The Decline Example Party",
+    "partyId": "party-dev-archetype-i",
+    "partyDisplayName": "The Multiple-Guest Example Party",
     "greeting": "Welcome, Example Party!",
     "wordingMode": "plural",
-    "maximumAttendance": 4,
-    "additionalGuestAllowance": 1,
-    "questionProfile": "default",
-    "questionIds": [
-      "eventAttendance",
-      "declineAttendance",
-      "additionalGuestAttendance",
-      "attendanceTotals",
-      "dietaryPreferences"
+    "maximumAttendance": 7,
+    "additionalGuestAllocations": [
+      {
+        "id": "plus1-dev009-a",
+        "prompt": "Will Example Adult One be accompanied by a +1?"
+      },
+      {
+        "id": "plus1-dev009-b",
+        "prompt": "Will Example Adult Two be accompanied by a +1?"
+      },
+      {
+        "id": "plus1-dev009-c",
+        "prompt": "Will Example Adult Three be accompanied by a +1?"
+      }
     ],
     "active": true,
     "environment": "development"
@@ -176,19 +138,16 @@
   {
     "inviteCode": "DEV010",
     "inviteCodeDisplay": "DEV-010",
-    "partyId": "party-dev-archetype-h",
-    "partyDisplayName": "The Revision Example Household",
+    "partyId": "party-dev-archetype-j",
+    "partyDisplayName": "The Capacity Boundary Example Household",
     "greeting": "Welcome, Example Household!",
     "wordingMode": "plural",
     "maximumAttendance": 4,
-    "additionalGuestAllowance": 1,
-    "questionProfile": "default",
-    "questionIds": [
-      "eventAttendance",
-      "declineAttendance",
-      "additionalGuestAttendance",
-      "attendanceTotals",
-      "dietaryPreferences"
+    "additionalGuestAllocations": [
+      {
+        "id": "plus1-dev010-a",
+        "prompt": "Will Example Adult One be accompanied by a +1?"
+      }
     ],
     "active": true,
     "environment": "development"
@@ -199,16 +158,13 @@
     "partyId": "party-dev-disabled",
     "partyDisplayName": "Disabled Development Example",
     "greeting": "Welcome, Development Example!",
-    "wordingMode": "singular",
+    "wordingMode": "plural",
     "maximumAttendance": 2,
-    "additionalGuestAllowance": 1,
-    "questionProfile": "default",
-    "questionIds": [
-      "eventAttendance",
-      "declineAttendance",
-      "additionalGuestAttendance",
-      "attendanceTotals",
-      "dietaryPreferences"
+    "additionalGuestAllocations": [
+      {
+        "id": "plus1-dev999-a",
+        "prompt": "Will Example Adult One be accompanied by a +1?"
+      }
     ],
     "active": false,
     "environment": "development"

@@ -12,13 +12,23 @@ const DEFAULT_DEVELOPMENT_FIXTURE_PATH =
     "../../../docs/rsvp-example-configurations.json",
   );
 
-const questionIdSchema = z.enum([
-  "eventAttendance",
-  "declineAttendance",
-  "additionalGuestAttendance",
-  "attendanceTotals",
-  "dietaryPreferences",
-]);
+const additionalGuestAllocationSchema = z
+  .object({
+    id: z
+      .string()
+      .regex(
+        /^plus1-[a-z0-9]+(?:-[a-z0-9]+)*$/,
+      ),
+
+    prompt: z
+      .string()
+      .min(1)
+      .max(200)
+      .regex(
+        /^Will .+ be accompanied by a \+1\?$/,
+      ),
+  })
+  .strict();
 
 const invitationFixtureSchema = z
   .object({
@@ -46,83 +56,62 @@ const invitationFixtureSchema = z
       .int()
       .positive(),
 
-    additionalGuestAllowance: z
-      .number()
-      .int()
-      .nonnegative(),
-
-    questionProfile: z.enum([
-      "default",
-      "reduced-attendance-dietary",
-    ]),
-
-    questionIds: z
-      .array(questionIdSchema)
-      .min(1)
-      .refine(
-        (values) =>
-          new Set(values).size === values.length,
-        {
-          message:
-            "questionIds must not contain duplicates",
-        },
-      ),
+    additionalGuestAllocations: z
+      .array(additionalGuestAllocationSchema),
 
     active: z.boolean(),
 
     environment: z.literal("development"),
   })
-  .strict();
+  .strict()
+  .superRefine((fixture, context) => {
+    const allocationIds = new Set();
+
+    for (
+      let index = 0;
+      index <
+      fixture.additionalGuestAllocations.length;
+      index += 1
+    ) {
+      const allocation =
+        fixture.additionalGuestAllocations[index];
+
+      if (allocationIds.has(allocation.id)) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [
+            "additionalGuestAllocations",
+            index,
+            "id",
+          ],
+          message:
+            "additionalGuestAllocations must not contain duplicate IDs",
+        });
+      }
+
+      allocationIds.add(allocation.id);
+    }
+
+    if (
+      fixture.additionalGuestAllocations
+        .length >= fixture.maximumAttendance
+    ) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["additionalGuestAllocations"],
+        message:
+          "additionalGuestAllocations must leave room for at least one primary invited attendee within maximumAttendance",
+      });
+    }
+  });
 
 const invitationFixtureRegistrySchema =
   z.array(invitationFixtureSchema).min(1);
 
-function arraysEqual(left, right) {
-  return (
-    left.length === right.length &&
-    left.every(
-      (value, index) =>
-        value === right[index],
-    )
-  );
-}
-
-function expectedQuestionIds(fixture) {
-  if (
-    fixture.questionProfile ===
-    "reduced-attendance-dietary"
-  ) {
-    return [
-      "eventAttendance",
-      "declineAttendance",
-      "dietaryPreferences",
-    ];
-  }
-
-  const questionIds = [
-    "eventAttendance",
-    "declineAttendance",
-  ];
-
-  if (
-    fixture.additionalGuestAllowance > 0
-  ) {
-    questionIds.push(
-      "additionalGuestAttendance",
-    );
-  }
-
-  questionIds.push(
-    "attendanceTotals",
-    "dietaryPreferences",
-  );
-
-  return questionIds;
-}
-
 function validateFixtureSemantics(fixtures) {
   const canonicalCodes = new Set();
   const partyIds = new Set();
+  const allocationIds = new Set();
 
   for (
     let index = 0;
@@ -170,28 +159,17 @@ function validateFixtureSemantics(fixtures) {
 
     partyIds.add(fixture.partyId);
 
-    if (
-      fixture.questionProfile ===
-        "reduced-attendance-dietary" &&
-      fixture.additionalGuestAllowance !== 0
+    for (
+      const allocation of
+      fixture.additionalGuestAllocations
     ) {
-      throw new Error(
-        `Development invitation fixture ${index} gives the reduced profile an unauthorized additional-guest allowance.`,
-      );
-    }
+      if (allocationIds.has(allocation.id)) {
+        throw new Error(
+          `Development invitation fixture ${index} duplicates an additional-guest allocation identifier.`,
+        );
+      }
 
-    const expectedIds =
-      expectedQuestionIds(fixture);
-
-    if (
-      !arraysEqual(
-        fixture.questionIds,
-        expectedIds,
-      )
-    ) {
-      throw new Error(
-        `Development invitation fixture ${index} has question IDs inconsistent with its profile and allowance.`,
-      );
+      allocationIds.add(allocation.id);
     }
   }
 }
@@ -210,6 +188,19 @@ function deepFreeze(value) {
   }
 
   return Object.freeze(value);
+}
+
+function cloneFixture(fixture) {
+  return {
+    ...fixture,
+
+    additionalGuestAllocations:
+      fixture.additionalGuestAllocations.map(
+        (allocation) => ({
+          ...allocation,
+        }),
+      ),
+  };
 }
 
 function loadDevelopmentInvitationFixtures({
@@ -261,12 +252,9 @@ function loadDevelopmentInvitationFixtures({
 
   const fixtures =
     parsed.data.map((fixture) =>
-      deepFreeze({
-        ...fixture,
-        questionIds: [
-          ...fixture.questionIds,
-        ],
-      }),
+      deepFreeze(
+        cloneFixture(fixture),
+      ),
     );
 
   const byCanonicalCode =

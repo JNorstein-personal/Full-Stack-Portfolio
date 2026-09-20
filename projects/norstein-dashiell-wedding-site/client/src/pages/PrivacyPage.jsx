@@ -58,26 +58,34 @@ function PrivacyPage() {
 
         <div className="prose-width">
           <p>
-            Depending on the RSVP form assigned to an
+            The RSVP system uses one reusable form structure,
+            with limited invitation-specific configuration.
+            Depending on the response being submitted and
+            the Plus 1 options authorized for that
             invitation, the system may collect:
           </p>
 
           <ul>
             <li>
-              Attendance or decline information.
+              Ceremony and Reception attendance selections,
+              or a decline response.
             </li>
             <li>
-              Ceremony and reception selections.
+              A separate Yes-or-No response for each
+              authorized named Plus 1 option, when the
+              invitation includes one or more such options.
             </li>
             <li>
-              Additional-guest information when applicable.
+              Attendance totals for adults age 21 and older,
+              young adults ages 18–20, children ages 3–17,
+              and children under age 3 when the party is
+              attending.
             </li>
             <li>
-              Attendance totals by age category when
-              applicable.
-            </li>
-            <li>
-              Party-level dietary or allergy information.
+              When Reception is selected, one attendee name
+              for each attending party member and that
+              attendee’s optional food-allergy or dietary
+              preference information.
             </li>
             <li>
               A confirmation method and the associated email
@@ -90,15 +98,16 @@ function PrivacyPage() {
             </li>
             <li>
               Submission and revision records needed to
-              operate the RSVP system.
+              operate, validate, confirm, and audit the RSVP
+              process.
             </li>
           </ul>
 
           <p>
-            Different invitations may use different approved
-            RSVP profiles. Fields that do not belong to the
-            applicable profile are not collected for that
-            invitation.
+            An invitation without an authorized Plus 1
+            option is not asked a Plus 1 question. Reception
+            attendee details are collected only when
+            Reception is selected.
           </p>
         </div>
       </ContentSection>
@@ -112,12 +121,12 @@ function PrivacyPage() {
           <p>
             RSVP information is used to record and manage
             responses, plan attendance and seating, prepare
-            for dietary needs, provide confirmation to the
-            invited party, provide a protected
-            administrative confirmation to the couple, and
-            support corrections, revisions, delivery
-            troubleshooting, and approved confirmation
-            resends.
+            for dietary and allergy needs, provide
+            confirmation to the invited party, provide a
+            protected administrative confirmation to the
+            couple, and support corrections, revisions,
+            delivery troubleshooting, and approved
+            confirmation resends.
           </p>
         </div>
       </ContentSection>
@@ -143,6 +152,14 @@ function PrivacyPage() {
             a stored answer no longer relevant. Clearing a
             stored answer requires an explicit applicable
             action rather than simply leaving a field blank.
+          </p>
+
+          <p>
+            For example, a full decline makes attendance
+            totals, Plus 1 responses, and Reception attendee
+            details inapplicable. Removing Reception makes
+            previously stored Reception attendee details
+            inapplicable.
           </p>
 
           <p>
@@ -218,19 +235,34 @@ function PrivacyPage() {
         </div>
       </ContentSection>
 
-      <ContentSection labelledBy="dietary-heading">
-        <h2 id="dietary-heading">
-          Dietary and Allergy Information
+      <ContentSection labelledBy="attendee-details-heading">
+        <h2 id="attendee-details-heading">
+          Reception Attendee Details and Dietary Information
         </h2>
 
         <div className="prose-width">
           <p>
-            Dietary and allergy information is treated as
-            private RSVP information. It may appear in the
-            submitting party’s own confirmation, the
-            protected administrative confirmation, and
-            authorized private administrative records when
-            those records contain the complete current RSVP.
+            When Reception is selected, the RSVP system
+            collects one attendee-detail record for each
+            person attending. Each record contains the
+            attendee’s name and may contain that attendee’s
+            food-allergy or dietary preference information.
+          </p>
+
+          <p>
+            Attendee names are limited to 100 characters per
+            attendee, and dietary or allergy responses are
+            limited to 1000 characters per attendee.
+          </p>
+
+          <p>
+            Reception attendee names and dietary or allergy
+            information are treated as private RSVP
+            information. They may appear in the submitting
+            party’s own confirmation, the protected
+            administrative confirmation, and authorized
+            private administrative records when those
+            records contain the complete current RSVP.
           </p>
 
           <p>
@@ -259,7 +291,8 @@ function PrivacyPage() {
             Analytics and routine logging are designed to
             avoid intentionally sending or recording
             personalized RSVP values such as invitation
-            codes, RSVP answers, dietary information, email
+            codes, RSVP answers, Plus 1 responses, attendee
+            names, dietary or allergy information, email
             addresses, mobile numbers, and confirmation
             destinations.
           </p>
@@ -284,11 +317,13 @@ function PrivacyPage() {
             unresolved administrative purpose will be
             deleted or irreversibly de-identified from the
             active RSVP system. This includes current and
-            superseded RSVP responses, dietary or allergy
-            information, confirmation destinations, SMS
-            authorization records, submission identifiers,
-            delivery-attempt history, and RSVP transaction
-            history that is no longer operationally needed.
+            superseded RSVP responses, Plus 1 responses,
+            attendance totals, Reception attendee names,
+            dietary or allergy information, confirmation
+            destinations, SMS authorization records,
+            submission identifiers, delivery-attempt
+            history, and RSVP transaction history that is no
+            longer operationally needed.
           </p>
 
           <p>
