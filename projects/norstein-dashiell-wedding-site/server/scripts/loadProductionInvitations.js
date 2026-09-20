@@ -1,5 +1,7 @@
 require("dotenv").config();
 
+const path = require("node:path");
+
 const {
   PRODUCTION_AUDIT_TARGETS,
   assertProductionAuditTargets,
@@ -23,9 +25,29 @@ const {
 } = require(
   "../src/services/storage/googleSheetsStoreSetup"
 );
+const {
+  assertOperationalSectionsEmpty,
+  assertOperationalSectionsUnchanged,
+  assertProductionInvitationsMatchExpected,
+  readGoogleSheetsStoreSnapshot,
+  restoreInvitationsFromSnapshot,
+  writePrivateSnapshotFile,
+} = require(
+  "../src/services/storage/productionActivation"
+);
 
 const ACTIVATION_ACK =
   "WRITE_PRODUCTION_INVITATIONS";
+
+function defaultBackupDirectory() {
+  return path.resolve(
+    __dirname,
+    "..",
+    "..",
+    "private-working-materials",
+    "rsvp-backups",
+  );
+}
 
 async function main() {
   if (
@@ -82,6 +104,8 @@ async function main() {
       spreadsheetId,
     });
 
+  await connection.verifyAccess();
+
   const sheets =
     connection.getSheetsClient();
 
@@ -90,18 +114,72 @@ async function main() {
     spreadsheetId,
   });
 
-  await replaceInvitationConfigurations({
-    sheets,
-    spreadsheetId,
-    invitations:
-      transformed.configurations,
-    expectedEnvironment:
-      "production",
+  const before =
+    await readGoogleSheetsStoreSnapshot({
+      sheets,
+      spreadsheetId,
+    });
+
+  assertOperationalSectionsEmpty(
+    before,
+  );
+
+  const backupDirectory =
+    process.env
+      .RSVP_PRODUCTION_BACKUP_DIR ||
+    defaultBackupDirectory();
+
+  await writePrivateSnapshotFile({
+    snapshot: before,
+    backupDirectory,
   });
 
-  console.log(
-    `Production invitation configuration load: PASS (${transformed.summary.activeInvitationCount} records)`,
-  );
+  try {
+    await replaceInvitationConfigurations({
+      sheets,
+      spreadsheetId,
+      invitations:
+        transformed.configurations,
+      expectedEnvironment:
+        "production",
+    });
+
+    const after =
+      await readGoogleSheetsStoreSnapshot({
+        sheets,
+        spreadsheetId,
+      });
+
+    assertOperationalSectionsUnchanged(
+      before,
+      after,
+    );
+
+    const verification =
+      assertProductionInvitationsMatchExpected(
+        after,
+        transformed.configurations,
+      );
+
+    console.log(
+      `Production invitation configuration load: PASS (${verification.invitationCount} records; pre-load private snapshot created)`,
+    );
+  } catch {
+    try {
+      await restoreInvitationsFromSnapshot({
+        sheets,
+        spreadsheetId,
+        snapshot: before,
+      });
+    } catch {
+      // Preserve the original activation failure.
+      // The private pre-load snapshot remains available for recovery.
+    }
+
+    throw new Error(
+      "Production invitation configuration load failed after backup creation.",
+    );
+  }
 }
 
 main().catch(() => {
