@@ -123,15 +123,50 @@ async function writeHeaders({
   }
 }
 
-async function seedDevelopmentInvitations({
+async function replaceInvitationConfigurations({
   sheets,
   spreadsheetId,
   invitations,
+  expectedEnvironment,
 }) {
   if (!Array.isArray(invitations)) {
     throw new Error(
-      "Development invitation seed must be an array.",
+      "Invitation configuration replacement requires an array.",
     );
+  }
+
+  if (
+    expectedEnvironment !==
+      "development" &&
+    expectedEnvironment !==
+      "production"
+  ) {
+    throw new Error(
+      "Invitation configuration replacement requires an explicit environment.",
+    );
+  }
+
+  for (
+    let index = 0;
+    index < invitations.length;
+    index += 1
+  ) {
+    const invitation =
+      invitations[index];
+
+    if (
+      !invitation ||
+      invitation.environment !==
+        expectedEnvironment ||
+      typeof invitation.inviteCode !==
+        "string" ||
+      typeof invitation.partyId !==
+        "string"
+    ) {
+      throw new Error(
+        `Invitation configuration ${index} is not eligible for the requested environment.`,
+      );
+    }
   }
 
   const section =
@@ -166,6 +201,20 @@ async function seedDevelopmentInvitations({
           ],
         ),
     },
+  });
+}
+
+async function seedDevelopmentInvitations({
+  sheets,
+  spreadsheetId,
+  invitations,
+}) {
+  return replaceInvitationConfigurations({
+    sheets,
+    spreadsheetId,
+    invitations,
+    expectedEnvironment:
+      "development",
   });
 }
 
@@ -254,5 +303,6 @@ async function verifyGoogleSheetsStoreSchema({
 
 module.exports = {
   initializeDevelopmentGoogleSheetsStore,
+  replaceInvitationConfigurations,
   verifyGoogleSheetsStoreSchema,
 };

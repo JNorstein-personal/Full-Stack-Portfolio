@@ -10,7 +10,9 @@
     "test": "node --test",
     "verify:google-sheets": "node scripts/verifyGoogleSheets.js",
     "initialize:google-sheets-store": "node scripts/initializeGoogleSheetsStore.js",
-    "verify:google-sheets-store": "node scripts/verifyGoogleSheetsStore.js"
+    "verify:google-sheets-store": "node scripts/verifyGoogleSheetsStore.js",
+    "audit:production-invitations": "node scripts/auditProductionInvitations.js",
+    "load:production-invitations": "node scripts/loadProductionInvitations.js"
   },
   "keywords": [],
   "author": "",

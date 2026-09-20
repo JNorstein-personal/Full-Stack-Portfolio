@@ -11,6 +11,7 @@ const {
 );
 const {
   initializeDevelopmentGoogleSheetsStore,
+  replaceInvitationConfigurations,
   verifyGoogleSheetsStoreSchema,
 } = require(
   "../src/services/storage/googleSheetsStoreSetup"
@@ -143,6 +144,151 @@ test(
             "fictional-sheet",
         }),
       /schema verification failed/,
+    );
+  },
+);
+
+
+test(
+  "generic invitation replacement writes only configurations matching the requested environment",
+  async () => {
+    const fake =
+      createFakeSheetsClient();
+
+    const registry =
+      loadDevelopmentInvitationFixtures({
+        runtimeEnvironment:
+          "test",
+      });
+
+    await initializeDevelopmentGoogleSheetsStore({
+      sheets:
+        fake.sheets,
+      spreadsheetId:
+        "fictional-sheet",
+      invitations:
+        registry.fixtures,
+    });
+
+    const productionInvitations = [
+      {
+        inviteCode:
+          "ABC123",
+        partyId:
+          "party-production-a",
+        environment:
+          "production",
+      },
+      {
+        inviteCode:
+          "DEF456",
+        partyId:
+          "party-production-b",
+        environment:
+          "production",
+      },
+    ];
+
+    await replaceInvitationConfigurations({
+      sheets:
+        fake.sheets,
+      spreadsheetId:
+        "fictional-sheet",
+      invitations:
+        productionInvitations,
+      expectedEnvironment:
+        "production",
+    });
+
+    const rows =
+      fake.workbook
+        .get("Invitations")
+        .slice(1)
+        .filter(
+          (row) =>
+            row[0] !==
+            undefined,
+        );
+
+    assert.deepEqual(
+      rows.map(
+        (row) => [
+          row[0],
+          row[1],
+        ],
+      ),
+      [
+        [
+          "ABC123",
+          "party-production-a",
+        ],
+        [
+          "DEF456",
+          "party-production-b",
+        ],
+      ],
+    );
+  },
+);
+
+test(
+  "generic invitation replacement rejects cross-environment configuration before clearing existing rows",
+  async () => {
+    const fake =
+      createFakeSheetsClient();
+
+    const registry =
+      loadDevelopmentInvitationFixtures({
+        runtimeEnvironment:
+          "test",
+      });
+
+    await initializeDevelopmentGoogleSheetsStore({
+      sheets:
+        fake.sheets,
+      spreadsheetId:
+        "fictional-sheet",
+      invitations:
+        registry.fixtures,
+    });
+
+    const before =
+      JSON.stringify(
+        fake.workbook.get(
+          "Invitations",
+        ),
+      );
+
+    await assert.rejects(
+      () =>
+        replaceInvitationConfigurations({
+          sheets:
+            fake.sheets,
+          spreadsheetId:
+            "fictional-sheet",
+          invitations: [
+            {
+              inviteCode:
+                "ABC123",
+              partyId:
+                "party-a",
+              environment:
+                "development",
+            },
+          ],
+          expectedEnvironment:
+            "production",
+        }),
+      /not eligible/,
+    );
+
+    assert.equal(
+      JSON.stringify(
+        fake.workbook.get(
+          "Invitations",
+        ),
+      ),
+      before,
     );
   },
 );

@@ -26,8 +26,14 @@ private-working-materials/
 # Production wedding data
 Invitees List.xlsx
 *Invitees*List*.xlsx
+*Invitees*List*.csv
+*Invitees*List*.json
 *guest*.xlsx
 *Guest*.xlsx
+*guest*.csv
+*Guest*.csv
+*guest*.json
+*Guest*.json
 
 # Operating-system and application temporary files
 .DS_Store
