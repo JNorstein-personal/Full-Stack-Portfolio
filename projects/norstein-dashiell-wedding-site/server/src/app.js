@@ -28,6 +28,7 @@ const {
 } = require("./rsvp/formSchemas");
 const {
   createDeferredDeliveryService,
+  createEmailDeliveryService,
 } = require("./services/deliveryService");
 const {
   createInvitationService,
@@ -112,6 +113,7 @@ function createApp({
   invitationSource,
   rsvpStore,
   deliveryService,
+  emailTransport,
   questions,
   now,
   rateLimitNow,
@@ -244,7 +246,19 @@ function createApp({
 
   const effectiveDeliveryService =
     deliveryService ||
-    createDeferredDeliveryService();
+    (
+      emailTransport
+        ? createEmailDeliveryService({
+            emailTransport,
+            administrativeEmail:
+              environment
+                .RSVP_ADMIN_NOTIFICATION_EMAIL,
+            fromEmail:
+              environment
+                .RSVP_FROM_EMAIL,
+          })
+        : createDeferredDeliveryService()
+    );
 
   const submissionService =
     createRsvpSubmissionService({

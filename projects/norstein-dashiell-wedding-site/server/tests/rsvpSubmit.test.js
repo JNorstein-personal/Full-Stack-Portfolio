@@ -167,8 +167,14 @@ test(
       Object.freeze({
         async deliver({
           invitation,
+          action,
         }) {
           deliveryCount += 1;
+
+          assert.equal(
+            action,
+            "initial",
+          );
 
           assert.notEqual(
             await rsvpStore

@@ -425,6 +425,7 @@ function createRsvpSubmissionService({
               storedRsvp,
             confirmation:
               confirmation.value,
+            action,
           });
       } catch {
         delivery = {
