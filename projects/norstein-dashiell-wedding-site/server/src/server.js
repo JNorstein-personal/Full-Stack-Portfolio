@@ -3,9 +3,14 @@ require("dotenv").config();
 const {
   loadEnvironment,
 } = require("./config/env");
+const {
+  createApp,
+} = require("./app");
 
 const environment = loadEnvironment();
-const app = require("./app");
+const app = createApp({
+  environment,
+});
 
 app.listen(
   environment.PORT,
