@@ -239,17 +239,6 @@ function createRsvpRouter({
 
         if (
           result.status ===
-          "revisionDeferred"
-        ) {
-          return res
-            .status(503)
-            .json(
-              SERVICE_UNAVAILABLE_RESPONSE,
-            );
-        }
-
-        if (
-          result.status ===
           "success"
         ) {
           return res

@@ -961,3 +961,1314 @@ test(
     );
   },
 );
+
+
+function dev002CeremonyRequest({
+  clientSubmissionId,
+  adults21Plus = 1,
+  children3To17 = 0,
+} = {}) {
+  return {
+    inviteCode: "DEV-002",
+    clientSubmissionId,
+    confirmation:
+      emailConfirmation(),
+    changes: {
+      eventAttendance: {
+        operation: "replace",
+        value: ["ceremony"],
+      },
+      attendanceTotals: {
+        operation: "replace",
+        value: {
+          adults21Plus,
+          youngAdults18To20: 0,
+          children3To17,
+          childrenUnder3: 0,
+        },
+      },
+    },
+  };
+}
+
+function dev002ReceptionRequest({
+  clientSubmissionId,
+  adults21Plus = 2,
+} = {}) {
+  return {
+    inviteCode: "DEV-002",
+    clientSubmissionId,
+    confirmation:
+      emailConfirmation(),
+    changes: {
+      eventAttendance: {
+        operation: "replace",
+        value: ["reception"],
+      },
+      attendanceTotals: {
+        operation: "replace",
+        value: {
+          adults21Plus,
+          youngAdults18To20: 0,
+          children3To17: 0,
+          childrenUnder3: 0,
+        },
+      },
+      receptionAttendeeDetails: {
+        operation: "replace",
+        value:
+          Array.from(
+            {
+              length:
+                adults21Plus,
+            },
+            (_, index) => ({
+              attendeeName:
+                `Example Guest ${index + 1}`,
+              dietaryPreferences:
+                "",
+            }),
+          ),
+      },
+    },
+  };
+}
+
+function dev006ReceptionRequest({
+  clientSubmissionId,
+} = {}) {
+  return {
+    inviteCode: "DEV-006",
+    clientSubmissionId,
+    confirmation:
+      emailConfirmation(),
+    changes: {
+      eventAttendance: {
+        operation: "replace",
+        value: ["reception"],
+      },
+      additionalGuestResponses:
+        {
+          operation: "replace",
+          value: {
+            "plus1-dev006-a":
+              "yes",
+          },
+        },
+      attendanceTotals: {
+        operation: "replace",
+        value: {
+          adults21Plus: 2,
+          youngAdults18To20: 0,
+          children3To17: 0,
+          childrenUnder3: 0,
+        },
+      },
+      receptionAttendeeDetails:
+        {
+          operation: "replace",
+          value: [
+            {
+              attendeeName:
+                "Example Guest",
+              dietaryPreferences:
+                "",
+            },
+            {
+              attendeeName:
+                "Example Companion",
+              dietaryPreferences:
+                "",
+            },
+          ],
+        },
+    },
+  };
+}
+
+test(
+  "confirmation-only revision preserves substantive RSVP and replaces operational confirmation",
+  async () => {
+    const rsvpStore =
+      createFixtureStore();
+
+    await withTestServer(
+      standardOptions({
+        rsvpStore,
+      }),
+      async (baseUrl) => {
+        assert.equal(
+          (
+            await submit(
+              baseUrl,
+              ceremonyRequest(),
+            )
+          ).response.status,
+          201,
+        );
+
+        const revision =
+          await submit(
+            baseUrl,
+            {
+              inviteCode:
+                "DEV-001",
+              clientSubmissionId:
+                "55555555-5555-4555-8555-555555555555",
+              confirmation: {
+                method: "email",
+                email:
+                  "replacement@example.com",
+              },
+              changes: {},
+            },
+          );
+
+        assert.equal(
+          revision.response.status,
+          200,
+        );
+        assert.equal(
+          revision.payload
+            .submission.action,
+          "revision",
+        );
+        assert.deepEqual(
+          revision.payload.rsvp,
+          {
+            eventAttendance: [
+              "ceremony",
+            ],
+            attendanceTotals: {
+              adults21Plus: 1,
+              youngAdults18To20: 0,
+              children3To17: 0,
+              childrenUnder3: 0,
+            },
+            overallAttendance: 1,
+          },
+        );
+
+        const current =
+          await rsvpStore
+            .getCurrentRsvp(
+              "party-dev-archetype-a",
+            );
+
+        assert.equal(
+          current.version,
+          2,
+        );
+        assert.equal(
+          current.confirmation
+            .email,
+          "replacement@example.com",
+        );
+        assert.equal(
+          (
+            await rsvpStore
+              .listRsvpVersions(
+                "party-dev-archetype-a",
+              )
+          ).length,
+          2,
+        );
+      },
+    );
+  },
+);
+
+test(
+  "partial attendance-total revision merges omitted categories and honors explicit zero",
+  async () => {
+    const rsvpStore =
+      createFixtureStore();
+
+    await withTestServer(
+      standardOptions({
+        rsvpStore,
+      }),
+      async (baseUrl) => {
+        assert.equal(
+          (
+            await submit(
+              baseUrl,
+              dev002CeremonyRequest({
+                clientSubmissionId:
+                  "60000000-0000-4000-8000-000000000001",
+                adults21Plus: 2,
+                children3To17: 1,
+              }),
+            )
+          ).response.status,
+          201,
+        );
+
+        const revision =
+          await submit(
+            baseUrl,
+            {
+              inviteCode:
+                "DEV-002",
+              clientSubmissionId:
+                "60000000-0000-4000-8000-000000000002",
+              confirmation:
+                emailConfirmation(),
+              changes: {
+                attendanceTotals: {
+                  operation:
+                    "replace",
+                  value: {
+                    children3To17:
+                      0,
+                  },
+                },
+              },
+            },
+          );
+
+        assert.equal(
+          revision.response.status,
+          200,
+        );
+        assert.deepEqual(
+          revision.payload.rsvp
+            .attendanceTotals,
+          {
+            adults21Plus: 2,
+            youngAdults18To20: 0,
+            children3To17: 0,
+            childrenUnder3: 0,
+          },
+        );
+        assert.equal(
+          revision.payload.rsvp
+            .overallAttendance,
+          2,
+        );
+      },
+    );
+  },
+);
+
+test(
+  "partial Plus1 revision merges selected allocation responses against current state",
+  async () => {
+    const rsvpStore =
+      createFixtureStore();
+
+    await withTestServer(
+      standardOptions({
+        rsvpStore,
+      }),
+      async (baseUrl) => {
+        const initial =
+          await submit(
+            baseUrl,
+            {
+              inviteCode:
+                "DEV-009",
+              clientSubmissionId:
+                "61000000-0000-4000-8000-000000000001",
+              confirmation:
+                emailConfirmation(),
+              changes: {
+                eventAttendance: {
+                  operation:
+                    "replace",
+                  value: [
+                    "ceremony",
+                  ],
+                },
+                additionalGuestResponses:
+                  {
+                    operation:
+                      "replace",
+                    value: {
+                      "plus1-dev009-a":
+                        "yes",
+                      "plus1-dev009-b":
+                        "no",
+                      "plus1-dev009-c":
+                        "no",
+                    },
+                  },
+                attendanceTotals: {
+                  operation:
+                    "replace",
+                  value: {
+                    adults21Plus: 3,
+                    youngAdults18To20:
+                      0,
+                    children3To17: 0,
+                    childrenUnder3: 0,
+                  },
+                },
+              },
+            },
+          );
+
+        assert.equal(
+          initial.response.status,
+          201,
+        );
+
+        const revision =
+          await submit(
+            baseUrl,
+            {
+              inviteCode:
+                "DEV-009",
+              clientSubmissionId:
+                "61000000-0000-4000-8000-000000000002",
+              confirmation:
+                emailConfirmation(),
+              changes: {
+                additionalGuestResponses:
+                  {
+                    operation:
+                      "replace",
+                    value: {
+                      "plus1-dev009-b":
+                        "yes",
+                    },
+                  },
+              },
+            },
+          );
+
+        assert.equal(
+          revision.response.status,
+          200,
+        );
+
+        const responses =
+          Object.fromEntries(
+            revision.payload.rsvp
+              .additionalGuestResponses
+              .map(
+                (item) => [
+                  item.id,
+                  item.response,
+                ],
+              ),
+          );
+
+        assert.deepEqual(
+          responses,
+          {
+            "plus1-dev009-a":
+              "yes",
+            "plus1-dev009-b":
+              "yes",
+            "plus1-dev009-c":
+              "no",
+          },
+        );
+      },
+    );
+  },
+);
+
+test(
+  "attending-to-decline revision clears all attendance-dependent data",
+  async () => {
+    const rsvpStore =
+      createFixtureStore();
+
+    await withTestServer(
+      standardOptions({
+        rsvpStore,
+      }),
+      async (baseUrl) => {
+        assert.equal(
+          (
+            await submit(
+              baseUrl,
+              dev006ReceptionRequest({
+                clientSubmissionId:
+                  "62000000-0000-4000-8000-000000000001",
+              }),
+            )
+          ).response.status,
+          201,
+        );
+
+        const revision =
+          await submit(
+            baseUrl,
+            {
+              inviteCode:
+                "DEV-006",
+              clientSubmissionId:
+                "62000000-0000-4000-8000-000000000002",
+              confirmation:
+                emailConfirmation(),
+              changes: {
+                eventAttendance: {
+                  operation:
+                    "replace",
+                  value: [
+                    "decline",
+                  ],
+                },
+              },
+            },
+          );
+
+        assert.equal(
+          revision.response.status,
+          200,
+        );
+        assert.deepEqual(
+          revision.payload.rsvp,
+          {
+            eventAttendance: [
+              "decline",
+            ],
+          },
+        );
+
+        const current =
+          await rsvpStore
+            .getCurrentRsvp(
+              "party-dev-archetype-f",
+            );
+
+        assert.equal(
+          Object.prototype
+            .hasOwnProperty.call(
+              current,
+              "attendanceTotals",
+            ),
+          false,
+        );
+        assert.equal(
+          Object.prototype
+            .hasOwnProperty.call(
+              current,
+              "additionalGuestResponses",
+            ),
+          false,
+        );
+        assert.equal(
+          Object.prototype
+            .hasOwnProperty.call(
+              current,
+              "receptionAttendeeDetails",
+            ),
+          false,
+        );
+      },
+    );
+  },
+);
+
+test(
+  "decline-to-Reception revision requires and then accepts all newly applicable data",
+  async () => {
+    const rsvpStore =
+      createFixtureStore();
+
+    await withTestServer(
+      standardOptions({
+        rsvpStore,
+      }),
+      async (baseUrl) => {
+        assert.equal(
+          (
+            await submit(
+              baseUrl,
+              {
+                inviteCode:
+                  "DEV-006",
+                clientSubmissionId:
+                  "63000000-0000-4000-8000-000000000001",
+                confirmation:
+                  emailConfirmation(),
+                changes: {
+                  eventAttendance: {
+                    operation:
+                      "replace",
+                    value: [
+                      "decline",
+                    ],
+                  },
+                },
+              },
+            )
+          ).response.status,
+          201,
+        );
+
+        const incomplete =
+          await submit(
+            baseUrl,
+            {
+              inviteCode:
+                "DEV-006",
+              clientSubmissionId:
+                "63000000-0000-4000-8000-000000000002",
+              confirmation:
+                emailConfirmation(),
+              changes: {
+                eventAttendance: {
+                  operation:
+                    "replace",
+                  value: [
+                    "reception",
+                  ],
+                },
+              },
+            },
+          );
+
+        assert.equal(
+          incomplete.response.status,
+          400,
+        );
+        assert.equal(
+          (
+            await rsvpStore
+              .listRsvpVersions(
+                "party-dev-archetype-f",
+              )
+          ).length,
+          1,
+        );
+
+        const complete =
+          await submit(
+            baseUrl,
+            {
+              inviteCode:
+                "DEV-006",
+              clientSubmissionId:
+                "63000000-0000-4000-8000-000000000003",
+              confirmation:
+                emailConfirmation(),
+              changes: {
+                eventAttendance: {
+                  operation:
+                    "replace",
+                  value: [
+                    "reception",
+                  ],
+                },
+                additionalGuestResponses:
+                  {
+                    operation:
+                      "replace",
+                    value: {
+                      "plus1-dev006-a":
+                        "no",
+                    },
+                  },
+                attendanceTotals: {
+                  operation:
+                    "replace",
+                  value: {
+                    adults21Plus: 1,
+                    youngAdults18To20:
+                      0,
+                    children3To17: 0,
+                    childrenUnder3: 0,
+                  },
+                },
+                receptionAttendeeDetails:
+                  {
+                    operation:
+                      "replace",
+                    value: [
+                      {
+                        attendeeName:
+                          "Example Guest",
+                      },
+                    ],
+                  },
+              },
+            },
+          );
+
+        assert.equal(
+          complete.response.status,
+          200,
+        );
+        assert.equal(
+          complete.payload.rsvp
+            .overallAttendance,
+          1,
+        );
+      },
+    );
+  },
+);
+
+test(
+  "adding Reception requires a complete attendee list before a revision can be stored",
+  async () => {
+    const rsvpStore =
+      createFixtureStore();
+
+    await withTestServer(
+      standardOptions({
+        rsvpStore,
+      }),
+      async (baseUrl) => {
+        assert.equal(
+          (
+            await submit(
+              baseUrl,
+              ceremonyRequest(),
+            )
+          ).response.status,
+          201,
+        );
+
+        const incomplete =
+          await submit(
+            baseUrl,
+            {
+              inviteCode:
+                "DEV-001",
+              clientSubmissionId:
+                "64000000-0000-4000-8000-000000000002",
+              confirmation:
+                emailConfirmation(),
+              changes: {
+                eventAttendance: {
+                  operation:
+                    "replace",
+                  value: [
+                    "ceremony",
+                    "reception",
+                  ],
+                },
+              },
+            },
+          );
+
+        assert.equal(
+          incomplete.response.status,
+          400,
+        );
+
+        const complete =
+          await submit(
+            baseUrl,
+            {
+              inviteCode:
+                "DEV-001",
+              clientSubmissionId:
+                "64000000-0000-4000-8000-000000000003",
+              confirmation:
+                emailConfirmation(),
+              changes: {
+                eventAttendance: {
+                  operation:
+                    "replace",
+                  value: [
+                    "ceremony",
+                    "reception",
+                  ],
+                },
+                receptionAttendeeDetails:
+                  {
+                    operation:
+                      "replace",
+                    value: [
+                      {
+                        attendeeName:
+                          "Example Guest",
+                      },
+                    ],
+                  },
+              },
+            },
+          );
+
+        assert.equal(
+          complete.response.status,
+          200,
+        );
+        assert.equal(
+          complete.payload.rsvp
+            .receptionAttendeeDetails
+            .length,
+          1,
+        );
+      },
+    );
+  },
+);
+
+test(
+  "removing Reception automatically clears stored attendee details",
+  async () => {
+    const rsvpStore =
+      createFixtureStore();
+
+    await withTestServer(
+      standardOptions({
+        rsvpStore,
+      }),
+      async (baseUrl) => {
+        assert.equal(
+          (
+            await submit(
+              baseUrl,
+              dev002ReceptionRequest({
+                clientSubmissionId:
+                  "65000000-0000-4000-8000-000000000001",
+              }),
+            )
+          ).response.status,
+          201,
+        );
+
+        const revision =
+          await submit(
+            baseUrl,
+            {
+              inviteCode:
+                "DEV-002",
+              clientSubmissionId:
+                "65000000-0000-4000-8000-000000000002",
+              confirmation:
+                emailConfirmation(),
+              changes: {
+                eventAttendance: {
+                  operation:
+                    "replace",
+                  value: [
+                    "ceremony",
+                  ],
+                },
+              },
+            },
+          );
+
+        assert.equal(
+          revision.response.status,
+          200,
+        );
+        assert.equal(
+          Object.prototype
+            .hasOwnProperty.call(
+              revision.payload.rsvp,
+              "receptionAttendeeDetails",
+            ),
+          false,
+        );
+      },
+    );
+  },
+);
+
+test(
+  "Reception attendance-cardinality change requires a full replacement attendee list",
+  async () => {
+    const rsvpStore =
+      createFixtureStore();
+
+    await withTestServer(
+      standardOptions({
+        rsvpStore,
+      }),
+      async (baseUrl) => {
+        assert.equal(
+          (
+            await submit(
+              baseUrl,
+              dev002ReceptionRequest({
+                clientSubmissionId:
+                  "66000000-0000-4000-8000-000000000001",
+              }),
+            )
+          ).response.status,
+          201,
+        );
+
+        const incomplete =
+          await submit(
+            baseUrl,
+            {
+              inviteCode:
+                "DEV-002",
+              clientSubmissionId:
+                "66000000-0000-4000-8000-000000000002",
+              confirmation:
+                emailConfirmation(),
+              changes: {
+                attendanceTotals: {
+                  operation:
+                    "replace",
+                  value: {
+                    adults21Plus: 3,
+                  },
+                },
+              },
+            },
+          );
+
+        assert.equal(
+          incomplete.response.status,
+          400,
+        );
+
+        const complete =
+          await submit(
+            baseUrl,
+            {
+              inviteCode:
+                "DEV-002",
+              clientSubmissionId:
+                "66000000-0000-4000-8000-000000000003",
+              confirmation:
+                emailConfirmation(),
+              changes: {
+                attendanceTotals: {
+                  operation:
+                    "replace",
+                  value: {
+                    adults21Plus: 3,
+                  },
+                },
+                receptionAttendeeDetails:
+                  {
+                    operation:
+                      "replace",
+                    value: [
+                      {
+                        attendeeName:
+                          "Example Guest 1",
+                      },
+                      {
+                        attendeeName:
+                          "Example Guest 2",
+                      },
+                      {
+                        attendeeName:
+                          "Example Guest 3",
+                      },
+                    ],
+                  },
+              },
+            },
+          );
+
+        assert.equal(
+          complete.response.status,
+          200,
+        );
+        assert.equal(
+          complete.payload.rsvp
+            .overallAttendance,
+          3,
+        );
+        assert.equal(
+          complete.payload.rsvp
+            .receptionAttendeeDetails
+            .length,
+          3,
+        );
+      },
+    );
+  },
+);
+
+test(
+  "sequential distinct revisions merge against the latest authoritative current RSVP without 409 conflict",
+  async () => {
+    const rsvpStore =
+      createFixtureStore();
+
+    await withTestServer(
+      standardOptions({
+        rsvpStore,
+      }),
+      async (baseUrl) => {
+        assert.equal(
+          (
+            await submit(
+              baseUrl,
+              dev002CeremonyRequest({
+                clientSubmissionId:
+                  "67000000-0000-4000-8000-000000000001",
+              }),
+            )
+          ).response.status,
+          201,
+        );
+
+        for (
+          const [
+            id,
+            total,
+          ] of [
+            [
+              "67000000-0000-4000-8000-000000000002",
+              2,
+            ],
+            [
+              "67000000-0000-4000-8000-000000000003",
+              3,
+            ],
+          ]
+        ) {
+          const revision =
+            await submit(
+              baseUrl,
+              {
+                inviteCode:
+                  "DEV-002",
+                clientSubmissionId:
+                  id,
+                confirmation:
+                  emailConfirmation(),
+                changes: {
+                  attendanceTotals: {
+                    operation:
+                      "replace",
+                    value: {
+                      adults21Plus:
+                        total,
+                    },
+                  },
+                },
+              },
+            );
+
+          assert.equal(
+            revision.response.status,
+            200,
+          );
+          assert.equal(
+            revision.payload.rsvp
+              .overallAttendance,
+            total,
+          );
+        }
+
+        const versions =
+          await rsvpStore
+            .listRsvpVersions(
+              "party-dev-archetype-b",
+            );
+
+        assert.equal(
+          versions.length,
+          3,
+        );
+        assert.deepEqual(
+          versions.map(
+            (version) =>
+              version.action,
+          ),
+          [
+            "initial",
+            "revision",
+            "revision",
+          ],
+        );
+      },
+    );
+  },
+);
+
+test(
+  "lookup remains blank after initial submission and revision",
+  async () => {
+    const rsvpStore =
+      createFixtureStore();
+
+    await withTestServer(
+      standardOptions({
+        rsvpStore,
+      }),
+      async (baseUrl) => {
+        assert.equal(
+          (
+            await submit(
+              baseUrl,
+              dev002CeremonyRequest({
+                clientSubmissionId:
+                  "68000000-0000-4000-8000-000000000001",
+              }),
+            )
+          ).response.status,
+          201,
+        );
+
+        assert.equal(
+          (
+            await submit(
+              baseUrl,
+              {
+                inviteCode:
+                  "DEV-002",
+                clientSubmissionId:
+                  "68000000-0000-4000-8000-000000000002",
+                confirmation:
+                  emailConfirmation(),
+                changes: {
+                  attendanceTotals: {
+                    operation:
+                      "replace",
+                    value: {
+                      adults21Plus: 2,
+                    },
+                  },
+                },
+              },
+            )
+          ).response.status,
+          200,
+        );
+
+        const response =
+          await fetch(
+            `${baseUrl}/wedding/api/rsvp/lookup`,
+            {
+              method: "POST",
+              headers: {
+                "content-type":
+                  "application/json",
+              },
+              body: JSON.stringify({
+                inviteCode:
+                  "DEV-002",
+              }),
+            },
+          );
+
+        const payload =
+          await response.json();
+
+        assert.equal(
+          response.status,
+          200,
+        );
+        assert.deepEqual(
+          Object.keys(payload),
+          [
+            "invitation",
+            "questions",
+            "confirmationOptions",
+          ],
+        );
+
+        const serialized =
+          JSON.stringify(payload);
+
+        for (
+          const forbidden of [
+            "overallAttendance",
+            "recordedAt",
+            "version",
+            "guest@example.com",
+          ]
+        ) {
+          assert.equal(
+            serialized.includes(
+              forbidden,
+            ),
+            false,
+          );
+        }
+      },
+    );
+  },
+);
+
+test(
+  "revision replay is idempotent and creates no duplicate version or delivery attempt",
+  async () => {
+    const rsvpStore =
+      createFixtureStore();
+    let deliveryCount = 0;
+
+    const deliveryService = {
+      async deliver() {
+        deliveryCount += 1;
+
+        return {
+          guestDeliveryStatus:
+            "sent",
+          administrativeDeliveryStatus:
+            "sent",
+        };
+      },
+    };
+
+    await withTestServer(
+      standardOptions({
+        rsvpStore,
+        deliveryService,
+      }),
+      async (baseUrl) => {
+        assert.equal(
+          (
+            await submit(
+              baseUrl,
+              dev002CeremonyRequest({
+                clientSubmissionId:
+                  "69000000-0000-4000-8000-000000000001",
+              }),
+            )
+          ).response.status,
+          201,
+        );
+
+        const revisionBody = {
+          inviteCode:
+            "DEV-002",
+          clientSubmissionId:
+            "69000000-0000-4000-8000-000000000002",
+          confirmation:
+            emailConfirmation(),
+          changes: {
+            attendanceTotals: {
+              operation:
+                "replace",
+              value: {
+                adults21Plus: 2,
+              },
+            },
+          },
+        };
+
+        const first =
+          await submit(
+            baseUrl,
+            revisionBody,
+          );
+        const replay =
+          await submit(
+            baseUrl,
+            revisionBody,
+          );
+
+        assert.equal(
+          first.response.status,
+          200,
+        );
+        assert.equal(
+          first.payload.submission
+            .action,
+          "revision",
+        );
+        assert.equal(
+          replay.response.status,
+          200,
+        );
+        assert.equal(
+          replay.payload.submission
+            .idempotentRepeat,
+          true,
+        );
+        assert.equal(
+          replay.payload.submission
+            .action,
+          "revision",
+        );
+        assert.equal(
+          (
+            await rsvpStore
+              .listRsvpVersions(
+                "party-dev-archetype-b",
+              )
+          ).length,
+          2,
+        );
+        assert.equal(
+          deliveryCount,
+          2,
+        );
+        assert.equal(
+          (
+            await rsvpStore
+              .listDeliveryRecords(
+                "party-dev-archetype-b",
+              )
+          ).length,
+          2,
+        );
+      },
+    );
+  },
+);
+
+test(
+  "new revision at the deadline returns 410 and preserves the previously stored current RSVP",
+  async () => {
+    const rsvpStore =
+      createFixtureStore();
+
+    let currentNow =
+      OPEN_NOW;
+
+    await withTestServer(
+      standardOptions({
+        rsvpStore,
+        now: () => currentNow,
+      }),
+      async (baseUrl) => {
+        assert.equal(
+          (
+            await submit(
+              baseUrl,
+              dev002CeremonyRequest({
+                clientSubmissionId:
+                  "70000000-0000-4000-8000-000000000001",
+              }),
+            )
+          ).response.status,
+          201,
+        );
+
+        currentNow =
+          new Date(
+            "2027-03-01T23:59:00-05:00",
+          );
+
+        const revision =
+          await submit(
+            baseUrl,
+            {
+              inviteCode:
+                "DEV-002",
+              clientSubmissionId:
+                "70000000-0000-4000-8000-000000000002",
+              confirmation:
+                emailConfirmation(),
+              changes: {},
+            },
+          );
+
+        assert.equal(
+          revision.response.status,
+          410,
+        );
+        assert.equal(
+          (
+            await rsvpStore
+              .listRsvpVersions(
+                "party-dev-archetype-b",
+              )
+          ).length,
+          1,
+        );
+        assert.equal(
+          (
+            await rsvpStore
+              .getCurrentRsvp(
+                "party-dev-archetype-b",
+              )
+          ).version,
+          1,
+        );
+      },
+    );
+  },
+);

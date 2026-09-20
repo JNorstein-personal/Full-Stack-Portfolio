@@ -628,6 +628,481 @@ function parseReceptionAttendeeDetails(
   );
 }
 
+
+function parseRevisionAdditionalGuestResponses(
+  operation,
+  allocations,
+  currentResponses,
+  newlyApplicable,
+) {
+  if (allocations.length === 0) {
+    if (operation !== undefined) {
+      return invalid(
+        403,
+        "additional-guests-not-authorized",
+      );
+    }
+
+    return valid(undefined);
+  }
+
+  if (newlyApplicable) {
+    return parseAdditionalGuestResponses(
+      operation,
+      allocations,
+    );
+  }
+
+  if (operation === undefined) {
+    if (
+      !isPlainObject(currentResponses)
+    ) {
+      return invalid(
+        400,
+        "invalid-stored-additional-guest-responses",
+      );
+    }
+
+    return valid(
+      Object.freeze({
+        ...currentResponses,
+      }),
+    );
+  }
+
+  const parsed =
+    parseReplaceOperation(
+      operation,
+    );
+
+  if (!parsed.ok) {
+    return parsed;
+  }
+
+  if (
+    !isPlainObject(parsed.value) ||
+    Object.keys(parsed.value).length === 0
+  ) {
+    return invalid(
+      400,
+      "invalid-additional-guest-responses",
+    );
+  }
+
+  const authorizedIds =
+    new Set(
+      allocations.map(
+        (allocation) =>
+          allocation.id,
+      ),
+    );
+
+  for (
+    const [
+      suppliedId,
+      response,
+    ] of Object.entries(
+      parsed.value,
+    )
+  ) {
+    if (
+      !authorizedIds.has(
+        suppliedId,
+      )
+    ) {
+      return invalid(
+        403,
+        "allocation-not-authorized",
+      );
+    }
+
+    if (
+      response !== "yes" &&
+      response !== "no"
+    ) {
+      return invalid(
+        400,
+        "invalid-additional-guest-response",
+      );
+    }
+  }
+
+  const merged = {
+    ...currentResponses,
+    ...parsed.value,
+  };
+
+  for (
+    const allocation of
+    allocations
+  ) {
+    if (
+      merged[allocation.id] !==
+        "yes" &&
+      merged[allocation.id] !==
+        "no"
+    ) {
+      return invalid(
+        400,
+        "incomplete-additional-guest-responses",
+      );
+    }
+  }
+
+  return valid(
+    Object.freeze(merged),
+  );
+}
+
+function parseRevisionAttendanceTotals(
+  operation,
+  currentTotals,
+  maximumAttendance,
+  newlyApplicable,
+) {
+  if (newlyApplicable) {
+    return parseAttendanceTotals(
+      operation,
+      maximumAttendance,
+    );
+  }
+
+  if (operation === undefined) {
+    if (!isPlainObject(currentTotals)) {
+      return invalid(
+        400,
+        "invalid-stored-attendance-totals",
+      );
+    }
+
+    const syntheticOperation = {
+      operation: "replace",
+      value: currentTotals,
+    };
+
+    return parseAttendanceTotals(
+      syntheticOperation,
+      maximumAttendance,
+    );
+  }
+
+  const parsed =
+    parseReplaceOperation(
+      operation,
+    );
+
+  if (!parsed.ok) {
+    return parsed;
+  }
+
+  if (
+    !isPlainObject(parsed.value) ||
+    Object.keys(parsed.value).length === 0 ||
+    Object.keys(parsed.value).some(
+      (key) =>
+        !ATTENDANCE_TOTAL_KEYS.includes(
+          key,
+        ),
+    )
+  ) {
+    return invalid(
+      400,
+      "invalid-attendance-totals",
+    );
+  }
+
+  const merged = {
+    ...currentTotals,
+  };
+
+  for (
+    const [
+      key,
+      value,
+    ] of Object.entries(
+      parsed.value,
+    )
+  ) {
+    if (
+      !Number.isInteger(value) ||
+      value < 0
+    ) {
+      return invalid(
+        400,
+        "invalid-attendance-totals",
+      );
+    }
+
+    merged[key] = value;
+  }
+
+  return parseAttendanceTotals(
+    {
+      operation: "replace",
+      value: merged,
+    },
+    maximumAttendance,
+  );
+}
+
+function validateRevisionChanges(
+  changes,
+  invitation,
+  currentRsvp,
+) {
+  for (
+    const key of
+    Object.keys(changes)
+  ) {
+    if (
+      !SUBSTANTIVE_REGION_IDS
+        .includes(key)
+    ) {
+      return invalid(
+        403,
+        "substantive-region-not-authorized",
+      );
+    }
+  }
+
+  if (
+    !currentRsvp ||
+    !Array.isArray(
+      currentRsvp.eventAttendance,
+    )
+  ) {
+    return invalid(
+      400,
+      "invalid-current-rsvp",
+    );
+  }
+
+  let eventAttendance =
+    currentRsvp.eventAttendance;
+
+  if (
+    changes.eventAttendance !==
+    undefined
+  ) {
+    const attendance =
+      parseEventAttendance(
+        changes.eventAttendance,
+      );
+
+    if (!attendance.ok) {
+      return attendance;
+    }
+
+    eventAttendance =
+      attendance.value;
+  }
+
+  const wasDecline =
+    currentRsvp.eventAttendance
+      .length === 1 &&
+    currentRsvp.eventAttendance[0] ===
+      "decline";
+
+  const isDecline =
+    eventAttendance.length === 1 &&
+    eventAttendance[0] ===
+      "decline";
+
+  if (isDecline) {
+    if (
+      changes
+        .receptionAttendeeDetails !==
+      undefined
+    ) {
+      return invalid(
+        403,
+        "reception-details-not-authorized",
+      );
+    }
+
+    if (
+      changes
+        .additionalGuestResponses !==
+        undefined ||
+      changes.attendanceTotals !==
+        undefined
+    ) {
+      return invalid(
+        400,
+        "decline-has-attendance-dependent-data",
+      );
+    }
+
+    return valid(
+      Object.freeze({
+        eventAttendance:
+          Object.freeze([
+            "decline",
+          ]),
+      }),
+    );
+  }
+
+  const guestResponses =
+    parseRevisionAdditionalGuestResponses(
+      changes
+        .additionalGuestResponses,
+      invitation
+        .additionalGuestAllocations,
+      currentRsvp
+        .additionalGuestResponses,
+      wasDecline,
+    );
+
+  if (!guestResponses.ok) {
+    return guestResponses;
+  }
+
+  const totals =
+    parseRevisionAttendanceTotals(
+      changes.attendanceTotals,
+      currentRsvp
+        .attendanceTotals,
+      invitation.maximumAttendance,
+      wasDecline,
+    );
+
+  if (!totals.ok) {
+    return totals;
+  }
+
+  const yesCount =
+    guestResponses.value
+      ? Object.values(
+          guestResponses.value,
+        ).filter(
+          (value) =>
+            value === "yes",
+        ).length
+      : 0;
+
+  if (
+    yesCount >
+    totals.value
+      .overallAttendance
+  ) {
+    return invalid(
+      400,
+      "additional-guests-exceed-attendance",
+    );
+  }
+
+  const includedReceptionBefore =
+    currentRsvp
+      .eventAttendance
+      .includes("reception");
+
+  const includesReception =
+    eventAttendance.includes(
+      "reception",
+    );
+
+  let receptionAttendeeDetails;
+
+  if (!includesReception) {
+    if (
+      changes
+        .receptionAttendeeDetails !==
+      undefined
+    ) {
+      return invalid(
+        403,
+        "reception-details-not-authorized",
+      );
+    }
+  } else {
+    const attendanceChanged =
+      currentRsvp
+        .overallAttendance !==
+      totals.value
+        .overallAttendance;
+
+    const replacementRequired =
+      wasDecline ||
+      !includedReceptionBefore ||
+      attendanceChanged;
+
+    if (
+      changes
+        .receptionAttendeeDetails ===
+        undefined
+    ) {
+      if (replacementRequired) {
+        return invalid(
+          400,
+          "missing-reception-attendee-details",
+        );
+      }
+
+      const storedDetails =
+        parseReceptionAttendeeDetails(
+          {
+            operation:
+              "replace",
+            value:
+              currentRsvp
+                .receptionAttendeeDetails,
+          },
+          totals.value
+            .overallAttendance,
+        );
+
+      if (!storedDetails.ok) {
+        return storedDetails;
+      }
+
+      receptionAttendeeDetails =
+        storedDetails.value;
+    } else {
+      const replacement =
+        parseReceptionAttendeeDetails(
+          changes
+            .receptionAttendeeDetails,
+          totals.value
+            .overallAttendance,
+        );
+
+      if (!replacement.ok) {
+        return replacement;
+      }
+
+      receptionAttendeeDetails =
+        replacement.value;
+    }
+  }
+
+  return valid(
+    Object.freeze({
+      eventAttendance:
+        Object.freeze([
+          ...eventAttendance,
+        ]),
+      ...(guestResponses.value
+        ? {
+            additionalGuestResponses:
+              guestResponses.value,
+          }
+        : {}),
+      attendanceTotals:
+        totals.value
+          .attendanceTotals,
+      overallAttendance:
+        totals.value
+          .overallAttendance,
+      ...(receptionAttendeeDetails
+        ? {
+            receptionAttendeeDetails,
+          }
+        : {}),
+    }),
+  );
+}
+
 function validateInitialChanges(
   changes,
   invitation,
@@ -824,4 +1299,5 @@ module.exports = {
   parseConfirmation,
   parseSubmitRequest,
   validateInitialChanges,
+  validateRevisionChanges,
 };

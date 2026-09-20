@@ -5,6 +5,7 @@ const {
   parseConfirmation,
   parseSubmitRequest,
   validateInitialChanges,
+  validateRevisionChanges,
 } = require("../src/validation/submit");
 
 const invitation = Object.freeze({
@@ -602,6 +603,475 @@ test(
 
     assert.equal(
       result.status,
+      403,
+    );
+  },
+);
+
+
+function makeCurrentReceptionRsvp() {
+  return {
+    eventAttendance: [
+      "ceremony",
+      "reception",
+    ],
+    additionalGuestResponses: {
+      "plus1-example-a":
+        "yes",
+    },
+    attendanceTotals: {
+      adults21Plus: 2,
+      youngAdults18To20: 0,
+      children3To17: 1,
+      childrenUnder3: 0,
+    },
+    overallAttendance: 3,
+    receptionAttendeeDetails: [
+      {
+        attendeeName:
+          "Example Guest",
+        dietaryPreferences:
+          "",
+      },
+      {
+        attendeeName:
+          "Example Companion",
+        dietaryPreferences:
+          "Vegetarian",
+      },
+      {
+        attendeeName:
+          "Example Child",
+        dietaryPreferences:
+          "",
+      },
+    ],
+  };
+}
+
+test(
+  "revision with no substantive changes preserves the complete current substantive state",
+  () => {
+    const current =
+      makeCurrentReceptionRsvp();
+
+    const result =
+      validateRevisionChanges(
+        {},
+        invitation,
+        current,
+      );
+
+    assert.equal(
+      result.ok,
+      true,
+    );
+    assert.deepEqual(
+      result.value,
+      current,
+    );
+  },
+);
+
+test(
+  "revision partially replaces attendance totals and treats explicit zero as a replacement",
+  () => {
+    const current =
+      makeCurrentReceptionRsvp();
+
+    const result =
+      validateRevisionChanges(
+        {
+          attendanceTotals:
+            replace({
+              children3To17: 0,
+            }),
+          receptionAttendeeDetails:
+            replace([
+              {
+                attendeeName:
+                  "Example Guest",
+                dietaryPreferences:
+                  "",
+              },
+              {
+                attendeeName:
+                  "Example Companion",
+                dietaryPreferences:
+                  "Vegetarian",
+              },
+            ]),
+        },
+        invitation,
+        current,
+      );
+
+    assert.equal(
+      result.ok,
+      true,
+    );
+    assert.deepEqual(
+      result.value
+        .attendanceTotals,
+      {
+        adults21Plus: 2,
+        youngAdults18To20: 0,
+        children3To17: 0,
+        childrenUnder3: 0,
+      },
+    );
+    assert.equal(
+      result.value
+        .overallAttendance,
+      2,
+    );
+  },
+);
+
+test(
+  "revision partially replaces authorized Plus1 responses while preserving omitted allocations",
+  () => {
+    const multiInvitation = {
+      maximumAttendance: 4,
+      additionalGuestAllocations: [
+        {
+          id:
+            "plus1-example-a",
+        },
+        {
+          id:
+            "plus1-example-b",
+        },
+      ],
+    };
+
+    const current = {
+      eventAttendance: [
+        "ceremony",
+      ],
+      additionalGuestResponses: {
+        "plus1-example-a":
+          "yes",
+        "plus1-example-b":
+          "no",
+      },
+      attendanceTotals: {
+        adults21Plus: 2,
+        youngAdults18To20: 0,
+        children3To17: 0,
+        childrenUnder3: 0,
+      },
+      overallAttendance: 2,
+    };
+
+    const result =
+      validateRevisionChanges(
+        {
+          additionalGuestResponses:
+            replace({
+              "plus1-example-b":
+                "yes",
+            }),
+        },
+        multiInvitation,
+        current,
+      );
+
+    assert.equal(
+      result.ok,
+      true,
+    );
+    assert.deepEqual(
+      result.value
+        .additionalGuestResponses,
+      {
+        "plus1-example-a":
+          "yes",
+        "plus1-example-b":
+          "yes",
+      },
+    );
+  },
+);
+
+test(
+  "revision to full decline automatically clears attendance-dependent substantive data",
+  () => {
+    const result =
+      validateRevisionChanges(
+        {
+          eventAttendance:
+            replace([
+              "decline",
+            ]),
+        },
+        invitation,
+        makeCurrentReceptionRsvp(),
+      );
+
+    assert.deepEqual(
+      result,
+      {
+        ok: true,
+        value: {
+          eventAttendance: [
+            "decline",
+          ],
+        },
+      },
+    );
+  },
+);
+
+test(
+  "decline-to-attending revision requires all newly applicable attendance data",
+  () => {
+    const current = {
+      eventAttendance: [
+        "decline",
+      ],
+    };
+
+    assert.equal(
+      validateRevisionChanges(
+        {
+          eventAttendance:
+            replace([
+              "ceremony",
+            ]),
+        },
+        invitation,
+        current,
+      ).status,
+      400,
+    );
+
+    const validResult =
+      validateRevisionChanges(
+        {
+          eventAttendance:
+            replace([
+              "ceremony",
+            ]),
+          additionalGuestResponses:
+            replace({
+              "plus1-example-a":
+                "no",
+            }),
+          attendanceTotals:
+            replace({
+              adults21Plus: 1,
+              youngAdults18To20: 0,
+              children3To17: 0,
+              childrenUnder3: 0,
+            }),
+        },
+        invitation,
+        current,
+      );
+
+    assert.equal(
+      validResult.ok,
+      true,
+    );
+  },
+);
+
+test(
+  "adding Reception newly requires a complete attendee-detail replacement",
+  () => {
+    const current = {
+      eventAttendance: [
+        "ceremony",
+      ],
+      additionalGuestResponses: {
+        "plus1-example-a":
+          "no",
+      },
+      attendanceTotals: {
+        adults21Plus: 1,
+        youngAdults18To20: 0,
+        children3To17: 0,
+        childrenUnder3: 0,
+      },
+      overallAttendance: 1,
+    };
+
+    assert.equal(
+      validateRevisionChanges(
+        {
+          eventAttendance:
+            replace([
+              "ceremony",
+              "reception",
+            ]),
+        },
+        invitation,
+        current,
+      ).status,
+      400,
+    );
+
+    assert.equal(
+      validateRevisionChanges(
+        {
+          eventAttendance:
+            replace([
+              "ceremony",
+              "reception",
+            ]),
+          receptionAttendeeDetails:
+            replace([
+              {
+                attendeeName:
+                  "Example Guest",
+              },
+            ]),
+        },
+        invitation,
+        current,
+      ).ok,
+      true,
+    );
+  },
+);
+
+test(
+  "removing Reception clears stored attendee details automatically",
+  () => {
+    const result =
+      validateRevisionChanges(
+        {
+          eventAttendance:
+            replace([
+              "ceremony",
+            ]),
+        },
+        invitation,
+        makeCurrentReceptionRsvp(),
+      );
+
+    assert.equal(
+      result.ok,
+      true,
+    );
+    assert.equal(
+      Object.prototype
+        .hasOwnProperty.call(
+          result.value,
+          "receptionAttendeeDetails",
+        ),
+      false,
+    );
+  },
+);
+
+test(
+  "changing overall attendance while Reception remains selected requires a complete attendee-detail replacement",
+  () => {
+    const current =
+      makeCurrentReceptionRsvp();
+
+    const result =
+      validateRevisionChanges(
+        {
+          attendanceTotals:
+            replace({
+              children3To17: 0,
+            }),
+        },
+        invitation,
+        current,
+      );
+
+    assert.equal(
+      result.status,
+      400,
+    );
+  },
+);
+
+test(
+  "Reception revision with unchanged overall attendance may omit attendee details and preserve them",
+  () => {
+    const current =
+      makeCurrentReceptionRsvp();
+
+    const result =
+      validateRevisionChanges(
+        {
+          additionalGuestResponses:
+            replace({
+              "plus1-example-a":
+                "no",
+            }),
+        },
+        invitation,
+        current,
+      );
+
+    assert.equal(
+      result.ok,
+      true,
+    );
+    assert.deepEqual(
+      result.value
+        .receptionAttendeeDetails,
+      current
+        .receptionAttendeeDetails,
+    );
+  },
+);
+
+test(
+  "revision rejects unauthorized allocation IDs and Reception details in a non-Reception resulting state",
+  () => {
+    const current = {
+      eventAttendance: [
+        "ceremony",
+      ],
+      additionalGuestResponses: {
+        "plus1-example-a":
+          "no",
+      },
+      attendanceTotals: {
+        adults21Plus: 1,
+        youngAdults18To20: 0,
+        children3To17: 0,
+        childrenUnder3: 0,
+      },
+      overallAttendance: 1,
+    };
+
+    assert.equal(
+      validateRevisionChanges(
+        {
+          additionalGuestResponses:
+            replace({
+              "unknown-allocation":
+                "yes",
+            }),
+        },
+        invitation,
+        current,
+      ).status,
+      403,
+    );
+
+    assert.equal(
+      validateRevisionChanges(
+        {
+          receptionAttendeeDetails:
+            replace([
+              {
+                attendeeName:
+                  "Example Guest",
+              },
+            ]),
+        },
+        invitation,
+        current,
+      ).status,
       403,
     );
   },

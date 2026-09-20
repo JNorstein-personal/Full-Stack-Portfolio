@@ -11,6 +11,7 @@ const {
 const {
   parseConfirmation,
   validateInitialChanges,
+  validateRevisionChanges,
 } = require("../validation/submit");
 
 const RSVP_ASSISTANCE_EMAIL =
@@ -153,6 +154,7 @@ function buildSuccessResponse({
   confirmation,
   recordedAt,
   delivery,
+  action,
   idempotentRepeat,
 }) {
   const deliveryWarning =
@@ -165,7 +167,7 @@ function buildSuccessResponse({
   return {
     submission: {
       recorded: true,
-      action: "initial",
+      action,
       idempotentRepeat,
       recordedAt,
     },
@@ -351,18 +353,22 @@ function createRsvpSubmissionService({
             invitation.partyId,
           );
 
-      if (current) {
-        return {
-          status:
-            "revisionDeferred",
-        };
-      }
+      const action =
+        current
+          ? "revision"
+          : "initial";
 
       const substantive =
-        validateInitialChanges(
-          request.changes,
-          invitation,
-        );
+        current
+          ? validateRevisionChanges(
+              request.changes,
+              invitation,
+              current,
+            )
+          : validateInitialChanges(
+              request.changes,
+              invitation,
+            );
 
       if (!substantive.ok) {
         return {
@@ -388,14 +394,17 @@ function createRsvpSubmissionService({
         timeZone:
           environment
             .RSVP_TIME_ZONE,
-        version: 1,
+        version:
+          current
+            ? current.version + 1
+            : 1,
       };
 
       await rsvpStore
         .appendRsvpVersion(
           invitation.partyId,
           {
-            action: "initial",
+            action,
             ...storedRsvp,
           },
         );
@@ -434,6 +443,7 @@ function createRsvpSubmissionService({
             confirmation.value,
           recordedAt,
           delivery,
+          action,
           idempotentRepeat:
             false,
         });
@@ -463,7 +473,10 @@ function createRsvpSubmissionService({
 
       return {
         status: "success",
-        httpStatus: 201,
+        httpStatus:
+          action === "initial"
+            ? 201
+            : 200,
         response,
       };
     },
