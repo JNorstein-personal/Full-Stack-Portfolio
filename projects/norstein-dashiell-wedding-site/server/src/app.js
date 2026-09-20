@@ -8,17 +8,31 @@ const {
 const {
   createRsvpRouter,
   INVALID_INVITATION_RESPONSE,
+  INVALID_SUBMISSION_RESPONSE,
 } = require("./routes/rsvp");
+const {
+  loadDevelopmentInvitationFixtures,
+} = require("./rsvp/developmentInvitations");
 const {
   loadReusableRsvpQuestions,
 } = require("./rsvp/formSchemas");
 const {
-  createDevelopmentInvitationSource,
+  createDeferredDeliveryService,
+} = require("./services/deliveryService");
+const {
   createInvitationService,
-  createUnavailableInvitationSource,
 } = require("./services/invitationService");
+const {
+  createRsvpSubmissionService,
+} = require("./services/rsvpSubmissionService");
+const {
+  createDevelopmentStore,
+} = require("./services/storage/developmentStore");
+const {
+  createUnavailableStore,
+} = require("./services/storage/unavailableStore");
 
-function createDefaultInvitationSource(
+function createDefaultRsvpStore(
   environment,
 ) {
   if (
@@ -26,18 +40,41 @@ function createDefaultInvitationSource(
       "development" ||
     environment.NODE_ENV === "test"
   ) {
-    return createDevelopmentInvitationSource({
-      runtimeEnvironment:
-        environment.NODE_ENV,
+    const registry =
+      loadDevelopmentInvitationFixtures({
+        runtimeEnvironment:
+          environment.NODE_ENV,
+      });
+
+    return createDevelopmentStore({
+      invitations:
+        registry.fixtures,
     });
   }
 
-  return createUnavailableInvitationSource();
+  return createUnavailableStore();
+}
+
+function createInvitationSourceFromStore(
+  rsvpStore,
+) {
+  return Object.freeze({
+    async findByCanonicalCode(
+      canonicalCode,
+    ) {
+      return rsvpStore
+        .findInvitationByCanonicalCode(
+          canonicalCode,
+        );
+    },
+  });
 }
 
 function createApp({
   environment,
   invitationSource,
+  rsvpStore,
+  deliveryService,
   questions,
   now,
 } = {}) {
@@ -71,11 +108,14 @@ function createApp({
         error.type ===
           "entity.parse.failed"
       ) {
+        const response =
+          req.path === "/submit"
+            ? INVALID_SUBMISSION_RESPONSE
+            : INVALID_INVITATION_RESPONSE;
+
         return res
           .status(400)
-          .json(
-            INVALID_INVITATION_RESPONSE,
-          );
+          .json(response);
       }
 
       return next(error);
@@ -105,10 +145,16 @@ function createApp({
     },
   );
 
+  const effectiveRsvpStore =
+    rsvpStore ||
+    createDefaultRsvpStore(
+      environment,
+    );
+
   const effectiveInvitationSource =
     invitationSource ||
-    createDefaultInvitationSource(
-      environment,
+    createInvitationSourceFromStore(
+      effectiveRsvpStore,
     );
 
   const invitationService =
@@ -124,10 +170,26 @@ function createApp({
       ? loadReusableRsvpQuestions()
       : questions;
 
+  const effectiveDeliveryService =
+    deliveryService ||
+    createDeferredDeliveryService();
+
+  const submissionService =
+    createRsvpSubmissionService({
+      invitationService,
+      rsvpStore:
+        effectiveRsvpStore,
+      deliveryService:
+        effectiveDeliveryService,
+      environment,
+      now,
+    });
+
   app.use(
     "/wedding/api/rsvp",
     createRsvpRouter({
       invitationService,
+      submissionService,
       environment,
       questions:
         effectiveQuestions,

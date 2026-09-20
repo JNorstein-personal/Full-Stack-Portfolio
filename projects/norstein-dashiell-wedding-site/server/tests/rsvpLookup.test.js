@@ -97,7 +97,7 @@ function standardOptions(
 }
 
 test(
-  "valid lookup returns only the Step 4 three-property blank-form boundary",
+  "valid lookup returns the completed three-property blank-form boundary",
   async () => {
     await withTestServer(
       standardOptions(),
