@@ -4559,6 +4559,9 @@ The checkpoint must also confirm that:
 * Development/test records are separated from production and no placeholder is required merely to reach a historical count of 58.
 * Production uses only one mutation-capable RSVP backend instance while Google Sheets remains the persistence adapter.
 * Failure-injection tests confirm recovery from interrupted RSVP persistence and ambiguous delivery completion without duplicate versions or automatic duplicate confirmations.
+* The guarded production invitation activation has completed successfully with exactly 57 production configurations.
+* Independent post-load verification confirms that the five RSVP operational tables remain empty before guest-facing production activation.
+* A private pre-load six-tab snapshot exists outside source control for rollback/recovery if needed.
 ---
 
 ## CI-ADMIN-013 — Hotel-Block Record
@@ -4711,7 +4714,7 @@ The procedure must specifically document:
 The repeatable private procedure or configuration-generation process that transforms the authoritative `Invitees List` spreadsheet into production invitation-party configuration records.
 
 **Status:**
-Draft needed
+Ready
 
 **Source or Owner:**
 Decision 023; production invitation requirements; application
@@ -4761,9 +4764,17 @@ Yes
 * No required active production placeholder.
 
 **Notes:**
-The process must be repeatable so that a controlled update to the private source can regenerate or update configuration records without copying production data into the public React application.
+The process is implemented as a guarded production-maintenance workflow. A read-only readiness command audits the private source, verifies the Google Sheets store schema, and requires all five RSVP operational tables to be empty before first production activation.
 
-The procedure, generated production configuration, real codes, guest identities, and source-to-guest/allocation mappings remain private and outside public source control and frontend build output.
+The guarded production loader requires explicit operator acknowledgement. Before modifying `Invitations`, it creates a private six-tab RSVP-store snapshot in the ignored private working area (or another explicitly supplied private backup directory). It then replaces only the `Invitations` rows, verifies the resulting private workbook invitation configurations exactly against the authoritative transformed source, and confirms that all non-invitation RSVP tables are unchanged. If activation or post-write verification fails after snapshot creation, the loader attempts to restore the prior `Invitations` rows from the in-memory pre-load snapshot.
+
+An independent post-load verification command repeats the source audit, schema check, exact invitation match, and empty-operational-table checks without modifying the workbook.
+
+On September 20, 2026, the production activation workflow completed successfully: the source audit returned 57 active invitation configurations, the guarded load reported 57 records, the independent verifier confirmed 57 production invitations, and the operational RSVP tables remained empty. A private pre-load snapshot was created successfully.
+
+The procedure is repeatable so that a controlled update to the private source can regenerate or update configuration records without copying production data into the public React application.
+
+The procedure, generated production configuration, real codes, guest identities, source-to-guest/allocation mappings, workbook identifier, and private snapshot contents remain private and outside public source control and frontend build output.
 ---
 
 # Content Excluded from the Website

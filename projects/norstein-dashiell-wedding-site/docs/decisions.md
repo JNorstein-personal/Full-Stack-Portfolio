@@ -4612,3 +4612,43 @@ Final
 
 Date:
 9/20/2026
+
+---
+
+## Decision 027 — Guarded Production Invitation Activation
+
+Decision:
+
+Production invitation configuration must be activated through a controlled maintenance workflow rather than by manually editing the RSVP workbook or running an unverified destructive script.
+
+The activation workflow is:
+
+1. Run a read-only production readiness gate that validates the authoritative private source, exact Google Sheets store schema, and empty RSVP operational tables.
+2. Require an explicit destructive-write acknowledgement before changing production invitation configuration.
+3. Capture a private pre-load snapshot of all RSVP store sections before the first workbook write.
+4. Replace only the `Invitations` configuration rows.
+5. Compare the resulting private invitation rows exactly with the transformed authoritative source.
+6. Confirm that all non-invitation RSVP operational tables remain unchanged.
+7. If the guarded write or post-write verification fails after snapshot creation, attempt to restore the prior `Invitations` rows.
+8. Run a separate read-only post-load verification before any guest-facing production RSVP activation.
+
+The private snapshot, workbook identifier, invitation codes, guest identities, source mappings, and generated private configuration remain outside public source control and ordinary logs.
+
+Activation Result:
+
+On September 20, 2026:
+
+* The read-only readiness gate passed with 57 audited source invitation records.
+* The Google Sheets store schema passed verification.
+* Current RSVP, version-history, submission-record, delivery-record, and resend-record tables were empty.
+* The guarded production invitation load completed with 57 records.
+* A private pre-load RSVP-store snapshot was created successfully.
+* Independent post-load verification confirmed exactly 57 production invitation configurations.
+* The five RSVP operational tables remained empty after the invitation load.
+* Guest-facing production RSVP service activation had not yet occurred as part of this step.
+
+Status:
+Final
+
+Date:
+9/20/2026

@@ -923,3 +923,22 @@ The September 20, 2026 live validation satisfied `EMAIL-LIVE-005` and `EMAIL-LIV
 | `RESEND-CLI-009` | Inspect environment handling. | Invitation code and acknowledgement are ephemeral operator inputs and are not required to be persisted in project environment files. | Implemented |
 
 The manual resend CLI is an administrative delivery operation only. It is not a submission, revision, recovery endpoint, or mechanism for editing stored RSVP data.
+
+---
+
+# 33. Production Invitation Activation Tests
+
+| ID | Scenario | Expected result | Status |
+|---|---|---|---|
+| `PROD-ACT-001` | Run production readiness with the authoritative private source and valid workbook schema. | Source audit and schema verification pass without modifying workbook rows. | Live validated |
+| `PROD-ACT-002` | Production readiness finds any row in a non-invitation RSVP operational table. | Readiness fails before invitation activation. | Implemented |
+| `PROD-ACT-003` | Run production invitation loader without exact destructive-write acknowledgement. | Loader refuses to modify the workbook. | Implemented |
+| `PROD-ACT-004` | Run guarded activation after readiness passes. | Private six-tab pre-load snapshot is created before the first invitation write. | Live validated |
+| `PROD-ACT-005` | Replace production invitation configuration. | Only `Invitations` is rewritten; all expected configurations are classified `production`. | Live validated |
+| `PROD-ACT-006` | Verify loaded invitation rows against the transformed authoritative source. | Exact configuration match; exactly 57 production invitations. | Live validated |
+| `PROD-ACT-007` | Compare non-invitation RSVP sections before and after the guarded load. | Current RSVPs, RSVP Versions, Submission Records, Delivery Records, and Resend Records remain unchanged. | Live validated |
+| `PROD-ACT-008` | Post-write verification fails after snapshot creation. | Loader attempts to restore the prior invitation rows and reports failure. | Implemented |
+| `PROD-ACT-009` | Run independent production activation verifier after successful load. | Exactly 57 production invitations match the private source; operational RSVP tables are empty. | Live validated |
+| `PROD-ACT-010` | Inspect ordinary command output and source control after activation. | No real invitation code, guest identity, workbook identifier, source mapping, snapshot content, or credential is exposed. | Required |
+
+The September 20, 2026 controlled activation satisfied the live production-data conditions above while leaving the guest-facing production RSVP service inactive.

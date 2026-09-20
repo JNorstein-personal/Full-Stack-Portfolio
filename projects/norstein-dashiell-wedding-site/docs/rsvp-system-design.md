@@ -3333,3 +3333,73 @@ The CLI prints only safe operational states. It does not print:
 Unknown invitation, environment-ineligible invitation, or invitation without a stored current RSVP produces the same maintenance `NOT FOUND` outcome and no delivery attempt.
 
 Delivery failure or uncertainty is still recorded as a resend attempt. It does not mutate the RSVP or increment its version. A later resend is a new explicit administrator-requested delivery operation.
+
+---
+
+## 30. Implementation Clarification — Production Invitation Data Activation
+
+Production invitation configuration is now staged in the private Google Sheets RSVP store through the guarded activation workflow.
+
+### 30.1 Read-Only Readiness Gate
+
+Before any invitation write, the maintenance workflow verifies:
+
+* `NODE_ENV=production` for the production-only commands.
+* Successful transformation and governing audit of the private authoritative source.
+* Exact Google Sheets RSVP-store headers.
+* Google Sheets access through the configured backend credential path.
+* Empty operational rows in:
+  * `Current RSVPs`
+  * `RSVP Versions`
+  * `Submission Records`
+  * `Delivery Records`
+  * `Resend Records`
+
+The readiness command does not change workbook content.
+
+### 30.2 Pre-Write Snapshot
+
+The guarded invitation loader captures all six RSVP-store sections before modifying `Invitations`.
+
+The snapshot is written to an ignored private working directory by default and may be redirected only to another private operator-controlled path. Its path and contents are not public runtime configuration and are not committed.
+
+The snapshot exists to support controlled recovery of the pre-load invitation state and to preserve evidence that operational RSVP tables were empty immediately before production invitation activation.
+
+### 30.3 Guarded Invitation Replacement
+
+The loader requires the exact ephemeral acknowledgement:
+
+`RSVP_PRODUCTION_ACTIVATION_ACK=WRITE_PRODUCTION_INVITATIONS`
+
+Only the `Invitations` rows are replaced. Production configuration must match the transformed private source and must be explicitly classified as `production`.
+
+After the write, the loader:
+
+* Reads the workbook again.
+* Confirms the invitation count and exact private configuration match.
+* Confirms every written invitation is production-classified.
+* Confirms all five operational RSVP sections are unchanged.
+* Attempts to restore the prior `Invitations` rows if post-write activation verification fails.
+
+### 30.4 Independent Post-Load Verification
+
+A separate read-only command independently repeats:
+
+* Authoritative private source transformation and audit.
+* Google Sheets schema verification.
+* Exact source-to-workbook invitation comparison.
+* Empty-operational-table verification.
+
+This independent command does not rely on the loader's success message as proof of activation.
+
+### 30.5 September 20, 2026 Activation Result
+
+The controlled production activation completed successfully:
+
+* Authoritative source audit: 57 active invitation records.
+* Guarded invitation load: 57 production configurations.
+* Independent verification: 57 production configurations matched the transformed private source.
+* RSVP operational tables: empty.
+* Private pre-load snapshot: created successfully outside source control.
+
+This step stages production invitation configuration only. It does not by itself start the Express production service, expose invitation lookup publicly, submit an RSVP, create an RSVP version, or send a guest/admin confirmation.
