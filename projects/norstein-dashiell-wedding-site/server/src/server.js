@@ -6,10 +6,18 @@ const {
 const {
   createApp,
 } = require("./app");
+const {
+  createConfiguredEmailTransport,
+} = require("./services/resendEmailTransport");
 
 const environment = loadEnvironment();
+const emailTransport =
+  createConfiguredEmailTransport({
+    environment,
+  });
 const app = createApp({
   environment,
+  emailTransport,
 });
 
 app.listen(

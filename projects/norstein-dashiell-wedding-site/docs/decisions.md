@@ -4514,3 +4514,36 @@ Phase 3 Step 14 is complete in this decision log because:
 * HTTPS is mandatory for production RSVP traffic.
 
 These decisions govern the Step 14 revisions to `rsvp-system-design.md`, `rsvp-api-contract.md`, `rsvp-test-cases.md`, and the later privacy-page synchronization documents.
+
+---
+
+## Decision 025 — Production RSVP Email Provider and Sender Identity
+
+Decision:
+
+The production RSVP email-confirmation provider is **Resend**.
+
+The approved public email-sending identity is:
+
+* Sender name: `Norstein-Dashiell Wedding`
+* Sender address: `confirm@rsvp.loreweavercreations.com`
+* Reply-To / assistance address: `RSVPhelp@loreweavercreations.com`
+
+The protected administrative recipient has been confirmed by the couple and must be supplied only through backend secret configuration. Its actual address must not be committed to source control, public documentation, frontend assets, logs, or browser responses.
+
+Implementation Requirements:
+
+* The sending subdomain `rsvp.loreweavercreations.com` must be verified with Resend before production activation.
+* Required Resend DNS authentication records must be configured and verified before guest email delivery is enabled.
+* The Resend API key must remain backend-only and must not be committed.
+* Production startup must fail closed if Resend is selected but its required backend configuration is incomplete.
+* Guest and administrative messages continue to use the provider-neutral delivery boundary defined by Decisions 010 and 017.
+* A successful Resend API acceptance maps to the internal `sent` state. A definite client-side/provider rejection maps to `failed`; server-side, network, or otherwise ambiguous outcomes map to `uncertain`.
+* Text Message confirmation remains disabled and is unaffected by this email-provider decision until the separate SMS production-enablement gate is satisfied.
+
+Status:
+Final
+
+Date:
+9/20/2026
+

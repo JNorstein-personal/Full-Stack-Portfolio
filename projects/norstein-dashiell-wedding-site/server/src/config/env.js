@@ -143,7 +143,14 @@ const environmentSchema = z
 
     EMAIL_PROVIDER: optionalString,
 
+    RESEND_API_KEY: optionalString,
+
+    RSVP_FROM_NAME: optionalString,
+
     RSVP_FROM_EMAIL: optionalEmail,
+
+    RSVP_REPLY_TO_EMAIL:
+      optionalEmail,
 
     SMS_PROVIDER: optionalString,
 
@@ -154,6 +161,36 @@ const environmentSchema = z
     TRUST_PROXY: trustProxySchema,
   })
   .superRefine((environment, context) => {
+    if (
+      environment.EMAIL_PROVIDER &&
+      environment.EMAIL_PROVIDER !==
+        "resend"
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: [
+          "EMAIL_PROVIDER",
+        ],
+        message:
+          "must be resend",
+      });
+    }
+
+    if (
+      environment.EMAIL_PROVIDER ===
+        "resend" &&
+      !environment.RESEND_API_KEY
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: [
+          "RESEND_API_KEY",
+        ],
+        message:
+          "is required when EMAIL_PROVIDER=resend",
+      });
+    }
+
     if (
       environment.RSVP_SMS_ENABLED &&
       !environment.SMS_PROVIDER
@@ -174,7 +211,10 @@ const environmentSchema = z
       "GOOGLE_SPREADSHEET_ID",
       "RSVP_ADMIN_NOTIFICATION_EMAIL",
       "EMAIL_PROVIDER",
+      "RESEND_API_KEY",
+      "RSVP_FROM_NAME",
       "RSVP_FROM_EMAIL",
+      "RSVP_REPLY_TO_EMAIL",
       "ALLOWED_ORIGIN",
       "TRUST_PROXY",
     ];

@@ -4308,7 +4308,7 @@ Development/test fixtures must remain separate from production records and must 
 The protected private email address that receives complete RSVP confirmations after every initial submission and revision.
 
 **Status:**
-Pending confirmation
+Final
 
 **Source or Owner:**
 Couple; Decision 017
@@ -4320,7 +4320,7 @@ Private
 Yes
 
 **Notes:**
-The approved recipient must be maintained in protected backend configuration. The address must not be a public or broadly shared distribution list because each message contains the complete current RSVP, including Reception attendee dietary/allergy information and confirmation-contact information.
+The couple has confirmed the administrative recipient. The actual address is intentionally omitted from this public portfolio artifact and must be maintained only in protected backend configuration. It must not be a public or broadly shared distribution list because each message contains the complete current RSVP, including Reception attendee dietary/allergy information and confirmation-contact information.
 
 ---
 
@@ -4330,7 +4330,7 @@ The approved recipient must be maintained in protected backend configuration. Th
 The public sender identity, reply-to behavior, and assistance wording for guest email and text-message confirmations.
 
 **Status:**
-Pending confirmation
+Email finalized; Text Message pending production SMS gate
 
 **Source or Owner:**
 Couple; Decision 017; delivery providers
@@ -4342,7 +4342,9 @@ Private configuration and guest confirmations
 Yes
 
 **Notes:**
-Confirm the email sender name, email reply-to address, text-message sending identity or number, and the assistance path shown in both channels.
+Production email uses Resend with sender name `Norstein-Dashiell Wedding`, sender address `confirm@rsvp.loreweavercreations.com`, and Reply-To / assistance address `RSVPhelp@loreweavercreations.com`.
+
+The text-message sending identity remains intentionally unresolved while Text Message confirmation is disabled. It must not be invented before the separate SMS-provider disclosure and production-enablement gate is satisfied.
 
 ---
 

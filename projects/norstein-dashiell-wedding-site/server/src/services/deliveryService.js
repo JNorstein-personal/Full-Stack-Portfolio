@@ -47,6 +47,8 @@ function createEmailDeliveryService({
   emailTransport,
   administrativeEmail,
   fromEmail,
+  fromName,
+  replyToEmail,
   assistanceEmail,
 } = {}) {
   const transport =
@@ -73,10 +75,30 @@ function createEmailDeliveryService({
     );
   }
 
+  if (
+    typeof fromName !== "string" ||
+    fromName.trim() === ""
+  ) {
+    throw new Error(
+      "Email delivery requires a sender name.",
+    );
+  }
+
+  if (
+    typeof replyToEmail !== "string" ||
+    replyToEmail.trim() === ""
+  ) {
+    throw new Error(
+      "Email delivery requires a reply-to address.",
+    );
+  }
+
   const adminDestination =
     administrativeEmail.trim();
   const sender =
-    fromEmail.trim();
+    `${fromName.trim()} <${fromEmail.trim()}>`;
+  const replyTo =
+    replyToEmail.trim();
 
   async function sendGuest({
     invitation,
@@ -104,6 +126,7 @@ function createEmailDeliveryService({
           to:
             confirmation.email,
           from: sender,
+          replyTo,
           subject:
             message.subject,
           text: message.text,
@@ -141,6 +164,7 @@ function createEmailDeliveryService({
               to:
                 adminDestination,
               from: sender,
+              replyTo,
               subject:
                 message.subject,
               text: message.text,
@@ -200,6 +224,11 @@ function createConfiguredDeliveryService({
           .RSVP_ADMIN_NOTIFICATION_EMAIL,
       fromEmail:
         environment.RSVP_FROM_EMAIL,
+      fromName:
+        environment.RSVP_FROM_NAME,
+      replyToEmail:
+        environment
+          .RSVP_REPLY_TO_EMAIL,
     });
   }
 

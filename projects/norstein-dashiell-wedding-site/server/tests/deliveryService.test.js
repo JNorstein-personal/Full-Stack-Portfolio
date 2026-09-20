@@ -39,10 +39,51 @@ function makeService(
     },
     administrativeEmail:
       "admin@example.com",
+    fromName:
+      "Example Wedding",
     fromEmail:
       "rsvp@example.com",
+    replyToEmail:
+      "help@example.com",
   });
 }
+
+test(
+  "email delivery service requires sender display name and reply-to configuration",
+  () => {
+    assert.throws(
+      () =>
+        createEmailDeliveryService({
+          emailTransport: {
+            async sendEmail() {},
+          },
+          administrativeEmail:
+            "admin@example.com",
+          fromEmail:
+            "rsvp@example.com",
+          replyToEmail:
+            "help@example.com",
+        }),
+      /sender name/,
+    );
+
+    assert.throws(
+      () =>
+        createEmailDeliveryService({
+          emailTransport: {
+            async sendEmail() {},
+          },
+          administrativeEmail:
+            "admin@example.com",
+          fromName:
+            "Example Wedding",
+          fromEmail:
+            "rsvp@example.com",
+        }),
+      /reply-to address/,
+    );
+  },
+);
 
 test(
   "email delivery service requires transport and protected email configuration",
@@ -54,6 +95,10 @@ test(
             "admin@example.com",
           fromEmail:
             "rsvp@example.com",
+          fromName:
+            "Example Wedding",
+          replyToEmail:
+            "help@example.com",
         }),
       /transport/,
     );
@@ -78,6 +123,10 @@ test(
           },
           administrativeEmail:
             "admin@example.com",
+          fromName:
+            "Example Wedding",
+          replyToEmail:
+            "help@example.com",
         }),
       /sender address/,
     );
@@ -142,7 +191,15 @@ test(
       calls.every(
         (call) =>
           call.from ===
-          "rsvp@example.com",
+          "Example Wedding <rsvp@example.com>",
+      ),
+      true,
+    );
+    assert.equal(
+      calls.every(
+        (call) =>
+          call.replyTo ===
+          "help@example.com",
       ),
       true,
     );
@@ -458,6 +515,10 @@ test(
             "admin@example.com",
           RSVP_FROM_EMAIL:
             "rsvp@example.com",
+          RSVP_FROM_NAME:
+            "Example Wedding",
+          RSVP_REPLY_TO_EMAIL:
+            "help@example.com",
           EMAIL_PROVIDER:
             "fictional-provider",
         },

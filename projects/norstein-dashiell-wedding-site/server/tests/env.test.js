@@ -178,7 +178,10 @@ test(
         GOOGLE_SPREADSHEET_ID: "",
         RSVP_ADMIN_NOTIFICATION_EMAIL: "",
         EMAIL_PROVIDER: "",
+        RESEND_API_KEY: "",
+        RSVP_FROM_NAME: "",
         RSVP_FROM_EMAIL: "",
+        RSVP_REPLY_TO_EMAIL: "",
         SMS_PROVIDER: "",
         ALLOWED_ORIGIN: "",
         TRUST_PROXY: "",
@@ -226,9 +229,15 @@ test(
         RSVP_ADMIN_NOTIFICATION_EMAIL:
           "admin@example.com",
         EMAIL_PROVIDER:
-          "fictional-provider",
+          "resend",
+        RESEND_API_KEY:
+          "re_fictional_test_key",
+        RSVP_FROM_NAME:
+          "Example Wedding",
         RSVP_FROM_EMAIL:
           "rsvp@example.com",
+        RSVP_REPLY_TO_EMAIL:
+          "help@example.com",
         ALLOWED_ORIGIN:
           "https://example.com",
         TRUST_PROXY: "1",
@@ -315,6 +324,58 @@ test(
         unsafeValue,
       ),
       false,
+    );
+  },
+);
+
+
+test(
+  "rejects unsupported email providers without echoing the configured value",
+  () => {
+    const secretLikeProvider =
+      "DO-NOT-ECHO-PROVIDER";
+
+    let error;
+
+    try {
+      parseEnvironment(
+        makeDevelopmentEnvironment({
+          EMAIL_PROVIDER:
+            secretLikeProvider,
+        }),
+      );
+    } catch (caughtError) {
+      error = caughtError;
+    }
+
+    assert.ok(
+      error instanceof Error,
+    );
+    assert.match(
+      error.message,
+      /EMAIL_PROVIDER/,
+    );
+    assert.equal(
+      error.message.includes(
+        secretLikeProvider,
+      ),
+      false,
+    );
+  },
+);
+
+test(
+  "requires a Resend API key whenever the Resend provider is selected",
+  () => {
+    assert.throws(
+      () =>
+        parseEnvironment(
+          makeDevelopmentEnvironment({
+            EMAIL_PROVIDER:
+              "resend",
+          }),
+        ),
+      /RESEND_API_KEY/,
     );
   },
 );
