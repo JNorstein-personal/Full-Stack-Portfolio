@@ -30,13 +30,8 @@ import {
 function RsvpPage() {
   const navigate = useNavigate();
   const [state, setState] =
-    useState(() =>
-      Date.now() >=
-      Date.parse(
-        siteContent.rsvp.deadline.iso,
-      )
-        ? RSVP_STATES.CLOSED
-        : RSVP_STATES.ENTRY_READY,
+    useState(
+      RSVP_STATES.ENTRY_READY,
     );
   const [inviteCode, setInviteCode] =
     useState("");
