@@ -10,6 +10,9 @@ const {
   INVALID_INVITATION_RESPONSE,
 } = require("./routes/rsvp");
 const {
+  loadReusableRsvpQuestions,
+} = require("./rsvp/formSchemas");
+const {
   createDevelopmentInvitationSource,
   createInvitationService,
   createUnavailableInvitationSource,
@@ -116,12 +119,18 @@ function createApp({
         effectiveInvitationSource,
     });
 
+  const effectiveQuestions =
+    questions === undefined
+      ? loadReusableRsvpQuestions()
+      : questions;
+
   app.use(
     "/wedding/api/rsvp",
     createRsvpRouter({
       invitationService,
       environment,
-      questions,
+      questions:
+        effectiveQuestions,
       now,
     }),
   );

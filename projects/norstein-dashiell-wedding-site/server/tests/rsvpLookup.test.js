@@ -91,7 +91,6 @@ function standardOptions(
   return {
     environment:
       makeTestEnvironment(),
-    questions: Object.freeze([]),
     now: () => OPEN_NOW,
     ...overrides,
   };
@@ -133,8 +132,20 @@ test(
           ],
         );
         assert.deepEqual(
-          payload.questions,
-          [],
+          payload.questions.map(
+            (question) =>
+              question.id,
+          ),
+          [
+            "eventAttendance",
+            "additionalGuestResponses",
+            "attendanceTotals",
+            "receptionAttendeeDetails",
+            "confirmationMethod",
+            "confirmationEmail",
+            "confirmationMobile",
+            "smsAuthorization",
+          ],
         );
         assert.deepEqual(
           payload.confirmationOptions,
@@ -410,6 +421,154 @@ test(
             "secret",
           ),
           false,
+        );
+      },
+    );
+  },
+);
+
+test(
+  "all active development invitations receive the same reusable blank-form question schema",
+  async () => {
+    const inviteCodes = [
+      "DEV-001",
+      "DEV-002",
+      "DEV-003",
+      "DEV-004",
+      "DEV-005",
+      "DEV-006",
+      "DEV-007",
+      "DEV-008",
+      "DEV-009",
+      "DEV-010",
+    ];
+
+    await withTestServer(
+      standardOptions(),
+      async (baseUrl) => {
+        let referenceQuestions;
+
+        for (
+          const inviteCode of
+          inviteCodes
+        ) {
+          const {
+            response,
+            payload,
+          } = await lookup(
+            baseUrl,
+            {
+              inviteCode,
+            },
+          );
+
+          assert.equal(
+            response.status,
+            200,
+          );
+
+          if (!referenceQuestions) {
+            referenceQuestions =
+              payload.questions;
+            continue;
+          }
+
+          assert.deepEqual(
+            payload.questions,
+            referenceQuestions,
+          );
+        }
+      },
+    );
+  },
+);
+
+test(
+  "Plus1 variation remains invitation configuration rather than schema variation",
+  async () => {
+    await withTestServer(
+      standardOptions(),
+      async (baseUrl) => {
+        const noAllocation =
+          await lookup(
+            baseUrl,
+            {
+              inviteCode:
+                "DEV-001",
+            },
+          );
+
+        const oneAllocation =
+          await lookup(
+            baseUrl,
+            {
+              inviteCode:
+                "DEV-003",
+            },
+          );
+
+        const multipleAllocations =
+          await lookup(
+            baseUrl,
+            {
+              inviteCode:
+                "DEV-009",
+            },
+          );
+
+        assert.equal(
+          noAllocation.response.status,
+          200,
+        );
+        assert.equal(
+          oneAllocation.response.status,
+          200,
+        );
+        assert.equal(
+          multipleAllocations.response.status,
+          200,
+        );
+
+        assert.deepEqual(
+          noAllocation.payload.questions,
+          oneAllocation.payload.questions,
+        );
+        assert.deepEqual(
+          oneAllocation.payload.questions,
+          multipleAllocations.payload.questions,
+        );
+
+        assert.equal(
+          noAllocation.payload.invitation
+            .additionalGuestAllocations
+            .length,
+          0,
+        );
+        assert.equal(
+          oneAllocation.payload.invitation
+            .additionalGuestAllocations
+            .length,
+          1,
+        );
+        assert.equal(
+          multipleAllocations.payload.invitation
+            .additionalGuestAllocations
+            .length,
+          3,
+        );
+
+        const plusOneQuestion =
+          noAllocation.payload.questions
+            .find(
+              (question) =>
+                question.id ===
+                "additionalGuestResponses",
+            );
+
+        assert.equal(
+          plusOneQuestion
+            .repeatFromInvitationArray,
+          "invitation.additionalGuestAllocations",
         );
       },
     );
