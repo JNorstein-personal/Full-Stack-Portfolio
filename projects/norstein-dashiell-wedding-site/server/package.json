@@ -16,7 +16,9 @@
     "verify:resend-email": "node scripts/verifyResendEmail.js",
     "resend:rsvp-confirmation": "node scripts/manualResend.js",
     "verify:production-rsvp-readiness": "node scripts/verifyProductionRsvpReadiness.js",
-    "verify:production-rsvp-activation": "node scripts/verifyProductionRsvpActivation.js"
+    "verify:production-rsvp-activation": "node scripts/verifyProductionRsvpActivation.js",
+    "verify:production-runtime": "node scripts/verifyProductionRuntime.js",
+    "smoke:production-runtime": "node scripts/smokeProductionRuntime.js"
   },
   "keywords": [],
   "author": "",

@@ -5,8 +5,16 @@ const {
 } = require("./trustProxy");
 
 const PROJECT_SITE_BASE_PATH = "/wedding";
+const PROJECT_PUBLIC_ORIGIN =
+  "https://www.loreweavercreations.com";
 const PROJECT_RSVP_DEADLINE = "2027-03-01T23:59:00-05:00";
 const PROJECT_RSVP_TIME_ZONE = "America/New_York";
+const PROJECT_RSVP_FROM_NAME =
+  "Norstein-Dashiell Wedding";
+const PROJECT_RSVP_FROM_EMAIL =
+  "confirm@rsvp.loreweavercreations.com";
+const PROJECT_RSVP_REPLY_TO_EMAIL =
+  "RSVPhelp@loreweavercreations.com";
 
 function emptyStringToUndefined(value) {
   if (typeof value !== "string") {
@@ -68,6 +76,23 @@ const portSchema = z.preprocess(
   },
   z.number().int().min(1).max(65535),
 );
+
+const writerInstanceCountSchema =
+  z.preprocess(
+    (value) => {
+      if (
+        value === undefined ||
+        value === ""
+      ) {
+        return undefined;
+      }
+
+      return typeof value === "string"
+        ? Number(value)
+        : value;
+    },
+    z.literal(1).optional(),
+  );
 
 const booleanSchema = z.preprocess(
   (value) => {
@@ -152,6 +177,12 @@ const environmentSchema = z
     RSVP_REPLY_TO_EMAIL:
       optionalEmail,
 
+    RSVP_WRITER_INSTANCE_COUNT:
+      writerInstanceCountSchema,
+
+    RSVP_SINGLE_WRITER_LOCK_FILE:
+      optionalString,
+
     SMS_PROVIDER: optionalString,
 
     RSVP_SMS_ENABLED: booleanSchema,
@@ -207,6 +238,67 @@ const environmentSchema = z
       return;
     }
 
+    if (
+      environment.ALLOWED_ORIGIN &&
+      environment.ALLOWED_ORIGIN !==
+        PROJECT_PUBLIC_ORIGIN
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["ALLOWED_ORIGIN"],
+        message:
+          "must match the canonical production origin",
+      });
+    }
+
+    if (
+      environment.RSVP_FROM_NAME &&
+      environment.RSVP_FROM_NAME !==
+        PROJECT_RSVP_FROM_NAME
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["RSVP_FROM_NAME"],
+        message:
+          "must match the approved production sender name",
+      });
+    }
+
+    if (
+      environment.RSVP_FROM_EMAIL &&
+      environment.RSVP_FROM_EMAIL !==
+        PROJECT_RSVP_FROM_EMAIL
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["RSVP_FROM_EMAIL"],
+        message:
+          "must match the approved production sender address",
+      });
+    }
+
+    if (
+      environment.RSVP_REPLY_TO_EMAIL &&
+      environment.RSVP_REPLY_TO_EMAIL !==
+        PROJECT_RSVP_REPLY_TO_EMAIL
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["RSVP_REPLY_TO_EMAIL"],
+        message:
+          "must match the approved production reply-to address",
+      });
+    }
+
+    if (environment.RSVP_SMS_ENABLED) {
+      context.addIssue({
+        code: "custom",
+        path: ["RSVP_SMS_ENABLED"],
+        message:
+          "must remain false until the SMS production gate is completed",
+      });
+    }
+
     const productionRequired = [
       "GOOGLE_SPREADSHEET_ID",
       "RSVP_ADMIN_NOTIFICATION_EMAIL",
@@ -215,6 +307,7 @@ const environmentSchema = z
       "RSVP_FROM_NAME",
       "RSVP_FROM_EMAIL",
       "RSVP_REPLY_TO_EMAIL",
+      "RSVP_WRITER_INSTANCE_COUNT",
       "ALLOWED_ORIGIN",
       "TRUST_PROXY",
     ];
@@ -266,8 +359,12 @@ function loadEnvironment() {
 
 module.exports = {
   PROJECT_SITE_BASE_PATH,
+  PROJECT_PUBLIC_ORIGIN,
   PROJECT_RSVP_DEADLINE,
   PROJECT_RSVP_TIME_ZONE,
+  PROJECT_RSVP_FROM_NAME,
+  PROJECT_RSVP_FROM_EMAIL,
+  PROJECT_RSVP_REPLY_TO_EMAIL,
   parseEnvironment,
   loadEnvironment,
 };

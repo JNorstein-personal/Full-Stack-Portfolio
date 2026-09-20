@@ -8,6 +8,9 @@ const {
   rsvpNoStore,
 } = require("./middleware/cacheControl");
 const {
+  createRsvpOriginGuard,
+} = require("./middleware/originGuard");
+const {
   createRsvpRateLimiters,
 } = require("./middleware/rateLimit");
 const {
@@ -159,6 +162,9 @@ function createApp({
   app.use(
     "/wedding/api/rsvp",
     rsvpNoStore,
+    createRsvpOriginGuard({
+      environment,
+    }),
   );
 
   app.use(express.json());

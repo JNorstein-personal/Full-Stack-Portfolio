@@ -233,13 +233,15 @@ test(
         RESEND_API_KEY:
           "re_fictional_test_key",
         RSVP_FROM_NAME:
-          "Example Wedding",
+          "Norstein-Dashiell Wedding",
         RSVP_FROM_EMAIL:
-          "rsvp@example.com",
+          "confirm@rsvp.loreweavercreations.com",
         RSVP_REPLY_TO_EMAIL:
-          "help@example.com",
+          "RSVPhelp@loreweavercreations.com",
+        RSVP_WRITER_INSTANCE_COUNT:
+          "1",
         ALLOWED_ORIGIN:
-          "https://example.com",
+          "https://www.loreweavercreations.com",
         TRUST_PROXY: "1",
       }),
     );
@@ -376,6 +378,123 @@ test(
           }),
         ),
       /RESEND_API_KEY/,
+    );
+  },
+);
+
+
+test(
+  "production rejects a noncanonical origin",
+  () => {
+    assert.throws(
+      () =>
+        parseEnvironment(
+          makeDevelopmentEnvironment({
+            NODE_ENV:
+              "production",
+            GOOGLE_SPREADSHEET_ID:
+              "fictional-spreadsheet-id",
+            RSVP_ADMIN_NOTIFICATION_EMAIL:
+              "admin@example.com",
+            EMAIL_PROVIDER:
+              "resend",
+            RESEND_API_KEY:
+              "re_fictional_test_key",
+            RSVP_FROM_NAME:
+              "Norstein-Dashiell Wedding",
+            RSVP_FROM_EMAIL:
+              "confirm@rsvp.loreweavercreations.com",
+            RSVP_REPLY_TO_EMAIL:
+              "RSVPhelp@loreweavercreations.com",
+            RSVP_WRITER_INSTANCE_COUNT:
+              "1",
+            ALLOWED_ORIGIN:
+              "https://example.com",
+            TRUST_PROXY: "1",
+          }),
+        ),
+      /ALLOWED_ORIGIN/,
+    );
+  },
+);
+
+test(
+  "production requires exactly one configured writer instance",
+  () => {
+    for (
+      const value of [
+        "",
+        "2",
+      ]
+    ) {
+      assert.throws(
+        () =>
+          parseEnvironment(
+            makeDevelopmentEnvironment({
+              NODE_ENV:
+                "production",
+              GOOGLE_SPREADSHEET_ID:
+                "fictional-spreadsheet-id",
+              RSVP_ADMIN_NOTIFICATION_EMAIL:
+                "admin@example.com",
+              EMAIL_PROVIDER:
+                "resend",
+              RESEND_API_KEY:
+                "re_fictional_test_key",
+              RSVP_FROM_NAME:
+                "Norstein-Dashiell Wedding",
+              RSVP_FROM_EMAIL:
+                "confirm@rsvp.loreweavercreations.com",
+              RSVP_REPLY_TO_EMAIL:
+                "RSVPhelp@loreweavercreations.com",
+              RSVP_WRITER_INSTANCE_COUNT:
+                value,
+              ALLOWED_ORIGIN:
+                "https://www.loreweavercreations.com",
+              TRUST_PROXY: "1",
+            }),
+          ),
+        /RSVP_WRITER_INSTANCE_COUNT/,
+      );
+    }
+  },
+);
+
+test(
+  "production rejects unapproved email identity and enabled SMS",
+  () => {
+    assert.throws(
+      () =>
+        parseEnvironment(
+          makeDevelopmentEnvironment({
+            NODE_ENV:
+              "production",
+            GOOGLE_SPREADSHEET_ID:
+              "fictional-spreadsheet-id",
+            RSVP_ADMIN_NOTIFICATION_EMAIL:
+              "admin@example.com",
+            EMAIL_PROVIDER:
+              "resend",
+            RESEND_API_KEY:
+              "re_fictional_test_key",
+            RSVP_FROM_NAME:
+              "Other Wedding",
+            RSVP_FROM_EMAIL:
+              "confirm@rsvp.loreweavercreations.com",
+            RSVP_REPLY_TO_EMAIL:
+              "RSVPhelp@loreweavercreations.com",
+            RSVP_WRITER_INSTANCE_COUNT:
+              "1",
+            RSVP_SMS_ENABLED:
+              "true",
+            SMS_PROVIDER:
+              "fictional",
+            ALLOWED_ORIGIN:
+              "https://www.loreweavercreations.com",
+            TRUST_PROXY: "1",
+          }),
+        ),
+      /RSVP_FROM_NAME|RSVP_SMS_ENABLED/,
     );
   },
 );
