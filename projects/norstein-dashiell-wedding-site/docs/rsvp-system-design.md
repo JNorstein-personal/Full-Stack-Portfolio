@@ -3271,3 +3271,65 @@ The validation did **not**:
 * Expose the Resend API key or test-recipient address to source control.
 
 This confirms transport readiness only. Production RSVP email delivery remains subject to the later production deployment, secret-management, and end-to-end RSVP activation gates.
+
+---
+
+## 29. Implementation Clarification — Manual Guest Confirmation Resend
+
+The RSVP backend exposes manual guest-confirmation resend only as a protected maintenance CLI. No public or browser-accessible resend route exists.
+
+### 29.1 Invocation Boundary
+
+The command is:
+
+`npm run resend:rsvp-confirmation`
+
+It is enabled only when `NODE_ENV=production`.
+
+Each invocation requires:
+
+* `RSVP_MANUAL_RESEND_INVITE_CODE` — supplied ephemerally by the operator.
+* `RSVP_MANUAL_RESEND_ACK=RESEND_CURRENT_RSVP_CONFIRMATION` — the exact explicit acknowledgement.
+
+These maintenance-only values are not persisted in `.env.example`, source control, browser code, or ordinary logs.
+
+### 29.2 Data and Delivery Behavior
+
+The maintenance command:
+
+1. Loads validated production environment configuration.
+2. Verifies Google Sheets access.
+3. Uses the production RSVP workbook as the invitation/current-RSVP source.
+4. Performs the ordinary invitation normalization and environment-eligibility lookup.
+5. Loads the party’s authoritative current RSVP.
+6. Reuses the stored confirmation method and destination.
+7. Sends only the guest confirmation through the configured provider.
+8. Appends a separate `Resend Records` entry containing the resend timestamp, current RSVP version, requested-by marker, channel/destination, and closed delivery result.
+9. Leaves current RSVP content and RSVP version history unchanged.
+
+Manual resend never repeats the protected administrative confirmation.
+
+### 29.3 Result Normalization and Safe Output
+
+Resend result vocabulary remains closed to:
+
+* `sent`
+* `failed`
+* `uncertain`
+
+Any unknown or provider-specific value is normalized to `uncertain` before persistence.
+
+The CLI prints only safe operational states. It does not print:
+
+* Raw or normalized invitation codes.
+* Guest confirmation destinations.
+* RSVP answers.
+* Attendee names or dietary/allergy text.
+* Workbook identifiers or rows.
+* Provider credentials or provider payloads.
+
+### 29.4 Failure Semantics
+
+Unknown invitation, environment-ineligible invitation, or invitation without a stored current RSVP produces the same maintenance `NOT FOUND` outcome and no delivery attempt.
+
+Delivery failure or uncertainty is still recorded as a resend attempt. It does not mutate the RSVP or increment its version. A later resend is a new explicit administrator-requested delivery operation.

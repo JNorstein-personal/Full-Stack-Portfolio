@@ -905,3 +905,21 @@ The reliability model intentionally does not claim that Google Sheets provides d
 | `EMAIL-LIVE-008` | Inspect repository and ordinary output. | API key and test-recipient address are not committed or printed. | Required |
 
 The September 20, 2026 live validation satisfied `EMAIL-LIVE-005` and `EMAIL-LIVE-006` without using production guest data.
+
+---
+
+# 32. Manual Resend Maintenance CLI Tests
+
+| ID | Scenario | Expected result | Status |
+|---|---|---|---|
+| `RESEND-CLI-001` | Invoke the maintenance command outside production mode. | Command refuses to run. | Implemented |
+| `RESEND-CLI-002` | Omit the invitation code or exact acknowledgement. | Command refuses to run before delivery. | Implemented |
+| `RESEND-CLI-003` | Supply an unknown, inactive, environment-ineligible, or no-current-RSVP invitation. | Safe `NOT FOUND`; no delivery attempt and no resend record. | Implemented |
+| `RESEND-CLI-004` | Resend a valid stored email confirmation. | Sends only the guest email containing the complete current RSVP; administrative email is not repeated. | Implemented |
+| `RESEND-CLI-005` | Successful resend. | Separate resend record is appended; current RSVP and version history remain unchanged. | Implemented |
+| `RESEND-CLI-006` | Delivery throws or returns an unknown provider-specific value. | Result is recorded as `uncertain`; RSVP remains unchanged. | Implemented |
+| `RESEND-CLI-007` | Inspect command output on success/failure/not-found. | No invitation code, destination, RSVP content, workbook details, or credential is printed. | Required |
+| `RESEND-CLI-008` | Inspect route inventory / Express application. | No public or administrative manual-resend HTTP endpoint exists. | Required |
+| `RESEND-CLI-009` | Inspect environment handling. | Invitation code and acknowledgement are ephemeral operator inputs and are not required to be persisted in project environment files. | Implemented |
+
+The manual resend CLI is an administrative delivery operation only. It is not a submission, revision, recovery endpoint, or mechanism for editing stored RSVP data.

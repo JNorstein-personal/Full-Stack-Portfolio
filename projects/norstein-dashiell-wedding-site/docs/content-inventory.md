@@ -1542,7 +1542,7 @@ Direct the guest to assistance without encouraging a duplicate submission. Deliv
 The private template or procedure used to resend a failed guest confirmation by email or text message.
 
 **Status:**
-Draft needed
+Ready
 
 **Source or Owner:**
 Decision 017; couple; application
@@ -1554,9 +1554,22 @@ Private
 Yes
 
 **Notes:**
-The resend must reproduce the complete current RSVP through the approved guest channel without modifying the stored response, creating a duplicate, or incrementing the RSVP version.
+The resend reproduces the complete current RSVP through the stored approved guest confirmation channel without modifying the stored response, creating a duplicate, or incrementing the RSVP version.
 
-The resend procedure must protect the guest’s email address or mobile number and record the new delivery attempt and result.
+The production maintenance command is:
+
+`npm run resend:rsvp-confirmation`
+
+The operator supplies the invitation code and acknowledgement only as ephemeral shell environment variables:
+
+`RSVP_MANUAL_RESEND_INVITE_CODE`
+`RSVP_MANUAL_RESEND_ACK=RESEND_CURRENT_RSVP_CONFIRMATION`
+
+The command is production-only. It loads the existing private invitation and current RSVP from Google Sheets, uses the already stored confirmation destination, sends only the guest confirmation, and records the result in the separate `Resend Records` history.
+
+The command does not print the invitation code, guest destination, RSVP contents, provider credentials, or workbook contents. Its terminal result is limited to safe operational states such as `PASS (sent)`, `RECORDED (failed)`, `RECORDED (uncertain)`, `NOT FOUND`, or `FAIL`.
+
+A failed or uncertain resend does not alter RSVP content or version history.
 
 ---
 
@@ -4387,7 +4400,7 @@ Track guest-email, guest-text, and administrative-email status separately by cha
 Instructions for resending a failed guest confirmation through the applicable email or text-message channel.
 
 **Status:**
-Draft needed
+Ready
 
 **Source or Owner:**
 Decision 017; couple; application
@@ -4399,7 +4412,26 @@ Private
 Yes
 
 **Notes:**
-The process must not resubmit, modify, duplicate, or increment the RSVP. It must resend the complete current RSVP to a verified destination and record the new delivery attempt and result.
+The process does not resubmit, modify, duplicate, or increment the RSVP. It resends the complete current RSVP to the stored guest confirmation destination and records the new delivery attempt and result in `Resend Records`.
+
+Approved operator procedure:
+
+1. Run only from the protected backend maintenance environment with production Google Sheets and email-provider configuration already available.
+2. Set `RSVP_MANUAL_RESEND_INVITE_CODE` ephemerally to the printed invitation code supplied for the affected party.
+3. Set `RSVP_MANUAL_RESEND_ACK` ephemerally to exactly `RESEND_CURRENT_RSVP_CONFIRMATION`.
+4. Run `npm run resend:rsvp-confirmation`.
+5. Review only the safe terminal result:
+   * `PASS (sent)`
+   * `RECORDED (failed)`
+   * `RECORDED (uncertain)`
+   * `NOT FOUND`
+   * `FAIL`
+6. Remove both ephemeral environment variables from the shell after the operation.
+7. If the result is `failed` or `uncertain`, investigate delivery separately; do not create a new RSVP merely to resend confirmation.
+
+The maintenance command does not start Express and creates no public/admin API endpoint. It verifies Google Sheets access, retrieves only the matching invitation/current RSVP, reuses the stored guest confirmation destination, and sends only the guest confirmation. It does not repeat the protected administrative message.
+
+The invitation code, guest destination, RSVP contents, provider credentials, and workbook details must not be written to ordinary terminal output or logs by this operation.
 
 ---
 
