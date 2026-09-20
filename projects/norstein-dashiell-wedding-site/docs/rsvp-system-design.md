@@ -3403,3 +3403,91 @@ The controlled production activation completed successfully:
 * Private pre-load snapshot: created successfully outside source control.
 
 This step stages production invitation configuration only. It does not by itself start the Express production service, expose invitation lookup publicly, submit an RSVP, create an RSVP version, or send a guest/admin confirmation.
+
+---
+
+## 31. Implementation Clarification — Production Runtime and Deployment Readiness
+
+### 31.1 Production Configuration Gate
+
+Production startup validates the complete runtime configuration before the RSVP application may listen for requests.
+
+The gate requires the production Google Sheets workbook, protected administrative recipient, Resend provider and API key, approved sender identity, canonical public origin, bounded trusted-proxy value, disabled SMS state, and an explicit single mutation-writer count of one.
+
+The approved production browser origin is:
+
+`https://www.loreweavercreations.com`
+
+The approved production email identity remains:
+
+* Sender name: `Norstein-Dashiell Wedding`
+* Sender address: `confirm@rsvp.loreweavercreations.com`
+* Reply-To: `RSVPhelp@loreweavercreations.com`
+
+A mismatch fails closed before the production service is considered ready.
+
+### 31.2 Origin Boundary
+
+Production RSVP API middleware checks an explicit browser `Origin` header.
+
+If the header is present and does not equal the canonical production origin, the request receives a no-store `403` before RSVP route processing.
+
+Originless requests are not rejected solely for lacking `Origin`, preserving controlled server-side health and maintenance use. The origin check is a browser-origin boundary and not a replacement for authentication, HTTPS, invitation-code validation, rate limiting, or reverse-proxy controls.
+
+### 31.3 Trusted-Proxy Boundary
+
+The currently validated production path is direct Cloudflare Tunnel ingress to the loopback-bound Express service without an additional nginx, Caddy, or Apache hop.
+
+The active production setting is therefore bounded to `loopback`.
+
+This value must be revisited if the reverse-proxy chain changes. The implementation does not use blanket proxy trust.
+
+### 31.4 Single-Writer Enforcement
+
+Production requires `RSVP_WRITER_INSTANCE_COUNT=1`.
+
+Before the real production server listens, it also acquires an exclusive local writer-lock file. A second same-host process cannot acquire the lock simultaneously.
+
+This local lock does not provide distributed coordination. The deployment/orchestration layer must still ensure that only one mutation-capable backend instance exists globally while Google Sheets remains the active persistence adapter.
+
+### 31.5 Runtime Readiness Verification
+
+The non-serving production runtime check verifies:
+
+* Production environment validity.
+* Google Sheets authentication/access.
+* Exact RSVP-store schema.
+* Resend transport construction with backend-only credentials.
+* Successful exclusive writer-lock acquisition and release.
+
+It does not start guest-facing traffic, perform a lookup, submit an RSVP, or send email.
+
+### 31.6 Loopback Production Smoke
+
+The smoke harness:
+
+1. Requires an ephemeral real production invitation code and exact operator acknowledgement.
+2. Uses the real production environment and staged Google Sheets invitation set.
+3. Starts the real Express application only on `127.0.0.1` and an ephemeral port.
+4. Requests `GET /wedding/api/health`.
+5. Requests one `POST /wedding/api/rsvp/lookup` with the canonical production origin.
+6. Requires HTTP 200 and the approved three-property blank-form response boundary.
+7. Stops the loopback server.
+8. Re-reads the RSVP workbook and verifies that all non-invitation operational sections are unchanged.
+
+The smoke path never calls the submit endpoint and never deliberately invokes email delivery.
+
+### 31.7 September 20, 2026 Runtime Result
+
+The production runtime-readiness command completed successfully.
+
+The loopback production smoke also completed successfully:
+
+* Health endpoint: HTTP 200.
+* Production blank-form invitation lookup: HTTP 200.
+* Smoke result: `PASS`.
+* RSVP operational data mutation: none.
+* Guest/admin email delivery: none.
+* Public API exposure: none.
+
+The real invitation code used for the test remains private and is not included in source control, public documentation, or ordinary logs.

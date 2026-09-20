@@ -4652,3 +4652,46 @@ Final
 
 Date:
 9/20/2026
+
+---
+
+## Decision 028 — Production RSVP Runtime and Deployment Readiness
+
+Decision:
+
+The production RSVP backend must pass a dedicated runtime-readiness gate and a loopback-only production smoke test before the guest-facing production API is opened.
+
+Production runtime configuration is fail-closed around the current approved deployment model:
+
+* Canonical public browser origin: `https://www.loreweavercreations.com`.
+* Production email provider and sender identity: the approved Resend configuration from Decision 025.
+* Text Message confirmation: disabled until its separate provider/disclosure/testing gate is complete.
+* Google Sheets persistence: exactly one mutation-capable backend instance.
+* Same-host duplicate-writer protection: exclusive local writer lock acquired before the real production server begins listening.
+* Trusted proxy: bounded to the actual reverse-proxy topology; the currently validated direct Cloudflare Tunnel-to-loopback-Express topology uses `loopback`.
+* Any later topology change that inserts or removes a proxy requires the trust boundary to be revalidated before production use.
+
+The local writer lock is a defense against an accidental second production process on the same host. It is not a distributed lock and does not authorize horizontally scaled or active-active production writers.
+
+Production RSVP browser requests with an explicit origin that does not match the canonical public origin are rejected before RSVP route processing. Originless maintenance/health access remains possible for controlled server-side operations.
+
+Two separate production verification paths are required:
+
+1. Runtime readiness — validates the complete production environment, Google Sheets access and schema, Resend transport construction, and writer-lock acquisition/release without serving guest traffic.
+2. Loopback smoke — starts the real production-configured Express app only on `127.0.0.1` and an ephemeral port, verifies the health endpoint, performs one authorized production blank-form lookup using an ephemeral real invitation code, shuts down, and verifies that RSVP operational tables did not change.
+
+Live Validation:
+
+On September 20, 2026, both production runtime checks completed successfully.
+
+The runtime-readiness command returned `Production RSVP runtime readiness: PASS`.
+
+The loopback smoke returned `Production RSVP loopback smoke: PASS`. The health request returned HTTP 200 and the production lookup returned HTTP 200 through the approved blank-form response boundary. No RSVP submission, version, delivery record, resend record, or other operational RSVP mutation was created.
+
+The invitation code used for the smoke test remains private and is not recorded in this repository.
+
+Status:
+Final
+
+Date:
+9/20/2026

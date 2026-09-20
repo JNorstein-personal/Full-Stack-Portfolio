@@ -942,3 +942,27 @@ The manual resend CLI is an administrative delivery operation only. It is not a 
 | `PROD-ACT-010` | Inspect ordinary command output and source control after activation. | No real invitation code, guest identity, workbook identifier, source mapping, snapshot content, or credential is exposed. | Required |
 
 The September 20, 2026 controlled activation satisfied the live production-data conditions above while leaving the guest-facing production RSVP service inactive.
+
+---
+
+# 34. Production Runtime and Deployment Readiness Tests
+
+| ID | Scenario | Expected result | Status |
+|---|---|---|---|
+| `PROD-RUN-001` | Parse complete production configuration. | Canonical origin, approved Resend identity, disabled SMS, bounded proxy trust, and writer count of one are accepted. | Implemented |
+| `PROD-RUN-002` | Configure a different production browser origin. | Production environment validation fails closed. | Implemented |
+| `PROD-RUN-003` | Configure zero/missing or more than one mutation-capable writer. | Production environment validation fails closed. | Implemented |
+| `PROD-RUN-004` | Configure unapproved sender identity or enable SMS before its gate. | Production environment validation fails closed. | Implemented |
+| `PROD-RUN-005` | Send production RSVP request with canonical explicit `Origin`. | Origin middleware permits the request to continue. | Implemented |
+| `PROD-RUN-006` | Send production RSVP request with mismatched explicit `Origin`. | No-store `403`; RSVP route processing does not continue. | Implemented |
+| `PROD-RUN-007` | Send controlled originless server-side request. | Origin middleware does not reject solely because `Origin` is absent. | Implemented |
+| `PROD-RUN-008` | First production process acquires local writer lock; second same-host process attempts the same lock. | Second acquisition fails until first releases the lock. | Implemented |
+| `PROD-RUN-009` | Run the real production runtime readiness command. | Environment, Google access/schema, Resend construction, and writer-lock acquisition/release pass. | Live validated |
+| `PROD-RUN-010` | Run loopback smoke with explicit acknowledgement and ephemeral real invitation code. | Real production app starts only on loopback; health returns HTTP 200; valid production lookup returns HTTP 200. | Live validated |
+| `PROD-RUN-011` | Inspect smoke lookup response. | Approved blank-form response boundary and no-store behavior are preserved; no stored RSVP data is disclosed. | Live validated |
+| `PROD-RUN-012` | Compare RSVP operational workbook sections before and after smoke. | No RSVP submission, version, submission lifecycle record, delivery record, or resend record is created or changed by the smoke. | Live validated |
+| `PROD-RUN-013` | Inspect smoke procedure and repository. | Real smoke invitation code, guest identity, protected recipient, API key, and workbook identifier are not committed. | Required |
+| `PROD-RUN-014` | Change the production reverse-proxy topology. | `TRUST_PROXY` must be revalidated before guest-facing production use. | Required |
+| `PROD-RUN-015` | Deploy Google Sheets-backed RSVP service. | Exactly one mutation-capable backend instance is active globally; local lock is treated only as same-host defense. | Required |
+
+On September 20, 2026, `PROD-RUN-009` through `PROD-RUN-012` completed successfully without opening the production API publicly.

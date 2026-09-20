@@ -4777,6 +4777,54 @@ The procedure is repeatable so that a controlled update to the private source ca
 The procedure, generated production configuration, real codes, guest identities, source-to-guest/allocation mappings, workbook identifier, and private snapshot contents remain private and outside public source control and frontend build output.
 ---
 
+## CI-ADMIN-019 — Production RSVP Runtime and Deployment Readiness Procedure
+
+**Content Item:**
+The private production-startup, runtime-verification, single-writer, trusted-proxy, origin, and loopback-smoke procedure used before the guest-facing RSVP backend is opened publicly.
+
+**Status:**
+Ready
+
+**Source or Owner:**
+Decisions 025–028; application; production deployment
+
+**Visibility:**
+Private
+
+**Needed Before Launch:**
+Yes
+
+**Required Runtime Controls:**
+
+* Production environment validation must fail closed unless the Google Sheets workbook, protected administrative recipient, Resend provider/key, approved sender name/address, approved Reply-To address, canonical public origin, bounded trusted-proxy setting, and explicit single-writer instance count are present.
+* The canonical browser origin is `https://www.loreweavercreations.com`.
+* The approved production email identity remains the Decision 025 Resend identity.
+* Text Message confirmation remains disabled until its separate production gate is satisfied.
+* `RSVP_WRITER_INSTANCE_COUNT` must equal `1` while Google Sheets remains the persistence adapter.
+* Production startup must acquire an exclusive same-host writer lock before listening. The local lock supplements rather than replaces the global one-writer deployment requirement.
+* The active Cloudflare Tunnel-to-Express topology uses a bounded loopback trust configuration. A topology change that inserts another proxy requires revalidation before production use.
+* Production RSVP browser requests with an explicit mismatched `Origin` are rejected with a no-store `403`. Originless non-browser maintenance requests remain permitted.
+* Runtime verification must confirm Google Sheets authentication/access, exact RSVP-store schema, Resend transport construction, and writer-lock acquisition/release without starting guest-facing traffic.
+* The production loopback smoke must bind only to `127.0.0.1` on an ephemeral port, verify the health endpoint, perform one authorized blank-form production invitation lookup, and prove the RSVP operational tables are unchanged.
+* Smoke-test invitation code and acknowledgement are ephemeral operator inputs and must not be persisted in source control or ordinary project configuration.
+
+**Live Validation — September 20, 2026:**
+
+* The production runtime readiness command returned `PASS`.
+* Real Google Sheets authentication/access and RSVP-store schema verification succeeded.
+* Real Resend configuration was accepted for transport construction without sending a message.
+* The same-host writer lock was acquired and released successfully.
+* The production loopback smoke returned `PASS`.
+* The loopback health request returned HTTP 200.
+* One real production invitation lookup returned HTTP 200 through the approved blank-form boundary.
+* The smoke test created no RSVP submission, RSVP version, delivery record, resend record, or other operational RSVP mutation.
+* The real invitation code used for the smoke test is intentionally not recorded here.
+
+**Notes:**
+Passing this procedure establishes production runtime readiness only. It does not itself open the production API publicly, enable guest submissions, or constitute final invitation-mailing readiness.
+
+---
+
 # Content Excluded from the Website
 
 ## CI-EXCLUDE-001 — Hosted Ebook or Ebook Download
