@@ -8,6 +8,8 @@ const {
 
 const PRODUCTION_SOURCE_COLUMNS =
   Object.freeze({
+    inviteNumber:
+      "Invite #",
     guestId: "Guest ID",
     firstNames: "First Name(s)",
     lastNames: "Last Name(s)",
@@ -630,28 +632,68 @@ function transformProductionInvitationRows(
     );
   }
 
+  const sourceRows =
+    rows.map(
+      (row, index) => ({
+        row,
+        rowNumber:
+          index + 2,
+      }),
+    );
+
+  const hasInviteNumberColumn =
+    sourceRows.some(
+      ({ row }) =>
+        row !== null &&
+        typeof row ===
+          "object" &&
+        !Array.isArray(row) &&
+        Object.prototype
+          .hasOwnProperty.call(
+            row,
+            PRODUCTION_SOURCE_COLUMNS
+              .inviteNumber,
+          ),
+    );
+
   const invitationRows =
-    rows
-      .map(
-        (row, index) => ({
-          row,
-          rowNumber:
-            index + 2,
-        }),
-      )
-      .filter(
-        ({ row }) =>
-          row !== null &&
-          typeof row ===
-            "object" &&
-          !Array.isArray(row) &&
+    sourceRows.filter(
+      ({ row }) => {
+        if (
+          row === null ||
+          typeof row !==
+            "object" ||
+          Array.isArray(row)
+        ) {
+          return false;
+        }
+
+        if (
+          hasInviteNumberColumn
+        ) {
+          const inviteNumber =
+            cleanString(
+              row[
+                PRODUCTION_SOURCE_COLUMNS
+                  .inviteNumber
+              ],
+            );
+
+          return /^\d+$/.test(
+            inviteNumber,
+          );
+        }
+
+        return (
           cleanString(
             row[
               PRODUCTION_SOURCE_COLUMNS
                 .guestId
             ],
-          ) !== "",
-      );
+          ) !== ""
+        );
+      },
+    );
 
   if (
     invitationRows.length === 0
@@ -679,6 +721,8 @@ function transformProductionInvitationRows(
   const partyIds = new Set();
   const allocationIds =
     new Set();
+  const inviteNumbers =
+    new Set();
 
   for (
     let index = 0;
@@ -692,6 +736,31 @@ function transformProductionInvitationRows(
     const sourceRowNumber =
       invitationRows[index]
         .rowNumber;
+
+    if (hasInviteNumberColumn) {
+      const inviteNumber =
+        cleanString(
+          invitationRows[index]
+            .row[
+              PRODUCTION_SOURCE_COLUMNS
+                .inviteNumber
+            ],
+        );
+
+      if (
+        inviteNumbers.has(
+          inviteNumber,
+        )
+      ) {
+        throw new Error(
+          `Production invitation source row ${sourceRowNumber} duplicates an invitation number.`,
+        );
+      }
+
+      inviteNumbers.add(
+        inviteNumber,
+      );
+    }
 
     if (
       codes.has(

@@ -5,7 +5,9 @@ const os = require("node:os");
 const path = require("node:path");
 
 const {
+  decodeSourceBuffer,
   loadProductionSourceFile,
+  normalizeHeader,
   parseCsv,
 } = require("../src/rsvp/productionSourceFile");
 
@@ -15,7 +17,7 @@ test(
     const rows =
       parseCsv(
         [
-          "Guest ID,First Name(s),Attendee Names Clarification",
+          "Guest ID:,First Name(s),Attendee Names Clarification",
           'ABC123,Example,"The Example, Household"',
           'DEF456,Second,"Line one',
           'Line two ""quoted"""',
@@ -60,7 +62,7 @@ test(
     assert.throws(
       () =>
         parseCsv(
-          "Guest ID,Guest ID\nABC123,DEF456",
+          "Guest ID:,Guest ID\nABC123,DEF456",
         ),
       /duplicate headers/,
     );
@@ -94,7 +96,7 @@ test(
       jsonPath,
       JSON.stringify([
         {
-          "Guest ID":
+          "Guest ID:":
             "ABC123",
         },
       ]),
@@ -103,7 +105,7 @@ test(
 
     fs.writeFileSync(
       csvPath,
-      "\uFEFFGuest ID,First Name(s)\nABC123,Example\n",
+      "\uFEFFGuest ID:,First Name(s)\nABC123,Example\n",
       "utf8",
     );
 
@@ -215,5 +217,63 @@ test(
         false,
       );
     }
+  },
+);
+
+
+test(
+  "authoritative Excel-export headers normalize to the documented canonical source names",
+  () => {
+    assert.equal(
+      normalizeHeader(
+        "Invite #:",
+      ),
+      "Invite #",
+    );
+    assert.equal(
+      normalizeHeader(
+        "Guest ID:",
+      ),
+      "Guest ID",
+    );
+    assert.equal(
+      normalizeHeader(
+        "Kids(#?), Plus1 (which guest) or N/A",
+      ),
+      "Plus1",
+    );
+    assert.equal(
+      normalizeHeader(
+        "Total Potential Attendees (Including Plus1 and Kids):",
+      ),
+      "Total Potential Attendees (Including Plus1 and Kids)",
+    );
+  },
+);
+
+test(
+  "source decoder accepts UTF-8 and falls back to Windows-1252 without replacement characters",
+  () => {
+    assert.equal(
+      decodeSourceBuffer(
+        Buffer.from(
+          "café",
+          "utf8",
+        ),
+      ),
+      "café",
+    );
+
+    assert.equal(
+      decodeSourceBuffer(
+        Buffer.from([
+          0x63,
+          0x61,
+          0x66,
+          0xe9,
+        ]),
+      ),
+      "café",
+    );
   },
 );

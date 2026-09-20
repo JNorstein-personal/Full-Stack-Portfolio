@@ -1,5 +1,103 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const {
+  TextDecoder,
+} = require("node:util");
+
+const HEADER_ALIASES =
+  Object.freeze({
+    "Invite #:": "Invite #",
+    "Guest ID:": "Guest ID",
+    "Kids(#?), Plus1 (which guest) or N/A":
+      "Plus1",
+    "Total Potential Attendees (Including Plus1 and Kids):":
+      "Total Potential Attendees (Including Plus1 and Kids)",
+  });
+
+function normalizeHeader(
+  header,
+) {
+  const normalized =
+    String(header)
+      .trim()
+      .replace(
+        /^\uFEFF/,
+        "",
+      );
+
+  return (
+    HEADER_ALIASES[
+      normalized
+    ] || normalized
+  );
+}
+
+function normalizeRecordHeaders(
+  record,
+) {
+  if (
+    record === null ||
+    typeof record !== "object" ||
+    Array.isArray(record)
+  ) {
+    return record;
+  }
+
+  const normalized = {};
+
+  for (
+    const [
+      key,
+      value,
+    ] of Object.entries(record)
+  ) {
+    const canonical =
+      normalizeHeader(key);
+
+    if (
+      Object.prototype
+        .hasOwnProperty.call(
+          normalized,
+          canonical,
+        )
+    ) {
+      throw new Error(
+        "Private RSVP production source contains duplicate canonical headers.",
+      );
+    }
+
+    normalized[canonical] =
+      value;
+  }
+
+  return normalized;
+}
+
+function decodeSourceBuffer(
+  buffer,
+) {
+  try {
+    return new TextDecoder(
+      "utf-8",
+      {
+        fatal: true,
+      },
+    ).decode(buffer);
+  } catch {
+    try {
+      return new TextDecoder(
+        "windows-1252",
+        {
+          fatal: true,
+        },
+      ).decode(buffer);
+    } catch {
+      throw new Error(
+        "Private RSVP production source uses an unsupported text encoding.",
+      );
+    }
+  }
+}
 
 function parseCsv(text) {
   const rows = [];
@@ -105,17 +203,10 @@ function parseCsv(text) {
 
   const headers =
     rows[0].map(
-      (header, index) => {
-        const normalized =
-          String(header).trim();
-
-        return index === 0
-          ? normalized.replace(
-              /^\uFEFF/,
-              "",
-            )
-          : normalized;
-      },
+      (header) =>
+        normalizeHeader(
+          header,
+        ),
     );
 
   if (
@@ -171,12 +262,25 @@ function loadProductionSourceFile(
   let content;
 
   try {
-    content =
+    const buffer =
       fs.readFileSync(
         resolved,
-        "utf8",
       );
-  } catch {
+
+    content =
+      decodeSourceBuffer(
+        buffer,
+      );
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      error.message.startsWith(
+        "Private RSVP production source uses"
+      )
+    ) {
+      throw error;
+    }
+
     throw new Error(
       "Unable to read the private RSVP production source file.",
     );
@@ -196,7 +300,9 @@ function loadProductionSourceFile(
         throw new Error();
       }
 
-      return parsed;
+      return parsed.map(
+        normalizeRecordHeaders,
+      );
     } catch {
       throw new Error(
         "Private RSVP production JSON source is invalid.",
@@ -214,6 +320,9 @@ function loadProductionSourceFile(
 }
 
 module.exports = {
+  decodeSourceBuffer,
   loadProductionSourceFile,
+  normalizeHeader,
+  normalizeRecordHeaders,
   parseCsv,
 };

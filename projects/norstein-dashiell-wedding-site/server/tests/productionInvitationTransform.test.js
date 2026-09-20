@@ -15,6 +15,7 @@ function makeRow(
   overrides = {},
 ) {
   return {
+    "Invite #": "1",
     "Guest ID": "ABC123",
     "First Name(s)":
       "Example",
@@ -401,6 +402,7 @@ test(
           [
             makeRow(),
             makeRow({
+              "Invite #": "2",
               "Guest ID":
                 "ABC-123",
               "First Name(s)":
@@ -455,6 +457,8 @@ function makeAuthoritativeShapeRows() {
 
     rows.push(
       makeRow({
+        "Invite #":
+          String(index),
         "Guest ID": code,
         "First Name(s)":
           `Example${index}`,
@@ -472,8 +476,11 @@ function makeAuthoritativeShapeRows() {
   }
 
   rows.push({
-    Notes:
-      "Authoritative bottom-row RSVP notes are not invitation rows.",
+    "Invite #": "Notes",
+    "Guest ID":
+      "Bottom-row note text",
+    "I/We wording":
+      "Note: display wording guidance",
   });
 
   return rows;
@@ -539,6 +546,66 @@ test(
         "Example Guest",
       ),
       false,
+    );
+  },
+);
+
+
+test(
+  "numbered invitation rows fail closed when Guest ID is missing while nonnumeric note rows are ignored",
+  () => {
+    assert.throws(
+      () =>
+        transformProductionInvitationRows(
+          [
+            {
+              ...makeRow(),
+              "Guest ID": "",
+            },
+          ],
+        ),
+      /missing required field: Guest ID/,
+    );
+
+    const transformed =
+      transformProductionInvitationRows(
+        [
+          makeRow(),
+          {
+            "Invite #": "Notes",
+            "Guest ID":
+              "Bottom-row note text",
+            "I/We wording":
+              "Note only",
+          },
+        ],
+      );
+
+    assert.equal(
+      transformed
+        .configurations.length,
+      1,
+    );
+  },
+);
+
+test(
+  "duplicate numeric invitation numbers are rejected as contradictory source rows",
+  () => {
+    assert.throws(
+      () =>
+        transformProductionInvitationRows(
+          [
+            makeRow(),
+            makeRow({
+              "Guest ID":
+                "DEF456",
+              "First Name(s)":
+                "Second",
+            }),
+          ],
+        ),
+      /duplicates an invitation number/,
     );
   },
 );
