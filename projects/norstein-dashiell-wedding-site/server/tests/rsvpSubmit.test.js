@@ -2298,3 +2298,75 @@ test(
     );
   },
 );
+
+
+test(
+  "successful submission records private delivery channel, destinations, version, action, and independent statuses",
+  async () => {
+    const rsvpStore =
+      createFixtureStore();
+
+    await withTestServer(
+      standardOptions({
+        environment:
+          makeTestEnvironment({
+            RSVP_ADMIN_NOTIFICATION_EMAIL:
+              "admin@example.com",
+          }),
+        rsvpStore,
+        deliveryService: {
+          async deliver() {
+            return {
+              guestDeliveryStatus:
+                "sent",
+              administrativeDeliveryStatus:
+                "failed",
+            };
+          },
+        },
+      }),
+      async (baseUrl) => {
+        const result =
+          await submit(
+            baseUrl,
+            ceremonyRequest({
+              clientSubmissionId:
+                "71000000-0000-4000-8000-000000000001",
+            }),
+          );
+
+        assert.equal(
+          result.response.status,
+          201,
+        );
+
+        assert.deepEqual(
+          await rsvpStore
+            .listDeliveryRecords(
+              "party-dev-archetype-a",
+            ),
+          [
+            {
+              recordedAt:
+                OPEN_NOW.toISOString(),
+              action: "initial",
+              version: 1,
+              guest: {
+                method: "email",
+                destination:
+                  "guest@example.com",
+                status: "sent",
+              },
+              administrative: {
+                method: "email",
+                destination:
+                  "admin@example.com",
+                status: "failed",
+              },
+            },
+          ],
+        );
+      },
+    );
+  },
+);

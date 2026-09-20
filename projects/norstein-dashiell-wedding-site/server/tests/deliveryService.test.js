@@ -308,3 +308,87 @@ test(
     );
   },
 );
+
+
+test(
+  "manual guest resend sends only the guest email and does not repeat the administrative message",
+  async () => {
+    const calls = [];
+
+    const service =
+      makeService(
+        async (message) => {
+          calls.push(message);
+          return {
+            status: "sent",
+          };
+        },
+      );
+
+    const status =
+      await service.resendGuest({
+        invitation,
+        rsvp,
+        confirmation: {
+          method: "email",
+          email:
+            "guest@example.com",
+        },
+        action: "revision",
+      });
+
+    assert.equal(
+      status,
+      "sent",
+    );
+    assert.equal(
+      calls.length,
+      1,
+    );
+    assert.equal(
+      calls[0].to,
+      "guest@example.com",
+    );
+  },
+);
+
+test(
+  "manual guest resend leaves disabled text-message delivery uncertain without sending email",
+  async () => {
+    const calls = [];
+
+    const service =
+      makeService(
+        async (message) => {
+          calls.push(message);
+          return {
+            status: "sent",
+          };
+        },
+      );
+
+    const status =
+      await service.resendGuest({
+        invitation,
+        rsvp,
+        confirmation: {
+          method:
+            "textMessage",
+          mobile:
+            "+15555550123",
+          smsAuthorization:
+            true,
+        },
+        action: "initial",
+      });
+
+    assert.equal(
+      status,
+      "uncertain",
+    );
+    assert.deepEqual(
+      calls,
+      [],
+    );
+  },
+);

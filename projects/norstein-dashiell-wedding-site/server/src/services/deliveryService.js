@@ -17,6 +17,10 @@ function createDeferredDeliveryService() {
           "uncertain",
       });
     },
+
+    async resendGuest() {
+      return "uncertain";
+    },
   });
 }
 
@@ -74,6 +78,39 @@ function createEmailDeliveryService({
   const sender =
     fromEmail.trim();
 
+  async function sendGuest({
+    invitation,
+    rsvp,
+    confirmation,
+    action,
+  }) {
+    if (
+      confirmation.method !==
+      "email"
+    ) {
+      return "uncertain";
+    }
+
+    return attemptEmail(
+      () =>
+        buildGuestConfirmationEmail({
+          invitation,
+          rsvp,
+          action,
+          assistanceEmail,
+        }),
+      (message) =>
+        transport.sendEmail({
+          to:
+            confirmation.email,
+          from: sender,
+          subject:
+            message.subject,
+          text: message.text,
+        }),
+    );
+  }
+
   return Object.freeze({
     async deliver({
       invitation,
@@ -82,29 +119,12 @@ function createEmailDeliveryService({
       action,
     }) {
       const guestAttempt =
-        confirmation.method ===
-        "email"
-          ? attemptEmail(
-              () =>
-                buildGuestConfirmationEmail({
-                  invitation,
-                  rsvp,
-                  action,
-                  assistanceEmail,
-                }),
-              (message) =>
-                transport.sendEmail({
-                  to:
-                    confirmation.email,
-                  from: sender,
-                  subject:
-                    message.subject,
-                  text: message.text,
-                }),
-            )
-          : Promise.resolve(
-              "uncertain",
-            );
+        sendGuest({
+          invitation,
+          rsvp,
+          confirmation,
+          action,
+        });
 
       const administrativeAttempt =
         attemptEmail(
@@ -138,6 +158,20 @@ function createEmailDeliveryService({
       return Object.freeze({
         guestDeliveryStatus,
         administrativeDeliveryStatus,
+      });
+    },
+
+    async resendGuest({
+      invitation,
+      rsvp,
+      confirmation,
+      action,
+    }) {
+      return sendGuest({
+        invitation,
+        rsvp,
+        confirmation,
+        action,
       });
     },
   });

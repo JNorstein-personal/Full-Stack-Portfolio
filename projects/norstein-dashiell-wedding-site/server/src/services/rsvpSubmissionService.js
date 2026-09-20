@@ -6,6 +6,9 @@ const {
   normalizeInvitationCode,
 } = require("../rsvp/invitationCode");
 const {
+  buildDeliveryRecord,
+} = require("./deliveryRecord");
+const {
   isRsvpClosed,
 } = require("../rsvp/deadline");
 const {
@@ -452,15 +455,18 @@ function createRsvpSubmissionService({
       await rsvpStore
         .appendDeliveryRecord(
           invitation.partyId,
-          {
+          buildDeliveryRecord({
             recordedAt,
-            guest:
-              delivery
-                .guestDeliveryStatus,
-            administrative:
-              delivery
-                .administrativeDeliveryStatus,
-          },
+            action,
+            version:
+              storedRsvp.version,
+            confirmation:
+              confirmation.value,
+            administrativeEmail:
+              environment
+                .RSVP_ADMIN_NOTIFICATION_EMAIL,
+            delivery,
+          }),
         );
 
       await rsvpStore
