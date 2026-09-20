@@ -4523,6 +4523,8 @@ The checkpoint must also confirm that:
 * Ceremony-only attendance does not collect Reception attendee details.
 * No real production code, guest detail, or private allocation mapping appears in public source, public documentation, browser metadata, analytics, or ordinary logs.
 * Development/test records are separated from production and no placeholder is required merely to reach a historical count of 58.
+* Production uses only one mutation-capable RSVP backend instance while Google Sheets remains the persistence adapter.
+* Failure-injection tests confirm recovery from interrupted RSVP persistence and ambiguous delivery completion without duplicate versions or automatic duplicate confirmations.
 ---
 
 ## CI-ADMIN-013 — Hotel-Block Record
@@ -4663,6 +4665,10 @@ The procedure must specifically document:
 * Exact cardinality validation between Reception attendee-detail records and the complete attendance total.
 * Attendee-name and dietary/allergy character limits.
 * Contradiction rejection, complete merged-state validation, idempotent duplicate protection, current-version designation, timestamps and version history, and confirmation generation from the complete merged state.
+* Private submission lifecycle states used for recoverable persistence without exposing stored answers or internal version metadata.
+* Private non-reversible mutation identifiers used to recognize and repair interrupted writes without appending duplicate RSVP versions.
+* The rule that an ambiguous post-provider crash resolves to an `uncertain` delivery result rather than an automatic duplicate confirmation.
+* The Google Sheets single-writer deployment boundary: one mutation-capable RSVP backend instance at a time unless a later storage/locking decision supports coordinated independent writers.
 ---
 
 ## CI-ADMIN-018 — Invitees List Transformation and Validation Procedure

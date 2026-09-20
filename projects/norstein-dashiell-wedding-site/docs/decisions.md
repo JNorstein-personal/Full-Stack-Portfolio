@@ -4546,3 +4546,51 @@ Final
 
 Date:
 9/20/2026
+
+---
+
+## Decision 026 — Recoverable RSVP Persistence and Single-Writer Deployment
+
+Decision:
+
+The RSVP backend must make each logical submission recoverable across partial persistence and delivery failures without treating Google Sheets as a transactional database.
+
+Each accepted logical submission uses a private lifecycle record that progresses through the internal states:
+
+* `prepared`
+* `stored`
+* `deliveryStarted`
+* `complete`
+
+The lifecycle record is private backend state and must not be exposed through the public RSVP API.
+
+Each RSVP mutation also receives a private non-reversible `mutationId` derived from the private submission scope. The mutation identifier is used only to correlate version-history, current-state recovery, and delivery-history records. It must not be returned to the browser or written to ordinary logs.
+
+Persistence Requirements:
+
+* Before changing RSVP state, the backend records the logical submission as `prepared`.
+* The RSVP version-history write and current-response update are treated as one recoverable logical mutation.
+* If the version-history record was written but the current-response update did not complete, retry with the same logical submission repairs the current-response record without appending a duplicate version.
+* If the target version already belongs to another mutation, the backend fails closed rather than overwriting or silently reconciling the conflict.
+* A completed mutation replay returns the stored logical result with `idempotentRepeat: true` and does not create another version.
+* A different logical mutation for the same invitation must not proceed while an earlier lifecycle record remains incomplete.
+
+Delivery-Recovery Requirements:
+
+* Delivery begins only after RSVP storage is confirmed.
+* Before calling the delivery provider, the lifecycle state advances to `deliveryStarted`.
+* If a delivery result is durably recorded, retry reuses that record and does not send another confirmation.
+* If the process may have reached the provider but no durable delivery result exists, retry must not automatically resend merely to discover the outcome. The recovered result is recorded as `uncertain`; any later resend is an explicit administrative delivery operation.
+* Delivery-history failure must not create a second RSVP mutation or version.
+
+Concurrency and Deployment Boundary:
+
+Google Sheets does not provide the compare-and-swap or multi-row transaction semantics required for safe distributed RSVP mutation locking. Therefore the production RSVP service must run **one mutation-capable backend instance at a time** while Google Sheets is the persistence adapter.
+
+The application may serialize concurrent mutations for the same invitation within that instance. Horizontal scaling, active-active mutation processing, or multiple independently writable backend instances require a later storage/locking architecture decision before production use.
+
+Status:
+Final
+
+Date:
+9/20/2026

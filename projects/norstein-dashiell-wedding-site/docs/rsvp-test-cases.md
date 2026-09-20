@@ -869,3 +869,22 @@ The privacy/security portion is complete when all of the following are true:
 - The current decisions, system design, API contract, schemas, and this catalog describe the same spreadsheet-authoritative data model and security boundaries.
 
 With these conditions documented, the test catalog is synchronized with the spreadsheet-authoritative RSVP revision and remains ready to drive implementation and integrated QA.
+
+---
+
+# 30. Persistence-Recovery and Single-Writer Reliability Tests
+
+| ID | Scenario | Expected result | Status |
+|---|---|---|---|
+| `REL-001` | RSVP version/history write succeeds but lifecycle record does not advance from `prepared`. | Same logical retry recognizes the matching mutation, repairs/accepts stored state, creates no duplicate version, then continues safely. | Implemented |
+| `REL-002` | Matching version-history row exists but current-response write is missing. | Same logical retry repairs current-response state without appending another version. | Implemented |
+| `REL-003` | Target private RSVP version is already occupied by a different mutation ID. | Mutation fails closed; no overwrite, duplicate version, or silent reconciliation. | Implemented |
+| `REL-004` | Delivery record is stored but final submission-completion write fails. | Same logical retry reuses recorded delivery status; provider delivery is not repeated. | Implemented |
+| `REL-005` | Provider delivery may have completed but durable delivery-history write fails. | Same logical retry does not automatically resend; recovered delivery status is `uncertain` and RSVP/version remain unchanged. | Implemented |
+| `REL-006` | A different logical submission arrives while an earlier lifecycle for the same invitation is incomplete. | New mutation is temporarily refused with the existing guest-safe unavailable boundary until the interrupted logical submission is recovered. | Implemented |
+| `REL-007` | Two distinct revisions for the same invitation are submitted concurrently to one backend instance. | In-process serialization causes each revision to merge against the latest authoritative current RSVP; version sequence remains unique and ordered. | Implemented |
+| `REL-008` | Exact completed logical submission is replayed. | Stored response is returned with `idempotentRepeat: true`; no additional version or delivery attempt is created. | Implemented |
+| `REL-009` | Inspect public API responses after any recovery scenario. | No lifecycle state, mutation ID, private version, workbook row, or storage-recovery detail is exposed. | Required |
+| `REL-010` | Production deployment uses Google Sheets persistence. | Only one mutation-capable RSVP backend instance is active at a time; no active-active or horizontally distributed RSVP writers are used without a later locking/storage decision. | Required |
+
+The reliability model intentionally does not claim that Google Sheets provides database transactions. The approved implementation supplies recoverable logical writes and in-process serialization under the documented single-writer deployment constraint.

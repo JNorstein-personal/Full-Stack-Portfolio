@@ -4,7 +4,7 @@
 **Phase:** Phase 3 — Design the RSVP System
 **Current completion:** Phase 3 RSVP architecture synchronized with the authoritative private `Invitees List` spreadsheet and its approved bottom-row RSVP display notes, including the current submission/revision model, interface-state model, fictional development fixtures, confirmation-refresh behavior, and privacy/security rules
 **Phase 3 status:** Complete
-**Last updated:** September 19, 2026
+**Last updated:** September 20, 2026
 
 ---
 
@@ -3178,3 +3178,68 @@ Phase 3 Step 14 remains complete and is synchronized with the current data model
 * Production RSVP traffic uses HTTPS.
 
 With this synchronization, **Phase 3 — Design the RSVP System remains complete under the authoritative spreadsheet-driven RSVP model.**
+
+---
+
+## 27. Implementation Reliability Clarification — Recoverable Persistence
+
+The implemented RSVP mutation path uses a private lifecycle journal and recoverable mutation identifier to make partial Google Sheets writes and safe retries deterministic without representing the workbook as a transactional database.
+
+### 27.1 Lifecycle Journal
+
+A logical submission progresses privately through:
+
+1. `prepared` — validated submission metadata and the complete proposed stored RSVP have been recorded before mutation.
+2. `stored` — the version-history/current-response mutation has been confirmed.
+3. `deliveryStarted` — the backend has crossed the boundary after which a provider call may already have occurred.
+4. `complete` — the canonical guest-facing result has been durably associated with the logical submission.
+
+The journal is backend-only. Public lookup and submit responses do not expose lifecycle state, private mutation IDs, private versions, storage rows, or recovery metadata.
+
+### 27.2 Recoverable RSVP Mutation
+
+The storage adapter exposes one logical `commitRsvpMutation` operation.
+
+For the Google Sheets adapter this is a recoverable sequence rather than a database transaction:
+
+* The backend verifies the expected private current version.
+* It checks whether the target version already exists.
+* A matching target version with the same private mutation ID is recognized as the same logical mutation.
+* If version history exists but the current-response write is missing, retry repairs current state without appending another version.
+* If the target version belongs to a different mutation or current state is inconsistent, the operation fails closed.
+* An already complete matching mutation is returned as already committed.
+
+This provides crash recovery and duplicate-version protection for the approved single-writer deployment model.
+
+### 27.3 Delivery Crash Window
+
+Before invoking guest/administrative delivery, the lifecycle is durably marked `deliveryStarted`.
+
+On retry:
+
+* A matching durable delivery record is reused.
+* Delivery is not called again merely because the original HTTP response was lost.
+* If delivery may have happened but its result was not durably recorded, the backend records an `uncertain` outcome rather than automatically risking duplicate email or SMS.
+* A deliberate later resend remains a separate administrative operation and does not modify RSVP content or version history.
+
+### 27.4 Concurrency Boundary
+
+Within one backend process, mutations for the same invitation are serialized so each revision merges against the latest current RSVP.
+
+Google Sheets does not provide distributed row-level locking, compare-and-swap, or an atomic multi-row transaction covering the RSVP lifecycle. Therefore production must operate with **one mutation-capable RSVP backend instance at a time** while Google Sheets remains the active persistence adapter.
+
+A future horizontally scaled or active-active deployment must first replace or supplement this boundary with storage/locking semantics that safely coordinate independent writers.
+
+### 27.5 Failure-Injection Coverage
+
+Implementation tests now cover:
+
+* Recovery when the RSVP mutation succeeded but the lifecycle update failed afterward.
+* Recovery after delivery was recorded but final lifecycle completion failed.
+* Recovery when provider delivery may have completed but delivery-history persistence failed, without automatic resend.
+* Blocking of a different logical mutation while an earlier submission remains incomplete.
+* Serialization of simultaneous distinct revisions for one invitation against the latest current state.
+* Idempotent recovery of an orphaned matching version-history record.
+* Rejection of a conflicting mutation occupying the same target version.
+
+These rules refine the earlier storage-before-delivery and idempotent safe-retry requirements without changing the public RSVP API contract.
