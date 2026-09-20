@@ -3243,3 +3243,31 @@ Implementation tests now cover:
 * Rejection of a conflicting mutation occupying the same target version.
 
 These rules refine the earlier storage-before-delivery and idempotent safe-retry requirements without changing the public RSVP API contract.
+
+---
+
+## 28. Implementation Validation Clarification — Resend Live Email
+
+The production email adapter has completed an isolated live-delivery validation against the verified `rsvp.loreweavercreations.com` sending subdomain.
+
+The validation path is intentionally separate from the RSVP mutation path. It requires an explicit test recipient and acknowledgement, refuses production mode, and requires the approved wedding sender identity before it will call the configured Resend transport.
+
+The validation confirms that the implemented adapter can submit a message using:
+
+* Sender name: `Norstein-Dashiell Wedding`
+* Sender address: `confirm@rsvp.loreweavercreations.com`
+* Reply-To: `RSVPhelp@loreweavercreations.com`
+
+The live test returned a definite accepted result and the received message matched the expected From, Reply-To, and test-body content.
+
+The validation did **not**:
+
+* Start or exercise an RSVP submission.
+* Read or write the Google Sheets RSVP workbook.
+* Load production invitation data.
+* Create an RSVP version.
+* Create a delivery record.
+* Send to a wedding guest.
+* Expose the Resend API key or test-recipient address to source control.
+
+This confirms transport readiness only. Production RSVP email delivery remains subject to the later production deployment, secret-management, and end-to-end RSVP activation gates.

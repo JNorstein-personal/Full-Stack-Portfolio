@@ -4330,7 +4330,7 @@ The couple has confirmed the administrative recipient. The actual address is int
 The public sender identity, reply-to behavior, and assistance wording for guest email and text-message confirmations.
 
 **Status:**
-Email finalized; Text Message pending production SMS gate
+Email finalized and live validated; Text Message pending production SMS gate
 
 **Source or Owner:**
 Couple; Decision 017; delivery providers
@@ -4343,6 +4343,8 @@ Yes
 
 **Notes:**
 Production email uses Resend with sender name `Norstein-Dashiell Wedding`, sender address `confirm@rsvp.loreweavercreations.com`, and Reply-To / assistance address `RSVPhelp@loreweavercreations.com`.
+
+The sending subdomain was verified and an isolated live-email test passed on September 20, 2026. The received message matched the approved From identity, Reply-To identity, and safety content. The test did not access RSVP storage or production invitation records, and no API key or test-recipient address is recorded here.
 
 The text-message sending identity remains intentionally unresolved while Text Message confirmation is disabled. It must not be invented before the separate SMS-provider disclosure and production-enablement gate is satisfied.
 

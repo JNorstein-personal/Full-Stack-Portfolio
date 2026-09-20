@@ -4541,6 +4541,24 @@ Implementation Requirements:
 * A successful Resend API acceptance maps to the internal `sent` state. A definite client-side/provider rejection maps to `failed`; server-side, network, or otherwise ambiguous outcomes map to `uncertain`.
 * Text Message confirmation remains disabled and is unaffected by this email-provider decision until the separate SMS production-enablement gate is satisfied.
 
+Live Validation:
+
+On September 20, 2026, the dedicated sending subdomain `rsvp.loreweavercreations.com` was verified by Resend. An isolated live-email validation was then performed through the project’s Resend transport using backend-only local secret configuration.
+
+The live validation:
+
+* Used the approved sender name and address.
+* Used the approved Reply-To / assistance address.
+* Was sent only to a user-controlled test mailbox.
+* Did not start the RSVP server.
+* Did not access Google Sheets.
+* Did not load a production invitation.
+* Did not submit, store, revise, or modify an RSVP.
+* Returned the project result `Resend isolated live-email validation: PASS`.
+* Arrived with the expected From identity, Reply-To identity, and safety text.
+
+No Resend API key, test-recipient address, provider credential, or production guest data is recorded in this public repository.
+
 Status:
 Final
 

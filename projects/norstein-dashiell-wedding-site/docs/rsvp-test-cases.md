@@ -888,3 +888,20 @@ With these conditions documented, the test catalog is synchronized with the spre
 | `REL-010` | Production deployment uses Google Sheets persistence. | Only one mutation-capable RSVP backend instance is active at a time; no active-active or horizontally distributed RSVP writers are used without a later locking/storage decision. | Required |
 
 The reliability model intentionally does not claim that Google Sheets provides database transactions. The approved implementation supplies recoverable logical writes and in-process serialization under the documented single-writer deployment constraint.
+
+---
+
+# 31. Resend Isolated Live-Email Validation
+
+| ID | Scenario | Expected result | Status |
+|---|---|---|---|
+| `EMAIL-LIVE-001` | Run the isolated validation without an explicit test recipient. | Test refuses to send. | Implemented |
+| `EMAIL-LIVE-002` | Run the isolated validation without the exact acknowledgement value. | Test refuses to send. | Implemented |
+| `EMAIL-LIVE-003` | Run the isolated validation in production mode. | Test refuses to send. | Implemented |
+| `EMAIL-LIVE-004` | Configure a sender name, sender address, Reply-To address, or provider other than the approved email identity. | Test refuses to send. | Implemented |
+| `EMAIL-LIVE-005` | Run the isolated validation with the approved identity and backend-only Resend credentials. | Resend transport returns a definite `sent` result and the script reports `PASS`. | Live validated |
+| `EMAIL-LIVE-006` | Inspect the received live-test message. | From identity, Reply-To identity, and safety body match the approved configuration. | Live validated |
+| `EMAIL-LIVE-007` | Inspect RSVP storage after the isolated transport test. | No RSVP submission, version, revision, invitation lookup, Google Sheets access, or RSVP delivery record is required by the test path. | Implemented |
+| `EMAIL-LIVE-008` | Inspect repository and ordinary output. | API key and test-recipient address are not committed or printed. | Required |
+
+The September 20, 2026 live validation satisfied `EMAIL-LIVE-005` and `EMAIL-LIVE-006` without using production guest data.
