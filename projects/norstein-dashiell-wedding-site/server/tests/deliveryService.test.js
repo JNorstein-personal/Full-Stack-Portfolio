@@ -2,6 +2,7 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 
 const {
+  createConfiguredDeliveryService,
   createEmailDeliveryService,
 } = require("../src/services/deliveryService");
 
@@ -389,6 +390,144 @@ test(
     assert.deepEqual(
       calls,
       [],
+    );
+  },
+);
+
+
+test(
+  "configured delivery keeps deferred behavior available outside production",
+  async () => {
+    const service =
+      createConfiguredDeliveryService({
+        environment: {
+          NODE_ENV:
+            "development",
+        },
+      });
+
+    assert.deepEqual(
+      await service.deliver(),
+      {
+        guestDeliveryStatus:
+          "uncertain",
+        administrativeDeliveryStatus:
+          "uncertain",
+      },
+    );
+    assert.equal(
+      await service.resendGuest(),
+      "uncertain",
+    );
+  },
+);
+
+test(
+  "production delivery refuses to activate without an explicit delivery implementation or email transport",
+  () => {
+    assert.throws(
+      () =>
+        createConfiguredDeliveryService({
+          environment: {
+            NODE_ENV:
+              "production",
+            RSVP_ADMIN_NOTIFICATION_EMAIL:
+              "admin@example.com",
+            RSVP_FROM_EMAIL:
+              "rsvp@example.com",
+            EMAIL_PROVIDER:
+              "fictional-provider",
+          },
+        }),
+      /Production RSVP email delivery transport is not configured/,
+    );
+  },
+);
+
+test(
+  "production delivery activates when an email transport is explicitly provided",
+  async () => {
+    const calls = [];
+
+    const service =
+      createConfiguredDeliveryService({
+        environment: {
+          NODE_ENV:
+            "production",
+          RSVP_ADMIN_NOTIFICATION_EMAIL:
+            "admin@example.com",
+          RSVP_FROM_EMAIL:
+            "rsvp@example.com",
+          EMAIL_PROVIDER:
+            "fictional-provider",
+        },
+        emailTransport: {
+          async sendEmail(
+            message,
+          ) {
+            calls.push(message);
+            return {
+              status: "sent",
+            };
+          },
+        },
+      });
+
+    const result =
+      await service.deliver({
+        invitation,
+        rsvp,
+        confirmation: {
+          method: "email",
+          email:
+            "guest@example.com",
+        },
+        action: "initial",
+      });
+
+    assert.deepEqual(
+      result,
+      {
+        guestDeliveryStatus:
+          "sent",
+        administrativeDeliveryStatus:
+          "sent",
+      },
+    );
+    assert.equal(
+      calls.length,
+      2,
+    );
+  },
+);
+
+test(
+  "explicit delivery-service dependency remains a valid production implementation boundary",
+  () => {
+    const explicit = {
+      async deliver() {
+        return {
+          guestDeliveryStatus:
+            "sent",
+          administrativeDeliveryStatus:
+            "sent",
+        };
+      },
+      async resendGuest() {
+        return "sent";
+      },
+    };
+
+    assert.equal(
+      createConfiguredDeliveryService({
+        environment: {
+          NODE_ENV:
+            "production",
+        },
+        deliveryService:
+          explicit,
+      }),
+      explicit,
     );
   },
 );

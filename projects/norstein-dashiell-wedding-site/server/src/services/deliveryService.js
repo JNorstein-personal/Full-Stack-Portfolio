@@ -177,7 +177,46 @@ function createEmailDeliveryService({
   });
 }
 
+function createConfiguredDeliveryService({
+  environment,
+  deliveryService,
+  emailTransport,
+} = {}) {
+  if (!environment) {
+    throw new Error(
+      "Delivery activation requires validated environment configuration.",
+    );
+  }
+
+  if (deliveryService) {
+    return deliveryService;
+  }
+
+  if (emailTransport) {
+    return createEmailDeliveryService({
+      emailTransport,
+      administrativeEmail:
+        environment
+          .RSVP_ADMIN_NOTIFICATION_EMAIL,
+      fromEmail:
+        environment.RSVP_FROM_EMAIL,
+    });
+  }
+
+  if (
+    environment.NODE_ENV ===
+    "production"
+  ) {
+    throw new Error(
+      "Production RSVP email delivery transport is not configured.",
+    );
+  }
+
+  return createDeferredDeliveryService();
+}
+
 module.exports = {
+  createConfiguredDeliveryService,
   createDeferredDeliveryService,
   createEmailDeliveryService,
 };
