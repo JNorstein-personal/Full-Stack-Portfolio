@@ -2058,24 +2058,44 @@ test(
           ],
         );
 
-        const serialized =
-          JSON.stringify(payload);
+        assert.equal(
+          Object.prototype
+            .hasOwnProperty.call(
+              payload,
+              "rsvp",
+            ),
+          false,
+        );
 
         for (
-          const forbidden of [
+          const forbiddenProperty of [
             "overallAttendance",
             "recordedAt",
             "version",
-            "guest@example.com",
+            "currentResponse",
+            "existingResponse",
+            "hasResponse",
           ]
         ) {
           assert.equal(
-            serialized.includes(
-              forbidden,
-            ),
+            Object.prototype
+              .hasOwnProperty.call(
+                payload.invitation,
+                forbiddenProperty,
+              ),
             false,
           );
         }
+
+        const serialized =
+          JSON.stringify(payload);
+
+        assert.equal(
+          serialized.includes(
+            "guest@example.com",
+          ),
+          false,
+        );
       },
     );
   },
