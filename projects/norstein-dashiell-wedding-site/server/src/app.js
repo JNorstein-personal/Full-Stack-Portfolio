@@ -1,14 +1,24 @@
 const express = require("express");
 const helmet = require("helmet");
-const rateLimit = require("express-rate-limit");
 
+const {
+  parseTrustProxySetting,
+} = require("./config/trustProxy");
 const {
   rsvpNoStore,
 } = require("./middleware/cacheControl");
 const {
+  createRsvpRateLimiters,
+} = require("./middleware/rateLimit");
+const {
+  createProductionConsoleLogger,
+  createSafeRequestAudit,
+} = require("./middleware/requestAudit");
+const {
   createRsvpRouter,
   INVALID_INVITATION_RESPONSE,
   INVALID_SUBMISSION_RESPONSE,
+  SERVICE_UNAVAILABLE_RESPONSE,
 } = require("./routes/rsvp");
 const {
   loadDevelopmentInvitationFixtures,
@@ -104,6 +114,10 @@ function createApp({
   deliveryService,
   questions,
   now,
+  rateLimitNow,
+  logger,
+  auditNow,
+  createCorrelationId,
 } = {}) {
   if (!environment) {
     throw new Error(
@@ -113,7 +127,33 @@ function createApp({
 
   const app = express();
 
+  app.set(
+    "trust proxy",
+    parseTrustProxySetting(
+      environment.TRUST_PROXY,
+    ),
+  );
+
   app.use(helmet());
+
+  const effectiveLogger =
+    logger === undefined &&
+    environment.NODE_ENV ===
+      "production"
+      ? createProductionConsoleLogger()
+      : logger;
+
+  if (effectiveLogger) {
+    app.use(
+      "/wedding/api",
+      createSafeRequestAudit({
+        logger:
+          effectiveLogger,
+        now: auditNow,
+        createCorrelationId,
+      }),
+    );
+  }
 
   app.use(
     "/wedding/api/rsvp",
@@ -149,16 +189,21 @@ function createApp({
     },
   );
 
-  const apiLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    limit: 100,
-    standardHeaders: "draft-8",
-    legacyHeaders: false,
-  });
+  const rsvpRateLimiters =
+    createRsvpRateLimiters({
+      now: rateLimitNow,
+    });
 
-  app.use(
-    "/wedding/api",
-    apiLimiter,
+  app.post(
+    "/wedding/api/rsvp/lookup",
+    rsvpRateLimiters.lookupByIp,
+  );
+
+  app.post(
+    "/wedding/api/rsvp/submit",
+    rsvpRateLimiters.submissionByIp,
+    rsvpRateLimiters
+      .submissionByInvitation,
   );
 
   app.get(
@@ -222,6 +267,26 @@ function createApp({
         effectiveQuestions,
       now,
     }),
+  );
+
+  app.use(
+    "/wedding/api/rsvp",
+    (
+      error,
+      req,
+      res,
+      next,
+    ) => {
+      if (res.headersSent) {
+        return next(error);
+      }
+
+      return res
+        .status(503)
+        .json(
+          SERVICE_UNAVAILABLE_RESPONSE,
+        );
+    },
   );
 
   return app;

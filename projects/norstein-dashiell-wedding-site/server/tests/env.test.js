@@ -283,3 +283,38 @@ test(
     );
   },
 );
+
+test(
+  "rejects blanket trusted-proxy configuration without echoing the value",
+  () => {
+    const unsafeValue =
+      "true";
+
+    let error;
+
+    try {
+      parseEnvironment(
+        makeDevelopmentEnvironment({
+          TRUST_PROXY:
+            unsafeValue,
+        }),
+      );
+    } catch (caughtError) {
+      error = caughtError;
+    }
+
+    assert.ok(
+      error instanceof Error,
+    );
+    assert.match(
+      error.message,
+      /TRUST_PROXY/,
+    );
+    assert.equal(
+      error.message.includes(
+        unsafeValue,
+      ),
+      false,
+    );
+  },
+);

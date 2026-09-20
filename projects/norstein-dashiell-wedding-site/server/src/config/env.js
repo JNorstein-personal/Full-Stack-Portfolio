@@ -1,5 +1,9 @@
 const { z } = require("zod");
 
+const {
+  parseTrustProxySetting,
+} = require("./trustProxy");
+
 const PROJECT_SITE_BASE_PATH = "/wedding";
 const PROJECT_RSVP_DEADLINE = "2027-03-01T23:59:00-05:00";
 const PROJECT_RSVP_TIME_ZONE = "America/New_York";
@@ -28,6 +32,27 @@ const optionalUrl = z.preprocess(
   emptyStringToUndefined,
   z.string().url().optional(),
 );
+
+const trustProxySchema =
+  optionalString.superRefine(
+    (value, context) => {
+      if (value === undefined) {
+        return;
+      }
+
+      try {
+        parseTrustProxySetting(
+          value,
+        );
+      } catch {
+        context.addIssue({
+          code: "custom",
+          message:
+            "must identify a bounded trusted proxy chain",
+        });
+      }
+    },
+  );
 
 const portSchema = z.preprocess(
   (value) => {
@@ -126,7 +151,7 @@ const environmentSchema = z
 
     ALLOWED_ORIGIN: optionalUrl,
 
-    TRUST_PROXY: optionalString,
+    TRUST_PROXY: trustProxySchema,
   })
   .superRefine((environment, context) => {
     if (
