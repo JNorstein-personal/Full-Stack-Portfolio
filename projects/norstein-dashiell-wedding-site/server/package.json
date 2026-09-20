@@ -12,7 +12,8 @@
     "initialize:google-sheets-store": "node scripts/initializeGoogleSheetsStore.js",
     "verify:google-sheets-store": "node scripts/verifyGoogleSheetsStore.js",
     "audit:production-invitations": "node scripts/auditProductionInvitations.js",
-    "load:production-invitations": "node scripts/loadProductionInvitations.js"
+    "load:production-invitations": "node scripts/loadProductionInvitations.js",
+    "verify:resend-email": "node scripts/verifyResendEmail.js"
   },
   "keywords": [],
   "author": "",
