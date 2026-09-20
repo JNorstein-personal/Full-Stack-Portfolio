@@ -28,6 +28,8 @@ export async function apiRequest(
   const response = await fetch(
     buildApiUrl(path),
     {
+      cache: "no-store",
+      credentials: "same-origin",
       ...options,
 
       headers: {
@@ -61,6 +63,41 @@ export async function apiRequest(
 
 export function getApiHealth() {
   return apiRequest("/health");
+}
+
+export function lookupRsvpInvitation(
+  inviteCode,
+) {
+  return apiRequest(
+    "/rsvp/lookup",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+      body: JSON.stringify({
+        inviteCode,
+      }),
+    },
+  );
+}
+
+export function submitRsvp(
+  request,
+) {
+  return apiRequest(
+    "/rsvp/submit",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+      body:
+        JSON.stringify(request),
+    },
+  );
 }
 
 export {

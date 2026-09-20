@@ -12,6 +12,7 @@
     "start:server": "npm run start --workspace=server",
     "build:client": "npm run build --workspace=client",
     "lint:client": "npm run lint --workspace=client",
-    "test:server": "npm run test --workspace=server"
+    "test:server": "npm run test --workspace=server",
+    "test:client": "npm run test --workspace=client"
   }
 }

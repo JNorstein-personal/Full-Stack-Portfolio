@@ -262,3 +262,179 @@ textarea:disabled {
     max-width: 100%;
   }
 }
+/* =========================================================
+   RSVP
+   ========================================================= */
+
+.rsvp-page,
+.rsvp-confirmation-page {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.rsvp-personalized-intro,
+.rsvp-summary-section {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.rsvp-kicker {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.rsvp-form fieldset {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.rsvp-question-group {
+  display: grid;
+  gap: var(--space-2);
+  padding-block: var(--space-2);
+}
+
+.rsvp-question-group + .rsvp-question-group {
+  border-top: var(--border-card);
+  padding-block-start: var(--space-4);
+}
+
+.rsvp-inline-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.rsvp-field-error {
+  margin: 0;
+  color: var(--color-error);
+  font-weight: 700;
+}
+
+.rsvp-dial-list {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.rsvp-dial {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.rsvp-dial > label {
+  font-weight: 700;
+}
+
+.rsvp-dial__controls {
+  display: grid;
+  grid-template-columns: auto minmax(5rem, 8rem) auto;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.rsvp-dial__controls input {
+  text-align: center;
+}
+
+.rsvp-dial__button {
+  min-width: 2.75rem;
+  padding-inline: var(--space-3);
+  font-size: 1.25rem;
+}
+
+.rsvp-total-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-6);
+  padding: var(--space-3);
+  background: var(--color-surface-muted);
+  border-radius: var(--radius-control);
+}
+
+.rsvp-confirmation-destination {
+  margin-block-start: var(--space-3);
+}
+
+.rsvp-attendee-list,
+.rsvp-attendee-summary {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.rsvp-attendee-card {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--color-surface-muted);
+  border-radius: var(--radius-card);
+}
+
+.rsvp-attendee-card h3 {
+  margin: 0;
+}
+
+.rsvp-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.rsvp-summary-list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.rsvp-summary-list > div {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto;
+  gap: var(--space-4);
+  padding-block: var(--space-2);
+  border-bottom: var(--border-card);
+}
+
+.rsvp-summary-list dt {
+  font-weight: 700;
+}
+
+.rsvp-summary-list dd {
+  margin: 0;
+  text-align: end;
+}
+
+.rsvp-attendee-summary {
+  margin: 0;
+  padding-inline-start: 1.5rem;
+}
+
+.rsvp-attendee-summary li {
+  padding-inline-start: var(--space-2);
+}
+
+.rsvp-attendee-summary li span {
+  display: block;
+}
+
+@media (max-width: 40rem) {
+  .rsvp-dial__controls {
+    grid-template-columns:
+      2.75rem
+      minmax(0, 1fr)
+      2.75rem;
+  }
+
+  .rsvp-summary-list > div {
+    grid-template-columns: 1fr;
+    gap: var(--space-1);
+  }
+
+  .rsvp-summary-list dd {
+    text-align: start;
+  }
+}
