@@ -29,6 +29,12 @@ const {
   createDevelopmentStore,
 } = require("./services/storage/developmentStore");
 const {
+  createGoogleSheetsConnection,
+} = require("./services/storage/googleSheetsConnection");
+const {
+  createGoogleSheetsStore,
+} = require("./services/storage/googleSheetsStore");
+const {
   createUnavailableStore,
 } = require("./services/storage/unavailableStore");
 
@@ -49,6 +55,27 @@ function createDefaultRsvpStore(
     return createDevelopmentStore({
       invitations:
         registry.fixtures,
+    });
+  }
+
+  if (
+    environment.NODE_ENV ===
+    "production"
+  ) {
+    const connection =
+      createGoogleSheetsConnection({
+        spreadsheetId:
+          environment
+            .GOOGLE_SPREADSHEET_ID,
+      });
+
+    return createGoogleSheetsStore({
+      sheets:
+        connection
+          .getSheetsClient(),
+      spreadsheetId:
+        connection
+          .getSpreadsheetId(),
     });
   }
 

@@ -8,7 +8,9 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "test": "node --test",
-    "verify:google-sheets": "node scripts/verifyGoogleSheets.js"
+    "verify:google-sheets": "node scripts/verifyGoogleSheets.js",
+    "initialize:google-sheets-store": "node scripts/initializeGoogleSheetsStore.js",
+    "verify:google-sheets-store": "node scripts/verifyGoogleSheetsStore.js"
   },
   "keywords": [],
   "author": "",
