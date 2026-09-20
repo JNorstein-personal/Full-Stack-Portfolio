@@ -56,6 +56,16 @@ function parseJsonCell(
   }
 }
 
+function sameJson(
+  left,
+  right,
+) {
+  return (
+    JSON.stringify(left) ===
+    JSON.stringify(right)
+  );
+}
+
 function validateClient(
   sheets,
 ) {
@@ -296,6 +306,206 @@ function createGoogleSheetsStore({
       );
     },
 
+    async commitRsvpMutation(
+      partyId,
+      {
+        expectedCurrentVersion,
+        mutationId,
+        currentRsvp,
+        versionRecord,
+      },
+    ) {
+      const targetVersion =
+        currentRsvp &&
+        currentRsvp.version;
+
+      if (
+        !Number.isInteger(
+          expectedCurrentVersion,
+        ) ||
+        expectedCurrentVersion < 0 ||
+        typeof mutationId !==
+          "string" ||
+        mutationId === "" ||
+        !Number.isInteger(
+          targetVersion,
+        ) ||
+        targetVersion !==
+          expectedCurrentVersion +
+            1 ||
+        !versionRecord ||
+        versionRecord.version !==
+          targetVersion ||
+        versionRecord.mutationId !==
+          mutationId
+      ) {
+        throw new Error(
+          "Google Sheets RSVP mutation commit received inconsistent mutation metadata.",
+        );
+      }
+
+      const [
+        currentRows,
+        versionRows,
+      ] = await Promise.all([
+        readRows(
+          GOOGLE_SHEETS_STORE_SCHEMA
+            .currentRsvps,
+        ),
+        readRows(
+          GOOGLE_SHEETS_STORE_SCHEMA
+            .rsvpVersions,
+        ),
+      ]);
+
+      const currentRow =
+        currentRows.find(
+          (candidate) =>
+            candidate[0] ===
+            partyId,
+        );
+      const current =
+        currentRow
+          ? parseJsonCell(
+              currentRow[2],
+              "Current RSVPs",
+            )
+          : null;
+      const currentVersion =
+        current
+          ? current.version
+          : 0;
+
+      const matchingVersions =
+        versionRows
+          .filter(
+            (row) =>
+              row[0] === partyId,
+          )
+          .map((row) =>
+            parseJsonCell(
+              row[4],
+              "RSVP Versions",
+            ),
+          )
+          .filter(
+            (record) =>
+              record.version ===
+              targetVersion,
+          );
+
+      if (
+        matchingVersions.length > 1
+      ) {
+        throw new Error(
+          "Google Sheets RSVP mutation commit found duplicate target versions.",
+        );
+      }
+
+      const existingVersion =
+        matchingVersions[0];
+
+      if (existingVersion) {
+        if (
+          existingVersion.mutationId !==
+          mutationId
+        ) {
+          throw new Error(
+            "Google Sheets RSVP mutation commit found a conflicting target version.",
+          );
+        }
+
+        if (
+          currentVersion ===
+          targetVersion
+        ) {
+          if (
+            !sameJson(
+              current,
+              currentRsvp,
+            )
+          ) {
+            throw new Error(
+              "Google Sheets RSVP mutation commit found inconsistent current state.",
+            );
+          }
+
+          return Object.freeze({
+            status:
+              "alreadyCommitted",
+          });
+        }
+
+        if (
+          currentVersion !==
+          expectedCurrentVersion
+        ) {
+          throw new Error(
+            "Google Sheets RSVP mutation commit found an unexpected current version.",
+          );
+        }
+
+        await upsertByFirstColumn(
+          GOOGLE_SHEETS_STORE_SCHEMA
+            .currentRsvps,
+          partyId,
+          [
+            partyId,
+            currentRsvp.version,
+            JSON.stringify(
+              currentRsvp,
+            ),
+          ],
+        );
+
+        return Object.freeze({
+          status: "recovered",
+        });
+      }
+
+      if (
+        currentVersion !==
+        expectedCurrentVersion
+      ) {
+        throw new Error(
+          "Google Sheets RSVP mutation commit found an unexpected current version.",
+        );
+      }
+
+      await appendRow(
+        GOOGLE_SHEETS_STORE_SCHEMA
+          .rsvpVersions,
+        [
+          partyId,
+          versionRecord.version,
+          versionRecord.action ??
+            "",
+          versionRecord.recordedAt ??
+            "",
+          JSON.stringify(
+            versionRecord,
+          ),
+        ],
+      );
+
+      await upsertByFirstColumn(
+        GOOGLE_SHEETS_STORE_SCHEMA
+          .currentRsvps,
+        partyId,
+        [
+          partyId,
+          currentRsvp.version,
+          JSON.stringify(
+            currentRsvp,
+          ),
+        ],
+      );
+
+      return Object.freeze({
+        status: "committed",
+      });
+    },
+
     async getSubmissionRecord(
       submissionKey,
     ) {
@@ -338,6 +548,40 @@ function createGoogleSheetsStore({
       );
 
       return freezeClone(record);
+    },
+
+    async listSubmissionRecordsForParty(
+      partyId,
+    ) {
+      const rows =
+        await readRows(
+          GOOGLE_SHEETS_STORE_SCHEMA
+            .submissionRecords,
+        );
+
+      return freezeClone(
+        rows
+          .filter(
+            (row) =>
+              String(
+                row[0] || "",
+              ).startsWith(
+                `${partyId}:`,
+              ),
+          )
+          .map((row) =>
+            parseJsonCell(
+              row[2],
+              "Submission Records",
+            ),
+          )
+          .filter(
+            (record) =>
+              !record.partyId ||
+              record.partyId ===
+                partyId,
+          ),
+      );
     },
 
     async appendDeliveryRecord(

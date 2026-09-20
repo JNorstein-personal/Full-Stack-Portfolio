@@ -94,6 +94,16 @@ function createDevelopmentStore({
     return immutableClone(values);
   }
 
+  function sameJson(
+    left,
+    right,
+  ) {
+    return (
+      JSON.stringify(left) ===
+      JSON.stringify(right)
+    );
+  }
+
   const store = {
     async findInvitationByCanonicalCode(
       canonicalCode,
@@ -167,6 +177,156 @@ function createDevelopmentStore({
       );
     },
 
+    async commitRsvpMutation(
+      partyId,
+      {
+        expectedCurrentVersion,
+        mutationId,
+        currentRsvp,
+        versionRecord,
+      },
+    ) {
+      const targetVersion =
+        currentRsvp &&
+        currentRsvp.version;
+
+      if (
+        !Number.isInteger(
+          expectedCurrentVersion,
+        ) ||
+        expectedCurrentVersion < 0 ||
+        typeof mutationId !==
+          "string" ||
+        mutationId === "" ||
+        !Number.isInteger(
+          targetVersion,
+        ) ||
+        targetVersion !==
+          expectedCurrentVersion +
+            1 ||
+        !versionRecord ||
+        versionRecord.version !==
+          targetVersion ||
+        versionRecord.mutationId !==
+          mutationId
+      ) {
+        throw new Error(
+          "RSVP mutation commit received inconsistent mutation metadata.",
+        );
+      }
+
+      const current =
+        currentByParty.get(
+          partyId,
+        ) || null;
+      const currentVersion =
+        current
+          ? current.version
+          : 0;
+      const versions =
+        versionsByParty.get(
+          partyId,
+        ) || [];
+      const matchingVersions =
+        versions.filter(
+          (record) =>
+            record.version ===
+            targetVersion,
+        );
+
+      if (
+        matchingVersions.length > 1
+      ) {
+        throw new Error(
+          "RSVP mutation commit found duplicate target versions.",
+        );
+      }
+
+      const existingVersion =
+        matchingVersions[0];
+
+      if (existingVersion) {
+        if (
+          existingVersion.mutationId !==
+          mutationId
+        ) {
+          throw new Error(
+            "RSVP mutation commit found a conflicting target version.",
+          );
+        }
+
+        if (
+          currentVersion ===
+          targetVersion
+        ) {
+          if (
+            !sameJson(
+              current,
+              currentRsvp,
+            )
+          ) {
+            throw new Error(
+              "RSVP mutation commit found inconsistent current state.",
+            );
+          }
+
+          return Object.freeze({
+            status:
+              "alreadyCommitted",
+          });
+        }
+
+        if (
+          currentVersion !==
+          expectedCurrentVersion
+        ) {
+          throw new Error(
+            "RSVP mutation commit found an unexpected current version.",
+          );
+        }
+
+        currentByParty.set(
+          partyId,
+          cloneJsonValue(
+            currentRsvp,
+          ),
+        );
+
+        return Object.freeze({
+          status: "recovered",
+        });
+      }
+
+      if (
+        currentVersion !==
+        expectedCurrentVersion
+      ) {
+        throw new Error(
+          "RSVP mutation commit found an unexpected current version.",
+        );
+      }
+
+      versions.push(
+        cloneJsonValue(
+          versionRecord,
+        ),
+      );
+      versionsByParty.set(
+        partyId,
+        versions,
+      );
+      currentByParty.set(
+        partyId,
+        cloneJsonValue(
+          currentRsvp,
+        ),
+      );
+
+      return Object.freeze({
+        status: "committed",
+      });
+    },
+
     async getSubmissionRecord(
       clientSubmissionId,
     ) {
@@ -190,6 +350,21 @@ function createDevelopmentStore({
       );
 
       return immutableClone(record);
+    },
+
+    async listSubmissionRecordsForParty(
+      partyId,
+    ) {
+      return immutableClone(
+        Array.from(
+          submissionsById.values(),
+        ).filter(
+          (record) =>
+            record &&
+            record.partyId ===
+              partyId,
+        ),
+      );
     },
 
     async appendDeliveryRecord(

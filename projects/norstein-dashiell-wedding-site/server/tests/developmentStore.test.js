@@ -240,3 +240,218 @@ test(
     );
   },
 );
+
+
+test(
+  "development store commits a mutation once and recognizes an exact replay",
+  async () => {
+    const store =
+      createDevelopmentStore();
+
+    const currentRsvp = {
+      version: 1,
+      eventAttendance: [
+        "ceremony",
+      ],
+    };
+    const versionRecord = {
+      action: "initial",
+      mutationId:
+        "mutation-a",
+      ...currentRsvp,
+    };
+
+    assert.deepEqual(
+      await store
+        .commitRsvpMutation(
+          "party-dev-a",
+          {
+            expectedCurrentVersion:
+              0,
+            mutationId:
+              "mutation-a",
+            currentRsvp,
+            versionRecord,
+          },
+        ),
+      {
+        status: "committed",
+      },
+    );
+
+    assert.deepEqual(
+      await store
+        .commitRsvpMutation(
+          "party-dev-a",
+          {
+            expectedCurrentVersion:
+              0,
+            mutationId:
+              "mutation-a",
+            currentRsvp,
+            versionRecord,
+          },
+        ),
+      {
+        status:
+          "alreadyCommitted",
+      },
+    );
+
+    assert.equal(
+      (
+        await store
+          .listRsvpVersions(
+            "party-dev-a",
+          )
+      ).length,
+      1,
+    );
+  },
+);
+
+test(
+  "development store repairs an orphaned version record without appending a duplicate",
+  async () => {
+    const store =
+      createDevelopmentStore();
+
+    const currentRsvp = {
+      version: 1,
+      eventAttendance: [
+        "ceremony",
+      ],
+    };
+
+    await store.appendRsvpVersion(
+      "party-dev-a",
+      {
+        action: "initial",
+        mutationId:
+          "mutation-a",
+        ...currentRsvp,
+      },
+    );
+
+    assert.deepEqual(
+      await store
+        .commitRsvpMutation(
+          "party-dev-a",
+          {
+            expectedCurrentVersion:
+              0,
+            mutationId:
+              "mutation-a",
+            currentRsvp,
+            versionRecord: {
+              action:
+                "initial",
+              mutationId:
+                "mutation-a",
+              ...currentRsvp,
+            },
+          },
+        ),
+      {
+        status: "recovered",
+      },
+    );
+
+    assert.deepEqual(
+      await store.getCurrentRsvp(
+        "party-dev-a",
+      ),
+      currentRsvp,
+    );
+    assert.equal(
+      (
+        await store
+          .listRsvpVersions(
+            "party-dev-a",
+          )
+      ).length,
+      1,
+    );
+  },
+);
+
+test(
+  "development store rejects a conflicting mutation for an occupied target version",
+  async () => {
+    const store =
+      createDevelopmentStore();
+
+    await store.appendRsvpVersion(
+      "party-dev-a",
+      {
+        action: "initial",
+        mutationId:
+          "mutation-a",
+        version: 1,
+      },
+    );
+
+    await assert.rejects(
+      () =>
+        store.commitRsvpMutation(
+          "party-dev-a",
+          {
+            expectedCurrentVersion:
+              0,
+            mutationId:
+              "mutation-b",
+            currentRsvp: {
+              version: 1,
+            },
+            versionRecord: {
+              action:
+                "initial",
+              mutationId:
+                "mutation-b",
+              version: 1,
+            },
+          },
+        ),
+      /conflicting target version/,
+    );
+  },
+);
+
+test(
+  "development store lists private submission lifecycle records by party",
+  async () => {
+    const store =
+      createDevelopmentStore();
+
+    await store.setSubmissionRecord(
+      "party-dev-a:one",
+      {
+        partyId:
+          "party-dev-a",
+        state: "prepared",
+      },
+    );
+    await store.setSubmissionRecord(
+      "party-dev-b:one",
+      {
+        partyId:
+          "party-dev-b",
+        state: "complete",
+      },
+    );
+
+    assert.deepEqual(
+      await store
+        .listSubmissionRecordsForParty(
+          "party-dev-a",
+        ),
+      [
+        {
+          partyId:
+            "party-dev-a",
+          state: "prepared",
+        },
+      ],
+    );
+  },
+);

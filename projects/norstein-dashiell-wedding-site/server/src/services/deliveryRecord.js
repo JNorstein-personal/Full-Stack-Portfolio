@@ -22,6 +22,7 @@ function buildDeliveryRecord({
   recordedAt,
   action,
   version,
+  mutationId,
   confirmation,
   administrativeEmail,
   delivery,
@@ -30,6 +31,9 @@ function buildDeliveryRecord({
     recordedAt,
     action,
     version,
+    ...(mutationId
+      ? { mutationId }
+      : {}),
     guest: Object.freeze({
       method:
         confirmation.method,

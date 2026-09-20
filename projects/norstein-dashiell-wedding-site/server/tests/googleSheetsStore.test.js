@@ -292,3 +292,242 @@ test(
     );
   },
 );
+
+
+test(
+  "Google Sheets mutation commit is idempotent after a complete write",
+  async () => {
+    const {
+      store,
+      invitation,
+    } =
+      await createInitializedStore();
+
+    const currentRsvp = {
+      version: 1,
+      eventAttendance: [
+        "ceremony",
+      ],
+    };
+    const versionRecord = {
+      action: "initial",
+      mutationId:
+        "mutation-a",
+      recordedAt:
+        "2026-09-20T20:00:00.000Z",
+      ...currentRsvp,
+    };
+
+    assert.deepEqual(
+      await store
+        .commitRsvpMutation(
+          invitation.partyId,
+          {
+            expectedCurrentVersion:
+              0,
+            mutationId:
+              "mutation-a",
+            currentRsvp,
+            versionRecord,
+          },
+        ),
+      {
+        status: "committed",
+      },
+    );
+
+    assert.deepEqual(
+      await store
+        .commitRsvpMutation(
+          invitation.partyId,
+          {
+            expectedCurrentVersion:
+              0,
+            mutationId:
+              "mutation-a",
+            currentRsvp,
+            versionRecord,
+          },
+        ),
+      {
+        status:
+          "alreadyCommitted",
+      },
+    );
+
+    assert.equal(
+      (
+        await store
+          .listRsvpVersions(
+            invitation.partyId,
+          )
+      ).length,
+      1,
+    );
+  },
+);
+
+test(
+  "Google Sheets mutation commit repairs an orphaned matching version row",
+  async () => {
+    const {
+      store,
+      invitation,
+    } =
+      await createInitializedStore();
+
+    const currentRsvp = {
+      version: 1,
+      eventAttendance: [
+        "ceremony",
+      ],
+    };
+
+    await store.appendRsvpVersion(
+      invitation.partyId,
+      {
+        action: "initial",
+        mutationId:
+          "mutation-a",
+        recordedAt:
+          "2026-09-20T20:00:00.000Z",
+        ...currentRsvp,
+      },
+    );
+
+    assert.deepEqual(
+      await store
+        .commitRsvpMutation(
+          invitation.partyId,
+          {
+            expectedCurrentVersion:
+              0,
+            mutationId:
+              "mutation-a",
+            currentRsvp,
+            versionRecord: {
+              action:
+                "initial",
+              mutationId:
+                "mutation-a",
+              recordedAt:
+                "2026-09-20T20:00:00.000Z",
+              ...currentRsvp,
+            },
+          },
+        ),
+      {
+        status: "recovered",
+      },
+    );
+
+    assert.deepEqual(
+      await store.getCurrentRsvp(
+        invitation.partyId,
+      ),
+      currentRsvp,
+    );
+    assert.equal(
+      (
+        await store
+          .listRsvpVersions(
+            invitation.partyId,
+          )
+      ).length,
+      1,
+    );
+  },
+);
+
+test(
+  "Google Sheets mutation commit rejects a conflicting mutation for an occupied target version",
+  async () => {
+    const {
+      store,
+      invitation,
+    } =
+      await createInitializedStore();
+
+    await store.appendRsvpVersion(
+      invitation.partyId,
+      {
+        action: "initial",
+        mutationId:
+          "mutation-a",
+        version: 1,
+      },
+    );
+
+    await assert.rejects(
+      () =>
+        store.commitRsvpMutation(
+          invitation.partyId,
+          {
+            expectedCurrentVersion:
+              0,
+            mutationId:
+              "mutation-b",
+            currentRsvp: {
+              version: 1,
+            },
+            versionRecord: {
+              action:
+                "initial",
+              mutationId:
+                "mutation-b",
+              version: 1,
+            },
+          },
+        ),
+      /conflicting target version/,
+    );
+  },
+);
+
+test(
+  "Google Sheets store lists private submission lifecycle records by party",
+  async () => {
+    const {
+      store,
+      invitation,
+    } =
+      await createInitializedStore();
+
+    await store.setSubmissionRecord(
+      `${invitation.partyId}:one`,
+      {
+        fingerprint:
+          "fingerprint-a",
+        partyId:
+          invitation.partyId,
+        state: "prepared",
+      },
+    );
+    await store.setSubmissionRecord(
+      "party-other:one",
+      {
+        fingerprint:
+          "fingerprint-b",
+        partyId:
+          "party-other",
+        state: "complete",
+      },
+    );
+
+    assert.deepEqual(
+      await store
+        .listSubmissionRecordsForParty(
+          invitation.partyId,
+        ),
+      [
+        {
+          fingerprint:
+            "fingerprint-a",
+          partyId:
+            invitation.partyId,
+          state: "prepared",
+        },
+      ],
+    );
+  },
+);

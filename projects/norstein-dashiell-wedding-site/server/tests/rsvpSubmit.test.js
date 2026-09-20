@@ -14,6 +14,9 @@ const {
 const {
   createDevelopmentStore,
 } = require("../src/services/storage/developmentStore");
+const {
+  createMutationId,
+} = require("../src/services/rsvpSubmissionService");
 
 const OPEN_NOW = new Date(
   "2026-09-20T18:00:00Z",
@@ -2351,6 +2354,10 @@ test(
                 OPEN_NOW.toISOString(),
               action: "initial",
               version: 1,
+              mutationId:
+                createMutationId(
+                  "party-dev-archetype-a:71000000-0000-4000-8000-000000000001",
+                ),
               guest: {
                 method: "email",
                 destination:
@@ -2365,6 +2372,651 @@ test(
               },
             },
           ],
+        );
+      },
+    );
+  },
+);
+
+
+function withStoreOverrides(
+  store,
+  overrides,
+) {
+  return Object.freeze({
+    ...store,
+    ...overrides,
+  });
+}
+
+test(
+  "retry recovers a stored mutation when lifecycle persistence fails after the RSVP commit",
+  async () => {
+    const baseStore =
+      createFixtureStore();
+    let submissionWriteCount = 0;
+    let failSecondSubmissionWrite =
+      true;
+    let deliveryCount = 0;
+
+    const rsvpStore =
+      withStoreOverrides(
+        baseStore,
+        {
+          async setSubmissionRecord(
+            key,
+            record,
+          ) {
+            submissionWriteCount += 1;
+
+            if (
+              failSecondSubmissionWrite &&
+              submissionWriteCount ===
+                2
+            ) {
+              failSecondSubmissionWrite =
+                false;
+              throw new Error(
+                "fictional lifecycle write failure",
+              );
+            }
+
+            return baseStore
+              .setSubmissionRecord(
+                key,
+                record,
+              );
+          },
+        },
+      );
+
+    const body =
+      ceremonyRequest({
+        clientSubmissionId:
+          "72000000-0000-4000-8000-000000000001",
+      });
+
+    await withTestServer(
+      standardOptions({
+        rsvpStore,
+        deliveryService: {
+          async deliver() {
+            deliveryCount += 1;
+
+            return {
+              guestDeliveryStatus:
+                "sent",
+              administrativeDeliveryStatus:
+                "sent",
+            };
+          },
+        },
+      }),
+      async (baseUrl) => {
+        const interrupted =
+          await submit(
+            baseUrl,
+            body,
+          );
+
+        assert.equal(
+          interrupted.response.status,
+          503,
+        );
+        assert.equal(
+          deliveryCount,
+          0,
+        );
+        assert.equal(
+          (
+            await baseStore
+              .listRsvpVersions(
+                "party-dev-archetype-a",
+              )
+          ).length,
+          1,
+        );
+        assert.equal(
+          (
+            await baseStore
+              .getCurrentRsvp(
+                "party-dev-archetype-a",
+              )
+          ).version,
+          1,
+        );
+
+        const replay =
+          await submit(
+            baseUrl,
+            body,
+          );
+
+        assert.equal(
+          replay.response.status,
+          200,
+        );
+        assert.equal(
+          replay.payload
+            .submission
+            .idempotentRepeat,
+          true,
+        );
+        assert.equal(
+          deliveryCount,
+          1,
+        );
+        assert.equal(
+          (
+            await baseStore
+              .listRsvpVersions(
+                "party-dev-archetype-a",
+              )
+          ).length,
+          1,
+        );
+        assert.equal(
+          (
+            await baseStore
+              .listDeliveryRecords(
+                "party-dev-archetype-a",
+              )
+          ).length,
+          1,
+        );
+      },
+    );
+  },
+);
+
+test(
+  "retry does not repeat delivery when completion persistence fails after the delivery record is stored",
+  async () => {
+    const baseStore =
+      createFixtureStore();
+    let submissionWriteCount = 0;
+    let failCompletionWrite =
+      true;
+    let deliveryCount = 0;
+
+    const rsvpStore =
+      withStoreOverrides(
+        baseStore,
+        {
+          async setSubmissionRecord(
+            key,
+            record,
+          ) {
+            submissionWriteCount += 1;
+
+            if (
+              failCompletionWrite &&
+              submissionWriteCount ===
+                4
+            ) {
+              failCompletionWrite =
+                false;
+              throw new Error(
+                "fictional completion write failure",
+              );
+            }
+
+            return baseStore
+              .setSubmissionRecord(
+                key,
+                record,
+              );
+          },
+        },
+      );
+
+    const body =
+      ceremonyRequest({
+        clientSubmissionId:
+          "72000000-0000-4000-8000-000000000002",
+      });
+
+    await withTestServer(
+      standardOptions({
+        rsvpStore,
+        deliveryService: {
+          async deliver() {
+            deliveryCount += 1;
+
+            return {
+              guestDeliveryStatus:
+                "sent",
+              administrativeDeliveryStatus:
+                "sent",
+            };
+          },
+        },
+      }),
+      async (baseUrl) => {
+        const interrupted =
+          await submit(
+            baseUrl,
+            body,
+          );
+
+        assert.equal(
+          interrupted.response.status,
+          503,
+        );
+        assert.equal(
+          deliveryCount,
+          1,
+        );
+        assert.equal(
+          (
+            await baseStore
+              .listDeliveryRecords(
+                "party-dev-archetype-a",
+              )
+          ).length,
+          1,
+        );
+
+        const replay =
+          await submit(
+            baseUrl,
+            body,
+          );
+
+        assert.equal(
+          replay.response.status,
+          200,
+        );
+        assert.equal(
+          replay.payload
+            .submission
+            .idempotentRepeat,
+          true,
+        );
+        assert.equal(
+          replay.payload
+            .confirmation
+            .guestDeliveryStatus,
+          "sent",
+        );
+        assert.equal(
+          deliveryCount,
+          1,
+        );
+        assert.equal(
+          (
+            await baseStore
+              .listDeliveryRecords(
+                "party-dev-archetype-a",
+              )
+          ).length,
+          1,
+        );
+      },
+    );
+  },
+);
+
+test(
+  "retry records uncertain delivery without resending when provider delivery completed but delivery history persistence failed",
+  async () => {
+    const baseStore =
+      createFixtureStore();
+    let failDeliveryRecord =
+      true;
+    let deliveryCount = 0;
+
+    const rsvpStore =
+      withStoreOverrides(
+        baseStore,
+        {
+          async appendDeliveryRecord(
+            partyId,
+            record,
+          ) {
+            if (
+              failDeliveryRecord
+            ) {
+              failDeliveryRecord =
+                false;
+              throw new Error(
+                "fictional delivery record failure",
+              );
+            }
+
+            return baseStore
+              .appendDeliveryRecord(
+                partyId,
+                record,
+              );
+          },
+        },
+      );
+
+    const body =
+      ceremonyRequest({
+        clientSubmissionId:
+          "72000000-0000-4000-8000-000000000003",
+      });
+
+    await withTestServer(
+      standardOptions({
+        rsvpStore,
+        deliveryService: {
+          async deliver() {
+            deliveryCount += 1;
+
+            return {
+              guestDeliveryStatus:
+                "sent",
+              administrativeDeliveryStatus:
+                "sent",
+            };
+          },
+        },
+      }),
+      async (baseUrl) => {
+        const interrupted =
+          await submit(
+            baseUrl,
+            body,
+          );
+
+        assert.equal(
+          interrupted.response.status,
+          503,
+        );
+        assert.equal(
+          deliveryCount,
+          1,
+        );
+        assert.equal(
+          (
+            await baseStore
+              .listDeliveryRecords(
+                "party-dev-archetype-a",
+              )
+          ).length,
+          0,
+        );
+
+        const replay =
+          await submit(
+            baseUrl,
+            body,
+          );
+
+        assert.equal(
+          replay.response.status,
+          200,
+        );
+        assert.equal(
+          replay.payload
+            .submission
+            .idempotentRepeat,
+          true,
+        );
+        assert.equal(
+          replay.payload
+            .confirmation
+            .guestDeliveryStatus,
+          "uncertain",
+        );
+        assert.equal(
+          replay.payload
+            .confirmation
+            .administrativeDeliveryStatus,
+          "uncertain",
+        );
+        assert.equal(
+          replay.payload
+            .confirmation
+            .deliveryWarning,
+          true,
+        );
+        assert.equal(
+          deliveryCount,
+          1,
+        );
+        assert.equal(
+          (
+            await baseStore
+              .listDeliveryRecords(
+                "party-dev-archetype-a",
+              )
+          ).length,
+          1,
+        );
+      },
+    );
+  },
+);
+
+test(
+  "a different logical mutation is refused while an interrupted submission for the same invitation remains pending",
+  async () => {
+    const baseStore =
+      createFixtureStore();
+    let failMutationCommit =
+      true;
+
+    const rsvpStore =
+      withStoreOverrides(
+        baseStore,
+        {
+          async commitRsvpMutation(
+            partyId,
+            mutation,
+          ) {
+            if (
+              failMutationCommit
+            ) {
+              failMutationCommit =
+                false;
+              throw new Error(
+                "fictional mutation commit failure",
+              );
+            }
+
+            return baseStore
+              .commitRsvpMutation(
+                partyId,
+                mutation,
+              );
+          },
+        },
+      );
+
+    const pendingBody =
+      ceremonyRequest({
+        clientSubmissionId:
+          "72000000-0000-4000-8000-000000000004",
+      });
+    const differentBody =
+      ceremonyRequest({
+        clientSubmissionId:
+          "72000000-0000-4000-8000-000000000005",
+      });
+
+    await withTestServer(
+      standardOptions({
+        rsvpStore,
+      }),
+      async (baseUrl) => {
+        const interrupted =
+          await submit(
+            baseUrl,
+            pendingBody,
+          );
+
+        assert.equal(
+          interrupted.response.status,
+          503,
+        );
+
+        const blocked =
+          await submit(
+            baseUrl,
+            differentBody,
+          );
+
+        assert.equal(
+          blocked.response.status,
+          503,
+        );
+        assert.equal(
+          (
+            await baseStore
+              .listRsvpVersions(
+                "party-dev-archetype-a",
+              )
+          ).length,
+          0,
+        );
+
+        const recovered =
+          await submit(
+            baseUrl,
+            pendingBody,
+          );
+
+        assert.equal(
+          recovered.response.status,
+          200,
+        );
+        assert.equal(
+          recovered.payload
+            .submission
+            .idempotentRepeat,
+          true,
+        );
+        assert.equal(
+          (
+            await baseStore
+              .listRsvpVersions(
+                "party-dev-archetype-a",
+              )
+          ).length,
+          1,
+        );
+      },
+    );
+  },
+);
+
+test(
+  "simultaneous distinct revisions for one invitation are serialized against the latest current RSVP",
+  async () => {
+    const rsvpStore =
+      createFixtureStore();
+
+    await withTestServer(
+      standardOptions({
+        rsvpStore,
+      }),
+      async (baseUrl) => {
+        assert.equal(
+          (
+            await submit(
+              baseUrl,
+              ceremonyRequest({
+                inviteCode:
+                  "DEV-002",
+                clientSubmissionId:
+                  "72000000-0000-4000-8000-000000000006",
+              }),
+            )
+          ).response.status,
+          201,
+        );
+
+        const firstRevision = {
+          inviteCode:
+            "DEV-002",
+          clientSubmissionId:
+            "72000000-0000-4000-8000-000000000007",
+          confirmation:
+            emailConfirmation(),
+          changes: {
+            attendanceTotals: {
+              operation:
+                "replace",
+              value: {
+                adults21Plus: 2,
+              },
+            },
+          },
+        };
+        const secondRevision = {
+          inviteCode:
+            "DEV-002",
+          clientSubmissionId:
+            "72000000-0000-4000-8000-000000000008",
+          confirmation:
+            emailConfirmation(),
+          changes: {
+            attendanceTotals: {
+              operation:
+                "replace",
+              value: {
+                youngAdults18To20:
+                  1,
+              },
+            },
+          },
+        };
+
+        const results =
+          await Promise.all([
+            submit(
+              baseUrl,
+              firstRevision,
+            ),
+            submit(
+              baseUrl,
+              secondRevision,
+            ),
+          ]);
+
+        assert.deepEqual(
+          results.map(
+            (result) =>
+              result.response.status,
+          ),
+          [200, 200],
+        );
+
+        const versions =
+          await rsvpStore
+            .listRsvpVersions(
+              "party-dev-archetype-b",
+            );
+        const current =
+          await rsvpStore
+            .getCurrentRsvp(
+              "party-dev-archetype-b",
+            );
+
+        assert.deepEqual(
+          versions.map(
+            (record) =>
+              record.version,
+          ),
+          [1, 2, 3],
+        );
+        assert.equal(
+          current.version,
+          3,
+        );
+        assert.equal(
+          current.attendanceTotals
+            .adults21Plus,
+          2,
+        );
+        assert.equal(
+          current.attendanceTotals
+            .youngAdults18To20,
+          1,
         );
       },
     );
