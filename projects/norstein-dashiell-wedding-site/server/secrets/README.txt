@@ -4,9 +4,11 @@ Credential files used by the Norstein-Dashiell Wedding Website are not committed
 
 The React client must never receive server-side credentials.
 
-Environment configuration may reference protected credential files stored in this directory when required.
+Google API access uses Application Default Credentials (ADC). Local development should use the developer's authenticated Google user credentials through the Google Cloud CLI rather than a long-lived service-account private key.
 
-For development Google Sheets access, a development-only Google service-account credential file may be stored here and referenced by GOOGLE_SERVICE_ACCOUNT_FILE. The associated development workbook must be separate from production data and shared only with the intended development service account and authorized administrators.
+For production on the self-hosted server, use Workload Identity Federation or another approved short-lived ADC mechanism. Do not create, commit, or deploy long-lived service-account key files merely to satisfy this application.
+
+If a future protected credential configuration file is required, it may be stored in this ignored directory and referenced by GOOGLE_APPLICATION_CREDENTIALS.
 
 Production credentials and the production workbook must remain separate from development/test credentials and data.
 

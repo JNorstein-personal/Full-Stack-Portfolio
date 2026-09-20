@@ -106,8 +106,6 @@ const environmentSchema = z
 
     GOOGLE_SPREADSHEET_ID: optionalString,
 
-    GOOGLE_SERVICE_ACCOUNT_FILE: optionalString,
-
     RSVP_DEADLINE: deadlineSchema.default(
       PROJECT_RSVP_DEADLINE,
     ),
@@ -149,7 +147,6 @@ const environmentSchema = z
 
     const productionRequired = [
       "GOOGLE_SPREADSHEET_ID",
-      "GOOGLE_SERVICE_ACCOUNT_FILE",
       "RSVP_ADMIN_NOTIFICATION_EMAIL",
       "EMAIL_PROVIDER",
       "RSVP_FROM_EMAIL",

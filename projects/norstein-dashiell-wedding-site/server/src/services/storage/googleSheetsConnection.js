@@ -29,19 +29,12 @@ function loadGoogleApi() {
 
 function createGoogleSheetsConnection({
   spreadsheetId,
-  serviceAccountFile,
   googleApi,
 } = {}) {
   const validatedSpreadsheetId =
     requireNonemptyString(
       spreadsheetId,
       "GOOGLE_SPREADSHEET_ID",
-    );
-
-  const validatedServiceAccountFile =
-    requireNonemptyString(
-      serviceAccountFile,
-      "GOOGLE_SERVICE_ACCOUNT_FILE",
     );
 
   const google =
@@ -62,8 +55,6 @@ function createGoogleSheetsConnection({
 
   const auth =
     new google.auth.GoogleAuth({
-      keyFile:
-        validatedServiceAccountFile,
       scopes: [
         GOOGLE_SHEETS_SCOPE,
       ],

@@ -64,7 +64,7 @@ function createFakeGoogle({
 }
 
 test(
-  "Google Sheets connection uses service-account key file and Sheets read/write scope",
+  "Google Sheets connection uses Application Default Credentials with the Sheets read/write scope",
   () => {
     const fake =
       createFakeGoogle();
@@ -73,8 +73,6 @@ test(
       createGoogleSheetsConnection({
         spreadsheetId:
           "fictional-sheet-id",
-        serviceAccountFile:
-          "C:\\protected\\development-service-account.json",
         googleApi:
           fake.googleApi,
       });
@@ -82,8 +80,6 @@ test(
     assert.deepEqual(
       fake.state.authOptions,
       {
-        keyFile:
-          "C:\\protected\\development-service-account.json",
         scopes: [
           GOOGLE_SHEETS_SCOPE,
         ],
@@ -120,8 +116,6 @@ test(
       createGoogleSheetsConnection({
         spreadsheetId:
           "fictional-sheet-id",
-        serviceAccountFile:
-          "C:\\protected\\development-service-account.json",
         googleApi:
           fake.googleApi,
       });
@@ -145,7 +139,7 @@ test(
 );
 
 test(
-  "Google Sheets verification masks provider and credential details on failure",
+  "Google Sheets verification masks provider and workbook details on failure",
   async () => {
     const fake =
       createFakeGoogle({
@@ -156,8 +150,6 @@ test(
       createGoogleSheetsConnection({
         spreadsheetId:
           "private-sheet-id",
-        serviceAccountFile:
-          "C:\\private\\secret.json",
         googleApi:
           fake.googleApi,
       });
@@ -180,7 +172,7 @@ test(
 
         assert.equal(
           error.message.includes(
-            "secret.json",
+            "provider",
           ),
           false,
         );
@@ -192,13 +184,11 @@ test(
 );
 
 test(
-  "Google Sheets connection rejects missing backend configuration",
+  "Google Sheets connection requires only the configured workbook identifier",
   () => {
     assert.throws(
       () =>
         createGoogleSheetsConnection({
-          serviceAccountFile:
-            "C:\\protected\\development-service-account.json",
           googleApi:
             createFakeGoogle()
               .googleApi,
@@ -206,7 +196,7 @@ test(
       /GOOGLE_SPREADSHEET_ID/,
     );
 
-    assert.throws(
+    assert.doesNotThrow(
       () =>
         createGoogleSheetsConnection({
           spreadsheetId:
@@ -215,7 +205,6 @@ test(
             createFakeGoogle()
               .googleApi,
         }),
-      /GOOGLE_SERVICE_ACCOUNT_FILE/,
     );
   },
 );

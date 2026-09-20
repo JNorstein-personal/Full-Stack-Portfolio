@@ -176,7 +176,6 @@ test(
     const environment = parseEnvironment(
       makeDevelopmentEnvironment({
         GOOGLE_SPREADSHEET_ID: "",
-        GOOGLE_SERVICE_ACCOUNT_FILE: "",
         RSVP_ADMIN_NOTIFICATION_EMAIL: "",
         EMAIL_PROVIDER: "",
         RSVP_FROM_EMAIL: "",
@@ -224,8 +223,6 @@ test(
         NODE_ENV: "production",
         GOOGLE_SPREADSHEET_ID:
           "fictional-spreadsheet-id",
-        GOOGLE_SERVICE_ACCOUNT_FILE:
-          "C:\\protected\\fictional-service-account.json",
         RSVP_ADMIN_NOTIFICATION_EMAIL:
           "admin@example.com",
         EMAIL_PROVIDER:

@@ -25,11 +25,10 @@ async function main() {
   }
 
   if (
-    !environment.GOOGLE_SPREADSHEET_ID ||
-    !environment.GOOGLE_SERVICE_ACCOUNT_FILE
+    !environment.GOOGLE_SPREADSHEET_ID
   ) {
     throw new Error(
-      "Development Google Sheets verification requires GOOGLE_SPREADSHEET_ID and GOOGLE_SERVICE_ACCOUNT_FILE.",
+      "Development Google Sheets verification requires GOOGLE_SPREADSHEET_ID.",
     );
   }
 
@@ -37,8 +36,6 @@ async function main() {
     createGoogleSheetsConnection({
       spreadsheetId:
         environment.GOOGLE_SPREADSHEET_ID,
-      serviceAccountFile:
-        environment.GOOGLE_SERVICE_ACCOUNT_FILE,
     });
 
   await connection.verifyAccess();
