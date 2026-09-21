@@ -12,6 +12,21 @@ const DEFAULT_DEVELOPMENT_FIXTURE_PATH =
     "../../../docs/rsvp-example-configurations.json",
   );
 
+const namedInviteeSchema = z
+  .object({
+    id: z
+      .string()
+      .regex(
+        /^invitee-[a-z0-9]+(?:-[a-z0-9]+)*$/,
+      ),
+
+    displayName: z
+      .string()
+      .min(1)
+      .max(200),
+  })
+  .strict();
+
 const additionalGuestAllocationSchema = z
   .object({
     id: z
@@ -56,6 +71,10 @@ const invitationFixtureSchema = z
       .int()
       .positive(),
 
+    namedInvitees: z
+      .array(namedInviteeSchema)
+      .min(1),
+
     additionalGuestAllocations: z
       .array(additionalGuestAllocationSchema),
 
@@ -65,6 +84,32 @@ const invitationFixtureSchema = z
   })
   .strict()
   .superRefine((fixture, context) => {
+    const namedInviteeIds = new Set();
+
+    for (
+      let index = 0;
+      index < fixture.namedInvitees.length;
+      index += 1
+    ) {
+      const invitee =
+        fixture.namedInvitees[index];
+
+      if (namedInviteeIds.has(invitee.id)) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [
+            "namedInvitees",
+            index,
+            "id",
+          ],
+          message:
+            "namedInvitees must not contain duplicate IDs",
+        });
+      }
+
+      namedInviteeIds.add(invitee.id);
+    }
+
     const allocationIds = new Set();
 
     for (
@@ -93,14 +138,15 @@ const invitationFixtureSchema = z
     }
 
     if (
-      fixture.additionalGuestAllocations
-        .length >= fixture.maximumAttendance
+      fixture.namedInvitees.length +
+        fixture.additionalGuestAllocations.length !==
+      fixture.maximumAttendance
     ) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        path: ["additionalGuestAllocations"],
+        path: ["maximumAttendance"],
         message:
-          "additionalGuestAllocations must leave room for at least one primary invited attendee within maximumAttendance",
+          "namedInvitees plus additionalGuestAllocations must equal maximumAttendance",
       });
     }
   });
@@ -111,7 +157,7 @@ const invitationFixtureRegistrySchema =
 function validateFixtureSemantics(fixtures) {
   const canonicalCodes = new Set();
   const partyIds = new Set();
-  const allocationIds = new Set();
+  const personSlotIds = new Set();
 
   for (
     let index = 0;
@@ -160,16 +206,29 @@ function validateFixtureSemantics(fixtures) {
     partyIds.add(fixture.partyId);
 
     for (
-      const allocation of
-      fixture.additionalGuestAllocations
+      const invitee of
+      fixture.namedInvitees
     ) {
-      if (allocationIds.has(allocation.id)) {
+      if (personSlotIds.has(invitee.id)) {
         throw new Error(
-          `Development invitation fixture ${index} duplicates an additional-guest allocation identifier.`,
+          `Development invitation fixture ${index} duplicates an attendee-slot identifier.`,
         );
       }
 
-      allocationIds.add(allocation.id);
+      personSlotIds.add(invitee.id);
+    }
+
+    for (
+      const allocation of
+      fixture.additionalGuestAllocations
+    ) {
+      if (personSlotIds.has(allocation.id)) {
+        throw new Error(
+          `Development invitation fixture ${index} duplicates an attendee-slot identifier.`,
+        );
+      }
+
+      personSlotIds.add(allocation.id);
     }
   }
 }
@@ -193,6 +252,13 @@ function deepFreeze(value) {
 function cloneFixture(fixture) {
   return {
     ...fixture,
+
+    namedInvitees:
+      fixture.namedInvitees.map(
+        (invitee) => ({
+          ...invitee,
+        }),
+      ),
 
     additionalGuestAllocations:
       fixture.additionalGuestAllocations.map(

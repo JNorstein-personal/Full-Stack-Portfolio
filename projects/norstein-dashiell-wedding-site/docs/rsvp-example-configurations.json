@@ -7,6 +7,12 @@
     "greeting": "Welcome, Example Guest!",
     "wordingMode": "singular",
     "maximumAttendance": 1,
+    "namedInvitees": [
+      {
+        "id": "invitee-dev001-a",
+        "displayName": "Example Guest"
+      }
+    ],
     "additionalGuestAllocations": [],
     "active": true,
     "environment": "development"
@@ -19,6 +25,28 @@
     "greeting": "Welcome, Example Household!",
     "wordingMode": "plural",
     "maximumAttendance": 5,
+    "namedInvitees": [
+      {
+        "id": "invitee-dev002-a",
+        "displayName": "Example Adult One"
+      },
+      {
+        "id": "invitee-dev002-b",
+        "displayName": "Example Adult Two"
+      },
+      {
+        "id": "invitee-dev002-c",
+        "displayName": "Example Household Member Three"
+      },
+      {
+        "id": "invitee-dev002-d",
+        "displayName": "Example Child One"
+      },
+      {
+        "id": "invitee-dev002-e",
+        "displayName": "Example Child Two"
+      }
+    ],
     "additionalGuestAllocations": [],
     "active": true,
     "environment": "development"
@@ -31,6 +59,12 @@
     "greeting": "Welcome, Example Guest!",
     "wordingMode": "singular",
     "maximumAttendance": 2,
+    "namedInvitees": [
+      {
+        "id": "invitee-dev003-a",
+        "displayName": "Example Guest"
+      }
+    ],
     "additionalGuestAllocations": [
       {
         "id": "plus1-dev003-a",
@@ -48,6 +82,20 @@
     "greeting": "Welcome, Example Household!",
     "wordingMode": "plural",
     "maximumAttendance": 4,
+    "namedInvitees": [
+      {
+        "id": "invitee-dev004-a",
+        "displayName": "Example Adult One"
+      },
+      {
+        "id": "invitee-dev004-b",
+        "displayName": "Example Adult Two"
+      },
+      {
+        "id": "invitee-dev004-c",
+        "displayName": "Example Child"
+      }
+    ],
     "additionalGuestAllocations": [
       {
         "id": "plus1-dev004-a",
@@ -65,6 +113,24 @@
     "greeting": "Welcome, Example Party!",
     "wordingMode": "plural",
     "maximumAttendance": 4,
+    "namedInvitees": [
+      {
+        "id": "invitee-dev005-a",
+        "displayName": "Example Adult One"
+      },
+      {
+        "id": "invitee-dev005-b",
+        "displayName": "Example Adult Two"
+      },
+      {
+        "id": "invitee-dev005-c",
+        "displayName": "Example Child One"
+      },
+      {
+        "id": "invitee-dev005-d",
+        "displayName": "Example Child Two"
+      }
+    ],
     "additionalGuestAllocations": [],
     "active": true,
     "environment": "development"
@@ -77,6 +143,12 @@
     "greeting": "Welcome, Example Guest!",
     "wordingMode": "singular",
     "maximumAttendance": 2,
+    "namedInvitees": [
+      {
+        "id": "invitee-dev006-a",
+        "displayName": "Example Guest"
+      }
+    ],
     "additionalGuestAllocations": [
       {
         "id": "plus1-dev006-a",
@@ -94,6 +166,20 @@
     "greeting": "Welcome, Example Household!",
     "wordingMode": "plural",
     "maximumAttendance": 3,
+    "namedInvitees": [
+      {
+        "id": "invitee-dev007-a",
+        "displayName": "Example Adult One"
+      },
+      {
+        "id": "invitee-dev007-b",
+        "displayName": "Example Adult Two"
+      },
+      {
+        "id": "invitee-dev007-c",
+        "displayName": "Example Child"
+      }
+    ],
     "additionalGuestAllocations": [],
     "active": true,
     "environment": "development"
@@ -106,6 +192,20 @@
     "greeting": "Welcome, Example Household!",
     "wordingMode": "plural",
     "maximumAttendance": 3,
+    "namedInvitees": [
+      {
+        "id": "invitee-dev008-a",
+        "displayName": "Example Adult One"
+      },
+      {
+        "id": "invitee-dev008-b",
+        "displayName": "Example Adult Two"
+      },
+      {
+        "id": "invitee-dev008-c",
+        "displayName": "Example Child"
+      }
+    ],
     "additionalGuestAllocations": [],
     "active": true,
     "environment": "development"
@@ -118,6 +218,24 @@
     "greeting": "Welcome, Example Party!",
     "wordingMode": "plural",
     "maximumAttendance": 7,
+    "namedInvitees": [
+      {
+        "id": "invitee-dev009-a",
+        "displayName": "Example Adult One"
+      },
+      {
+        "id": "invitee-dev009-b",
+        "displayName": "Example Adult Two"
+      },
+      {
+        "id": "invitee-dev009-c",
+        "displayName": "Example Adult Three"
+      },
+      {
+        "id": "invitee-dev009-d",
+        "displayName": "Example Child"
+      }
+    ],
     "additionalGuestAllocations": [
       {
         "id": "plus1-dev009-a",
@@ -143,6 +261,20 @@
     "greeting": "Welcome, Example Household!",
     "wordingMode": "plural",
     "maximumAttendance": 4,
+    "namedInvitees": [
+      {
+        "id": "invitee-dev010-a",
+        "displayName": "Example Adult One"
+      },
+      {
+        "id": "invitee-dev010-b",
+        "displayName": "Example Adult Two"
+      },
+      {
+        "id": "invitee-dev010-c",
+        "displayName": "Example Child"
+      }
+    ],
     "additionalGuestAllocations": [
       {
         "id": "plus1-dev010-a",
@@ -160,6 +292,12 @@
     "greeting": "Welcome, Development Example!",
     "wordingMode": "plural",
     "maximumAttendance": 2,
+    "namedInvitees": [
+      {
+        "id": "invitee-dev999-a",
+        "displayName": "Example Adult One"
+      }
+    ],
     "additionalGuestAllocations": [
       {
         "id": "plus1-dev999-a",

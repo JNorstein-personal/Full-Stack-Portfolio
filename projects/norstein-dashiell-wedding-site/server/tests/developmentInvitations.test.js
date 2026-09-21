@@ -21,6 +21,13 @@ function cloneRegistry() {
     (fixture) => ({
       ...fixture,
 
+      namedInvitees:
+        fixture.namedInvitees.map(
+          (invitee) => ({
+            ...invitee,
+          }),
+        ),
+
       additionalGuestAllocations:
         fixture.additionalGuestAllocations.map(
           (allocation) => ({
@@ -129,6 +136,14 @@ test(
     assert.equal(
       registry.byCanonicalCode
         .DEV009
+        .namedInvitees
+        .length,
+      4,
+    );
+
+    assert.equal(
+      registry.byCanonicalCode
+        .DEV009
         .additionalGuestAllocations
         .length,
       3,
@@ -163,22 +178,22 @@ test(
 );
 
 test(
-  "preserves the governing maximum-attendance and Plus1-allocation archetypes",
+  "preserves maximum attendance, named-invitee counts, and Plus1-allocation archetypes",
   () => {
     const registry = loadRegistry();
 
     const expected = {
-      DEV001: [1, 0],
-      DEV002: [5, 0],
-      DEV003: [2, 1],
-      DEV004: [4, 1],
-      DEV005: [4, 0],
-      DEV006: [2, 1],
-      DEV007: [3, 0],
-      DEV008: [3, 0],
-      DEV009: [7, 3],
-      DEV010: [4, 1],
-      DEV999: [2, 1],
+      DEV001: [1, 1, 0],
+      DEV002: [5, 5, 0],
+      DEV003: [2, 1, 1],
+      DEV004: [4, 3, 1],
+      DEV005: [4, 4, 0],
+      DEV006: [2, 1, 1],
+      DEV007: [3, 3, 0],
+      DEV008: [3, 3, 0],
+      DEV009: [7, 4, 3],
+      DEV010: [4, 3, 1],
+      DEV999: [2, 1, 1],
     };
 
     for (
@@ -186,6 +201,7 @@ test(
         inviteCode,
         [
           maximumAttendance,
+          namedInviteeCount,
           allocationCount,
         ],
       ] of Object.entries(expected)
@@ -201,12 +217,73 @@ test(
       );
 
       assert.equal(
+        fixture.namedInvitees.length,
+        namedInviteeCount,
+      );
+
+      assert.equal(
         fixture
           .additionalGuestAllocations
           .length,
         allocationCount,
       );
+
+      assert.equal(
+        fixture.namedInvitees.length +
+          fixture
+            .additionalGuestAllocations
+            .length,
+        fixture.maximumAttendance,
+      );
     }
+  },
+);
+
+test(
+  "preserves governing named-invitee IDs and display names",
+  () => {
+    const registry = loadRegistry();
+
+    assert.deepEqual(
+      registry.byCanonicalCode
+        .DEV003
+        .namedInvitees,
+      [
+        {
+          id: "invitee-dev003-a",
+          displayName:
+            "Example Guest",
+        },
+      ],
+    );
+
+    assert.deepEqual(
+      registry.byCanonicalCode
+        .DEV009
+        .namedInvitees,
+      [
+        {
+          id: "invitee-dev009-a",
+          displayName:
+            "Example Adult One",
+        },
+        {
+          id: "invitee-dev009-b",
+          displayName:
+            "Example Adult Two",
+        },
+        {
+          id: "invitee-dev009-c",
+          displayName:
+            "Example Adult Three",
+        },
+        {
+          id: "invitee-dev009-d",
+          displayName:
+            "Example Child",
+        },
+      ],
+    );
   },
 );
 
@@ -254,32 +331,51 @@ test(
 );
 
 test(
-  "contains eight total Plus1 allocation objects across the governing fixtures",
+  "contains 29 named invitees, eight Plus1 allocations, and 37 total attendee slots across the governing fixtures",
   () => {
     const registry = loadRegistry();
 
-    const totalAllocations =
+    const totals =
       registry.fixtures.reduce(
         (
-          total,
+          result,
           fixture,
-        ) =>
-          total +
-          fixture
-            .additionalGuestAllocations
-            .length,
-        0,
+        ) => ({
+          namedInvitees:
+            result.namedInvitees +
+            fixture.namedInvitees.length,
+          allocations:
+            result.allocations +
+            fixture
+              .additionalGuestAllocations
+              .length,
+        }),
+        {
+          namedInvitees: 0,
+          allocations: 0,
+        },
       );
 
     assert.equal(
-      totalAllocations,
+      totals.namedInvitees,
+      29,
+    );
+
+    assert.equal(
+      totals.allocations,
       8,
+    );
+
+    assert.equal(
+      totals.namedInvitees +
+        totals.allocations,
+      37,
     );
   },
 );
 
 test(
-  "returns immutable fixture records, allocation records, and registry structures",
+  "returns immutable fixture records, named-invitee records, allocation records, and registry structures",
   () => {
     const registry = loadRegistry();
 
@@ -298,6 +394,22 @@ test(
     assert.equal(
       Object.isFrozen(
         registry.fixtures[0],
+      ),
+      true,
+    );
+
+    assert.equal(
+      Object.isFrozen(
+        registry.fixtures[0]
+          .namedInvitees,
+      ),
+      true,
+    );
+
+    assert.equal(
+      Object.isFrozen(
+        registry.fixtures[0]
+          .namedInvitees[0],
       ),
       true,
     );
@@ -375,7 +487,14 @@ test(
 
     registry.push({
       ...registry[0],
-
+      namedInvitees:
+        registry[0].namedInvitees.map(
+          (invitee) => ({
+            ...invitee,
+            id:
+              "invitee-duplicate-code-test",
+          }),
+        ),
       partyId:
         "party-dev-duplicate-test",
     });
@@ -457,6 +576,141 @@ test(
 );
 
 test(
+  "rejects a missing named-invitee roster",
+  () => {
+    const registry =
+      cloneRegistry();
+
+    delete registry[0].namedInvitees;
+
+    withTemporaryFixtureFile(
+      registry,
+      (filePath) => {
+        assert.throws(
+          () =>
+            loadDevelopmentInvitationFixtures({
+              runtimeEnvironment:
+                "test",
+              filePath,
+            }),
+          /fixture schema validation failed/,
+        );
+      },
+    );
+  },
+);
+
+test(
+  "rejects an empty named-invitee roster",
+  () => {
+    const registry =
+      cloneRegistry();
+
+    registry[0].namedInvitees = [];
+
+    withTemporaryFixtureFile(
+      registry,
+      (filePath) => {
+        assert.throws(
+          () =>
+            loadDevelopmentInvitationFixtures({
+              runtimeEnvironment:
+                "test",
+              filePath,
+            }),
+          /fixture schema validation failed/,
+        );
+      },
+    );
+  },
+);
+
+test(
+  "rejects malformed named-invitee IDs",
+  () => {
+    const registry =
+      cloneRegistry();
+
+    registry[0]
+      .namedInvitees[0]
+      .id =
+      "INVITEE DEV001 A";
+
+    withTemporaryFixtureFile(
+      registry,
+      (filePath) => {
+        assert.throws(
+          () =>
+            loadDevelopmentInvitationFixtures({
+              runtimeEnvironment:
+                "test",
+              filePath,
+            }),
+          /fixture schema validation failed/,
+        );
+      },
+    );
+  },
+);
+
+test(
+  "rejects blank named-invitee display names",
+  () => {
+    const registry =
+      cloneRegistry();
+
+    registry[0]
+      .namedInvitees[0]
+      .displayName = "";
+
+    withTemporaryFixtureFile(
+      registry,
+      (filePath) => {
+        assert.throws(
+          () =>
+            loadDevelopmentInvitationFixtures({
+              runtimeEnvironment:
+                "test",
+              filePath,
+            }),
+          /fixture schema validation failed/,
+        );
+      },
+    );
+  },
+);
+
+test(
+  "rejects duplicate named-invitee IDs within one invitation",
+  () => {
+    const registry =
+      cloneRegistry();
+
+    registry[1]
+      .namedInvitees[1]
+      .id =
+      registry[1]
+        .namedInvitees[0]
+        .id;
+
+    withTemporaryFixtureFile(
+      registry,
+      (filePath) => {
+        assert.throws(
+          () =>
+            loadDevelopmentInvitationFixtures({
+              runtimeEnvironment:
+                "test",
+              filePath,
+            }),
+          /fixture schema validation failed/,
+        );
+      },
+    );
+  },
+);
+
+test(
   "rejects duplicate allocation IDs within one invitation",
   () => {
     const registry =
@@ -487,7 +741,37 @@ test(
 );
 
 test(
-  "rejects an allocation-ID collision across different invitations",
+  "rejects an attendee-slot ID collision across different invitations",
+  () => {
+    const registry =
+      cloneRegistry();
+
+    registry[1]
+      .namedInvitees[0]
+      .id =
+      registry[0]
+        .namedInvitees[0]
+        .id;
+
+    withTemporaryFixtureFile(
+      registry,
+      (filePath) => {
+        assert.throws(
+          () =>
+            loadDevelopmentInvitationFixtures({
+              runtimeEnvironment:
+                "test",
+              filePath,
+            }),
+          /duplicates an attendee-slot identifier/,
+        );
+      },
+    );
+  },
+);
+
+test(
+  "rejects a Plus1 attendee-slot collision across different invitations",
   () => {
     const registry =
       cloneRegistry();
@@ -509,7 +793,7 @@ test(
                 "test",
               filePath,
             }),
-          /duplicates an additional-guest allocation identifier/,
+          /duplicates an attendee-slot identifier/,
         );
       },
     );
@@ -573,13 +857,68 @@ test(
 );
 
 test(
-  "rejects allocations that consume the invitation's entire maximum attendance",
+  "rejects a maximum-attendance value that does not equal named invitees plus authorized Plus1 slots",
   () => {
     const registry =
       cloneRegistry();
 
     registry[2].maximumAttendance =
       1;
+
+    withTemporaryFixtureFile(
+      registry,
+      (filePath) => {
+        assert.throws(
+          () =>
+            loadDevelopmentInvitationFixtures({
+              runtimeEnvironment:
+                "test",
+              filePath,
+            }),
+          /fixture schema validation failed/,
+        );
+      },
+    );
+  },
+);
+
+test(
+  "rejects an added named invitee when maximum attendance is not increased",
+  () => {
+    const registry =
+      cloneRegistry();
+
+    registry[0].namedInvitees.push({
+      id: "invitee-dev001-b",
+      displayName:
+        "Unexpected Extra Invitee",
+    });
+
+    withTemporaryFixtureFile(
+      registry,
+      (filePath) => {
+        assert.throws(
+          () =>
+            loadDevelopmentInvitationFixtures({
+              runtimeEnvironment:
+                "test",
+              filePath,
+            }),
+          /fixture schema validation failed/,
+        );
+      },
+    );
+  },
+);
+
+test(
+  "rejects a removed authorized Plus1 slot when maximum attendance is not reduced",
+  () => {
+    const registry =
+      cloneRegistry();
+
+    registry[2]
+      .additionalGuestAllocations = [];
 
     withTemporaryFixtureFile(
       registry,

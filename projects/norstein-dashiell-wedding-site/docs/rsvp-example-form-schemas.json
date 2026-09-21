@@ -1,12 +1,13 @@
 {
-  "documentPurpose": "Development-only reusable RSVP form-schema example synchronized with the spreadsheet-authoritative invitation model approved on September 20, 2026. The schema defines one reusable form whose conditional regions are driven by the validated invitation configuration and the guest's current attendance selections. It contains no production invitation codes, real guest identities, stored RSVP answers, provider credentials, or protected administrative destinations.",
-  "schemaVersion": "spreadsheet-authoritative-2026-09-20",
+  "documentPurpose": "Development-only reusable RSVP form-schema example synchronized with the approved spreadsheet-authoritative person-level attendance model. The schema defines one reusable form whose conditional regions are driven by the validated invitation configuration, explicit named-invitee and authorized Plus 1 attendance decisions, the guest's current event-attendance selections, and backend-derived overall attendance. It contains no production invitation codes, real guest identities, stored RSVP answers, provider credentials, or protected administrative destinations.",
+  "schemaVersion": "spreadsheet-authoritative-person-level-attendance-2026-09-20",
   "permanentQuestionIds": {
     "substantive": [
       "eventAttendance",
+      "namedInviteeResponses",
       "additionalGuestResponses",
       "attendanceTotals",
-      "receptionAttendeeDetails"
+      "attendeeDetails"
     ],
     "operational": [
       "confirmationMethod",
@@ -20,15 +21,21 @@
     "storedAnswersIncluded": false,
     "productionInvitationDataIncluded": false,
     "singleReusableSubstantiveSchema": true,
+    "namedInviteeRosterIsInvitationSpecific": true,
+    "namedInviteeSource": "Only safe named-invitee definitions returned in invitation.namedInvitees produce named-invitee attendance questions. Each object contains a stable opaque id and an approved displayName; private source-row identifiers and unrelated invitation data are not returned.",
     "namedPlusOneQuestionsAreInvitationSpecific": true,
     "plusOneSource": "Only allocation definitions returned in invitation.additionalGuestAllocations produce Plus 1 questions. An empty allocation array produces no Plus 1 questions.",
+    "capacityInvariant": "For every valid invitation configuration, invitation.namedInvitees.length plus invitation.additionalGuestAllocations.length equals invitation.maximumAttendance.",
     "attendancePresentation": "Ceremony, Reception, and the invitation-specific decline statement are coordinated checkbox choices in one attendance region. Decline is mutually exclusive with Ceremony and Reception.",
-    "attendanceTotalsPresentation": "The four age-category values are presented as coordinated numerical dials or equivalent whole-number controls. Their complete sum is overallAttendance and cannot exceed invitation.maximumAttendance.",
-    "receptionAttendeeDetailsApplicability": "Reception attendee-detail rows exist only when Reception is selected. Exactly one row is required for each person included in overallAttendance.",
-    "receptionAttendeeNameMaximumLength": 100,
+    "personAttendancePresentation": "When the party attends Ceremony, Reception, or both, every authorized named invitee and every authorized Plus 1 allocation receives an explicit Yes/No attendance decision. These person-level decisions, not the age-category dials, determine actual headcount.",
+    "overallAttendanceDerivation": "overallAttendance is backend-derived as the number of namedInviteeResponses equal to yes plus the number of additionalGuestResponses equal to yes. The browser may mirror this calculation for usability, but it never submits overallAttendance as an authoritative client-writable field.",
+    "attendanceTotalsPresentation": "The four age-category values are presented as coordinated numerical dials or equivalent whole-number controls. Their complete sum must equal derived overallAttendance exactly.",
+    "attendeeDetailsApplicability": "attendeeDetails exists for every attending RSVP, including Ceremony-only attendance. Exactly one row is required for each person included in derived overallAttendance.",
+    "attendeeNameMaximumLength": 100,
     "dietaryPreferenceMaximumLength": 1000,
-    "ceremonyOnlyDietaryCollection": false,
-    "blankLookupInvariant": "Lookup returns schema and invitation configuration only; it never includes stored RSVP answers or stored confirmation destinations.",
+    "dietaryFieldLabel": "Dietary or allergy information",
+    "dietaryFieldApplicability": "dietaryPreferences is available within each attendeeDetails row only when Reception is selected. It is optional when applicable and is absent or cleared when Reception is not selected.",
+    "blankLookupInvariant": "Lookup returns schema and the validated invitation's limited safe configuration only; it never includes stored RSVP answers or stored confirmation destinations.",
     "operationalConfirmationCopyStatus": "Provider-gated. Email is available. Production Text Message remains disabled until the selected provider's disclosure, authorization, backend-secret, sender-configuration, and production-flow requirements are satisfied.",
     "transactionalMobileNumberUse": "A confirmation mobile number is operational RSVP contact data used only for the requested transactional RSVP confirmation and approved manual resend unless a later recorded decision separately authorizes another use."
   },
@@ -37,6 +44,7 @@
     "attendanceIncludes": "String event value that must be present in the current eventAttendance selection.",
     "attendanceExcludes": "String event value that must not be present in the current eventAttendance selection.",
     "invitationArrayNotEmpty": "Invitation-property path whose authorized array must contain at least one item.",
+    "derivedValueGreaterThan": "Two-item array [derivedValueId, comparisonNumber]; true when the current derived value is greater than the comparison number.",
     "confirmationOptionEnabled": "confirmationOptions property that must be true before the related operational option is rendered.",
     "fieldEquals": "Two-item array [questionId, expectedValue]; true when the current page-entered value equals expectedValue.",
     "fieldNotEquals": "Two-item array [questionId, disallowedValue]; true when the current page-entered value does not equal disallowedValue.",
@@ -45,20 +53,25 @@
     "not": "Negates one nested condition."
   },
   "repeatableRegionLanguage": {
-    "repeatFromInvitationArray": "Create one control instance for each authorized object in the referenced invitation array. The stable source object's id is the submission key and its prompt is display-only copy.",
-    "repeatCountFromDerivedValue": "Create exactly the number of rows represented by the referenced backend/client-derived value after the current attendance totals validate.",
+    "repeatFromInvitationArray": "Create one control instance for each authorized object in the referenced invitation array. The stable source object's id is the submission key; approved display text is presentation-only.",
+    "repeatCountFromDerivedValue": "Create exactly the number of rows represented by the referenced derived value after the current person-level attendance decisions produce a valid overallAttendance.",
     "completeReplacementWhenSubmitted": "When a repeatable region marked this way is submitted during a revision, the submitted array replaces the complete stored array for that region."
   },
   "validationExtensions": {
     "allowedAttendanceSets": "The complete eventAttendance value must be exactly one of the listed closed-set arrays, ignoring order where stated.",
+    "authorizedNamedInviteeIdsOnly": "Every named-invitee response key must match an id in invitation.namedInvitees; unknown or duplicate ids are rejected.",
+    "allNamedInviteesRequiredWhenNewlyApplicable": "On an initial attending response or a transition from decline to attendance, every authorized named invitee requires an explicit yes/no answer.",
     "authorizedAllocationIdsOnly": "Every additional-guest response key must match an id in invitation.additionalGuestAllocations; unknown or duplicate ids are rejected.",
     "allAuthorizedAllocationsRequiredWhenNewlyApplicable": "On an initial attending response or a transition from decline to attendance, every authorized allocation requires an explicit yes/no answer.",
-    "yesCountMustNotExceedOverallAttendance": "The number of authorized Plus 1 responses equal to yes cannot exceed derived overallAttendance.",
-    "coordinatedNumberGroup": "Each age-category control is a nonnegative whole number. The UI dynamically constrains each control to remaining authorized capacity while the backend independently validates the final sum.",
-    "dynamicMaximumFormula": "For each age-category control, the current UI maximum is invitation.maximumAttendance minus the sum of the other three current category values.",
-    "sumMinimumWhenApplicable": "When attending, the complete attendance-total sum must be at least 1.",
-    "sumMaximumFrom": "The complete attendance-total sum must not exceed the referenced invitation value.",
-    "repeatCountEqualsOverallAttendance": "When Reception is selected, the Reception attendee-detail array length must equal the complete derived overallAttendance.",
+    "derivedOverallAttendanceFormula": "count(namedInviteeResponses == yes) + count(additionalGuestResponses == yes)",
+    "derivedOverallAttendanceMinimumWhenAttending": "When eventAttendance represents Ceremony, Reception, or both, derived overallAttendance must be at least 1.",
+    "derivedOverallAttendanceZeroWhenDeclined": "When eventAttendance is decline, overallAttendance is 0 and attendance-dependent substantive data is cleared.",
+    "coordinatedNumberGroup": "Each age-category control is a nonnegative whole number. The UI coordinates the controls against derived overallAttendance while the backend independently validates the final exact sum.",
+    "dynamicMaximumFormula": "For each age-category control, the current UI maximum is derived overallAttendance minus the sum of the other three current category values.",
+    "sumEqualsDerived": "The complete attendanceTotals sum must equal the referenced derived value exactly.",
+    "repeatCountEqualsOverallAttendance": "When the party is attending, attendeeDetails length must equal complete derived overallAttendance.",
+    "attendeeCompositionChangeRequiresReplacement": "If any namedInviteeResponses or additionalGuestResponses change in a way that changes which people are attending, the complete attendeeDetails array must be replaced even when overallAttendance remains numerically unchanged.",
+    "receptionRemovalClearsDietaryOnly": "When Reception becomes inapplicable but the party remains attending Ceremony, preserve attendeeDetails and attendeeName values but remove dietaryPreferences from every stored row.",
     "nonblankTrimmedString": "After ordinary trimming, the value must contain at least one character.",
     "maximumLength": "String length may not exceed the configured maximum.",
     "backendAuthoritative": "Browser visibility and client validation never authorize otherwise-invalid data; Express independently applies all configuration and complete-result rules."
@@ -89,7 +102,7 @@
     {
       "id": "dependency-processing-order",
       "scope": "backend-authoritative",
-      "rule": "Authorize request fields and allocation identifiers, determine initial versus revision, merge submitted changes with stored values, preserve permitted omissions, resolve the complete attendance state, clear values made inapplicable by attendance changes, require newly applicable mandatory structures, validate the complete result, then store only if valid."
+      "rule": "Authorize request fields and all person/allocation identifiers, determine initial versus revision, merge submitted changes with stored values, preserve permitted omissions, resolve the complete eventAttendance state, apply person-level attendance decisions, derive overallAttendance, clear values made inapplicable by the resulting state, require newly applicable mandatory structures or complete replacements, validate age totals and attendee details against the complete result, then store only if valid."
     },
     {
       "id": "attendance-valid-states",
@@ -99,7 +112,22 @@
     {
       "id": "initial-attendance-decision-required",
       "scope": "substantive",
-      "rule": "An initial response must establish exactly one valid attendance state from the approved closed set."
+      "rule": "An initial response must establish exactly one valid eventAttendance state from the approved closed set."
+    },
+    {
+      "id": "named-invitee-questions-authorized-only",
+      "scope": "substantive",
+      "rule": "A named-invitee attendance control exists only for an object in invitation.namedInvitees. Every response is keyed by that object's stable opaque id; displayName is presentation-only."
+    },
+    {
+      "id": "named-invitee-response-required-when-newly-applicable",
+      "scope": "substantive",
+      "rule": "For an initial attending RSVP or a transition from decline to attendance, each authorized named invitee requires exactly one yes/no response. On an ordinary revision that remains attending, omitted authorized named-invitee responses remain unchanged."
+    },
+    {
+      "id": "named-invitee-response-authorization",
+      "scope": "substantive",
+      "rule": "Every namedInviteeResponses key must be an authorized named-invitee id for the validated invitation."
     },
     {
       "id": "plus-one-questions-authorized-only",
@@ -117,6 +145,21 @@
       "rule": "Every additionalGuestResponses key must be an authorized allocation id for the validated invitation. The guest-facing prompt text is never used as an authorization key."
     },
     {
+      "id": "invitation-capacity-reconciliation",
+      "scope": "configuration",
+      "rule": "A valid invitation configuration satisfies namedInvitees.length plus additionalGuestAllocations.length equals maximumAttendance. A contradictory configuration must fail validation rather than be served to the browser."
+    },
+    {
+      "id": "overall-attendance-derivation",
+      "scope": "backend-authoritative",
+      "rule": "When attending, overallAttendance equals the count of authorized namedInviteeResponses equal to yes plus the count of authorized additionalGuestResponses equal to yes. The browser may mirror the value for usability but cannot submit or override it."
+    },
+    {
+      "id": "overall-attendance-validity",
+      "scope": "substantive",
+      "rule": "An attending RSVP requires derived overallAttendance of at least 1. A full decline produces overallAttendance of 0."
+    },
+    {
       "id": "attendance-totals-applicability",
       "scope": "substantive",
       "rule": "attendanceTotals applies whenever the party attends Ceremony, Reception, or both. All four age categories are required on an initial attending response and whenever totals become newly applicable after a full decline."
@@ -124,52 +167,57 @@
     {
       "id": "attendance-totals-validation",
       "scope": "substantive",
-      "rule": "Each age category is a nonnegative whole number. overallAttendance is the server-calculated sum, must be at least 1 while attending, and must not exceed invitation.maximumAttendance."
+      "rule": "Each age category is a nonnegative whole number. The complete four-category sum must equal derived overallAttendance exactly."
     },
     {
-      "id": "attendance-dial-remaining-capacity",
+      "id": "attendance-dial-derived-capacity",
       "scope": "browser-and-backend",
-      "rule": "The browser presents the four age categories as coordinated numerical dials or equivalent controls whose current maxima reflect remaining authorized capacity. The backend independently rejects any complete sum above invitation.maximumAttendance."
+      "rule": "The browser presents the four age categories as coordinated numerical dials or equivalent controls whose current maxima reflect the remaining portion of derived overallAttendance. The backend independently rejects a complete age-total sum that differs from overallAttendance."
     },
     {
       "id": "attendance-totals-partial-revision",
       "scope": "substantive",
-      "rule": "For a revision that remains attending, omitted nested age-category values remain unchanged and explicit zero is an ordinary replacement value."
+      "rule": "For a revision that remains attending, omitted nested age-category values remain unchanged and explicit zero is an ordinary replacement value, but the complete merged sum must still equal the newly derived overallAttendance."
     },
     {
-      "id": "plus-one-count-within-attendance",
+      "id": "attendee-details-applicability",
       "scope": "substantive",
-      "rule": "The number of authorized Plus 1 responses equal to yes cannot exceed complete overallAttendance. Changing a Plus 1 answer does not cause the backend to guess or alter an age-category total."
+      "rule": "attendeeDetails applies whenever derived overallAttendance is greater than 0, including Ceremony-only attendance. It is absent only for full decline."
     },
     {
-      "id": "reception-details-applicability",
+      "id": "attendee-details-cardinality",
       "scope": "substantive",
-      "rule": "receptionAttendeeDetails applies only when Reception is selected. It is absent for Ceremony-only attendance and full decline."
+      "rule": "When the party is attending, attendeeDetails contains exactly one row per person in derived overallAttendance. Every row requires a nonblank attendeeName of at most 100 characters."
     },
     {
-      "id": "reception-details-cardinality",
+      "id": "attendee-details-dietary-applicability",
       "scope": "substantive",
-      "rule": "When Reception is selected, receptionAttendeeDetails contains exactly one row per person in complete overallAttendance. Each row requires a nonblank attendeeName of at most 100 characters and may contain dietaryPreferences of at most 1000 characters."
+      "rule": "dietaryPreferences is optional and limited to 1000 characters when Reception is selected. It is unauthorized when Reception is not selected."
     },
     {
-      "id": "reception-details-replacement",
+      "id": "attendee-details-replacement",
       "scope": "substantive",
-      "rule": "When receptionAttendeeDetails is submitted, it replaces the complete applicable attendee-detail array. If Reception remains selected and overallAttendance is unchanged, omission on revision leaves the stored array unchanged. If Reception becomes newly selected or overallAttendance changes while Reception remains selected, a complete replacement array is required."
+      "rule": "When attendeeDetails is submitted, it replaces the complete applicable array. Omission on revision leaves the stored array unchanged only when the attending-person composition is unchanged. Any change to which named invitees or authorized Plus 1 slots are attending requires a complete replacement array, even when overallAttendance is numerically unchanged."
     },
     {
-      "id": "reception-removal-clears-details",
+      "id": "reception-removal-clears-dietary-only",
       "scope": "substantive",
-      "rule": "If the complete result removes Reception, stored receptionAttendeeDetails is automatically cleared before final validation."
+      "rule": "If the complete result removes Reception but retains Ceremony attendance, preserve attendeeDetails and attendeeName values while clearing dietaryPreferences from every row."
+    },
+    {
+      "id": "reception-addition-preserves-names",
+      "scope": "substantive",
+      "rule": "If Reception becomes newly selected without changing the attending-person composition, existing attendeeDetails names may remain unchanged. dietaryPreferences becomes available but is optional, so name re-entry is not required solely because Reception was added."
     },
     {
       "id": "full-decline-clears-dependent-substantive-data",
       "scope": "substantive",
-      "rule": "A complete decline clears additionalGuestResponses, attendanceTotals, derived overallAttendance, and receptionAttendeeDetails. Operational confirmation remains required."
+      "rule": "A complete decline clears namedInviteeResponses, additionalGuestResponses, attendanceTotals, derived overallAttendance, and attendeeDetails. Operational confirmation remains required."
     },
     {
       "id": "revision-omission-means-unchanged",
       "scope": "substantive",
-      "rule": "For revisions, omission means leave the stored value unchanged only where the applicable field's patch rules permit it and no controlling attendance/cardinality rule makes the stored value inapplicable or requires complete replacement."
+      "rule": "For revisions, omission means leave the stored value unchanged only where the applicable field's patch rules permit it and no controlling attendance, composition, or applicability rule makes the stored value invalid or requires complete replacement."
     },
     {
       "id": "email-confirmation-dependency",
@@ -184,7 +232,7 @@
     {
       "id": "backend-authority-over-visibility",
       "scope": "backend-authoritative",
-      "rule": "Client visibility and usability validation do not authorize values. Express independently validates attendance, allocation ids, age totals, Reception-detail cardinality and lengths, operational dependencies, deadline, environment, and all complete-result invariants."
+      "rule": "Client visibility and usability validation do not authorize values. Express independently validates event attendance, named-invitee ids and responses, Plus 1 allocation ids and responses, derived overallAttendance, exact age-total equality, attendee-detail cardinality and lengths, Reception-specific dietary applicability, operational dependencies, deadline, environment, and all complete-result invariants."
     }
   ],
   "formSchemas": [
@@ -267,12 +315,77 @@
           "clearBehavior": {
             "whenReplacementContains": "decline",
             "clearQuestionIds": [
+              "namedInviteeResponses",
               "additionalGuestResponses",
               "attendanceTotals",
-              "receptionAttendeeDetails"
+              "attendeeDetails"
             ]
           },
           "helpText": "Choose Ceremony, Reception, or both when attending. The decline choice is mutually exclusive with both attending options."
+        },
+        {
+          "id": "namedInviteeResponses",
+          "scope": "authorized-named-invitee-list",
+          "type": "repeated-radio",
+          "label": "Named invitee attendance",
+          "requiredOnInitial": false,
+          "requiredWhenVisible": true,
+          "repeatFromInvitationArray": "invitation.namedInvitees",
+          "instanceShape": {
+            "submissionKeyFrom": "invitee.id",
+            "labelTemplate": "Will {invitee.displayName} attend?",
+            "displayNameFrom": "invitee.displayName",
+            "options": [
+              {
+                "value": "yes",
+                "label": "Yes"
+              },
+              {
+                "value": "no",
+                "label": "No"
+              }
+            ]
+          },
+          "displayCondition": {
+            "all": [
+              {
+                "invitationArrayNotEmpty": "invitation.namedInvitees"
+              },
+              {
+                "attendanceExcludes": "decline"
+              },
+              {
+                "any": [
+                  {
+                    "attendanceIncludes": "ceremony"
+                  },
+                  {
+                    "attendanceIncludes": "reception"
+                  }
+                ]
+              }
+            ]
+          },
+          "validation": {
+            "allowedValues": [
+              "yes",
+              "no"
+            ],
+            "authorizedNamedInviteeIdsOnly": true,
+            "duplicateNamedInviteeIdsRejected": true,
+            "allNamedInviteesRequiredOnInitialAttending": true,
+            "allNamedInviteesRequiredWhenNewlyApplicable": true
+          },
+          "patchBehavior": {
+            "omittedWholeRegionOnRevision": "leaveUnchangedWhenStillApplicable",
+            "omittedAuthorizedInviteeOnRevision": "leaveThatInviteeUnchangedWhenStillApplicable",
+            "replaceOperation": "replace"
+          },
+          "clearBehavior": {
+            "whenAttendanceContains": "decline",
+            "action": "clear"
+          },
+          "helpText": "This section asks for an explicit Yes/No attendance decision for each named invitee authorized by the validated invitation. Stable opaque ids authorize submission; display names are presentation-only."
         },
         {
           "id": "additionalGuestResponses",
@@ -324,8 +437,7 @@
             "authorizedAllocationIdsOnly": true,
             "duplicateAllocationIdsRejected": true,
             "allAuthorizedAllocationsRequiredOnInitialAttending": true,
-            "allAuthorizedAllocationsRequiredWhenNewlyApplicable": true,
-            "yesCountMustNotExceedDerived": "overallAttendance"
+            "allAuthorizedAllocationsRequiredWhenNewlyApplicable": true
           },
           "patchBehavior": {
             "omittedWholeRegionOnRevision": "leaveUnchangedWhenStillApplicable",
@@ -336,7 +448,7 @@
             "whenAttendanceContains": "decline",
             "action": "clear"
           },
-          "helpText": "This section appears only when the validated invitation contains one or more authorized Plus 1 allocations. One Yes/No question is rendered for each authorized named-invitee allocation; no general Plus 1 question is offered to other parties."
+          "helpText": "This section appears only when the validated invitation contains one or more authorized Plus 1 allocations. One Yes/No question is rendered for each allocation; no general Plus 1 question is offered to other parties."
         },
         {
           "id": "attendanceTotals",
@@ -352,7 +464,7 @@
               "type": "number-dial",
               "wholeNumber": true,
               "minimum": 0,
-              "dynamicMaximum": "invitation.maximumAttendance - sum(other attendanceTotals fields)"
+              "dynamicMaximum": "overallAttendance - sum(other attendanceTotals fields)"
             },
             {
               "id": "youngAdults18To20",
@@ -360,7 +472,7 @@
               "type": "number-dial",
               "wholeNumber": true,
               "minimum": 0,
-              "dynamicMaximum": "invitation.maximumAttendance - sum(other attendanceTotals fields)"
+              "dynamicMaximum": "overallAttendance - sum(other attendanceTotals fields)"
             },
             {
               "id": "children3To17",
@@ -368,7 +480,7 @@
               "type": "number-dial",
               "wholeNumber": true,
               "minimum": 0,
-              "dynamicMaximum": "invitation.maximumAttendance - sum(other attendanceTotals fields)"
+              "dynamicMaximum": "overallAttendance - sum(other attendanceTotals fields)"
             },
             {
               "id": "childrenUnder3",
@@ -376,7 +488,7 @@
               "type": "number-dial",
               "wholeNumber": true,
               "minimum": 0,
-              "dynamicMaximum": "invitation.maximumAttendance - sum(other attendanceTotals fields)"
+              "dynamicMaximum": "overallAttendance - sum(other attendanceTotals fields)"
             }
           ],
           "displayCondition": {
@@ -385,13 +497,9 @@
                 "attendanceExcludes": "decline"
               },
               {
-                "any": [
-                  {
-                    "attendanceIncludes": "ceremony"
-                  },
-                  {
-                    "attendanceIncludes": "reception"
-                  }
+                "derivedValueGreaterThan": [
+                  "overallAttendance",
+                  0
                 ]
               }
             ]
@@ -400,32 +508,29 @@
             "allFieldsRequiredWhenNewlyApplicable": true,
             "wholeNumbersOnly": true,
             "minimumPerField": 0,
-            "sumMinimumWhenApplicable": 1,
-            "sumMaximumFrom": "invitation.maximumAttendance",
-            "derivedField": {
-              "id": "overallAttendance",
-              "formula": "adults21Plus + youngAdults18To20 + children3To17 + childrenUnder3"
-            },
+            "sumEqualsDerived": "overallAttendance",
+            "overallAttendanceClientWritable": false,
             "coordinatedNumberGroup": true
           },
           "patchBehavior": {
-            "omittedWholeRegionOnRevision": "leaveUnchangedWhenStillApplicable",
+            "omittedWholeRegionOnRevision": "leaveUnchangedWhenStillApplicableAndCompleteMergedSumRemainsValid",
             "omittedNestedFieldOnRevision": "leaveThatCategoryUnchangedWhenStillApplicable",
             "explicitZero": "replaceWithZero",
-            "replaceOperation": "replace"
+            "replaceOperation": "replace",
+            "replacementRequiredWhen": "person-level response changes cause the complete merged attendanceTotals sum to differ from newly derived overallAttendance"
           },
           "clearBehavior": {
             "whenAttendanceContains": "decline",
             "action": "clear"
           },
-          "helpText": "The four numerical dials describe the complete attending party. As one dial increases, the available maximum on the others must reflect the remaining capacity. The backend independently enforces the final maximum attendance."
+          "helpText": "The four numerical dials classify the already-derived attending party by age. Their complete sum must equal overallAttendance exactly; the dials do not independently choose headcount."
         },
         {
-          "id": "receptionAttendeeDetails",
+          "id": "attendeeDetails",
           "scope": "repeated-attendee",
           "type": "repeatable-group",
-          "label": "Reception attendee names and dietary information",
-          "requiredOnInitial": false,
+          "label": "Attendee Details",
+          "requiredOnInitial": true,
           "requiredWhenVisible": true,
           "repeatCountFromDerivedValue": "overallAttendance",
           "fields": [
@@ -434,6 +539,9 @@
               "type": "text",
               "label": "Attendee name",
               "required": true,
+              "displayCondition": {
+                "always": true
+              },
               "validation": {
                 "nonblankTrimmedString": true,
                 "maximumLength": 100
@@ -442,8 +550,11 @@
             {
               "id": "dietaryPreferences",
               "type": "textarea",
-              "label": "Food allergies or dietary preferences",
+              "label": "Dietary or allergy information",
               "required": false,
+              "displayCondition": {
+                "attendanceIncludes": "reception"
+              },
               "validation": {
                 "maximumLength": 1000
               }
@@ -452,10 +563,13 @@
           "displayCondition": {
             "all": [
               {
-                "attendanceIncludes": "reception"
+                "attendanceExcludes": "decline"
               },
               {
-                "attendanceExcludes": "decline"
+                "derivedValueGreaterThan": [
+                  "overallAttendance",
+                  0
+                ]
               }
             ]
           },
@@ -464,30 +578,47 @@
             "attendeeNameRequiredForEveryRow": true,
             "attendeeNameMaximumLength": 100,
             "dietaryPreferencesMaximumLength": 1000,
+            "dietaryPreferencesAuthorizedOnlyWhenAttendanceIncludes": "reception",
             "duplicateNamesPermitted": true,
             "serverDoesNotInferNamesFromInvitationConfiguration": true
           },
           "patchBehavior": {
             "completeReplacementWhenSubmitted": true,
-            "omittedOnRevision": "leaveUnchangedOnlyWhenReceptionRemainsSelectedAndOverallAttendanceIsUnchanged",
+            "omittedOnRevision": "leaveUnchangedOnlyWhenAttendingPersonCompositionIsUnchanged",
             "replacementRequiredWhen": [
-              "Reception becomes newly selected",
-              "overallAttendance changes while Reception remains selected"
+              "overallAttendance changes because person-level attendance decisions change",
+              "attending-person composition changes even when overallAttendance remains numerically unchanged"
+            ],
+            "replacementNotRequiredSolelyWhen": [
+              "Reception is added while attending-person composition remains unchanged",
+              "Reception is removed while attending-person composition remains unchanged"
             ],
             "replaceOperation": "replace"
           },
           "clearBehavior": {
-            "whenAny": [
-              {
-                "attendanceExcludes": "reception"
+            "fullDecline": {
+              "whenAttendanceContains": "decline",
+              "action": "clearEntireRegion"
+            },
+            "receptionRemovedWhileStillAttending": {
+              "when": {
+                "all": [
+                  {
+                    "attendanceExcludes": "reception"
+                  },
+                  {
+                    "attendanceIncludes": "ceremony"
+                  }
+                ]
               },
-              {
-                "attendanceIncludes": "decline"
-              }
-            ],
-            "action": "clear"
+              "action": "removeFieldFromEveryRow",
+              "fieldId": "dietaryPreferences",
+              "preserveFieldIds": [
+                "attendeeName"
+              ]
+            }
           },
-          "helpText": "When Reception is selected, provide one attendee name for every person attending the party's Reception. Dietary/allergy information is optional and is collected separately for each listed attendee."
+          "helpText": "Provide one Attendee name for every person who will attend. When Reception is selected, each attendee row also shows optional Dietary or allergy information. Ceremony-only attendance still requires attendee names."
         },
         {
           "id": "confirmationMethod",
@@ -651,36 +782,52 @@
           "rule": "The complete eventAttendance selection must be Ceremony, Reception, Ceremony plus Reception, or decline. Decline is mutually exclusive with both attending events."
         },
         {
+          "id": "authorized-named-invitee-controls-only",
+          "rule": "Render and accept named-invitee responses only for objects in invitation.namedInvitees. Every authorized named invitee requires an explicit yes/no response when person-level attendance becomes newly applicable."
+        },
+        {
           "id": "authorized-plus-one-controls-only",
           "rule": "Render and accept Plus 1 responses only for objects in invitation.additionalGuestAllocations. Empty allocations mean no Plus 1 controls and no accepted Plus 1 responses."
         },
         {
-          "id": "plus-one-responses-required-when-newly-applicable",
-          "rule": "Every authorized allocation requires yes/no on an initial attending response or when attendance becomes newly applicable after a decline."
+          "id": "invitation-capacity-reconciliation",
+          "rule": "A valid invitation configuration must satisfy namedInvitees.length plus additionalGuestAllocations.length equals maximumAttendance."
+        },
+        {
+          "id": "overall-attendance-derived-from-person-decisions",
+          "rule": "overallAttendance is backend-derived from yes responses across namedInviteeResponses and additionalGuestResponses. It is not accepted as a client-writable field."
+        },
+        {
+          "id": "attending-party-must-not-be-empty",
+          "rule": "Ceremony, Reception, or combined attendance requires derived overallAttendance of at least 1; full decline produces 0 attendees."
         },
         {
           "id": "attendance-totals-required-when-attending",
-          "rule": "All four age-category totals are required when newly applicable. Each is a nonnegative whole number; the sum is at least 1 and no greater than invitation.maximumAttendance."
+          "rule": "All four age-category totals are required when newly applicable. Each is a nonnegative whole number and their complete sum must equal derived overallAttendance exactly."
         },
         {
-          "id": "coordinated-dial-capacity",
-          "rule": "The UI must prevent the four age-category dials from collectively exceeding invitation.maximumAttendance, while the backend independently validates the final sum."
+          "id": "coordinated-dial-derived-total",
+          "rule": "The UI coordinates the four age-category dials against derived overallAttendance, while the backend independently validates exact equality."
         },
         {
-          "id": "reception-details-cardinality",
-          "rule": "When Reception is selected, receptionAttendeeDetails contains exactly one row per derived overallAttendance and every row contains a nonblank attendeeName of at most 100 characters."
+          "id": "attendee-details-cardinality",
+          "rule": "Whenever the party is attending, attendeeDetails contains exactly one row per derived overallAttendance and every row contains a nonblank attendeeName of at most 100 characters."
         },
         {
-          "id": "reception-dietary-length",
-          "rule": "Each Reception attendee row may contain an optional dietaryPreferences value of at most 1000 characters."
+          "id": "attendee-details-dietary-applicability",
+          "rule": "dietaryPreferences is optional, limited to 1000 characters, and authorized only when Reception is selected. The visible label is Dietary or allergy information."
         },
         {
-          "id": "reception-details-complete-replacement",
-          "rule": "If Reception becomes newly selected or overallAttendance changes while Reception remains selected, a revision must submit the complete replacement receptionAttendeeDetails array."
+          "id": "attendee-details-composition-replacement",
+          "rule": "If the attending-person composition changes, a revision must submit the complete replacement attendeeDetails array even if overallAttendance remains numerically unchanged."
+        },
+        {
+          "id": "reception-removal-preserves-names",
+          "rule": "Removing Reception while remaining Ceremony-only preserves attendeeDetails and attendeeName values but clears dietaryPreferences from every row."
         },
         {
           "id": "decline-clears-dependent-data",
-          "rule": "A complete decline clears Plus 1 responses, attendance totals, derived overallAttendance, and Reception attendee details before final validation."
+          "rule": "A complete decline clears named-invitee responses, Plus 1 responses, attendance totals, derived overallAttendance, and attendee details before final validation."
         },
         {
           "id": "operational-confirmation-required",
@@ -695,18 +842,25 @@
         "dependency-processing-order",
         "attendance-valid-states",
         "initial-attendance-decision-required",
+        "named-invitee-questions-authorized-only",
+        "named-invitee-response-required-when-newly-applicable",
+        "named-invitee-response-authorization",
         "plus-one-questions-authorized-only",
         "plus-one-response-required-when-newly-applicable",
         "plus-one-response-authorization",
+        "invitation-capacity-reconciliation",
+        "overall-attendance-derivation",
+        "overall-attendance-validity",
         "attendance-totals-applicability",
         "attendance-totals-validation",
-        "attendance-dial-remaining-capacity",
+        "attendance-dial-derived-capacity",
         "attendance-totals-partial-revision",
-        "plus-one-count-within-attendance",
-        "reception-details-applicability",
-        "reception-details-cardinality",
-        "reception-details-replacement",
-        "reception-removal-clears-details",
+        "attendee-details-applicability",
+        "attendee-details-cardinality",
+        "attendee-details-dietary-applicability",
+        "attendee-details-replacement",
+        "reception-removal-clears-dietary-only",
+        "reception-addition-preserves-names",
         "full-decline-clears-dependent-substantive-data",
         "revision-omission-means-unchanged",
         "email-confirmation-dependency",

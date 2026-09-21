@@ -18,15 +18,17 @@ with its backend API available beneath:
 
 ## Project Status
 
-**Active development — Workstream 2 RSVP backend implementation underway**
+**Active development — Workstream 2 RSVP model resynchronization and backend reconciliation underway**
 
 Workstream 1 is complete. It established the client/server structure, shared application shell, canonical routing, centralized wedding and event configuration, reusable design-system foundations, relative client/API boundary, initial launch-oriented content, and an Ubuntu deployment proof.
 
-The current application includes a navigable React application beneath `/wedding/`, a Node.js/Express API foundation beneath `/wedding/api/`, dedicated Home, RSVP, Our Story, Privacy, confirmation, and Not Found experiences where appropriate for the present development stage, and structural placeholders for public pages scheduled for later implementation.
+The application has progressed substantially through Workstream 2, including private RSVP lookup and submission infrastructure, persistence boundaries, confirmation delivery, production-readiness tooling, and guest-facing integration. Those later implementation stages were originally completed against an earlier attendance model.
 
-Workstream 2 is now converting the finalized RSVP architecture into backend code. The implementation already includes centralized server environment validation, reusable invitation-code normalization, and development-only invitation fixture support. The governing RSVP documentation and development fixture definitions have been reconciled to the current spreadsheet-authoritative invitation model before lookup, submission, persistence, delivery, and production-data transformation proceed.
+On September 20, 2026, the governing RSVP specification was corrected and resynchronized around explicit person-level attendance. The authoritative documentation and fictional development configuration now use a safe `namedInvitees` roster, individually authorized Plus 1 slots, backend-derived `overallAttendance`, age totals that must equal that derived count, and `attendeeDetails` for every attending person.
 
-The complete lookup/submission lifecycle, durable RSVP storage, Google Sheets integration, confirmation delivery, and full guest-facing RSVP workflow are not yet complete and must not be inferred from the existing backend foundation.
+The development invitation fixture loader and its automated tests have now been reconciled to that corrected model. Downstream form-schema, lookup, submission/revision, confirmation, production-transformation, and guest-interface code must be resynchronized in dependency order before earlier end-to-end or production-readiness results are treated as current.
+
+At this checkpoint, client tests, linting, and the production client build pass. The complete server suite is temporarily expected to contain downstream failures because `formSchemas.js` and dependent RSVP modules still validate the superseded schema; those failures are part of the active resynchronization work rather than a completed production-ready state.
 
 ## Core Technology
 
@@ -232,7 +234,7 @@ Pages that depend upon venue or schedule configuration consume the same centrali
 
 ## RSVP System
 
-The RSVP system is the primary focus of the current backend workstream. Its governing architecture is already specified; implementation is proceeding against fictional development data before protected production invitation data is introduced.
+The RSVP system is the primary focus of the current backend workstream. Its governing architecture is specified in the project documentation and is implemented against fictional development data before protected production invitation data is used.
 
 ### Access and lookup model
 
@@ -244,43 +246,50 @@ Guests use the shared route:
 
 and manually enter the six-character invitation code printed with their invitation. Invitation codes are submitted to the backend in request bodies rather than embedded in personalized browser URLs.
 
-A successful lookup returns only the limited invitation configuration required to construct a **blank** authorized form. It does not return previously stored RSVP answers, prior confirmation destinations, response history, or another party's information.
+A successful lookup returns only the limited invitation configuration required to construct a **blank** authorized form. It may include that party's safe named-invitee roster and authorized Plus 1 definitions, but it does not return previously stored RSVP answers, prior confirmation destinations, response history, internal party identifiers, source-spreadsheet data, or another party's information.
 
 ### Spreadsheet-authoritative production configuration
 
 The current private source contains **57 active assigned production invitation records**. Real invitation codes, guest identities, and source-to-party mappings remain outside the public client and public documentation.
 
-Each production configuration is derived privately from the authoritative source and includes only the values needed by the backend, such as:
+Each corrected production configuration is derived privately from the authoritative source and includes only the values needed by the backend, such as:
 
 * Reviewed party/form heading
 * Explicit singular or plural wording mode
-* Maximum permitted attendance
-* Zero or more authorized named `Plus1` allocations
+* `maximumAttendance` as the party's maximum potential capacity
+* A limited `namedInvitees` roster containing stable opaque IDs and approved display names
+* Zero or more authorized named `additionalGuestAllocations`
 * Active/environment state
 
-Production RSVP behavior no longer uses separate substantive question profiles or a generic aggregate additional-guest allowance.
+Every configuration must satisfy:
+
+```text
+namedInvitees.length + additionalGuestAllocations.length === maximumAttendance
+```
+
+Production RSVP behavior does not use separate substantive question profiles, a generic aggregate additional-guest allowance, or a client-selected overall headcount.
+
+Any production configuration generated, loaded, activated, or smoke-tested under the superseded attendance model is historical evidence only. The corrected production transformation and activation/runtime gates must be rerun before launch.
 
 ### Reusable substantive RSVP structure
 
-Every production invitation uses the same reusable substantive form structure, with invitation-specific variation supplied only by authorized configuration.
+Every invitation uses the same reusable substantive form structure, with invitation-specific variation supplied only by authorized configuration.
 
 The form supports:
 
 * Ceremony attendance
 * Reception attendance
-* Mutually exclusive singular/plural decline wording
-* Zero or more named-invitee Plus 1 Yes/No questions
-* Four numerical attendance-category dials
-* Reception-only attendee details
+* Mutually exclusive invitation-specific decline wording
+* One explicit Yes/No attendance decision for every authorized named invitee
+* Zero or more independently authorized Plus 1 Yes/No questions
+* Backend-derived `overallAttendance`
+* Four numerical age-category totals
+* `Attendee Details` for every attending person
 * Operational confirmation fields
 
-A Plus 1 question appears **only** when the private invitation configuration contains a corresponding `Plus1` authorization. Each authorized allocation produces one independent question such as:
+A Plus 1 question appears **only** when the private invitation configuration contains the corresponding authorization. Multiple allocations remain separate Yes/No decisions rather than becoming a numeric guest-count control.
 
-```text
-Will [Named Invitee] be accompanied by a +1?
-```
-
-An invitation with no authorized `Plus1` allocation receives no Plus 1 question and cannot submit an authorized Plus 1 response. Multiple allocations remain separate Yes/No questions rather than becoming a numeric guest-count control.
+`overallAttendance` is derived from the complete set of Yes responses across `namedInviteeResponses` and `additionalGuestResponses`. It is not independently writable by the client.
 
 The four attendance categories are:
 
@@ -289,14 +298,16 @@ The four attendance categories are:
 * Children, ages 3–17
 * Children under 3
 
-Their combined value represents the complete attending party and must remain between 1 and the invitation's authorized maximum whenever the party is attending.
+Those values classify the already-derived attending party. Their complete sum must equal `overallAttendance` exactly.
 
-When Reception is selected, the form requires exactly one attendee-detail record per member of the attending party. Each record contains:
+Whenever at least one person is attending, the RSVP contains exactly one `attendeeDetails` record per attending person, including Ceremony-only attendance. Each record contains:
 
 * Attendee name — required, maximum 100 characters
-* Food allergies or dietary preferences — optional, maximum 1000 characters
+* `Dietary or allergy information` — optional, maximum 1000 characters, and present only when Reception is selected
 
-Ceremony-only attendance does not collect Reception attendee-detail records. Removing Reception clears those records, and a full decline clears all attendance-dependent Plus 1 responses, attendance totals, and Reception attendee details.
+A full decline clears named-invitee responses, Plus 1 responses, attendance totals, derived attendance, and attendee details.
+
+If the identity composition of the attending party changes, the complete `attendeeDetails` list must be replaced even when the numerical count is unchanged. Removing Reception while Ceremony attendance remains preserves attendee names and removes only Reception-specific dietary/allergy information.
 
 ### Submission and revision model
 
@@ -307,7 +318,8 @@ The architecture supports:
 * Blank-form partial revisions
 * Omitted-field-means-unchanged semantics
 * Explicit replacement, explicit zero, and explicit clear behavior
-* Dependency clearing
+* Dependency-driven clearing
+* Composition-sensitive attendee-detail replacement
 * Idempotent submissions and safe retries
 * Current-response storage and version history
 * Backend-authoritative deadline enforcement
@@ -320,7 +332,7 @@ Operational confirmation information is entered again for every initial submissi
 
 The RSVP interface is designed around clearly defined application states rather than assuming that every request succeeds immediately.
 
-Production invitation records are not used during ordinary development. Development and automated tests use fictional fixtures so that backend work can proceed without exposing real invitation codes or guest identities.
+Production invitation records are not used during ordinary development. Development and automated tests use fictional fixtures so backend work can proceed without exposing real invitation codes or guest identities.
 
 ## Client/API Boundary
 
@@ -375,7 +387,7 @@ The repository is intended to exclude:
 * Production invitation spreadsheets
 * Real invitation codes
 * Guest identities and RSVP data
-* Reception attendee names and dietary/allergy responses
+* Attendee names and, when Reception is selected, dietary/allergy responses
 * Private Plus 1 allocation mappings
 * Google service-account credentials
 * Email credentials
@@ -518,21 +530,30 @@ The application foundation has been exercised as a navigable application, its pr
 
 ## Current RSVP Backend Workstream
 
-Workstream 2 builds the RSVP backend and private data layer on top of the completed foundation.
+Workstream 2 builds the RSVP backend and private data layer on top of the completed application foundation.
 
-Implemented or established at the current stage:
+The repository already contains substantial Workstream 2 implementation from the earlier RSVP model, including private invitation lookup, submission and revision handling, persistence adapters, idempotency and history handling, deadline/rate-limit/cache protections, email confirmation services, production transformation/readiness tooling, and guest-facing RSVP integration.
 
-* Centralized environment parsing and validation
-* Development/production configuration separation
-* Reusable invitation-code normalization and display formatting
-* Fictional development invitation fixtures
-* Automated tests for the implemented backend foundations
-* Spreadsheet-authoritative RSVP architecture and development fixture definitions
-* Public/private source-control boundaries for invitation data
+The September 20 person-level attendance clarification requires those affected components to be resynchronized in dependency order rather than assumed current merely because they previously passed integration or production-readiness gates.
 
-The next implementation stages add the private invitation service, lookup endpoint, submission validation and revision merge logic, persistence, idempotency, deadline/rate-limit/cache behavior, production transformation, confirmation delivery, and the associated automated tests.
+Current corrected checkpoint:
 
-The current production source is treated as private backend input. It is not copied into the React client, committed to public source control, or used as ordinary development test data.
+* Centralized environment parsing and validation remains implemented.
+* Development/production configuration separation remains established.
+* Invitation-code normalization and display formatting remain implemented.
+* The governing RSVP documentation has been resynchronized to the corrected person-level attendance model.
+* Fictional development invitation configuration now includes `namedInvitees` and authorized `additionalGuestAllocations`.
+* The development invitation fixture loader validates the corrected roster structure, opaque identifiers, uniqueness, development-only boundary, and exact capacity reconciliation.
+* Focused fixture-loader tests cover the corrected model and pass.
+* Public/private source-control boundaries continue to protect production invitation data and credentials.
+* Client tests, client linting, and the production client build pass at this checkpoint.
+* The complete server suite remains temporarily red because reusable form-schema and downstream RSVP modules still implement the superseded attendance contract.
+
+The next implementation stage is to resynchronize the private invitation configuration/lookup and blank-form schema boundary, beginning with `formSchemas.js` and its tests and then the lookup projection/service path. Submission/revision validation and the remaining downstream modules follow after that foundation is current.
+
+After the backend and client are fully reconciled, the private production invitation transformation must be regenerated under the corrected `namedInvitees` model and the production activation/readiness/runtime gates must be rerun.
+
+The current production source remains private backend input. It is not copied into the React client, committed to public source control, or used as ordinary development test data.
 
 ## Development Priorities
 

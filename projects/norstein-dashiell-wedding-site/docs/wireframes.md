@@ -13,8 +13,10 @@ These wireframes define:
 - Mobile stacking order.
 - Public and personalized RSVP states.
 - One reusable spreadsheet-authoritative RSVP form structure.
-- Invitation-specific zero-, one-, and multiple-named-`Plus1` allocation variants.
-- Coordinated attendance-total dial behavior and Reception-only attendee-detail repetition.
+- Invitation-specific safe named-invitee rosters and zero-, one-, and multiple-named-`Plus1` allocation variants.
+- Explicit person-level attendance decisions for named invitees and authorized Plus 1 slots.
+- Backend-derived `overallAttendance`, age-category totals that must equal that derived count, and all-attendance `Attendee Details` repetition.
+- Reception-specific dietary/allergy fields within otherwise universal attendee-detail rows.
 - Active-event configuration variants.
 - Invitation-launch and post-wedding Gallery states.
 
@@ -63,9 +65,11 @@ The RSVP states and behaviors shown here are synchronized through Phase 3 Step 1
 - `< Select one >` represents a select control.
 - `{ Conditional }` identifies content shown only in an applicable state.
 - `{ Configuration A }` and `{ Configuration B }` identify mutually exclusive event states.
+- `{ Authorized named invitees }` identifies a region repeated once for each safe named invitee returned by the validated invitation configuration.
 - `{ Authorized Plus1 allocations }` identifies a conditional region that exists only when the validated invitation configuration contains one or more named `Plus1` allocations derived from the authoritative spreadsheet.
 - `{ Reception selected }` identifies content shown only when Reception is part of the current attendance state.
-- `[−] 0 [+]` represents a coordinated whole-number dial whose available increase is limited by the invitation's remaining authorized attendance capacity.
+- `{ Attending party }` identifies content shown whenever derived `overallAttendance` is greater than zero.
+- `[−] 0 [+]` represents a coordinated whole-number dial whose available increase is limited by the remaining portion of derived `overallAttendance` after the other age-category values.
 - `...` indicates repeated content following the same structural pattern.
 
 These wireframes are mobile-first. Content is shown in the order in which it should stack on a narrow screen.
@@ -92,7 +96,7 @@ Phase 3 Step 10 establishes thirteen explicit top-level RSVP interface states. P
 | 12 | Confirmation Refresh Fallback | 4F |
 | 13 | RSVP Closed | 2F |
 
-Countdown visibility, invitation-specific named-`Plus1` allocation variants, Reception-attendee-detail repetition, guest-versus-administrative delivery warnings, and responsive layouts are presentation variants inside these states rather than additional top-level states.
+Countdown visibility, invitation-specific named-invitee and named-`Plus1` variants, all-attendance `Attendee Details` repetition, Reception-specific dietary/allergy fields, guest-versus-administrative delivery warnings, and responsive layouts are presentation variants inside these states rather than additional top-level states.
 
 The interface must render only one top-level RSVP state at a time. A state transition may preserve local draft information when needed for validation correction or idempotent retry, but it must never expose invitation codes, stored answers, or confirmation destinations through a browser URL.
 
@@ -541,17 +545,20 @@ Use this state when the lookup or submission service is known to be unavailable 
 
 **Route:** `/wedding/rsvp/`
 
-The form remains on the canonical RSVP route. Invitation codes, private source-row identifiers, named-`Plus1` allocation identifiers, and other private configuration values do not appear in the URL.
+The form remains on the canonical RSVP route. Invitation codes, private source-row identifiers, named-invitee identifiers, named-`Plus1` allocation identifiers, and other private configuration values do not appear in the URL.
 
 Every validated invitation uses the same reusable substantive RSVP structure. Invitation-specific variation is limited to information authorized by the validated private configuration, principally:
 
 - Singular or plural first-person wording.
-- `maximumAttendance` derived from `Total Potential Attendees`.
+- `maximumAttendance` derived from `Total Potential Attendees` as the maximum potential size of the invited party.
+- A safe `namedInvitees` roster containing only stable opaque IDs and approved display names for the named invitees associated with that invitation.
 - Zero or more named-`Plus1` allocation prompts derived from Column E of the authoritative `Invitees List` spreadsheet.
 
-A party with no Column E `Plus1` allocation receives **no Plus 1 question**. A party with one or more allocations receives one separate Yes/No question for each named invitee to whom a `Plus1` is assigned. The browser must not invent an allocation from party size, names, or any other clue.
+The validated configuration must reconcile so that the number of named invitees plus the number of authorized Plus 1 slots equals `maximumAttendance`. The browser must never use `maximumAttendance` as an independently selectable headcount.
 
-Four coordinated age-category dials are available to every attending party. Their sum is the complete `overallAttendance` and may not exceed `maximumAttendance`. When Reception is selected, the page renders exactly one Reception-attendee detail row per person included in `overallAttendance`.
+When Ceremony, Reception, or both are selected, the guest records an explicit Yes/No attendance decision for every authorized named invitee and every authorized Plus 1 slot. `overallAttendance` is then derived from the number of Yes responses across those person-level decisions. The four age-category dials classify that already-derived attending party and must sum exactly to `overallAttendance`.
+
+Whenever `overallAttendance` is greater than zero, the page renders exactly one **Attendee Details** row per attending person. Every row always requires **Attendee name**. When Reception is selected, each row additionally displays **Dietary or allergy information**; that field remains optional and is absent when Reception is not selected.
 
 ## 3A. State 5 — Validated Blank Form — Shared Introduction
 
@@ -585,22 +592,24 @@ Four coordinated age-category dials are available to every attending party. Thei
 │ Omitted applicable RSVP      │
 │ fields remain unchanged      │
 │ unless a controlling change  │
-│ makes them inapplicable.     │
+│ makes them inapplicable or   │
+│ requires complete replacement│
+│ of a dependent structure.    │
 │                              │
 │ New confirmation fields      │
 │ replace their stored         │
 │ counterparts.                │
 ├──────────────────────────────┤
 │ PERSONALIZED FORM            │
-│ One reusable form; only      │
-│ invitation-authorized Plus1  │
-│ prompts may vary.            │
+│ One reusable form; named     │
+│ invitees and authorized Plus1│
+│ prompts vary by invitation.  │
 └──────────────────────────────┘
 ```
 
-The interface may display the invited-party greeting and the named invitee text necessary for an authorized `Plus1` prompt, but it must not expose the production invitation code, another party's configuration, private spreadsheet notes, or internal allocation identifiers.
+The interface may display only the validated party greeting, the approved named-invitee display names required for person-level attendance decisions, and the named invitee text necessary for authorized `Plus1` prompts. It must not expose the production invitation code, another party's configuration, private spreadsheet notes, source-row information, or internal opaque identifiers.
 
-## 3B. Shared Attendance and Decline Region
+## 3B. Shared Event Attendance and Decline Region
 
 ```text
 ┌──────────────────────────────┐
@@ -627,15 +636,51 @@ The interface may display the invited-party greeting and the named invitee text 
 │ Leave this region untouched  │
 │ to keep the stored status;   │
 │ interact with it only when   │
-│ changing attendance.         │
+│ changing event attendance.   │
 └──────────────────────────────┘
 ```
 
-Selecting the decline checkbox clears Ceremony and Reception on the page. Selecting either attending checkbox clears decline. The backend independently enforces the same mutually exclusive resulting states.
+Selecting the decline checkbox clears Ceremony and Reception on the page. Selecting either attending checkbox clears decline. The backend independently enforces the same mutually exclusive resulting states. Selecting an attending event does not itself determine how many people attend; the person-level Yes/No decisions below determine actual headcount.
 
-## 3C. Authorized Named `Plus1` Region
+## 3C. Person-Level Attendance Decisions
 
-### No authorized `Plus1`
+This region appears only when the resulting event-attendance state includes Ceremony, Reception, or both. A complete full decline makes all person-level attendance decisions inapplicable and clears them.
+
+### Authorized named invitees
+
+```text
+┌──────────────────────────────┐
+│ WHO IS ATTENDING?            │
+│                              │
+│ Will [Named Invitee A]       │
+│ attend?                      │
+│ ( ) Yes          ( ) No      │
+│                              │
+│ Will [Named Invitee B]       │
+│ attend?                      │
+│ ( ) Yes          ( ) No      │
+│                              │
+│ ...repeat once per validated │
+│ named invitee...             │
+│                              │
+│ {Revision}                   │
+│ Leave an answer untouched to │
+│ keep that stored response,   │
+│ or select Yes/No to replace. │
+└──────────────────────────────┘
+```
+
+Named-invitee rules:
+
+- Render one Yes/No control for every object in the validated invitation's safe `namedInvitees` roster.
+- The visible label uses only the approved `displayName`; the stable opaque `id` remains an authorization key rather than visible copy.
+- Mixed household attendance is permitted: one named invitee may answer Yes while another answers No.
+- On an initial attending RSVP, or after changing from full decline to attendance, every authorized named invitee requires an explicit Yes/No response.
+- On an ordinary revision that remains attending, an omitted named-invitee response means leave that stored response unchanged.
+
+### Authorized named `Plus1` allocations
+
+#### No authorized `Plus1`
 
 ```text
 ┌──────────────────────────────┐
@@ -645,7 +690,7 @@ Selecting the decline checkbox clears Ceremony and Reception on the page. Select
 
 When the validated invitation configuration contains no Column E `Plus1` allocation, no Plus 1 heading, question, placeholder, disabled control, or “not applicable” row appears.
 
-### One authorized `Plus1`
+#### One authorized `Plus1`
 
 ```text
 ┌──────────────────────────────┐
@@ -663,7 +708,7 @@ When the validated invitation configuration contains no Column E `Plus1` allocat
 └──────────────────────────────┘
 ```
 
-### Multiple authorized `Plus1` allocations
+#### Multiple authorized `Plus1` allocations
 
 ```text
 ┌──────────────────────────────┐
@@ -677,31 +722,36 @@ When the validated invitation configuration contains no Column E `Plus1` allocat
 │ accompanied by a +1?         │
 │ ( ) Yes          ( ) No      │
 │                              │
-│ Will [Named Invitee C] be    │
-│ accompanied by a +1?         │
-│ ( ) Yes          ( ) No      │
-│                              │
 │ ...repeat once per authorized│
 │ Column E allocation only...  │
 └──────────────────────────────┘
 ```
 
-Rules:
+Plus-1 rules:
 
 - Every authorized Column E allocation becomes its own Yes/No prompt.
 - No generic “How many additional guests?” control exists.
 - No Plus 1 prompt is rendered for a named invitee without an authoritative Column E allocation.
-- The prompt does not request the Plus 1's name. When an attending Plus 1 is part of the Reception headcount, that person's name is collected later through the ordinary Reception-attendee detail rows, exactly like every other Reception attendee.
-- Full decline makes all Plus 1 responses inapplicable and clears them.
+- The prompt does not request the Plus 1's own name. If that authorized slot is answered Yes, the additional guest contributes one person to derived `overallAttendance`; their name is supplied later through the ordinary **Attendee Details** rows used for every attendee.
+- On an initial attending RSVP, or after changing from full decline to attendance, every authorized Plus 1 allocation requires an explicit Yes/No response.
+
+Derived-headcount rule:
+
+`overallAttendance = count(named-invitee Yes responses) + count(authorized Plus 1 Yes responses)`
+
+The browser may display this derived value for usability, but it is not independently editable and is not an alternative guest-count control. If an attending event is selected but every authorized person/slot is answered No, the form is invalid because an attending RSVP must contain at least one attendee.
 
 ## 3D. Coordinated Attendance Dials
 
 ```text
 ┌──────────────────────────────┐
-│ TOTAL ATTENDING PARTY        │
+│ ATTENDING PARTY BY AGE       │
 │ To help us plan seating and  │
-│ dietary needs, enter the     │
-│ total attending party by age.│
+│ dietary needs, classify the  │
+│ attending party by age.      │
+│                              │
+│ Derived attendees: [#]       │
+│ Maximum potential party: [#] │
 │                              │
 │ Adults, ages 21+             │
 │ [−]        0        [+]      │
@@ -715,13 +765,12 @@ Rules:
 │ Children under 3             │
 │ [−]        0        [+]      │
 │                              │
-│ Overall attendance: [#]      │
-│ Maximum permitted: [#]       │
-│ Remaining capacity: [#]      │
+│ Age-category total: [#]      │
+│ Must equal attendees: [#]    │
 │                              │
 │ Each [+] is bounded by the   │
-│ capacity remaining after the │
-│ other three dial values.     │
+│ remaining unclassified       │
+│ derived attendees.           │
 ├──────────────────────────────┤
 │ {Revision}                   │
 │ Leave a dial untouched to    │
@@ -734,39 +783,43 @@ Rules:
 Dial rules:
 
 - Every dial uses a nonnegative whole number.
-- While attending, the complete resulting four-dial sum must be at least 1 and must not exceed `maximumAttendance`.
-- The interface may disable or cap an increase control when no authorized capacity remains.
-- The displayed `overallAttendance` is calculated from the four current dial values; it is not independently editable.
-- The dials represent the complete attending party, including any attending authorized Plus 1 guests.
-- The browser does not guess an age category from a named invitee or from a Plus 1 response.
+- `overallAttendance` is derived from person-level attendance decisions before the age totals are validated.
+- The complete resulting four-dial sum must equal `overallAttendance` exactly; it is not sufficient merely to remain at or below `maximumAttendance`.
+- Each dial's available increase is constrained by `overallAttendance` minus the values currently assigned to the other three age categories.
+- The dials classify the attending party; they do not create or remove attendees.
+- The browser does not infer an age category from a named invitee or from a Plus 1 response.
+- If a revision changes person-level attendance so that the existing merged age totals no longer equal newly derived `overallAttendance`, the guest must revise the affected age totals before submission can succeed.
 - Full decline makes the attendance dials inapplicable and clears their resulting stored values.
 
-## 3E. Reception Attendee Details
+## 3E. Attendee Details
 
-This region appears only when Reception is part of the current attendance state.
+This region appears whenever derived `overallAttendance` is greater than zero, including Ceremony-only attendance.
 
 ```text
 ┌──────────────────────────────┐
-│ {RECEPTION SELECTED}         │
-│ RECEPTION ATTENDEE DETAILS   │
+│ {ATTENDING PARTY}            │
+│ ATTENDEE DETAILS             │
 │                              │
 │ Please provide one entry for │
-│ each person attending the    │
-│ Reception.                   │
+│ each person attending.       │
 │                              │
 │ Attendee 1                   │
-│ Name *                       │
+│ Attendee name *              │
 │ [________________________]   │
-│ Food allergies or dietary    │
-│ preferences (optional)       │
+│                              │
+│ {Reception selected}         │
+│ Dietary or allergy           │
+│ information                  │
 │ [________________________]   │
 │ [________________________]   │
 │                              │
 │ Attendee 2                   │
-│ Name *                       │
+│ Attendee name *              │
 │ [________________________]   │
-│ Food allergies or dietary    │
-│ preferences (optional)       │
+│                              │
+│ {Reception selected}         │
+│ Dietary or allergy           │
+│ information                  │
 │ [________________________]   │
 │ [________________________]   │
 │                              │
@@ -775,16 +828,18 @@ This region appears only when Reception is part of the current attendance state.
 └──────────────────────────────┘
 ```
 
-Reception-detail rules:
+Attendee-detail rules:
 
-- The number of rows equals the complete current `overallAttendance` whenever Reception is selected.
-- Every row requires an attendee name of no more than 100 characters.
-- Every row provides one optional dietary/allergy field of no more than 1000 characters.
-- The fields are per Reception attendee; there is no single party-level dietary field.
-- Ceremony-only attendance displays no Reception-attendee detail rows and collects no dietary/allergy text.
-- Removing Reception clears Reception-attendee details.
-- On an initial Reception RSVP, or whenever Reception becomes newly applicable, the complete list is required.
-- If a revision keeps Reception selected but changes `overallAttendance`, the Reception-attendee detail list must be replaced as a complete list matching the new total.
+- The number of rows equals complete derived `overallAttendance` for every attending RSVP.
+- Every row requires **Attendee name**, limited to 100 characters.
+- When Reception is selected, every row additionally displays **Dietary or allergy information**, limited to 1000 characters and optional even though the visible label does not include `(optional)`.
+- Ceremony-only attendance still displays the same attendee-name rows, but the dietary/allergy field is absent.
+- There is no single party-level dietary field.
+- A full decline clears the entire `attendeeDetails` structure.
+- Removing Reception while remaining Ceremony-only preserves the attendee-detail rows and attendee names but clears/removes dietary/allergy values.
+- Adding Reception without changing who is attending does not require attendee names to be re-entered solely because dietary/allergy fields become available; those dietary fields are optional.
+- If any named-invitee or authorized Plus 1 Yes/No decision changes which people are attending, the complete attendee-detail list must be replaced, even when `overallAttendance` remains numerically unchanged.
+- If the attending-person composition is unchanged, an omitted attendee-detail list on revision may remain stored unchanged under the backend patch rules.
 - The page remains blank on a later lookup; stored attendee names and dietary/allergy responses are never prefilled.
 
 ## 3F. Confirmation Method and Submission Region
@@ -796,68 +851,58 @@ Reception-detail rules:
 │ submission and revision.     │
 │                              │
 │ ( ) Email                    │
-│ {Text message choice only    │
-│ when production SMS gate is  │
-│ satisfied}                   │
+│     Email address            │
+│     [____________________]   │
 │                              │
-│ {Email selected}             │
-│ Email address                │
-│ [________________________]   │
+│ {Text Message enabled}       │
+│ ( ) Text message             │
+│     SMS-capable mobile       │
+│     [____________________]   │
+│     [ ] Required verified    │
+│         transactional SMS    │
+│         authorization copy   │
 │                              │
-│ {Text selected}              │
-│ Mobile number                │
-│ [________________________]   │
-│ [ ] Transactional SMS        │
-│     authorization, where     │
-│     required                 │
-│                              │
-│ Newly submitted method,      │
-│ destination, and applicable  │
-│ authorization replace the    │
-│ stored operational values.   │
+│ New operational values       │
+│ replace stored counterparts. │
 ├──────────────────────────────┤
-│ REVIEW INSTRUCTIONS          │
-│ Initial RSVP: complete every │
-│ required applicable region.  │
+│ REVISION REMINDER            │
+│ Omitted applicable RSVP      │
+│ fields normally remain       │
+│ unchanged, but person-level  │
+│ changes may require updated  │
+│ age totals and complete      │
+│ Attendee Details replacement.│
+├──────────────────────────────┤
+│ [ Submit RSVP ]              │
 │                              │
-│ Revision: submit only RSVP   │
-│ changes you intend to make.  │
-│ Omitted applicable values    │
-│ otherwise remain unchanged.  │
-│                              │
-│ The next confirmation shows  │
-│ the complete resulting RSVP. │
-├──────────────────────────────┤
-│ [Submit RSVP Information]    │
-├──────────────────────────────┤
-│ PRIVACY + ASSISTANCE         │
-│ [Privacy] RSVPhelp@...       │
-├──────────────────────────────┤
-│ SHARED FOOTER                │
+│ Privacy / authorization      │
+│ Assistance                   │
 └──────────────────────────────┘
 ```
+
+Text Message controls are omitted—not merely disabled—when the production SMS gate is not satisfied.
 
 ## 3G. State 6 — Validation Failure
 
 ```text
 ┌──────────────────────────────┐
-│ SHARED STICKY HEADER         │
-├──────────────────────────────┤
 │ PLEASE REVIEW YOUR RSVP      │
 │                              │
-│ We could not submit yet.     │
-│ Please correct the items     │
-│ below.                       │
-├──────────────────────────────┤
-│ ERROR SUMMARY                │
+│ [Accessible error summary]   │
 │ • Attendance choice needed   │
+│ • Named invitee response     │
+│   missing / invalid          │
 │ • Authorized Plus1 response  │
 │   missing / invalid          │
-│ • Attendance total exceeds   │
-│   invitation maximum         │
-│ • Reception attendee rows do │
-│   not match attendance total │
+│ • No attendee marked Yes     │
+│   for an attending RSVP      │
+│ • Age totals do not equal    │
+│   derived attendance         │
+│ • Attendee Details count     │
+│   does not match attendance  │
 │ • Attendee name required     │
+│ • Dietary text unavailable   │
+│   without Reception          │
 │ • Email/mobile invalid       │
 │ • ...                        │
 ├──────────────────────────────┤
@@ -868,59 +913,45 @@ Reception-detail rules:
 │                              │
 │ No stored prior answers are  │
 │ revealed.                    │
-├──────────────────────────────┤
-│ [Submit RSVP Information]    │
-├──────────────────────────────┤
-│ SHARED FOOTER                │
 └──────────────────────────────┘
 ```
 
-Validation errors must identify the affected visible control without revealing private source rows, hidden stored values, another party's invitation information, or unauthorized `Plus1` allocations.
+Validation messages must be field-associated where appropriate, summarized accessibly, and written without exposing private source rows, opaque identifiers, other parties, stored prior answers, or backend internals.
 
 ## 3H. State 7 — Submitting
 
 ```text
 ┌──────────────────────────────┐
-│ SHARED STICKY HEADER         │
-├──────────────────────────────┤
-│ SUBMITTING YOUR RSVP         │
-│ Please do not submit again.  │
+│ SUBMITTING RSVP              │
+│ Please do not close or       │
+│ resubmit this form.          │
 │                              │
-│ [Progress indicator]         │
-│                              │
-│ Submit control disabled      │
-│ during the active request.   │
-├──────────────────────────────┤
-│ SHARED FOOTER                │
+│ [Submit control disabled]    │
+│ [Progress announced]         │
 └──────────────────────────────┘
 ```
 
-The logical submission retains one `clientSubmissionId`. Repeated activation must not create multiple logical submissions.
+The current logical request retains one `clientSubmissionId`; repeated activation while that request is in flight is prevented.
 
 ## 3I. State 8 — Submission Uncertain
 
 ```text
 ┌──────────────────────────────┐
-│ SHARED STICKY HEADER         │
-├──────────────────────────────┤
-│ WE COULD NOT CONFIRM THE     │
-│ SUBMISSION RESULT            │
+│ WE COULDN'T CONFIRM THE      │
+│ RESULT                       │
 │                              │
-│ Your RSVP may have been      │
-│ recorded. Do not blindly     │
-│ create a new submission.     │
+│ Your RSVP may already have   │
+│ been recorded.               │
 │                              │
-│ Check the selected email or  │
-│ text confirmation first.     │
+│ Check the confirmation       │
+│ channel you selected.        │
 │                              │
-│ [Retry Safely]               │
+│ [Retry safely]               │
 │ [Contact for Help]           │
-├──────────────────────────────┤
-│ SHARED FOOTER                │
 └──────────────────────────────┘
 ```
 
-**Retry Safely** reuses the exact same logical request and `clientSubmissionId`. It does not generate a new submission identifier or reconstruct the request from URL data.
+A safe retry reuses the same logical request and `clientSubmissionId`. This state must not claim either success or failure without evidence.
 
 ---
 
@@ -928,9 +959,9 @@ The logical submission retains one `clientSubmissionId`. Repeated activation mus
 
 **Route:** `/wedding/rsvp/confirmation`
 
-The confirmation route displays only the complete current guest-facing RSVP returned by a successful submission plus limited delivery/status information. It never exposes the protected administrative email address, provider internals, private spreadsheet rows, internal record identifiers, invitation codes in the URL, or another party's information.
+The confirmation route displays only the complete current guest-facing RSVP returned by a successful submission plus limited delivery/status information. It never exposes the protected administrative email address, provider internals, private spreadsheet rows, opaque internal identifiers, invitation codes in the URL, or another party's information.
 
-The summary follows the single spreadsheet-authoritative RSVP model. It omits conditional regions that are genuinely inapplicable: for example, a party with no authorized `Plus1` allocation has no Plus 1 summary region, and a Ceremony-only RSVP has no Reception-attendee detail region.
+The summary follows the single spreadsheet-authoritative person-level RSVP model. It includes the applicable event-attendance state, named-invitee responses, authorized Plus 1 responses, age-category totals, derived `overallAttendance`, and `Attendee Details`. Dietary/allergy information appears only when Reception is part of the complete current RSVP. Conditional regions that genuinely do not apply are omitted rather than rendered as disabled or `N/A` placeholders.
 
 ## 4A. State 9 — Confirmed Initial Submission — No Authorized `Plus1`
 
@@ -948,6 +979,11 @@ The summary follows the single spreadsheet-authoritative RSVP model. It omits co
 │ ✓ Ceremony                   │
 │ ✓ Reception                  │
 │                              │
+│ NAMED INVITEES               │
+│ [Invitee A] ........ Yes     │
+│ [Invitee B] ........ Yes     │
+│ [Invitee C] ........ Yes     │
+│                              │
 │ PARTY TOTALS                 │
 │ Adults 21+ ............ 2    │
 │ Young Adults 18–20 .... 0    │
@@ -955,7 +991,7 @@ The summary follows the single spreadsheet-authoritative RSVP model. It omits co
 │ Children under 3 ...... 0    │
 │ Overall attendance .... 3    │
 │                              │
-│ RECEPTION ATTENDEE DETAILS   │
+│ ATTENDEE DETAILS             │
 │ 1. [Attendee name]           │
 │    Dietary/allergy: [...]    │
 │ 2. [Attendee name]           │
@@ -994,9 +1030,13 @@ No empty Plus 1 region is displayed merely to indicate that the invitation did n
 │ Attendance                   │
 │ ✓ Reception                  │
 │                              │
+│ NAMED INVITEES               │
+│ [Invitee A] ........ Yes     │
+│ [Invitee B] ........ No      │
+│                              │
 │ AUTHORIZED PLUS 1 RESPONSES  │
-│ [Named Invitee A] +1: Yes    │
-│ [Named Invitee B] +1: No     │
+│ [Invitee A] +1: Yes          │
+│ [Invitee B] +1: Yes          │
 │                              │
 │ PARTY TOTALS                 │
 │ Adults 21+ ............ 3    │
@@ -1005,7 +1045,7 @@ No empty Plus 1 region is displayed merely to indicate that the invitation did n
 │ Children under 3 ...... 0    │
 │ Overall attendance .... 3    │
 │                              │
-│ RECEPTION ATTENDEE DETAILS   │
+│ ATTENDEE DETAILS             │
 │ 1. [Attendee name]           │
 │    Dietary/allergy: [...]    │
 │ 2. [Attendee name]           │
@@ -1017,7 +1057,9 @@ No empty Plus 1 region is displayed merely to indicate that the invitation did n
 └──────────────────────────────┘
 ```
 
-The confirmation identifies authorized named-`Plus1` responses using guest-facing labels but does not expose internal allocation IDs.
+The confirmation identifies named-invitee and authorized named-`Plus1` responses using guest-facing labels but does not expose internal person/allocation IDs.
+
+For a Ceremony-only confirmation, the **Attendee Details** list is still present and contains the attendee names, but dietary/allergy lines are omitted.
 
 ## 4C. State 10 — Confirmed Revision
 
@@ -1031,11 +1073,14 @@ The confirmation identifies authorized named-`Plus1` responses using guest-facin
 │ COMPLETE CURRENT RSVP        │
 │                              │
 │ [Attendance or decline]      │
+│ {Named invitee responses}    │
 │ {Authorized Plus1 responses} │
 │ {Four attendance totals +    │
-│ overallAttendance}           │
-│ {Reception attendee details  │
-│ only if Reception selected}  │
+│ derived overallAttendance}   │
+│ {Attendee Details whenever   │
+│ overallAttendance > 0}       │
+│ {Dietary/allergy values only │
+│ if Reception selected}       │
 │                              │
 │ This is the complete merged  │
 │ result, not only the fields  │
@@ -1052,7 +1097,7 @@ The confirmation identifies authorized named-`Plus1` responses using guest-facin
 └──────────────────────────────┘
 ```
 
-If the revision removes Reception, the summary omits Reception attendee details because they were automatically cleared. If the resulting RSVP fully declines, the summary omits Plus 1 responses, attendance totals, and Reception attendee details.
+If a revision removes Reception while retaining Ceremony attendance, the summary keeps **Attendee Details** and attendee names but omits dietary/allergy values. If the resulting RSVP fully declines, the summary omits named-invitee responses, Plus 1 responses, attendance totals, and Attendee Details because the authoritative result contains zero attendees.
 
 ## 4D. State 11 — Stored with Delivery Warning — Guest Delivery
 
@@ -1732,8 +1777,8 @@ This variant is **not active** unless the arrangement is confirmed.
 │   Plus 1 questions?          │
 │ ▸ How do I report our party  │
 │   size?                      │
-│ ▸ Why am I asked for names   │
-│   if attending Reception?    │
+│ ▸ Why am I asked for attendee│
+│   names?                     │
 ├──────────────────────────────┤
 │ FOOD AND RECEPTION           │
 │ ▸ What meal is served?       │
@@ -1778,12 +1823,14 @@ This variant is **not active** unless the arrangement is confirmed.
 
 ### RSVP attendance-answer structure
 
+- Explain that the validated invitation identifies the named invitees associated with that invitation and asks for an explicit Yes/No attendance decision for each of them when the party is attending.
+- Explain that mixed attendance within one invited party is allowed; one named invitee may attend while another declines.
 - Explain that a Plus 1 is available **only** when the private invitation configuration contains a `Plus1` allocation from the authoritative Invitees List.
-- Explain that not every invited party has a Plus 1 option.
-- When more than one named invitee has an authorized allocation, each receives a separate Yes/No question rather than one aggregate guest-count question.
-- Explain that the four age-category dials represent the complete attending party and cannot exceed the invitation's maximum authorized attendance.
-- Explain that Reception attendees are entered individually after the party total is established so the couple can associate dietary/allergy information with the correct person.
-- Do not expose internal allocation identifiers, source-row details, or another party's invitation configuration.
+- Explain that not every invited party has a Plus 1 option and that every authorized allocation receives its own Yes/No question rather than one aggregate guest-count control.
+- Explain that actual `overallAttendance` is derived from the number of named-invitee and authorized Plus 1 Yes responses.
+- Explain that the four age-category dials classify that derived attending party and must add up exactly to the derived count; they do not independently choose party size.
+- Explain that every attending person receives an **Attendee Details** row with an attendee name. When Reception is selected, the row also provides optional **Dietary or allergy information**.
+- Do not expose internal named-invitee IDs, allocation identifiers, source-row details, or another party's invitation configuration.
 
 ### Food and reception answer structure
 
@@ -1796,11 +1843,11 @@ This variant is **not active** unless the arrangement is confirmed.
 ├──────────────────────────────┤
 │ HOW DO I REPORT DIETARY      │
 │ INFORMATION?                 │
-│ If attending Reception,      │
-│ provide each attendee's name │
-│ and any allergies or dietary │
-│ preferences in that person's │
-│ attendee-detail row.         │
+│ If attending Reception, use  │
+│ the Dietary or allergy       │
+│ information field in each    │
+│ attendee's Attendee Details  │
+│ row.                         │
 ├──────────────────────────────┤
 │ IS THERE A COCKTAIL HOUR?    │
 │ No separately scheduled      │
@@ -1941,7 +1988,7 @@ No pre-wedding images are required.
 
 **Route:** `/wedding/privacy`
 
-This public informational page was added through the approved privacy decision and is revised through Phase 3 Step 14 to show the finalized retention, SMS-provider-gate, data-minimization, and security-limitation information order.
+This public informational page was added through the approved privacy decision and is revised through Phase 3 Step 14 plus the approved person-level attendance correction to show the finalized retention, SMS-provider-gate, data-minimization, named-invitee, attendee-detail, and security-limitation information order.
 
 ```text
 ┌──────────────────────────────┐
@@ -1959,12 +2006,14 @@ This public informational page was added through the approved privacy decision a
 ├──────────────────────────────┤
 │ INFORMATION COLLECTED        │
 │ • Attendance / decline       │
+│ • Named-invitee Yes/No       │
+│   responses                  │
 │ • Authorized named Plus1     │
 │   responses, if applicable   │
 │ • Four age-category totals   │
-│ • Reception attendee names   │
-│ • Per-attendee dietary /     │
-│   allergy information        │
+│ • Attendee names             │
+│ • Reception dietary/allergy  │
+│   information, if supplied   │
 │ • Confirmation destination   │
 │ • Submission/revision record │
 ├──────────────────────────────┤
@@ -1981,7 +2030,8 @@ This public informational page was added through the approved privacy decision a
 │ PARTIAL REVISIONS            │
 │ Omitted applicable values    │
 │ remain unchanged unless a    │
-│ dependency change clears     │
+│ dependency/composition change│
+│ clears or requires replacing │
 │ them.                        │
 ├──────────────────────────────┤
 │ EMAIL / TEXT CONFIRMATIONS   │
@@ -1996,11 +2046,13 @@ This public informational page was added through the approved privacy decision a
 │ system; authorized access.   │
 ├──────────────────────────────┤
 │ ATTENDEE + DIETARY DATA      │
-│ Reception attendee names and │
-│ dietary/allergy text are     │
-│ private RSVP information.    │
-│ They are limited to the      │
-│ submitting party's own       │
+│ Attendee names are private   │
+│ RSVP information for every   │
+│ attending RSVP. Dietary /    │
+│ allergy text is collected    │
+│ only when Reception applies. │
+│ These values are limited to  │
+│ the submitting party's own   │
 │ confirmation surfaces and    │
 │ protected admin records.     │
 ├──────────────────────────────┤
@@ -2039,8 +2091,10 @@ This public informational page was added through the approved privacy decision a
 ### Step 14 Privacy-wireframe rules
 
 - The Privacy page itself remains public and indexable.
-- Explain that named `Plus1` prompts appear only for allocations authorized for the validated invitation; do not publish the private production allocation registry.
-- Explain that Reception attendee names and dietary/allergy text are collected only when Reception is selected and are private personalized RSVP information.
+- Explain that a successful invitation lookup returns only the validated party's limited safe named-invitee display data and authorized `Plus1` prompts needed to render that party's blank form; do not publish the production invitation registry, source rows, opaque person IDs, or another party's configuration.
+- Explain that named-invitee and authorized Plus 1 Yes/No responses are private personalized RSVP information used to derive actual attendance.
+- Explain that attendee names are collected for every attending RSVP and that dietary/allergy information is collected only when Reception is selected.
+- Explain that attendee names and any dietary/allergy text may appear in the submitting party's own confirmation surfaces and authorized private administrative records, but not public pages, public metadata, analytics, ordinary logs, unrelated administrative messages, or another party's response.
 - The retention region must state the finalized July 30, 2027 active-data retirement date and August 29, 2027 protected-backup retirement deadline.
 - The final prose must also explain the minimum-record exception for a concrete unresolved correction, dispute, delivery investigation, or comparable administrative need.
 - Provider-dependent SMS disclosure wording is inserted only after the provider's applicable requirements are verified; otherwise the public site must not imply that Text Message confirmation is enabled.
@@ -2114,56 +2168,68 @@ Shared narrow-screen order:
 3. Deadline/countdown.
 4. Blank-form and revision instructions.
 5. Coordinated Ceremony / Reception / decline checkboxes.
-6. Named `Plus1` region **only** when the validated invitation contains one or more authorized Column E allocations.
-7. Four coordinated age-category attendance dials and the calculated overall/remaining-capacity display.
-8. Reception-attendee detail rows **only** when Reception is selected, repeated exactly once per `overallAttendance`.
-9. Confirmation method, required again for every revision.
-10. Conditional confirmation destination and any required transactional SMS authorization.
-11. Notice that newly submitted operational fields replace their stored counterparts.
-12. Privacy/authorization content.
-13. Validation summary.
-14. Submit action.
-15. Assistance.
-16. Footer.
+6. Named-invitee Yes/No attendance controls, repeated once per validated `namedInvitees` object.
+7. Named `Plus1` region **only** when the validated invitation contains one or more authorized Column E allocations.
+8. Derived `overallAttendance` display based on the person-level Yes responses.
+9. Four coordinated age-category attendance dials whose sum must equal derived `overallAttendance`.
+10. **Attendee Details** rows whenever `overallAttendance > 0`, repeated exactly once per attendee; every row contains **Attendee name**, and Reception-selected rows additionally contain **Dietary or allergy information**.
+11. Confirmation method, required again for every revision.
+12. Conditional confirmation destination and any required transactional SMS authorization.
+13. Notice that newly submitted operational fields replace their stored counterparts.
+14. Privacy/authorization content.
+15. Validation summary.
+16. Submit action.
+17. Assistance.
+18. Footer.
+
+Named-invitee presentation rules:
+
+- One Yes/No attendance decision is displayed for each named invitee returned by the validated invitation configuration.
+- Mixed named-invitee attendance is permitted.
+- Opaque person IDs are not shown to the guest.
 
 Named-`Plus1` presentation rules:
 
 - No authoritative allocation means no Plus 1 region at all.
-- One allocation means one named-invitee Yes/No question.
-- Multiple allocations mean multiple independent named-invitee Yes/No questions.
+- One allocation means one named-invitee Plus 1 Yes/No question.
+- Multiple allocations mean multiple independent Plus 1 Yes/No questions.
 - There is no aggregate “How many additional guests?” control.
 
 Attendance-dial presentation rules:
 
+- `overallAttendance` is displayed as the derived count of person-level Yes responses and is not independently editable.
 - Adults 21+, Young Adults 18–20, Children 3–17, and Children under 3 are displayed as coordinated whole-number dials.
-- Each increase action respects the invitation's remaining authorized capacity after the other three values.
-- `overallAttendance` is displayed as the calculated sum and is not independently editable.
+- Each increase action respects the number of derived attendees not yet assigned to the other three age categories.
+- The complete age-category sum must equal derived `overallAttendance` exactly.
 
-Reception-attendee presentation rules:
+Attendee-detail presentation rules:
 
-- Ceremony-only attendance produces no Reception attendee-detail region.
-- Reception attendance produces exactly `overallAttendance` rows.
-- Each row contains required attendee name plus optional dietary/allergy information.
+- Every attending RSVP produces exactly `overallAttendance` **Attendee Details** rows, including Ceremony-only attendance.
+- Each row always contains required **Attendee name**.
+- When Reception is selected, each row additionally contains **Dietary or allergy information**; the value remains optional.
+- Removing Reception while remaining Ceremony-only preserves attendee names and removes dietary/allergy values.
+- A change in attending-person composition requires complete Attendee Details replacement even when the numerical headcount is unchanged.
 
 ## RSVP confirmation
 
 1. Header.
 2. Success or warning heading.
 3. Initial/revision label.
-4. Complete current attendance or decline state.
-5. Authorized named-`Plus1` responses only when that invitation actually has allocations.
-6. Four age-category totals and `overallAttendance` when attending.
-7. Reception attendee names and per-attendee dietary/allergy information only when Reception is selected.
-8. Timestamp.
-9. Selected guest confirmation method.
-10. Guest delivery status.
-11. Limited administrative-attempt status without the private address.
-12. Revision instructions covering omission, replacement, explicit zero where applicable, dependency clearing, and complete Reception-list replacement when cardinality changes.
-13. Deadline.
-14. Assistance.
-15. Footer.
+4. Complete current event attendance or decline state.
+5. Named-invitee Yes/No responses when attending.
+6. Authorized named-`Plus1` responses only when that invitation actually has allocations.
+7. Four age-category totals and derived `overallAttendance` when attending.
+8. Attendee names whenever attending; per-attendee dietary/allergy information only when Reception is selected.
+9. Timestamp.
+10. Selected guest confirmation method.
+11. Guest delivery status.
+12. Limited administrative-attempt status without the private address.
+13. Revision instructions covering omission, replacement, explicit zero where applicable, dependency clearing, exact age-total reconciliation, and complete Attendee Details replacement when attending-person composition changes.
+14. Deadline.
+15. Assistance.
+16. Footer.
 
-The confirmation omits genuinely inapplicable conditional regions. It does not insert disabled, `N/A`, or “not applicable” rows merely because an invitation had no `Plus1` allocation or did not include Reception.
+The confirmation omits genuinely inapplicable conditional regions. It does not insert disabled, `N/A`, or “not applicable” rows merely because an invitation had no `Plus1` allocation or because Reception-specific dietary information does not apply.
 
 ## Confirmation Refresh Fallback
 
@@ -2239,10 +2305,12 @@ The low-fidelity wireframes are complete when:
 - One reusable spreadsheet-authoritative substantive form is represented; no active default/reduced production-profile selector remains.
 - A party with no Column E `Plus1` allocation has no Plus 1 question.
 - Every authorized Column E allocation produces one separate named-invitee Yes/No question; no aggregate count control is used.
-- Four coordinated age-category dials are shown for attending parties and cannot exceed `maximumAttendance`.
-- Reception selection produces exactly one attendee-name/dietary row per `overallAttendance`; Ceremony-only attendance does not.
-- Per-attendee name and dietary/allergy fields are represented rather than one party-level dietary field.
-- Partial revision behavior distinguishes omission, replacement, explicit zero, attendance/decline changes, dependency clearing, and complete Reception-detail replacement when required.
+- Every validated attending form shows one named-invitee Yes/No control per authorized named invitee, and mixed named-invitee attendance is supported.
+- `overallAttendance` is displayed as the derived count of named-invitee and authorized Plus 1 Yes responses rather than as an independently selected number.
+- Four coordinated age-category dials classify the derived attending party and must sum exactly to `overallAttendance`.
+- Every attending RSVP, including Ceremony-only attendance, produces exactly one Attendee Details row per `overallAttendance`; every row requires attendee name.
+- Reception selection adds the optional **Dietary or allergy information** field to each attendee row rather than controlling whether attendee rows exist.
+- Partial revision behavior distinguishes omission, replacement, explicit zero, attendance/decline changes, dependency clearing, exact age-total reconciliation, and complete Attendee Details replacement whenever attending-person composition changes, including same-count swaps.
 - Confirmation method, destination, and any required transactional SMS authorization are shown as required again for every revision.
 - Newly submitted operational confirmation fields replace their stored counterparts.
 - Submission-in-progress, validation-failure, submission-uncertain, service-unavailable, closed-RSVP, and refresh-without-state branches are represented.
@@ -2265,7 +2333,7 @@ Phase 3 Step 10 is reflected in these wireframes when all of the following are t
 - Looking Up Invitation announces progress and prevents repeated lookup requests.
 - Invalid Invitation uses neutral wording and reveals no private invitation information.
 - Service Unavailable is visually distinct from Submission Uncertain and never claims storage without proof.
-- Validated Blank Form remains blank and supports invitation-authorized named-`Plus1` variation without revealing stored answers.
+- Validated Blank Form remains blank and supports the validated party's safe named-invitee roster plus invitation-authorized named-`Plus1` variation without revealing stored answers.
 - Validation Failure preserves current page-entered values and makes errors accessible.
 - Submitting prevents duplicate activation and does not display success before backend-confirmed storage.
 - Submission Uncertain warns against blind resubmission and supports an idempotent safe retry using the original logical request.
@@ -2315,10 +2383,10 @@ Phase 3 Step 14 is reflected in these wireframes when:
 - Analytics, when used, are non-personalized and do not become a dependency of the RSVP interaction.
 - Every shown Text Message choice is explicitly configuration-dependent and is omitted in production until the selected provider's Step 14 disclosure/authorization gate is satisfied.
 - Email remains available according to centralized production configuration when Text Message is disabled.
-- The Privacy wireframe includes invitation-code limits, data collected and used, blank forms, partial revisions, confirmation-channel treatment, private storage/access, Reception attendee-name and per-attendee dietary/allergy boundaries, data-exposure safeguards, retention, the separate private `Invitees List`, assistance, and the security limitation.
+- The Privacy wireframe includes invitation-code limits, safe named-invitee lookup data, person-level attendance responses, data collected and used, blank forms, partial revisions, confirmation-channel treatment, private storage/access, all-attendance attendee-name and Reception-specific dietary/allergy boundaries, data-exposure safeguards, retention, the separate private `Invitees List`, assistance, and the security limitation.
 - The Privacy wireframe identifies July 30, 2027 as the active RSVP-data retirement date and August 29, 2027 as the protected-backup retirement deadline.
 - The final Privacy-page prose may explain a minimum-record documented retention exception without turning that exception into a general indefinite-retention rule.
 - `rsvp-system-design.md`, `rsvp-api-contract.md`, `rsvp-test-cases.md`, `page-outlines.md`, and this file describe the same Step 14 browser-facing consequences.
 - The synchronized governing documents must continue to describe the same spreadsheet-authoritative RSVP model as implementation proceeds.
 
-With these constraints recorded, `wireframes.md` is synchronized through **Phase 3 Step 14**.
+With these constraints recorded, `wireframes.md` preserves the finalized Phase 3 Step 14 state/privacy architecture and is synchronized with the approved person-level attendance correction.
