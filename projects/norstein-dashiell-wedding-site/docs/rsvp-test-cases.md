@@ -2,11 +2,11 @@
 
 **Project:** Loreweaver Creations Wedding Website
 **Phase:** Phase 3 — RSVP System Design and Planning; spreadsheet-authoritative revision
-**Step:** Phase 3 Step 12 test catalog, synchronized through the corrected person-level attendance model
+**Step:** Phase 3 Step 12 test catalog, synchronized through the corrected attendance model, the September 27 unnamed-child source clarification, and the grouped `Kids(n)` family-control clarification
 **Document:** `docs/rsvp-test-cases.md`
 **Status:** Controlling preliminary test catalog; execution occurs during implementation, integration, production-gate, and lifecycle testing
-**Phase 3 status:** Complete; RSVP data/form model resynchronized September 20, 2026
-**Last updated:** September 20, 2026
+**Phase 3 status:** Complete; RSVP data/form model synchronized with named-invitee, Plus1, and grouped unnamed-child count behavior
+**Last updated:** September 27, 2026
 
 ---
 
@@ -14,17 +14,27 @@
 
 This document is the controlling preliminary test catalog for the Loreweaver Creations wedding RSVP system.
 
-It translates the current approved requirements, decisions, API contract, one reusable form schema, fictional development configurations, thirteen-state browser model, temporary-confirmation/refresh-fallback behavior, and finalized privacy/security standard into testable cases.
+It translates the current approved requirements, decisions, API contract, reusable form schema, fictional development configurations, thirteen-state browser model, temporary-confirmation/refresh-fallback behavior, and finalized privacy/security standard into testable cases.
 
-The private couple-supplied `Invitees List` spreadsheet is authoritative for production invitation configuration and for the intended substantive RSVP presentation. The current production-source audit contains 57 active assigned invitation records. Those aggregate results are validation targets, not hard-coded renderer assumptions.
+The private couple-supplied `Invitees List` spreadsheet is authoritative for production invitation configuration and substantive RSVP presentation. The latest source contains 57 active assigned invitation records. Those aggregate results are validation targets, not hard-coded renderer assumptions.
 
-The corrected attendance model uses the invitation maximum as potential-party capacity, explicit Yes/No decisions for every authorized named invitee and authorized `Plus1` slot, backend-derived `overallAttendance`, age-category totals whose sum must equal that derived count, and exactly that many `attendeeDetails` records. Attendee names apply to every attending event combination; `dietaryPreferences` is optional and Reception-specific.
+The current attendance model distinguishes **allocation objects** from **person capacity**:
 
-This document defines **expected behavior**. It does not claim that application code already satisfies every revised case. Tests marked as historically live validated against the superseded September 20 configuration shape must be rerun where the corrected invitation/configuration contract changes their subject.
+* Every specifically named potential attendee uses one `namedInvitees` record and one Yes/No `namedInviteeResponses` decision.
+* Every source `Plus1` uses one `kind: "plus1"` allocation with `maximumCount: 1` and one scalar `"yes"` / `"no"` response.
+* Every applicable source `Kids(n)` row uses one grouped `kind: "unnamedChildren"` allocation whose `maximumCount` is the authorized unnamed-child capacity for that invitation.
+* The grouped child allocation renders one family-level Yes/No question; Yes reveals one required count selector from 1 through `maximumCount`; No records count 0.
+* The grouped child response remains inside `additionalGuestResponses`; no separate child substantive region exists.
+* Backend-derived `overallAttendance` equals named-invitee Yes count + Plus1 Yes count + grouped unnamed-child attending count.
+* Age-category totals must equal that derived count exactly.
+* Exactly one `attendeeDetails` row exists per attending person, including one row per child represented by the grouped count.
+* `dietaryPreferences` remains optional and Reception-specific.
 
-Tests must use development or testing fixtures unless a controlled production-transformation validation explicitly requires the private source. Active production invitation codes, real guest identities, and private RSVP records must not be copied into ordinary automated fixtures, public documentation, or public source.
+The latest authoritative source uses `Kids(n)` only for unnamed children, so specifically named children remain ordinary `namedInvitees` records and are never duplicated into grouped child capacity.
 
----
+This document defines **expected behavior**. It does not claim that application code already satisfies every grouped-child case. Tests previously validated against the September 20 or earlier September 27 configuration shapes must be rerun where the grouped-child configuration, lookup, submission, or confirmation contract changes their subject.
+
+Tests must use development/testing fixtures unless a controlled production-transformation validation explicitly requires the private source. Active production invitation codes, real guest identities, and private RSVP records must not be copied into ordinary automated fixtures, public documentation, or public source.
 
 ## 2. Governing Project Documents
 
@@ -47,32 +57,50 @@ Where an older planning example conflicts with the authoritative spreadsheet or 
 
 In particular:
 
-- The current production source contains 57 active assigned invitation records, 57 unique normalized codes, 35 singular `I` wording records, 22 plural `We` wording records, 23 invitations with at least one authorized `Plus1` allocation, 26 total `Plus1` allocations, two invitations with more than one allocation, and combined maximum-attendance capacity of 115.
-- No production placeholder invitation is required by the active architecture.
-- Production rendering uses one reusable RSVP form schema; the former `default` / `reduced-attendance-dietary` production-profile architecture is retired.
+- The current production source contains 57 active assigned invitation records and 57 unique normalized codes.
+- It contains 35 singular `I` wording records and 22 plural `we` wording records.
+- It contains 84 specifically named potential attendees.
+- It contains 23 invitations with at least one `Plus1`, 26 total Plus1 allocation objects, and two invitations with multiple Plus1 allocations.
+- It contains two invitations with `Kids(n)` and five total unnamed-child capacity slots.
+- Those five child slots are represented by **two grouped `unnamedChildren` allocation objects**, not five child-allocation objects.
+- There are therefore 28 total `additionalGuestAllocations` objects and 31 total additional-guest person-capacity slots.
+- Combined maximum-attendance capacity remains 115.
+- No production placeholder invitation is required.
+- Production uses one reusable RSVP form schema; the former production question-profile split is retired.
 - `maximumAttendance` is potential-party capacity, not a browser-selected actual headcount.
-- Every valid invitation configuration exposes a limited safe `namedInvitees` roster for non-`Plus1` potential attendees and satisfies `namedInvitees.length + additionalGuestAllocations.length = maximumAttendance`.
-- Every authorized named invitee receives one Yes/No `namedInviteeResponses` control when the party is attending.
-- A party receives a Plus 1 question **only** when its private invitation configuration contains the corresponding Column E `Plus1` allocation. Each allocation uses a stable private-authorized allocation ID for submission.
-- A party with no authorized allocations receives no Plus 1 control and may not submit `additionalGuestResponses`.
-- Attendance is represented by one closed-set `eventAttendance` value: Ceremony, Reception, both, or full decline.
-- `overallAttendance` is backend-derived as the total count of Yes responses across complete `namedInviteeResponses` and `additionalGuestResponses`. It is not client-writable.
-- Every attending response uses four coordinated numerical age-category dials whose complete sum must equal derived `overallAttendance` exactly.
-- `attendeeDetails` is applicable whenever anyone attends, including Ceremony-only attendance, and contains exactly one required attendee name per derived attendee.
-- `dietaryPreferences` is optional, limited to 1000 characters, labeled `Dietary or allergy information`, and authorized only when Reception is selected.
-- A change in attendee identity composition requires complete `attendeeDetails` replacement even when the numeric attendee count is unchanged.
-- Removing Reception while Ceremony attendance remains preserves attendee names and clears only Reception-specific dietary/allergy values.
-- The current browser submission contract does **not** use client-supplied `expectedVersion`; ordinary `409 Conflict` is not part of the contract.
-- The RSVP interface continues to use the thirteen-state model.
-- Development fixtures are preferred for implementation testing; `DEV999` remains the inactive guard fixture.
-- State 12 — Confirmation Refresh Fallback remains presentation/recovery guidance only and does not retrieve a saved RSVP or replay a submission automatically.
-- The finalized privacy/security standard continues to require no-store responses, analytics/logging minimization, exact initial rate limits, trusted-proxy handling, backend-only credentials, environment separation, guest-safe errors, SMS-provider gating, HTTPS, and RSVP-data retirement.
-- Invitation codes are limited access tokens rather than passwords; no public guest directory, code-recovery search, fuzzy/close-match suggestion, public saved-RSVP endpoint, or code-bearing personalized route is permitted.
-- The initial lookup limit remains 10 requests per 15-minute rolling window per client IP.
-- The initial submission limits remain 6 requests per 15-minute rolling window per client IP and 6 requests per 15-minute rolling window per normalized invitation code.
-- Active RSVP-operational data is retired no later than July 30, 2027 unless a minimal record is temporarily required for a concrete documented administrative need; protected backups containing retired RSVP-operational data expire no later than August 29, 2027.
+- Every valid configuration must satisfy:
 
----
+  `namedInvitees.length + sum(additionalGuestAllocations.maximumCount) = maximumAttendance`
+
+- Every named invitee receives one Yes/No `namedInviteeResponses` control when attending.
+- Every `plus1` allocation has `maximumCount: 1` and one scalar Yes/No response.
+- Every applicable `unnamedChildren` allocation represents the complete unnamed-child capacity for one invitation and uses one grouped family-level question.
+- The approved grouped-child prompt is:
+
+  `We'd love for your family to celebrate with us this Mayday - will your kid(s) be accompanying you?`
+
+- Grouped child No is canonically `{ "attending": "no", "count": 0 }`.
+- Grouped child Yes is canonically `{ "attending": "yes", "count": k }`, where `k` is a whole number from 1 through that allocation's `maximumCount`.
+- The browser receives only safe allocation fields `id`, `kind`, `prompt`, and `maximumCount`.
+- A specifically named child remains a named invitee and is not duplicated as grouped child capacity.
+- A party with no authorized allocation may not submit `additionalGuestResponses`.
+- Attendance is one closed event state: Ceremony, Reception, both, or full decline.
+- `overallAttendance` is backend-derived as named-invitee Yes count + Plus1 Yes count + grouped child attending count. It is not client-writable.
+- Every attending response uses four coordinated age-category dials whose sum equals derived `overallAttendance` exactly.
+- `attendeeDetails` applies whenever anyone attends, including Ceremony-only attendance.
+- Actual names of attending Plus1s and unnamed children are collected only through `attendeeDetails`.
+- A grouped child response/count change is always composition-sensitive and requires complete `attendeeDetails` replacement.
+- Removing Reception while Ceremony remains preserves attendee names and clears only dietary/allergy values.
+- The current submission contract does not use client-supplied `expectedVersion` or an ordinary `409 Conflict` flow.
+- The current substantive contract does not use a generic client `clear` operation; backend dependency rules clear data made inapplicable.
+- The RSVP interface continues to use the thirteen-state model.
+- `DEV999` remains the inactive guard fixture.
+- State 12 — Confirmation Refresh Fallback does not retrieve a saved RSVP or replay submission automatically.
+- The finalized privacy/security standard continues to require no-store responses, analytics/logging minimization, exact initial rate limits, trusted-proxy handling, backend-only credentials, environment separation, guest-safe errors, SMS-provider gating, HTTPS, and RSVP-data retirement.
+- Invitation codes are limited access tokens rather than passwords; no public guest directory, code-recovery search, fuzzy suggestion, public saved-RSVP endpoint, or code-bearing personalized route is permitted.
+- Lookup remains limited to 10 requests per 15-minute rolling window per client IP.
+- Submission remains limited to 6 requests per 15-minute rolling window per client IP and 6 per normalized invitation code.
+- Active RSVP-operational data is retired no later than July 30, 2027 unless a documented minimal administrative need applies; protected backups containing retired operational RSVP data expire no later than August 29, 2027.
 
 ## 3. Test-Case Conventions
 
@@ -85,7 +113,7 @@ In particular:
 | `CONF` | Invitation configuration and reusable form-schema behavior |
 | `BLANK` | Blank-form and lookup privacy boundaries |
 | `ATT` | Event attendance, named-invitee attendance, decline, and derived-headcount behavior |
-| `ADD` | Authorized named-`Plus1` behavior |
+| `ADD` | Authorized additional-guest allocation behavior, including scalar Plus1 and grouped unnamed-child count responses |
 | `TOTAL` | Age-category attendance-total and coordinated-dial behavior |
 | `DIET` | Attendee-detail and Reception-specific dietary/allergy behavior |
 | `INIT` | Initial-submission behavior |
@@ -126,7 +154,7 @@ For every browser-facing test, verify both:
 1. The visible state or behavior.
 2. That no prohibited information is exposed through URLs, metadata, analytics payloads, browser storage, or unnecessary response content.
 
-For every attendance test, distinguish **potential-party capacity** from **actual attending headcount**. `maximumAttendance` authorizes the roster/slots; person-level Yes/No responses derive actual `overallAttendance`; age totals and attendee-detail cardinality must reconcile to that derived value.
+For every attendance test, distinguish **potential-party capacity** from **allocation-object count** and **actual attending headcount**. `maximumAttendance` authorizes total person capacity; named-invitee Yes responses, Plus1 Yes responses, and grouped child selected count derive actual `overallAttendance`; age totals and attendee-detail cardinality must reconcile to that derived value.
 
 ---
 
@@ -134,29 +162,31 @@ For every attendance test, distinguish **potential-party capacity** from **actua
 
 Use the fictional development fixtures defined in `rsvp-example-configurations.json` as the default test inputs.
 
-| Fixture | Primary purpose | `wordingMode` | `maximumAttendance` | Named invitees | Authorized `Plus1` allocations | Active |
-|---|---|---|---:|---:|---:|---|
-| `DEV001` / `DEV-001` | Singular, one named invitee, no Plus 1 | `singular` | 1 | 1 | 0 | Yes |
-| `DEV002` / `DEV-002` | Larger plural named household | `plural` | 5 | 5 | 0 | Yes |
-| `DEV003` / `DEV-003` | Singular named invitee with one Plus 1 slot | `singular` | 2 | 1 | 1 | Yes |
-| `DEV004` / `DEV-004` | Plural household with one Plus 1 slot | `plural` | 4 | 3 | 1 | Yes |
-| `DEV005` / `DEV-005` | Ceremony-only scenario fixture | `plural` | 4 | 4 | 0 | Yes |
-| `DEV006` / `DEV-006` | Reception-only scenario fixture | `singular` | 2 | 1 | 1 | Yes |
-| `DEV007` / `DEV-007` | Combined Ceremony + Reception scenario | `plural` | 3 | 3 | 0 | Yes |
-| `DEV008` / `DEV-008` | Existing-response and same-count revision scenario | `plural` | 3 | 3 | 0 | Yes |
-| `DEV009` / `DEV-009` | Multiple named Plus 1 allocations | `plural` | 7 | 4 | 3 | Yes |
-| `DEV010` / `DEV-010` | Capacity/equality boundary scenario | `plural` | 4 | 3 | 1 | Yes |
-| `DEV999` / `DEV-999` | Disabled-development guard fixture | `plural` | 2 | 1 | 1 | No |
+| Fixture | Primary purpose | `wordingMode` | `maximumAttendance` | Named invitees | Plus1 objects | Grouped child objects | Grouped child capacity | Active |
+|---|---|---|---:|---:|---:|---:|---:|---|
+| `DEV001` / `DEV-001` | Singular, one named invitee, no additional guest | `singular` | 1 | 1 | 0 | 0 | 0 | Yes |
+| `DEV002` / `DEV-002` | Plural household with grouped unnamed children | `plural` | 5 | 3 | 0 | 1 | 2 | Yes |
+| `DEV003` / `DEV-003` | Singular named invitee with one Plus1 | `singular` | 2 | 1 | 1 | 0 | 0 | Yes |
+| `DEV004` / `DEV-004` | Plural household with one Plus1 | `plural` | 4 | 3 | 1 | 0 | 0 | Yes |
+| `DEV005` / `DEV-005` | Ceremony-only scenario fixture | `plural` | 4 | 4 | 0 | 0 | 0 | Yes |
+| `DEV006` / `DEV-006` | Reception-only scenario fixture | `singular` | 2 | 1 | 1 | 0 | 0 | Yes |
+| `DEV007` / `DEV-007` | Combined Ceremony + Reception scenario | `plural` | 3 | 3 | 0 | 0 | 0 | Yes |
+| `DEV008` / `DEV-008` | Existing-response and same-count revision scenario | `plural` | 3 | 3 | 0 | 0 | 0 | Yes |
+| `DEV009` / `DEV-009` | Multiple named Plus1 allocations | `plural` | 7 | 4 | 3 | 0 | 0 | Yes |
+| `DEV010` / `DEV-010` | Capacity/equality boundary scenario | `plural` | 4 | 3 | 1 | 0 | 0 | Yes |
+| `DEV999` / `DEV-999` | Disabled-development guard fixture | `plural` | 2 | 1 | 1 | 0 | 0 | No |
 
-Every fixture above satisfies `namedInvitees.length + additionalGuestAllocations.length = maximumAttendance`.
+Every fixture satisfies:
+
+`namedInvitees.length + sum(additionalGuestAllocations.maximumCount) = maximumAttendance`
+
+`DEV002` is the primary grouped-child fixture. Its one `unnamedChildren` allocation has `maximumCount: 2`, so three named potential attendees plus two authorized unnamed-child slots reconcile to `maximumAttendance: 5`.
 
 `DEV999` is not an ordinary guest-flow fixture. It exists to test inactive/environment-ineligible lookup behavior.
 
-The named-invitee display names, opaque IDs, allocation prompts, and allocation IDs in these fixtures are fictional. They test the same structural behavior required by production without exposing production identities or codes.
+All names, IDs, allocation prompts, allocation kinds, and allocation ids are fictional. They exercise the production structure without exposing real guest data.
 
 Use a separately reserved synthetic unknown code such as `UNK-404` only in a test environment where it has been confirmed not to exist.
-
----
 
 # 5. Invitation-Code Normalization and Lookup Tests
 
@@ -214,36 +244,40 @@ Use a separately reserved synthetic unknown code such as `UNK-404` only in a tes
 
 | ID | Fixture | Test | Expected result | Status |
 |---|---|---|---|---|
-| `CONF-001` | `DEV001` | Lookup valid singular fixture. | Guest-facing attendance wording uses the singular variants supplied by configuration. | Required |
-| `CONF-002` | `DEV002` | Lookup valid plural fixture. | Guest-facing attendance wording uses the plural variants supplied by configuration. | Required |
-| `CONF-003` | Any fixture | Alter display name without altering `wordingMode` in a controlled fixture copy. | Renderer follows explicit `wordingMode`; it does not infer singular/plural from names. | Required |
-| `CONF-004` | `DEV001` | Render an invitation with `additionalGuestAllocations: []`. | No Plus 1 question is rendered; the authorized named-invitee attendance control, totals, attendee details, and operational controls remain available as applicable. | Required |
-| `CONF-005` | `DEV003` | Render one authorized named `Plus1` allocation. | Exactly one Plus 1 Yes/No question is rendered using the configured prompt and stable allocation ID. | Required |
-| `CONF-006` | `DEV009` | Render three authorized named `Plus1` allocations. | Exactly three independent Plus 1 Yes/No questions are rendered; no aggregate additional-guest count control appears. | Required |
-| `CONF-007` | All active fixtures | Inspect form-schema selection. | Every fixture uses the same reusable `spreadsheet-authoritative-rsvp` schema; production rendering does not branch on a `questionProfile`. | Required |
-| `CONF-008` | `DEV001` | Verify capacity/roster reconciliation. | `maximumAttendance` is 1, `namedInvitees.length` is 1, allocation count is 0, and the invariant equals 1. | Required |
-| `CONF-009` | `DEV002` | Verify larger named household. | `maximumAttendance` is 5, exactly five safe named-invitee records are authorized, and no Plus 1 slots exist. | Required |
-| `CONF-010` | `DEV009` | Verify mixed roster/allocation capacity. | `maximumAttendance` is 7, `namedInvitees.length` is 4, allocation count is 3, and the invariant equals 7. | Required |
-| `CONF-011` | `DEV999` | Validate fixture metadata. | `active` is false and fixture is not returned as an ordinary valid invitation. | Required |
-| `CONF-012` | Development fixtures | Inspect all active fixture records. | Every fixture is `environment: "development"` and remains separated from production data. | Required |
-| `CONF-013` | All fixtures | Inspect configuration shape. | Each contains `wordingMode`, positive `maximumAttendance`, a `namedInvitees` array, an `additionalGuestAllocations` array, protected `active`, and protected `environment`; no RSVP answers are embedded. | Required |
-| `CONF-014` | Reusable schema | Enumerate substantive IDs. | Exactly `eventAttendance`, `namedInviteeResponses`, `additionalGuestResponses`, `attendanceTotals`, and `attendeeDetails` are substantive regions. | Required |
-| `CONF-015` | Reusable schema | Inspect additional-guest rendering. | Each Plus 1 prompt comes only from an authorized allocation; no separate field requests the additional guest's name at the allocation stage. | Required |
-| `CONF-016` | Reusable schema | Inspect age-total fields. | Exactly `adults21Plus`, `youngAdults18To20`, `children3To17`, and `childrenUnder3` are present in the coordinated dial group. | Required |
-| `CONF-017` | Reusable schema | Check closed-set exclusions. | No accessibility, lodging, transportation, message-to-couple, entrée-selection, independent client-writable `overallAttendance`, or other unapproved substantive region is rendered. | Required |
-| `CONF-018` | `DEV001` | Maliciously submit `additionalGuestResponses`. | Field is unauthorized because the invitation has no allocations. | Required |
-| `CONF-019` | `DEV003` | Submit a response keyed by an allocation ID not returned for that invitation. | Unauthorized allocation is rejected; prompt text or arbitrary IDs do not authorize a slot. | Required |
-| `CONF-020` | Any attending fixture | Inspect attendee-detail rendering. | Exactly one `attendeeDetails` row is rendered per derived `overallAttendance`; `attendeeName` is always present and `dietaryPreferences` appears only when Reception is selected. | Required |
-| `CONF-021` | Any fixture | Alter browser-visible party text in a test double while backend configuration stays fixed. | Browser does not infer `maximumAttendance`, roster membership, or Plus 1 authorization from headings or display text. | Required |
-| `CONF-022` | Schema/config compatibility | Exercise `DEV001`, `DEV003`, `DEV006`, `DEV008`, and `DEV009`. | The same reusable schema correctly handles named-only, one-allocation, Reception dietary, revision/composition, and multiple-allocation scenarios. | Required |
-| `CONF-023` | Any active fixture | Inspect each `namedInvitees` object returned by the validated configuration. | Each safe roster item has one stable opaque `id` and approved `displayName`; private source-row identifiers are absent. | Required |
-| `CONF-024` | All fixtures | Reconcile capacity. | `namedInvitees.length + additionalGuestAllocations.length` equals `maximumAttendance` exactly. | Required |
-| `CONF-025` | Controlled malformed fixture | Reduce or increase roster/allocation count without updating `maximumAttendance`. | Configuration validation fails; contradictory capacity is not served to the browser. | Required |
-| `CONF-026` | Reusable schema | Inspect `overallAttendance`. | It is documented as backend-derived from complete person-level Yes responses and is not a permanent client-writable question ID. | Required |
-| `CONF-027` | Reusable schema | Inspect dietary field copy. | Visible label is exactly `Dietary or allergy information`; it is optional when Reception applies and contains no visible `(optional)` suffix. | Required |
-| `CONF-028` | Any fixture | Compare `partyDisplayName` with `namedInvitees`. | Party heading does not substitute for the person-level roster; the renderer uses the explicit safe roster returned after validation. | Required |
-
----
+| `CONF-001` | `DEV001` | Lookup valid singular fixture. | Guest-facing attendance wording uses singular variants supplied by configuration. | Required |
+| `CONF-002` | `DEV002` | Lookup valid plural fixture. | Guest-facing attendance wording uses plural variants supplied by configuration. | Required |
+| `CONF-003` | Any fixture | Alter display name without altering `wordingMode`. | Renderer follows explicit `wordingMode`; it does not infer grammatical number from names. | Required |
+| `CONF-004` | `DEV001` | Render with `additionalGuestAllocations: []`. | No additional-guest control is rendered; named-invitee, totals, attendee-details, and operational controls remain available as applicable. | Required |
+| `CONF-005` | `DEV003` | Render one `kind: "plus1"` allocation. | Exactly one Plus1 Yes/No question renders using configured prompt/id; `maximumCount` is 1. | Required |
+| `CONF-006` | `DEV009` | Render three `plus1` allocations. | Exactly three independent Plus1 Yes/No controls render; no aggregate Plus1 count control appears. | Required |
+| `CONF-007` | All active fixtures | Inspect form-schema selection. | Every fixture uses the same reusable schema; production does not branch on `questionProfile`. | Required |
+| `CONF-008` | `DEV001` | Verify capacity reconciliation. | 1 named + summed allocation capacity 0 = maximum 1. | Required |
+| `CONF-009` | `DEV002` | Verify grouped-child capacity. | `maximumAttendance` 5, 3 named invitees, one `unnamedChildren` allocation with `maximumCount: 2`; total person capacity equals 5. | Required |
+| `CONF-010` | `DEV009` | Verify Plus1 capacity. | 4 named + three `maximumCount: 1` Plus1 allocations = maximum 7. | Required |
+| `CONF-011` | `DEV999` | Validate fixture metadata. | `active` is false and fixture is unavailable to ordinary valid lookup. | Required |
+| `CONF-012` | Development fixtures | Inspect active records. | Active fixtures are development-classified and separated from production data. | Required |
+| `CONF-013` | All fixtures | Inspect configuration shape. | Contains wording, positive maximum, `namedInvitees`, `additionalGuestAllocations`, protected active/environment; each allocation has valid `id`, `kind`, `prompt`, `maximumCount`; no RSVP answers embedded. | Required |
+| `CONF-014` | Reusable schema | Enumerate substantive IDs. | Exactly `eventAttendance`, `namedInviteeResponses`, `additionalGuestResponses`, `attendanceTotals`, `attendeeDetails`. | Required |
+| `CONF-015` | Reusable schema | Inspect allocation rendering metadata. | Plus1 and grouped-child controls are selected from allocation `kind`; no allocation-stage field asks for actual additional-attendee names. | Required |
+| `CONF-016` | Reusable schema | Inspect age-total fields. | Exactly adults21Plus, youngAdults18To20, children3To17, childrenUnder3. | Required |
+| `CONF-017` | Reusable schema | Check closed-set exclusions. | No accessibility/lodging/transport/message/entrée/client-writable overall headcount or separate child substantive region. | Required |
+| `CONF-018` | `DEV001` | Maliciously submit `additionalGuestResponses`. | Unauthorized because invitation has no allocations. | Required |
+| `CONF-019` | `DEV003` | Submit unknown allocation ID. | Rejected; arbitrary id/prompt text does not authorize attendance. | Required |
+| `CONF-020` | Any attending fixture | Inspect attendee details. | Exactly one row per derived attendee; attendeeName always applies; dietaryPreferences only Reception. | Required |
+| `CONF-021` | Any fixture | Alter browser-visible heading/text while backend config stays fixed. | Browser does not infer maximum, roster, Plus1 authorization, child authorization, allocation kind, or child maximum from display text. | Required |
+| `CONF-022` | Schema/config compatibility | Exercise named-only, grouped-child, one-Plus1, Reception, revision, and multiple-Plus1 fixtures. | Same reusable schema handles all without a production profile split. | Required |
+| `CONF-023` | Any active fixture | Inspect safe named roster. | Each item exposes only stable opaque `id` and approved `displayName`. | Required |
+| `CONF-024` | All fixtures | Reconcile capacity. | `namedInvitees.length + sum(additionalGuestAllocations.maximumCount)` equals `maximumAttendance` exactly. | Required |
+| `CONF-025` | Controlled malformed fixture | Change named roster or allocation `maximumCount` without updating maximum. | Configuration validation fails; contradictory capacity is not served. | Required |
+| `CONF-026` | Reusable schema | Inspect `overallAttendance`. | Backend-derived; not a permanent client-writable question ID. | Required |
+| `CONF-027` | Reusable schema | Inspect dietary copy. | Visible label exactly `Dietary or allergy information`, optional when Reception applies, no `(optional)` suffix. | Required |
+| `CONF-028` | Any fixture | Compare party heading with named roster. | Party heading does not substitute for the explicit safe roster. | Required |
+| `CONF-029` | `DEV002` | Inspect grouped child allocation. | Exactly one allocation has `kind: "unnamedChildren"`, approved family prompt, `maximumCount: 2`, opaque id, and no fabricated child name. | Required |
+| `CONF-030` | `DEV002` lookup | Inspect safe allocation projection. | Grouped allocation exposes only `id`, `kind`, `prompt`, `maximumCount`; raw `Kids(n)` source text and private source metadata are absent. | Required |
+| `CONF-031` | Controlled malformed config | Add a second grouped `unnamedChildren` allocation to one invitation. | Rejected; at most one grouped child allocation is permitted per invitation. | Required |
+| `CONF-032` | Controlled malformed config | Use `kind: "plus1"` with `maximumCount` other than 1. | Rejected. | Required |
+| `CONF-033` | Controlled malformed config | Use zero, negative, fractional, or missing `maximumCount`. | Rejected. | Required |
+| `CONF-034` | Controlled source/config | Put a child in named roster and also include that child in grouped child capacity. | Rejected as double-counted/contradictory; named children remain only `namedInvitees`. | Required |
 
 # 8. Blank-Form and Lookup Privacy-Boundary Tests
 
@@ -262,13 +296,13 @@ Use a separately reserved synthetic unknown code such as `UNK-404` only in a tes
 | `BLANK-011` | `DEV008` | Inspect lookup response for delivery history. | Not returned. | Required |
 | `BLANK-012` | Valid fixture | Inspect lookup response for `partyId`, workbook row, private notes, `active`, `environment`, credentials, or raw source-column values. | None is returned. | Required |
 | `BLANK-013` | Valid fixture | Inspect lookup response top level. | Contains only `invitation`, `questions`, and `confirmationOptions`. | Required |
-| `BLANK-014` | Valid fixture | Inspect `invitation`. | Contains only values needed to render the blank form, including safe `namedInvitees`, `maximumAttendance`, wording, heading/greeting, and authorized Plus 1 definitions where applicable. | Required |
+| `BLANK-014` | Valid fixture | Inspect `invitation`. | Contains only values needed to render the blank form, including safe `namedInvitees`, `maximumAttendance`, wording, heading/greeting, and safe allocation fields `id`, `kind`, `prompt`, `maximumCount` where applicable. | Required |
 | `BLANK-015` | Valid fixture | Verify code echo behavior. | Invitation code is not returned merely to reproduce it after validation. | Required |
 | `BLANK-016` | Public route | Inspect search indexing outcome for RSVP and confirmation routes. | Personalized/transactional RSVP states are excluded from public indexing. | Required |
 | `BLANK-017` | Public route | Inspect concise privacy notice. | Notice is present on entry and validated form and links to `/wedding/privacy`. | Required |
 | `BLANK-018` | Invalid/unknown lookup | Inspect error content. | No name, close match, roster, record count, spreadsheet detail, internal identifier, allocation data, or backend detail is disclosed. | Required |
 | `BLANK-019` | Valid fixture | Inspect each lookup `namedInvitees` item. | Only the validated party's safe `id` and `displayName` are returned; no other party's roster or private source metadata is included. | Required |
-| `BLANK-020` | `DEV008` with stored RSVP | Compare lookup roster with stored person-level responses. | Safe roster is returned because it is invitation configuration; stored Yes/No answers remain absent. | Required |
+| `BLANK-020` | `DEV008` with stored RSVP | Compare lookup roster with stored authorized attendance responses. | Safe roster is returned because it is invitation configuration; stored Yes/No answers remain absent. | Required |
 
 ---
 
@@ -276,58 +310,76 @@ Use a separately reserved synthetic unknown code such as `UNK-404` only in a tes
 
 | ID | Fixture | Test | Expected result | Status |
 |---|---|---|---|---|
-| `ATT-001` | `DEV005` | Submit Ceremony-only with complete named-invitee responses, age totals equal to derived headcount, and matching `attendeeDetails`. | Valid Ceremony-only state; attendee names are required and dietary fields are absent. | Required |
-| `ATT-002` | `DEV006` | Submit Reception-only with complete named-invitee/Plus 1 responses, exact age totals, and matching attendee details. | Valid Reception-only state; optional dietary/allergy fields are authorized. | Required |
-| `ATT-003` | `DEV007` | Submit Ceremony + Reception with complete person-level responses, exact age totals, and matching attendee details. | Valid combined attending state. | Required |
-| `ATT-004` | Any active fixture | Submit `eventAttendance: ["decline"]`. | Valid full decline; all attendance-dependent substantive structures become inapplicable and are cleared. | Required |
-| `ATT-005` | Any fixture | Submit a complete attendance value containing `decline` with `ceremony` or `reception`. | Rejected as contradictory; no new RSVP version. | Required |
-| `ATT-006` | Initial response | Submit `eventAttendance: []`. | Rejected because an initial RSVP has not established a complete valid event state. | Required |
-| `ATT-007` | Initial response | Omit `eventAttendance`. | Rejected as incomplete. | Required |
-| `ATT-008` | Existing attending response | Revise to `['decline']`. | Stored named-invitee responses, Plus 1 responses, attendance totals, derived headcount, and attendee details are cleared before final validation. | Required |
-| `ATT-009` | Existing declined response | Revise to an attending state. | Every named-invitee response, every authorized Plus 1 response, all four totals, and a complete matching `attendeeDetails` list are newly required. | Required |
-| `ATT-010` | Continuing attending response | Omit `eventAttendance` in a revision. | Stored event state remains unchanged. | Required |
-| `ATT-011` | Revision | Intentionally change event attendance. | Client replaces the complete intended event state; backend validates the resulting dependencies. | Required |
-| `ATT-012` | Full decline | Include otherwise authorized stale dependent structures in the same request. | Full-decline dependency processing clears those now-inapplicable values before storage; valid decline remains possible. | Required |
-| `ATT-013` | Full decline | Include an unknown substantive region or unauthorized person/allocation ID. | Authorization failure remains; decline does not make unauthorized content acceptable. | Required |
-| `ATT-014` | Ceremony-only attendance | Omit newly required `attendeeDetails`. | Rejected; attendee names apply to Ceremony-only attendance too. | Required |
-| `ATT-015` | Any attending state | Omit newly required `attendanceTotals`. | Rejected as incomplete. | Required |
-| `ATT-016` | Invitation with authorized allocations | Omit one or more newly required `additionalGuestResponses` on initial attending submission or decline-to-attending transition. | Rejected as incomplete. | Required |
-| `ATT-017` | Any attending invitation | Omit one or more newly required `namedInviteeResponses`. | Rejected as incomplete. | Required |
-| `ATT-018` | Full decline | Inspect successful guest-facing RSVP. | `eventAttendance` is `['decline']`; `namedInviteeResponses`, `additionalGuestResponses`, `attendanceTotals`, `overallAttendance`, and `attendeeDetails` are omitted. | Required |
-| `ATT-019` | `DEV002` | Answer Yes for some named invitees and No for others while attending. | Valid mixed-household attendance when at least one person attends and all dependent structures reconcile. | Required |
-| `ATT-020` | Any active fixture | Submit a named-invitee response keyed by an ID not in the validated roster. | `403 Forbidden`; no storage. | Required |
-| `ATT-021` | Any named invitee | Submit a value other than string `yes` or `no`. | Rejected as invalid. | Required |
-| `ATT-022` | Attending event selected | Answer No for every named invitee and every authorized Plus 1 slot. | Rejected because derived `overallAttendance` is 0 while the event state says attending. | Required |
-| `ATT-023` | Mixed roster/allocation fixture | Count complete Yes responses. | Backend-derived `overallAttendance` equals named-invitee Yes count plus authorized Plus 1 Yes count. | Required |
-| `ATT-024` | Any attending fixture | Add client-supplied `overallAttendance`. | Rejected as unauthorized/client-writable substantive data; backend derivation remains authoritative. | Required |
-| `ATT-025` | Existing RSVP | Swap one attending named invitee from Yes to No and another from No to Yes, leaving numeric headcount unchanged. | Attendee composition changes; complete replacement `attendeeDetails` is required. | Required |
-| `ATT-026` | Fixture containing a named child | Inspect/submit person-level attendance. | Named child receives an ordinary authorized named-invitee Yes/No decision; age classification is supplied separately through totals. | Required |
-| `ATT-027` | Any attending fixture | Compare person-level decisions with age totals. | Person-level decisions determine who/how many attend; age totals classify the derived attendees and do not independently create or remove attendees. | Required |
+| `ATT-001` | `DEV005` | Submit Ceremony-only with complete named responses, exact age totals, matching attendee details. | Valid; attendee names required, dietary fields absent. | Required |
+| `ATT-002` | `DEV006` | Submit Reception-only with complete named/Plus1 responses, exact age totals, matching attendee details. | Valid; optional dietary fields authorized. | Required |
+| `ATT-003` | `DEV007` | Submit Ceremony + Reception with complete attendance responses, exact totals, matching details. | Valid combined state. | Required |
+| `ATT-004` | Any active fixture | Submit full decline. | Valid; attendance-dependent substantive structures are cleared/omitted. | Required |
+| `ATT-005` | Any fixture | Submit decline with ceremony/reception. | Rejected as contradictory. | Required |
+| `ATT-006` | Initial | Submit empty eventAttendance. | Rejected incomplete. | Required |
+| `ATT-007` | Initial | Omit eventAttendance. | Rejected incomplete. | Required |
+| `ATT-008` | Existing attending | Revise to decline. | Named/additional responses, totals, derived attendance, attendee details clear before storage. | Required |
+| `ATT-009` | Existing declined | Revise to attending. | Every named response, every authorized allocation response, all four totals, complete attendee details newly required. | Required |
+| `ATT-010` | Continuing attending | Omit eventAttendance revision. | Stored event state remains unchanged. | Required |
+| `ATT-011` | Revision | Replace event attendance. | Backend validates resulting dependencies. | Required |
+| `ATT-012` | Full decline | Include otherwise authorized stale dependent values. | Dependency processing clears inapplicable values; valid decline may still store. | Required |
+| `ATT-013` | Full decline | Include unknown region/id. | Authorization failure remains. | Required |
+| `ATT-014` | Ceremony only | Omit newly required attendee details. | Rejected. | Required |
+| `ATT-015` | Any attending | Omit newly required age totals. | Rejected. | Required |
+| `ATT-016` | Invitation with allocations | Omit newly required allocation response on initial/decline-to-attending. | Rejected incomplete. | Required |
+| `ATT-017` | Any attending | Omit newly required named response. | Rejected incomplete. | Required |
+| `ATT-018` | Full decline | Inspect success RSVP. | Only decline event state remains; named/additional responses, totals, overallAttendance, attendeeDetails omitted. | Required |
+| `ATT-019` | `DEV002` | Mix named-invitee Yes/No responses and grouped child No. | Valid when at least one person attends and dependent structures reconcile. | Required |
+| `ATT-020` | Any active fixture | Submit unknown named-invitee id. | `403`; no storage. | Required |
+| `ATT-021` | Named invitee | Submit value other than `"yes"` / `"no"`. | Rejected. | Required |
+| `ATT-022` | Attending event selected | Answer No for all named invitees and all Plus1s; grouped child response is No/count 0 where applicable. | Rejected because derived `overallAttendance` is 0 while event state says attending. | Required |
+| `ATT-023` | `DEV002` | Three named invitees answer Yes/No and grouped children answer Yes/count 2. | Derived `overallAttendance` equals named Yes count + 2. | Required |
+| `ATT-024` | Any attending fixture | Add client-supplied `overallAttendance`. | Rejected; backend derivation remains authoritative. | Required |
+| `ATT-025` | Existing RSVP | Swap one attending named invitee for another at same count. | Composition changes; complete attendee details required. | Required |
+| `ATT-026` | Fixture containing a named child | Inspect/submit named child attendance. | Named child uses ordinary named-invitee Yes/No; age classification supplied separately. | Required |
+| `ATT-027` | Any attending fixture | Compare attendance decisions/count with age totals. | Named/Plus1/grouped-child responses determine attendee count; age totals only classify those attendees. | Required |
+| `ATT-028` | `DEV002` | Grouped child Yes/count 1 with one named invitee Yes and others No. | Derived overall attendance is 2. | Required |
+| `ATT-029` | `DEV002` | Grouped child Yes/count 2 with one named invitee Yes and others No. | Derived overall attendance is 3. | Required |
 
----
-
-# 10. Authorized Named-`Plus1` Tests
+# 10. Authorized Additional-Guest Allocation Tests
 
 | ID | Fixture | Test | Expected result | Status |
 |---|---|---|---|---|
-| `ADD-001` | `DEV001` | Render form. | No Plus 1 control is rendered because `additionalGuestAllocations` is empty. | Required |
-| `ADD-002` | `DEV001` | Maliciously submit `additionalGuestResponses`. | `403 Forbidden`; no storage. | Required |
-| `ADD-003` | `DEV003` | Submit `{ "plus1-dev003-a": "yes" }` while attending. | Valid authorized response; this slot contributes one attendee to derived `overallAttendance`. | Required |
-| `ADD-004` | `DEV003` | Submit `{ "plus1-dev003-a": "no" }` while attending. | Valid authorized response; this slot contributes zero attendees. | Required |
-| `ADD-005` | `DEV003` | Use the guest-facing prompt or invitee name as the submission key instead of the stable allocation ID. | Rejected; authorization keys are stable allocation IDs only. | Required |
-| `ADD-006` | `DEV009` | Submit `yes` for all three authorized allocations. | Each accepted Yes contributes one attendee; final derived count also includes named-invitee Yes responses. | Required |
-| `ADD-007` | `DEV009` | Submit a mixed complete map of `yes` and `no`. | Valid; each allocation is independent. | Required |
-| `ADD-008` | `DEV009` | Add an unknown fourth allocation ID. | `403 Forbidden`; no storage. | Required |
-| `ADD-009` | Any authorized allocation | Submit numeric `1`, Boolean `true`, or another value instead of `yes`/`no`. | Rejected as invalid value. | Required |
-| `ADD-010` | `DEV009` initial attending | Omit one authorized allocation from the initial map. | Rejected as incomplete. | Required |
-| `ADD-011` | `DEV009` stored decline | Revise to attending but omit one authorized allocation response. | Rejected because every allocation is newly applicable after decline. | Required |
-| `ADD-012` | Authorized allocations | Compare Yes/No responses with derived headcount. | Each Yes contributes exactly one; each No contributes zero; backend does not apply a separate Plus 1 count constraint because the person decisions themselves derive headcount. | Required |
-| `ADD-013` | Continuing attending revision | Change one allocation response and supply dependent replacements needed for the new derived headcount/composition. | Valid when complete merged totals equal new `overallAttendance` and attendee details are replaced as required. | Required |
-| `ADD-014` | Continuing attending revision | Change allocation response so derived headcount/composition changes but omit required dependent updates. | Rejected; backend does not guess age classification or attendee-detail identity. | Required |
-| `ADD-015` | Prior positive Plus 1 response | Revise to full decline. | Entire stored `additionalGuestResponses` map is cleared as inapplicable. | Required |
-| `ADD-016` | Any authorized allocation fixture | Inspect Plus 1 section and attendee details. | Allocation-stage controls never ask for the additional guest's name; if the slot attends, that attendee's name is supplied through `attendeeDetails` regardless of Ceremony/Reception combination. | Required |
-
----
+| `ADD-001` | `DEV001` | Render form. | No additional-guest control renders because allocation array is empty. | Required |
+| `ADD-002` | `DEV001` | Maliciously submit `additionalGuestResponses`. | `403`; no storage. | Required |
+| `ADD-003` | `DEV003` | Submit `{ "plus1-dev003-a": "yes" }`. | Valid; contributes one attendee. | Required |
+| `ADD-004` | `DEV003` | Submit `{ "plus1-dev003-a": "no" }`. | Valid; contributes zero. | Required |
+| `ADD-005` | `DEV003` | Use prompt/name instead of stable allocation id. | Rejected. | Required |
+| `ADD-006` | `DEV009` | Submit Yes for all three Plus1 allocations. | Each contributes one. | Required |
+| `ADD-007` | `DEV009` | Submit mixed complete Plus1 Yes/No map. | Valid independently per allocation. | Required |
+| `ADD-008` | `DEV009` | Add unknown fourth allocation id. | `403`; no storage. | Required |
+| `ADD-009` | `plus1` allocation | Submit numeric/Boolean/object instead of `"yes"` / `"no"`. | Rejected invalid shape/value. | Required |
+| `ADD-010` | `DEV009` initial attending | Omit one Plus1 response. | Rejected incomplete. | Required |
+| `ADD-011` | `DEV009` decline-to-attending | Omit one Plus1 response. | Rejected newly incomplete. | Required |
+| `ADD-012` | Plus1 allocations | Compare responses to derived attendance. | Each Yes contributes 1; each No contributes 0. | Required |
+| `ADD-013` | Continuing attending revision | Change Plus1 response with required dependent replacements. | Valid when merged totals/details reconcile. | Required |
+| `ADD-014` | Continuing attending revision | Change Plus1 response but omit required dependent updates. | Rejected; backend does not guess age or identity. | Required |
+| `ADD-015` | Prior positive additional response | Revise to full decline. | Entire additionalGuestResponses map clears. | Required |
+| `ADD-016` | Any allocation fixture | Inspect allocation controls/details. | Allocation controls do not request actual additional-attendee names; names are supplied later via attendeeDetails. | Required |
+| `ADD-017` | `DEV002` | Render grouped child allocation. | Exactly one grouped child question renders with approved family wording; one question is not repeated per child. | Required |
+| `ADD-018` | `DEV002` | Select No. | Canonical response is `{attending:"no",count:0}`; child-count selector hidden/inapplicable; contributes 0. | Required |
+| `ADD-019` | `DEV002` | Select Yes. | Required count selector appears with exactly options 1 and 2. | Required |
+| `ADD-020` | `DEV002` | Submit `{attending:"yes",count:1}`. | Accepted; grouped allocation contributes 1 attendee. | Required |
+| `ADD-021` | `DEV002` | Submit `{attending:"yes",count:2}`. | Accepted; grouped allocation contributes 2 attendees. | Required |
+| `ADD-022` | `DEV002` | Submit Yes without `count`. | Rejected incomplete. | Required |
+| `ADD-023` | `DEV002` | Submit `{attending:"yes",count:0}`. | Rejected; Yes requires 1..maximumCount. | Required |
+| `ADD-024` | `DEV002` | Submit `{attending:"yes",count:3}`. | Rejected above `maximumCount: 2`. | Required |
+| `ADD-025` | `DEV002` | Submit fractional, string, Boolean, null, or negative count. | Rejected; count must be authorized whole number. | Required |
+| `ADD-026` | `DEV002` | Submit `{attending:"no",count:1}`. | Rejected; No requires count exactly 0. | Required |
+| `ADD-027` | `DEV002` | Submit scalar `"yes"` / `"no"` instead of grouped object. | Rejected wrong response shape for `unnamedChildren`. | Required |
+| `ADD-028` | `DEV002` | Omit grouped response on initial attending or decline-to-attending. | Rejected because allocation response is newly applicable. | Required |
+| `ADD-029` | `DEV002` | Inspect attendee details after Yes/count 2. | Exactly two attendee-detail rows are attributable to grouped child capacity in the total cardinality; actual child names are collected only there. | Required |
+| `ADD-030` | `DEV002` | Revise grouped count 1 -> 2. | Count change is composition-sensitive; complete attendeeDetails replacement is required. | Required |
+| `ADD-031` | `DEV002` | Revise grouped count 2 -> 1. | Same rule: complete attendeeDetails replacement required. | Required |
+| `ADD-032` | `DEV002` | Revise grouped response Yes -> No. | Child contribution becomes 0; complete dependent totals/details must reconcile. | Required |
+| `ADD-033` | Controlled malformed configuration | Create grouped child allocation without applicable `Kids(n)` source authorization. | Transformation/config validation fails closed. | Required |
+| `ADD-034` | Controlled malformed configuration | Current source has `Kids(2)` but grouped `maximumCount` is 1 or 3. | Rejected under cleaned source because count must reconcile exactly. | Required |
+| `ADD-035` | Controlled malformed configuration | Create both named child representation and grouped capacity for same source child. | Rejected double-counting. | Required |
+| `ADD-036` | Controlled malformed configuration | Create more than one grouped child allocation for one invitation. | Rejected. | Required |
 
 # 11. Attendance-Total and Coordinated-Dial Tests
 
@@ -336,7 +388,7 @@ Use a separately reserved synthetic unknown code such as `UNK-404` only in a tes
 | `TOTAL-001` | Any attending fixture | Supply four nonnegative whole-number categories whose sum equals derived `overallAttendance`. | Accepted when all other RSVP constraints are satisfied. | Required |
 | `TOTAL-002` | Any attending fixture | Supply a four-category sum lower than derived `overallAttendance`. | Rejected; totals must classify every derived attendee. | Required |
 | `TOTAL-003` | `DEV001`, derived headcount 1 | Supply age totals summing to 2. | Rejected because complete sum does not equal derived `overallAttendance` of 1. | Required |
-| `TOTAL-004` | `DEV002`, derived headcount 5 | Supply age totals summing to 6. | Rejected; sum differs from derived headcount and also exceeds invitation capacity. | Required |
+| `TOTAL-004` | `DEV002`, three named Yes + grouped children Yes/count 2 => derived headcount 5 | Supply age totals summing to 6. | Rejected; sum differs from derived headcount and exceeds capacity. | Required |
 | `TOTAL-005` | Any attending fixture | Supply a negative category. | Rejected. | Required |
 | `TOTAL-006` | Any attending fixture | Supply a fractional category. | Rejected. | Required |
 | `TOTAL-007` | Any attending fixture | Supply nonnumeric content. | Rejected. | Required |
@@ -344,7 +396,7 @@ Use a separately reserved synthetic unknown code such as `UNK-404` only in a tes
 | `TOTAL-009` | Decline-to-attendance revision | Omit one category after totals become newly applicable. | Rejected; all four are newly required. | Required |
 | `TOTAL-010` | Continuing attending revision | Change one nested category and omit the other three. | Omitted categories remain unchanged; complete merged totals are validated against derived headcount. | Required |
 | `TOTAL-011` | Continuing attending revision | Replace a prior positive category with numeric `0`. | Zero is stored as explicit replacement, not treated as omission, if the complete merged sum remains valid. | Required |
-| `TOTAL-012` | Any attending fixture | Verify server-calculated `overallAttendance`. | Equals Yes count across complete named-invitee and authorized Plus 1 responses, not the age-total sum. | Required |
+| `TOTAL-012` | Any attending fixture | Verify server-calculated `overallAttendance`. | Equals named-invitee Yes count + Plus1 Yes count + grouped unnamed-child attending count, not the age-total sum. | Required |
 | `TOTAL-013` | Any attending fixture | Compare final age-total sum to derived `overallAttendance`. | They are exactly equal. | Required |
 | `TOTAL-014` | `DEV010` with derived `overallAttendance = 3` | Set one dial to 2 and inspect the other three dial maxima. | Each other dial's available maximum reflects the remaining derived count of 1; reducing the first dial restores available capacity within the derived count. | Required |
 | `TOTAL-015` | Full decline | Inspect resulting stored/public state. | Attendance totals and `overallAttendance` are omitted, not retained as a synthetic all-zero object. | Required |
@@ -375,7 +427,8 @@ Use a separately reserved synthetic unknown code such as `UNK-404` only in a tes
 | `DIET-017` | Reception-selected form | Inspect visible dietary field label. | Label is exactly `Dietary or allergy information`. | Required |
 | `DIET-018` | Reception-selected form | Inspect visible dietary field label/help. | The label does not append `(optional)` even though blank dietary value is accepted. | Required |
 | `DIET-019` | Existing attending RSVP | Revise to full decline. | Entire `attendeeDetails` list is cleared. | Required |
-| `DIET-020` | Attending authorized Plus 1 | Inspect where the additional guest's name is collected. | Name is collected in `attendeeDetails`, not in the allocation Yes/No question. | Required |
+| `DIET-020` | Attending authorized Plus1 | Inspect where the additional guest's name is collected. | Name is collected in `attendeeDetails`, not in the Plus1 question. | Required |
+| `DIET-021` | `DEV002`, grouped children Yes/count 2 | Inspect attendee-detail cardinality. | Two child attendee names are collected through ordinary attendee-detail rows; grouped control itself contains no child names. | Required |
 
 ---
 
@@ -385,7 +438,7 @@ Use a separately reserved synthetic unknown code such as `UNK-404` only in a tes
 |---|---|---|---|---|
 | `INIT-001` | `DEV001` | Submit complete valid initial Ceremony RSVP with the named invitee attending, exact totals, one attendee-detail row, and email confirmation. | `201 Created`; one new RSVP version; `submission.action = "initial"`. | Required |
 | `INIT-002` | `DEV006` | Submit complete valid Reception RSVP with named-invitee and authorized Plus 1 responses, exact totals, matching attendee-detail list, and operational confirmation. | `201 Created`; complete spreadsheet-authoritative RSVP is stored. | Required |
-| `INIT-003` | Invitation with authorized allocation | Omit applicable Plus 1 response while attending. | `400 Bad Request`; no storage. | Required |
+| `INIT-003` | Invitation with authorized allocation | Omit applicable allocation response while attending. | `400 Bad Request`; no storage. | Required |
 | `INIT-004` | Any attending initial response | Omit one required attendance-total category. | `400 Bad Request`; no storage. | Required |
 | `INIT-005` | Any fixture | Omit operational `confirmation`. | `400 Bad Request`; no storage. | Required |
 | `INIT-006` | Any fixture | Omit `clientSubmissionId`. | `400 Bad Request`; no storage. | Required |
@@ -401,7 +454,9 @@ Use a separately reserved synthetic unknown code such as `UNK-404` only in a tes
 | `INIT-016` | Any fixture | Inspect success response privacy boundary. | Does not echo invite code, `clientSubmissionId`, email/mobile destination, SMS authorization, private version, `partyId`, workbook row, admin address, or provider internals. | Required |
 | `INIT-017` | Any attending initial response | Omit one or more authorized `namedInviteeResponses`. | `400 Bad Request`; no storage. | Required |
 | `INIT-018` | Any attending initial response | Omit `attendeeDetails` or provide cardinality different from derived `overallAttendance`. | `400 Bad Request`; no storage. | Required |
-| `INIT-019` | Any attending initial response | Add client-writable `overallAttendance`. | Rejected; backend derives the value from person-level responses. | Required |
+| `INIT-019` | Any attending initial response | Add client-writable `overallAttendance`. | Rejected; backend derives the value from authorized attendance responses/counts. | Required |
+| `INIT-020` | `DEV002` | Submit complete valid attending initial RSVP with grouped children Yes/count 2. | `201 Created`; stored overallAttendance includes two child attendees and attendeeDetails has exact matching cardinality. | Required |
+| `INIT-021` | `DEV002` | Submit grouped children No/count 0 with otherwise valid attending RSVP. | Accepted when at least one named invitee attends; no child attendee rows are required. | Required |
 
 ---
 
@@ -419,11 +474,11 @@ Use `DEV008` and a fictional stored response for revision-heavy cases unless ano
 | `REV-006` | Remove one attendee's previously stored dietary text while Reception remains selected and composition is unchanged. | Guest may submit a complete replacement attendee-detail list with that attendee's `dietaryPreferences` empty; the new list replaces the old one. | Required |
 | `REV-007` | Submit only operational confirmation fields with `changes: {}`. | Valid revision if operational data is valid; new operational values replace stored ones. | Required |
 | `REV-008` | Revise attendance while leaving unrelated fields omitted. | Omitted values remain unchanged unless dependency or composition rules make them inapplicable or newly require replacement. | Required |
-| `REV-009` | Change attending response to full decline. | Named-invitee responses, Plus 1 responses, totals/derived headcount, and attendee details are cleared; operational confirmation remains required. | Required |
+| `REV-009` | Change attending response to full decline. | Named-invitee responses, all additional-guest responses, totals/derived headcount, and attendee details are cleared; operational confirmation remains required. | Required |
 | `REV-010` | Change full decline to Ceremony-only for an invitation with no Plus 1 allocations. | All named-invitee responses, all four totals, and a complete attendee-detail list are newly required. | Required |
 | `REV-011` | Change full decline to Reception for an invitation with an authorized Plus 1 allocation. | All named-invitee responses, every authorized Plus 1 response, all four totals, and a complete attendee-detail list matching derived `overallAttendance` are newly required. | Required |
 | `REV-012` | Add Reception to an existing Ceremony-only RSVP while attending-person composition remains unchanged. | Existing attendee names may remain unchanged; `attendeeDetails` may be omitted because dietary/allergy information is optional. | Required |
-| `REV-013` | Submit a partial nested attendance-total replacement while continuing to attend and person-level attendance is unchanged. | Omitted nested categories remain unchanged; complete merged totals must still equal derived `overallAttendance`. | Required |
+| `REV-013` | Submit a partial nested attendance-total replacement while continuing to attend and attendance composition is unchanged. | Omitted nested categories remain unchanged; complete merged totals must still equal derived `overallAttendance`. | Required |
 | `REV-014` | Submit revision whose merged age totals do not equal the derived headcount. | Rejected; current stored RSVP remains unchanged. | Required |
 | `REV-015` | Submit revision producing an invalid event selection such as `decline` plus `reception`. | Rejected; no new version. | Required |
 | `REV-016` | Change confirmation method from email to text message after the SMS gate is enabled. | Newly entered text-message operational values replace email-channel operational values; email destination is no longer active. | Required |
@@ -433,12 +488,17 @@ Use `DEV008` and a fictional stored response for revision-heavy cases unless ano
 | `REV-020` | Inspect confirmation after partial revision. | Displays complete merged current RSVP, not merely changed fields. | Required |
 | `REV-021` | Inspect superseded response after revision. | Remains historical only and is not counted as current attendance. | Required |
 | `REV-022` | Submit revision after authoritative deadline. | `410 Gone`; no new version. | Required |
-| `REV-023` | Change one person-level Yes response so numeric `overallAttendance` changes, but omit dependent total/detail replacements. | Rejected; dependent structures must reconcile to the newly derived count. | Required |
+| `REV-023` | Change one named-invitee or Plus1 Yes response so numeric `overallAttendance` changes, but omit dependent total/detail replacements. | Rejected; dependent structures must reconcile to the newly derived count. | Required |
 | `REV-024` | Swap one attending person for another while keeping numeric `overallAttendance` unchanged and omit `attendeeDetails`. | Rejected; composition change requires complete attendee-detail replacement. | Required |
 | `REV-025` | Remove Reception while retaining Ceremony and the same attendees. | Attendee names are preserved and dietary/allergy properties are cleared automatically. | Required |
 | `REV-026` | Add Reception while retaining the same attendees and omit `attendeeDetails`. | Valid; stored names remain and dietary/allergy information may remain blank because it is optional. | Required |
-| `REV-027` | Change only age-category classification while keeping person-level attendance unchanged and complete age-total sum equal to derived headcount. | Valid without attendee-detail replacement. | Required |
+| `REV-027` | Change only age-category classification while keeping attendance composition unchanged and complete age-total sum equal to derived headcount. | Valid without attendee-detail replacement. | Required |
 | `REV-028` | Change named-invitee responses in a same-count Yes/No swap and supply a complete replacement attendee-detail list. | Valid when replacement list cardinality and all other merged constraints pass. | Required |
+| `REV-029` | `DEV002`: grouped child response changes No/count 0 -> Yes/count 1. | Newly attending child changes count/composition; age totals and complete attendeeDetails replacement must reconcile. | Required |
+| `REV-030` | `DEV002`: grouped child response changes Yes/count 1 -> Yes/count 2. | Valid only with complete attendeeDetails replacement and updated totals; grouped count contributes 2. | Required |
+| `REV-031` | `DEV002`: grouped child response changes Yes/count 2 -> Yes/count 1 but attendeeDetails is omitted. | Rejected because grouped child count change is composition-sensitive. | Required |
+| `REV-032` | `DEV002`: grouped child response changes Yes/count 1 -> No/count 0. | Valid only when totals and complete attendeeDetails replacement reflect removal of the child attendee. | Required |
+| `REV-033` | `DEV002`: grouped child count changes but numerical overallAttendance is kept the same by an opposite named-invitee change. | Still requires complete attendeeDetails replacement because composition changed despite same count. | Required |
 
 ---
 
@@ -497,6 +557,10 @@ Use `DEV008` and a fictional stored response for revision-heavy cases unless ano
 | `ERR-018` | Authorization error. | Guest-facing response does not disclose private roster/allocation/configuration details merely to explain the failure. | Required |
 | `ERR-019` | Submit client-writable `overallAttendance`. | Rejected as unauthorized substantive data; backend-derived value cannot be overridden. | Required |
 | `ERR-020` | Submit `attendeeDetails` whose cardinality differs from derived `overallAttendance`. | `400 Bad Request`; no mutation. | Required |
+| `ERR-021` | Submit scalar Yes/No for an `unnamedChildren` allocation. | `400 Bad Request`; wrong allocation-kind response shape. | Required |
+| `ERR-022` | Submit object response for a `plus1` allocation. | `400 Bad Request`; Plus1 remains scalar Yes/No. | Required |
+| `ERR-023` | Submit grouped child Yes count above allocation `maximumCount`. | `400 Bad Request`; no mutation. | Required |
+| `ERR-024` | Submit grouped child No with nonzero count. | `400 Bad Request`; no mutation. | Required |
 
 ---
 
@@ -553,7 +617,7 @@ Use `DEV008` and a fictional stored response for revision-heavy cases unless ano
 
 # 19. Thirteen-State React Interface Tests
 
-The interface must render one top-level RSVP state at a time. Countdown, invitation-specific named-`Plus1` allocation count, attendance-dependent regions, delivery-warning category, and responsive layout are variants within these states.
+The interface must render one top-level RSVP state at a time. Countdown, invitation-specific allocation controls, grouped-child conditional count selector, attendance-dependent regions, delivery-warning category, and responsive layout are variants within these states.
 
 | ID | State | Test | Expected result | Status |
 |---|---|---|---|---|
@@ -565,7 +629,10 @@ The interface must render one top-level RSVP state at a time. Countdown, invitat
 | `STATE-006` | 3 — Invalid Invitation | Submit unknown/inactive code. | Same neutral guest-facing treatment; no record-existence disclosure. | Required |
 | `STATE-007` | 4 — Service Unavailable | Backend definitively returns pre-storage `503`. | Guest-safe unavailable message, assistance, no claim that RSVP was recorded. | Required |
 | `STATE-008` | 5 — Validated Blank Form | Valid lookup. | Personalized greeting and authorized blank questions; no stored answers/destinations. | Required |
-| `STATE-009` | 5 — Validated Blank Form | Switch among fixtures with different named-invitee roster sizes, zero/one/multiple authorized `Plus1` allocations, and Ceremony/Reception attendance states. | Correct named-person, Plus 1, derived-total, attendee-detail, and Reception-specific dietary controls render within the same reusable state and route. | Required |
+| `STATE-009` | 5 — Validated Blank Form | Switch among fixtures with named-only, Plus1, and grouped-child allocations. | Correct named-person, Plus1, grouped child Yes/No, conditional child-count selector, derived-total, attendee-detail, and Reception-specific dietary controls render within the same reusable state/route. | Required |
+| `STATE-026` | 5 — Validated Blank Form | `DEV002`: grouped child answer is No/unanswered. | Child-count dropdown is hidden/inapplicable. | Required |
+| `STATE-027` | 5 — Validated Blank Form | `DEV002`: grouped child answer toggles to Yes. | Dropdown becomes available and contains exactly values 1 and 2. | Required |
+| `STATE-028` | 6 — Validation Failure | Grouped child Yes has no count or out-of-range count. | Error is associated with grouped child count control; current page-entered values remain. | Required |
 | `STATE-010` | 6 — Validation Failure | Client-side usability validation fails. | Error summary/field errors; current page-entered values preserved. | Required |
 | `STATE-011` | 6 — Validation Failure | Server returns submission validation error. | Same conceptual state; no implication of storage; no omitted stored values revealed. | Required |
 | `STATE-012` | 7 — Submitting | Begin logical submission. | Submit action protected/disabled; progress announced; logical request and ID retained. | Required |
@@ -750,7 +817,7 @@ The test catalog defines expected behavior. Some production-gate and lifecycle t
 | `PRIV-060` | Inspect public security/privacy copy. | No claim of “completely secure,” “100% secure,” “unhackable,” “risk-free,” or equivalent absolute guarantee appears. | Required |
 | `PRIV-061` | Production traffic test. | RSVP entry, lookup, submission, and confirmation use HTTPS. | Required |
 | `PRIV-062` | Attempt ordinary HTTP navigation in production. | Redirects to HTTPS before RSVP information can be submitted. | Required |
-| `PRIV-063` | Active RSVP-data lifecycle review by July 30, 2027. | Current responses, superseded versions, person-level attendance responses, attendee-entered names, dietary/allergy text, guest confirmation destinations, SMS authorization, `clientSubmissionId`, delivery-attempt history, transaction timestamps retained only as history, and active code-to-response mappings are deleted or irreversibly de-identified unless a documented exception applies. | Required |
+| `PRIV-063` | Active RSVP-data lifecycle review by July 30, 2027. | Current responses, superseded versions, authorized attendance responses, attendee-entered names, dietary/allergy text, guest confirmation destinations, SMS authorization, `clientSubmissionId`, delivery-attempt history, transaction timestamps retained only as history, and active code-to-response mappings are deleted or irreversibly de-identified unless a documented exception applies. | Required |
 | `PRIV-064` | Retention exception review after July 30, 2027. | Only the minimum record needed for a concrete unresolved correction, dispute, delivery investigation, or other documented administrative need remains; access is restricted and the record is deleted when the need ends. | Required |
 | `PRIV-065` | Protected backup lifecycle review by August 29, 2027. | Backups containing retired RSVP-operational data have expired through protected backup rotation. | Required |
 | `PRIV-066` | Create backups after active-data retirement. | New backups do not unnecessarily reintroduce RSVP-operational data already deleted or irreversibly de-identified from the active system. | Required |
@@ -764,58 +831,55 @@ The test catalog defines expected behavior. Some production-gate and lifecycle t
 
 # 24. Development-Fixture Coverage Matrix
 
-The preliminary suite must exercise every active fictional fixture and the disabled guard fixture.
-
-| Fixture | Primary coverage | Minimum cases that must exercise it |
+| Fixture | Structural/behavioral coverage | Representative tests |
 |---|---|---|
-| `DEV001` — one named invitee, no Plus 1, max 1 | Smallest capacity; named-response authorization; no-allocation guard | `CONF-001`, `CONF-004`, `CONF-008`, `ADD-001`, `ADD-002`, `ATT-017`, `TOTAL-003`, `INIT-001` |
-| `DEV002` — five named invitees, no Plus 1 | Plural wording; mixed named-household attendance | `CONF-002`, `CONF-009`, `ATT-019`, `ATT-026`, `TOTAL-004` |
-| `DEV003` — one named invitee + one Plus 1 | Single-allocation contribution to derived headcount | `CONF-005`, `ADD-003`–`ADD-005`, `ATT-023` |
-| `DEV004` — three named invitees + one Plus 1 | Plural mixed roster/allocation path | `CONF-024`, confirmation/delivery cases as applicable |
-| `DEV005` — four named invitees, Ceremony scenario | Ceremony-only attendee names and no dietary field | `ATT-001`, `DIET-001`, `STATE-009` |
-| `DEV006` — one named invitee + one Plus 1, Reception scenario | Reception dietary applicability and detail cardinality | `ATT-002`, `DIET-002`, `INIT-002` |
-| `DEV007` — three named invitees, combined attendance | Ceremony + Reception dependency behavior | `ATT-003`, `DIET-003` |
-| `DEV008` — three named invitees, revision scenario | Blank revision access, same-count swaps, and merge semantics | `BLANK-002`–`BLANK-011`, `ATT-025`, `DIET-013`, `REV-001`–`REV-028` as applicable |
-| `DEV009` — four named invitees + three Plus 1 slots | Multiple independent allocations and mixed derived headcount | `CONF-006`, `CONF-010`, `ADD-006`–`ADD-014` |
-| `DEV010` — three named invitees + one Plus 1, max 4 | Derived-count dial equality and capacity invariant | `CONF-024`, `TOTAL-014`, `TOTAL-016` |
+| `DEV001` — one named invitee, no allocation | Singular wording; no-allocation guard | `CONF-001`, `CONF-004`, `CONF-008`, `ADD-001`, `ADD-002`, `ATT-017`, `TOTAL-003`, `INIT-001` |
+| `DEV002` — three named invitees + one grouped child allocation (`maximumCount: 2`) | Plural wording; grouped child No/Yes/count behavior; count-bound validation; composition revisions | `CONF-002`, `CONF-009`, `CONF-029`–`CONF-034`, `ADD-017`–`ADD-036`, `ATT-019`, `ATT-023`, `ATT-028`–`ATT-029`, `TOTAL-004`, `DIET-021`, `INIT-020`–`INIT-021`, `REV-029`–`REV-033`, `STATE-026`–`STATE-028` |
+| `DEV003` — one named invitee + one Plus1 | Single Plus1 contribution | `CONF-005`, `ADD-003`–`ADD-005` |
+| `DEV004` — three named invitees + one Plus1 | Plural mixed roster/allocation path | `CONF-024`, confirmation/delivery cases |
+| `DEV005` — four named invitees, Ceremony | Ceremony-only names, no dietary | `ATT-001`, `DIET-001`, `STATE-009` |
+| `DEV006` — one named invitee + one Plus1, Reception | Reception dietary/detail cardinality | `ATT-002`, `DIET-002`, `INIT-002` |
+| `DEV007` — three named invitees, combined | Combined event dependencies | `ATT-003`, `DIET-003` |
+| `DEV008` — three named invitees, revision | Blank revision access, same-count swaps, merge semantics | `BLANK-002`–`BLANK-011`, `ATT-025`, `DIET-013`, `REV-001`–`REV-028` as applicable |
+| `DEV009` — four named invitees + three Plus1 | Multiple independent one-person allocations | `CONF-006`, `CONF-010`, `ADD-006`–`ADD-014` |
+| `DEV010` — three named invitees + one Plus1, max 4 | Dial equality and capacity invariant | `CONF-024`, `TOTAL-014`, `TOTAL-016` |
 | `DEV999` — disabled guard | Neutral inactive/environment handling | `CODE-014`, `CONF-011`, `PRIV-010` |
-
----
 
 # 25. Cross-Document Acceptance Checks
 
 | ID | Check | Expected result |
 |---|---|---|
-| `DOC-001` | Compare test cases with current `rsvp-system-design.md`. | No test resurrects production question profiles, aggregate additional-guest counts, independently selected headcount, party-level dietary data, Reception-only attendee names, or a required production placeholder. |
-| `DOC-002` | Compare with current `rsvp-api-contract.md`. | Status codes, four-property request envelope, five-property success envelope, person-level attendance derivation, idempotency, and no-`expectedVersion` behavior match. |
-| `DOC-003` | Compare with `rsvp-example-form-schemas.json`. | Permanent IDs, named-invitee/Plus 1 behavior, derived-headcount rules, exact age-total equality, attendee-detail cardinality, dietary applicability, and replacement/clearing semantics match. |
-| `DOC-004` | Compare with `rsvp-example-configurations.json`. | Fixture codes, wording modes, maximums, safe named rosters, named allocation arrays, capacity invariants, environment values, and active flags match. |
-| `DOC-005` | Compare with `wireframes.md` and `page-outlines.md`. | All thirteen interface states and corrected spreadsheet-authoritative visible controls are represented consistently after those files are resynchronized. |
-| `DOC-006` | Compare with `sitemap.md` and `route-inventory.md`. | Canonical routes, refresh fallback, non-indexing, and no-code-in-URL behavior are consistent. |
-| `DOC-007` | Compare with `requirements.md` and `decisions.md`. | Corrected person-level attendance requirements and later decisions control over superseded entries. |
-| `DOC-008` | Search this file for real production invitation codes or guest identities. | None present. |
-| `DOC-009` | Search for active expected-version conflict tests. | None exists; ordinary `409` is unused. |
-| `DOC-010` | Search for aggregate or universal Plus 1 assumptions. | None; Plus 1 controls exist only per authorized allocation and are absent for parties without allocations. |
-| `DOC-011` | Compare confirmation-refresh tests with current governing docs. | Same temporary-state eligibility, State 12 trigger, fallback meaning, actions, and prohibited automatic recovery behavior are used. |
-| `DOC-012` | Search for required confirmation token/recovery endpoint. | None exists. |
-| `DOC-013` | Search for automatic lookup/submission replay from State 12. | None exists. |
-| `DOC-014` | Search for an assumption that every browser refresh forces State 12. | None; usable temporary success may continue to render States 9–11. |
-| `DOC-015` | Compare privacy/security tests with approved decisions. | Cache, logging, analytics, limits, credentials, provider gate, retention, HTTPS, and security wording match. |
-| `DOC-016` | Compare with current `rsvp-system-design.md`. | Trusted-proxy behavior, retirement, environment separation, and browser privacy boundaries match. |
-| `DOC-017` | Compare with current `rsvp-api-contract.md`. | `Cache-Control`, exact rate limits, `429`, error families, SMS gate, and endpoint inventory match. |
-| `DOC-018` | Search for remaining active future/provisional/deferred privacy requirement. | None remains. |
-| `DOC-019` | Search for provider-specific SMS copy before provider selection. | None; production enablement requires verified applicable copy first. |
-| `DOC-020` | Search for retention rule inconsistent with July 30 / August 29, 2027. | None exists. |
-| `DOC-021` | Search for `questionProfile`, `additionalGuestAllowance`, aggregate `additionalGuestAttendance`, or active reduced-profile logic. | None exists as an operative test requirement. |
-| `DOC-022` | Search for a party-level dietary field assumption. | None; dietary/allergy information is optional per attendee and Reception-specific. |
-| `DOC-023` | Verify production-source audit targets. | Documentation expects 57 active assigned records, 35 singular, 22 plural, 26 total Plus 1 allocations, and capacity 115 without hard-coding those aggregate figures into reusable renderer logic. |
-| `DOC-024` | Search for Reception-only attendee-name assumptions. | None; `attendeeDetails` and required attendee names apply to every attending RSVP. |
-| `DOC-025` | Search for age-total-derived headcount assumptions. | None; `overallAttendance` derives from person-level Yes responses and age totals must equal it. |
-| `DOC-026` | Search for maximum-bounded-but-not-equal age-total rules. | None; active rules require exact equality to derived headcount. |
-| `DOC-027` | Verify same-count attendee swap semantics. | Composition change requires complete `attendeeDetails` replacement even when numeric `overallAttendance` is unchanged. |
-| `DOC-028` | Verify Reception removal semantics. | Removing Reception while Ceremony remains preserves attendee names and clears only dietary/allergy values. |
-
----
+| `DOC-001` | Compare with current `rsvp-system-design.md`. | No test resurrects production profiles, aggregate allowance, independently selected headcount, party-level dietary data, Reception-only names, per-child allocation objects, or required placeholder. |
+| `DOC-002` | Compare with current `rsvp-api-contract.md`. | Status codes, four-property request envelope, five-property success envelope, mixed allocation response shapes, attendance derivation, idempotency, no-expectedVersion behavior match. |
+| `DOC-003` | Compare with `rsvp-example-form-schemas.json`. | Permanent IDs, allocation-kind behavior, grouped child conditional count selector, derived-headcount rules, exact age equality, attendee-details, dietary applicability, replacement/dependency-clearing semantics match. |
+| `DOC-004` | Compare with `rsvp-example-configurations.json`. | Fixture codes, wording, maximums, safe named rosters, allocation `id`/`kind`/`prompt`/`maximumCount`, capacity invariants, environments, active flags match. |
+| `DOC-005` | Compare with wireframes/page outlines. | All thirteen states and grouped child control are represented consistently after resynchronization. |
+| `DOC-006` | Compare with sitemap/route inventory. | Routes, refresh fallback, non-indexing, no-code URL behavior consistent. |
+| `DOC-007` | Compare with requirements/decisions. | Grouped child model and later decisions control over superseded per-child allocation model. |
+| `DOC-008` | Search this file for real production codes/guest identities. | None. |
+| `DOC-009` | Search for active expected-version conflict tests. | None; ordinary 409 unused. |
+| `DOC-010` | Search for aggregate/universal Plus1 assumptions. | None; Plus1 controls only per authorization. |
+| `DOC-011` | Compare confirmation-refresh tests. | Temporary-state eligibility and State 12 behavior match governing docs. |
+| `DOC-012` | Search for required confirmation recovery endpoint/token. | None. |
+| `DOC-013` | Search for automatic lookup/submission replay from State 12. | None. |
+| `DOC-014` | Search for assumption every refresh forces State 12. | None. |
+| `DOC-015` | Compare privacy/security tests. | Cache/logging/analytics/limits/credentials/provider gate/retention/HTTPS match. |
+| `DOC-016` | Compare trusted proxy, retirement, environment separation. | Match system design. |
+| `DOC-017` | Compare cache/rate/error/SMS/endpoints. | Match API contract. |
+| `DOC-018` | Search for remaining deferred privacy requirement. | None. |
+| `DOC-019` | Search for provider-specific SMS copy before provider selection. | None. |
+| `DOC-020` | Search for retention inconsistency with July 30 / Aug 29 2027. | None. |
+| `DOC-021` | Search for operative `questionProfile`, `additionalGuestAllowance`, aggregate `additionalGuestAttendance`, reduced-profile logic. | None. |
+| `DOC-022` | Search for party-level dietary assumption. | None. |
+| `DOC-023` | Verify production audit targets. | 57 active, 35 singular, 22 plural, 84 named, 26 Plus1 objects, 2 grouped child objects, 5 grouped child capacity slots, 28 allocation objects, 31 additional capacity, max capacity 115. |
+| `DOC-024` | Search for Reception-only attendee-name assumptions. | None. |
+| `DOC-025` | Search for age-total-derived headcount assumptions. | None; overall attendance derives from named Yes + Plus1 Yes + grouped child count. |
+| `DOC-026` | Search for maximum-bounded-but-not-equal age totals. | None; exact equality required. |
+| `DOC-027` | Verify same-count attendee swap semantics. | Composition change requires complete attendeeDetails replacement. |
+| `DOC-028` | Verify Reception removal semantics. | Names preserved; dietary cleared. |
+| `DOC-029` | Search for one allocation object per unnamed child. | None; one grouped `unnamedChildren` allocation per applicable invitation. |
+| `DOC-030` | Search for old capacity invariant using allocation-array length. | None; capacity uses sum of allocation `maximumCount`. |
+| `DOC-031` | Verify grouped child prompt. | Exact approved family-level question is used consistently. |
 
 # 26. Privacy/Security Traceability
 
@@ -841,48 +905,50 @@ No active privacy/security test identifier is intentionally deferred.
 
 The current test catalog is complete for implementation planning when it includes, at minimum:
 
-- Accepted and rejected invitation-code normalization.
-- Manual-entry and POST-body lookup.
+- Accepted/rejected invitation-code normalization.
+- Manual entry and POST-body lookup.
 - Neutral malformed/unknown/inactive handling.
-- Final lookup and submission rate-limit behavior.
+- Final lookup/submission rate limits.
 - Backend-unavailable versus submission-uncertain distinction.
-- Singular and plural configuration wording.
-- Safe named-invitee rosters plus zero, one, and multiple authorized `Plus1` allocation configurations.
-- Capacity reconciliation: `namedInvitees.length + additionalGuestAllocations.length = maximumAttendance`.
-- Explicit proof that invitations with no Column E `Plus1` allocation render and authorize no Plus 1 question.
-- One reusable spreadsheet-authoritative form schema rather than production question-profile variants.
-- Active and inactive fictional fixtures.
-- Initial and revision blank-form behavior.
+- Singular/plural configuration wording.
+- Safe named-invitee rosters.
+- Zero/one/multiple Plus1 allocations.
+- A grouped unnamed-child allocation with `maximumCount > 1`.
+- Configuration capacity reconciliation:
+  `namedInvitees.length + sum(additionalGuestAllocations.maximumCount) = maximumAttendance`
+- Proof that allocation-object count is not treated as person capacity.
+- Exact grouped child family prompt.
+- Grouped child No => count 0.
+- Grouped child Yes => required whole number 1..maximumCount.
+- Rejection of missing, zero-with-Yes, nonzero-with-No, fractional, nonnumeric, negative, and over-capacity child counts.
+- No separate child substantive response region.
+- Actual names for attending unnamed children collected through attendeeDetails only.
+- One reusable form schema rather than production profile variants.
+- Active/inactive fictional fixtures.
+- Blank initial/revision lookup behavior.
 - No stored-response existence indicator.
 - Omission, replacement, explicit zero, and backend dependency-clearing semantics.
-- Ceremony-only, Reception-only, combined attendance, and full decline.
-- Rejection of contradictory/empty complete event-attendance states.
-- Explicit named-invitee Yes/No decisions, including valid mixed-household attendance.
-- Stable named-invitee and allocation-ID authorization.
-- Backend-derived `overallAttendance` from complete person-level Yes responses and rejection of client-written headcount.
-- Four age-category totals whose complete sum equals derived `overallAttendance` exactly.
-- Coordinated dial maxima based on the derived attendee count rather than invitation capacity alone.
-- `attendeeDetails` for every attending state, including Ceremony-only attendance.
-- Exact attendee-detail cardinality equal to derived `overallAttendance`.
-- Required attendee names with 100-character maximum.
-- Optional per-attendee Reception-specific dietary/allergy text with 1000-character maximum and exact visible label `Dietary or allergy information`.
-- Required full attendee-detail replacement when attendee identity composition changes, including same-count swaps.
-- Preservation of attendee names and automatic dietary/allergy clearing when Reception is removed but Ceremony attendance remains.
-- Full attendee-detail clearing only when the party fully declines or the relevant attendee composition is replaced.
-- Email and provider-gated text-message confirmation dependencies.
-- Initial storage, revisions, current-response replacement, and version history.
-- Double-click, duplicate request, idempotent replay, materially changed reused identifier, and safe retry.
-- No active `expectedVersion` / ordinary `409` concurrency flow.
-- Independent guest and administrative delivery outcomes and manual resend without RSVP mutation.
-- All thirteen browser states and finalized confirmation-refresh fallback behavior.
-- Deadline/countdown edge cases.
-- Labels, repeated-group semantics, keyboard operation, focus, validation summaries, status announcements, text enlargement, and reduced motion.
-- Final cache, analytics, logging, rate-limit, credential, SMS-gate, HTTPS, and retention tests.
-- Every active fictional fixture and disabled `DEV999` guard fixture.
-- Cross-document checks preventing the retired profile/aggregate-guest/age-derived-headcount/Reception-only-detail architecture from returning.
-- Explicit production activation/runtime rerun gates for the corrected `namedInvitees` lookup/configuration shape.
-
----
+- Ceremony-only, Reception-only, combined, full decline.
+- Named-invitee Yes/No, Plus1 Yes/No, grouped child Yes/No+count.
+- Backend-derived `overallAttendance = named Yes + Plus1 Yes + grouped child count`.
+- Rejection of client-written headcount.
+- Four age totals equal derived attendance exactly.
+- Coordinated dial maxima based on derived count.
+- Attendee details for every attending state.
+- Exact attendee-detail cardinality.
+- Required attendee names, 100-character max.
+- Reception-specific optional dietary/allergy text, 1000-character max.
+- Complete attendee-detail replacement on named/Plus1 composition changes.
+- Complete attendee-detail replacement on **every grouped child response/count change**.
+- Same-count composition replacement behavior.
+- Reception removal preserves names and clears dietary only.
+- Full decline clears attendance-dependent state.
+- Initial storage/revisions/history/idempotent retry.
+- No active expectedVersion/ordinary 409 flow.
+- Independent guest/admin delivery and manual resend without RSVP mutation.
+- All thirteen browser states including conditional grouped child selector.
+- Deadline/countdown, accessibility, privacy/security, lifecycle/reliability tests.
+- Every active fictional fixture plus disabled `DEV999`.
 
 # 28. Confirmation-Refresh Completion Check
 
@@ -931,7 +997,7 @@ The privacy/security portion is complete when all of the following are true:
 - RSVP mobile numbers remain transactional-only.
 - Text Message confirmation remains disabled until provider selection, applicable disclosure/authorization review, backend-only credential/sender configuration, and production-flow testing satisfy the gate.
 - Production RSVP traffic uses HTTPS and ordinary HTTP redirects before private data can be submitted.
-- Active RSVP-operational data, including person-level responses and attendee-entered names, is retired by July 30, 2027 subject only to a minimal documented exception, and protected backups containing retired data expire by August 29, 2027.
+- Active RSVP-operational data, including authorized attendance responses and attendee-entered names, is retired by July 30, 2027 subject only to a minimal documented exception, and protected backups containing retired data expire by August 29, 2027.
 - Post-retirement aggregates remain non-identifying; a separately retained private `Invitees List` does not keep the public RSVP application dependent on retired response history.
 - Privacy/security rules create no additional public RSVP API endpoint.
 - The current decisions, requirements, system design, API contract, configurations, schema, and this catalog describe the same corrected spreadsheet-authoritative data model and security boundaries.
@@ -996,45 +1062,47 @@ The manual resend CLI is an administrative delivery operation only. It is not a 
 
 # 33. Production Invitation Activation Tests
 
-The September 20, 2026 controlled production activation validated the prior invitation configuration shape. Because the corrected contract adds the safe `namedInvitees` roster and a configuration-capacity invariant, the affected transformation, activation, and verification cases must be rerun before the current contract can be considered production-validated.
+The September 20, 2026 controlled activation validated an earlier invitation configuration shape. Because the current grouped-child contract changes allocation structure and capacity reconciliation, affected transformation, activation, and verification cases must be rerun.
 
 | ID | Scenario | Expected result | Status |
 |---|---|---|---|
-| `PROD-ACT-001` | Run production readiness with the authoritative private source and valid workbook schema. | Source audit, named-invitee derivation, capacity reconciliation, and schema verification pass without modifying workbook rows. | Historical live validation; rerun required |
-| `PROD-ACT-002` | Production readiness finds any row in a non-invitation RSVP operational table before corrected reactivation. | Readiness fails before invitation activation. | Implemented |
-| `PROD-ACT-003` | Run production invitation loader without exact destructive-write acknowledgement. | Loader refuses to modify the workbook. | Implemented |
-| `PROD-ACT-004` | Run guarded corrected activation after readiness passes. | Private six-tab pre-load snapshot is created before the first invitation write. | Historical live validation; rerun required |
-| `PROD-ACT-005` | Replace production invitation configuration using corrected transformer output. | Only `Invitations` is rewritten; all expected configurations are classified `production` and include the required safe named-invitee roster. | Historical live validation; rerun required |
-| `PROD-ACT-006` | Verify loaded invitation rows against the corrected transformed authoritative source. | Exact configuration match; exactly 57 production invitations; every row satisfies roster/allocation/capacity reconciliation. | Historical live validation; rerun required |
-| `PROD-ACT-007` | Compare non-invitation RSVP sections before and after the guarded corrected load. | Current RSVPs, RSVP Versions, Submission Records, Delivery Records, and Resend Records remain unchanged. | Historical live validation; rerun required |
-| `PROD-ACT-008` | Post-write verification fails after snapshot creation. | Loader attempts to restore the prior invitation rows and reports failure. | Implemented |
-| `PROD-ACT-009` | Run independent production activation verifier after successful corrected load. | Exactly 57 production invitations match the private source and corrected configuration shape; operational RSVP tables retain the expected pre-activation state. | Historical live validation; rerun required |
-| `PROD-ACT-010` | Inspect ordinary command output and source control after activation. | No real invitation code, guest identity, workbook identifier, source mapping, snapshot content, or credential is exposed. | Required |
+| `PROD-ACT-001` | Run production readiness with authoritative private source and valid workbook schema. | Source audit, named roster derivation, Plus1 parsing, `Kids(n)` grouped-child parsing, capacity reconciliation, schema verification pass without mutation. | Historical live validation; rerun required |
+| `PROD-ACT-002` | Operational RSVP table contains rows before reactivation. | Readiness fails before invitation activation. | Implemented |
+| `PROD-ACT-003` | Run loader without exact destructive-write acknowledgement. | Refuses modification. | Implemented |
+| `PROD-ACT-004` | Run guarded grouped-child activation after readiness. | Private pre-load snapshot created before first invitation write. | Historical live validation; rerun required |
+| `PROD-ACT-005` | Replace invitation configuration using current transformer. | Only Invitations rewritten; all records production-classified and include safe named roster plus typed allocations with maximumCount. | Historical live validation; rerun required |
+| `PROD-ACT-006` | Verify loaded invitations against transformed source. | Exact 57-record match; audit confirms 84 named, 26 Plus1 objects, 2 grouped child objects, 5 child capacity, 28 allocation objects, 31 additional capacity, total max 115; each row passes summed-capacity invariant. | Historical live validation; rerun required |
+| `PROD-ACT-007` | Compare non-invitation RSVP sections before/after load. | Unchanged. | Historical live validation; rerun required |
+| `PROD-ACT-008` | Post-write verification fails. | Prior Invitations rows restoration attempted; failure reported. | Implemented |
+| `PROD-ACT-009` | Run independent verifier after corrected load. | 57 invitations exactly match current transformed private source/configuration; operational tables remain expected state. | Historical live validation; rerun required |
+| `PROD-ACT-010` | Inspect output/source control. | No real codes, identities, workbook id, source mapping, snapshot contents, credentials exposed. | Required |
+| `PROD-ACT-011` | Audit latest source. | Reports 84 named, 26 Plus1 objects, two `Kids(n)` invitations, five unnamed-child capacity slots, two grouped child allocation objects, 28 total allocation objects, 31 additional capacity, total max 115. | Required |
+| `PROD-ACT-012` | Transform latest `Kids(n)` rows. | Exactly one `unnamedChildren` allocation is created per applicable invitation; its `maximumCount` equals source `n`; no one-allocation-per-child expansion occurs. | Required |
+| `PROD-ACT-013` | Positive child residual lacks Kids authorization, differs from current source `Kids(n)`, or residual is negative. | Transformation fails before activation for private review. | Required |
+| `PROD-ACT-014` | Inspect grouped child public-safe configuration. | Contains safe id/kind/prompt/maximumCount; raw source `Kids(n)` text is not required in browser-facing projection. | Required |
 
-Historical September 20 results remain evidence that the guarded activation mechanism worked, but they do not substitute for rerunning the corrected transformation/configuration contract.
-
----
+Historical September 20 results remain evidence that the guarded activation mechanism worked, but they do not substitute for rerunning the current grouped-child transformation/configuration contract.
 
 # 34. Production Runtime and Deployment Readiness Tests
 
-The runtime architecture remains valid, but any production readiness/smoke case that reads the transformed invitation configuration or validates the lookup response must be rerun after corrected production invitation activation.
+The runtime architecture remains valid, but readiness/smoke cases that depend on transformed invitation data or lookup projection must be rerun after grouped-child production activation.
 
 | ID | Scenario | Expected result | Status |
 |---|---|---|---|
-| `PROD-RUN-001` | Parse complete production configuration. | Canonical origin, approved Resend identity, disabled SMS, bounded proxy trust, and writer count of one are accepted. | Implemented |
-| `PROD-RUN-002` | Configure a different production browser origin. | Production environment validation fails closed. | Implemented |
-| `PROD-RUN-003` | Configure zero/missing or more than one mutation-capable writer. | Production environment validation fails closed. | Implemented |
-| `PROD-RUN-004` | Configure unapproved sender identity or enable SMS before its gate. | Production environment validation fails closed. | Implemented |
-| `PROD-RUN-005` | Send production RSVP request with canonical explicit `Origin`. | Origin middleware permits the request to continue. | Implemented |
-| `PROD-RUN-006` | Send production RSVP request with mismatched explicit `Origin`. | No-store `403`; RSVP route processing does not continue. | Implemented |
-| `PROD-RUN-007` | Send controlled originless server-side request. | Origin middleware does not reject solely because `Origin` is absent. | Implemented |
-| `PROD-RUN-008` | First production process acquires local writer lock; second same-host process attempts the same lock. | Second acquisition fails until first releases the lock. | Implemented |
-| `PROD-RUN-009` | Run the real production runtime readiness command after corrected invitation activation. | Environment, corrected Google invitation schema/data, Resend construction, and writer-lock acquisition/release pass. | Historical live validation; rerun required |
-| `PROD-RUN-010` | Run loopback smoke with explicit acknowledgement and ephemeral real invitation code after corrected activation. | Real production app starts only on loopback; health returns HTTP 200; valid production lookup returns HTTP 200. | Historical live validation; rerun required |
-| `PROD-RUN-011` | Inspect corrected smoke lookup response. | Approved blank-form response boundary, safe named-invitee roster, capacity invariant, and no-store behavior are preserved; no stored RSVP data is disclosed. | Historical live validation; rerun required |
-| `PROD-RUN-012` | Compare RSVP operational workbook sections before and after corrected smoke. | No RSVP submission, version, submission lifecycle record, delivery record, or resend record is created or changed by the smoke. | Historical live validation; rerun required |
-| `PROD-RUN-013` | Inspect smoke procedure and repository. | Real smoke invitation code, guest identity, protected recipient, API key, and workbook identifier are not committed. | Required |
-| `PROD-RUN-014` | Change the production reverse-proxy topology. | `TRUST_PROXY` must be revalidated before guest-facing production use. | Required |
-| `PROD-RUN-015` | Deploy Google Sheets-backed RSVP service. | Exactly one mutation-capable backend instance is active globally; local lock is treated only as same-host defense. | Required |
+| `PROD-RUN-001` | Parse complete production runtime config. | Canonical origin, approved Resend identity, disabled SMS, bounded proxy trust, writer count one accepted. | Implemented |
+| `PROD-RUN-002` | Different production browser origin. | Validation fails closed. | Implemented |
+| `PROD-RUN-003` | Missing/zero/>1 mutation writer. | Validation fails closed. | Implemented |
+| `PROD-RUN-004` | Unapproved sender or premature SMS enablement. | Validation fails closed. | Implemented |
+| `PROD-RUN-005` | Canonical explicit Origin. | Request permitted to continue. | Implemented |
+| `PROD-RUN-006` | Mismatched Origin. | No-store 403 before RSVP route work. | Implemented |
+| `PROD-RUN-007` | Controlled originless server-side request. | Not rejected solely due to absent Origin. | Implemented |
+| `PROD-RUN-008` | Competing same-host writer lock. | Second acquisition fails until first releases. | Implemented |
+| `PROD-RUN-009` | Run real production readiness after grouped-child activation. | Environment, current Google invitation data, Resend construction, writer-lock acquisition/release pass. | Historical live validation; rerun required |
+| `PROD-RUN-010` | Run loopback smoke with acknowledgement and ephemeral real invitation code. | Loopback app health 200; valid production lookup 200. | Historical live validation; rerun required |
+| `PROD-RUN-011` | Inspect smoke lookup response. | Top-level boundary preserved; safe named roster and allocation fields `id`,`kind`,`prompt`,`maximumCount` only; grouped-child config correct when selected invitation has it; no stored/private source data. | Historical live validation; rerun required |
+| `PROD-RUN-012` | Compare operational workbook sections before/after smoke. | No RSVP mutation/version/lifecycle/delivery/resend record created. | Historical live validation; rerun required |
+| `PROD-RUN-013` | Inspect smoke procedure/repository. | Real smoke code/identity/protected recipient/API key/workbook id not committed. | Required |
+| `PROD-RUN-014` | Reverse-proxy topology changes. | TRUST_PROXY revalidated. | Required |
+| `PROD-RUN-015` | Deploy Sheets-backed RSVP service. | Exactly one mutation-capable backend instance active globally. | Required |
 
-The September 20, 2026 runtime validation remains historical evidence for the unchanged deployment controls. The corrected invitation lookup/configuration gate is not current until `PROD-RUN-009` through `PROD-RUN-012` are rerun after corrected activation.
+September 20 runtime validation remains historical evidence for unchanged deployment controls. Final readiness requires current transformation/activation plus rerun of the lookup-dependent runtime checks.

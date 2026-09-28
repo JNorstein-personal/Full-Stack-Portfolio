@@ -37,17 +37,16 @@
       {
         "id": "invitee-dev002-c",
         "displayName": "Example Household Member Three"
-      },
-      {
-        "id": "invitee-dev002-d",
-        "displayName": "Example Child One"
-      },
-      {
-        "id": "invitee-dev002-e",
-        "displayName": "Example Child Two"
       }
     ],
-    "additionalGuestAllocations": [],
+    "additionalGuestAllocations": [
+      {
+        "id": "allocation-dev002-a",
+        "kind": "unnamedChildren",
+        "prompt": "We'd love for your family to celebrate with us this Mayday - will your kid(s) be accompanying you?",
+        "maximumCount": 2
+      }
+    ],
     "active": true,
     "environment": "development"
   },
@@ -68,7 +67,9 @@
     "additionalGuestAllocations": [
       {
         "id": "plus1-dev003-a",
-        "prompt": "Will Example Guest be accompanied by a +1?"
+        "prompt": "Will Example Guest be accompanied by a +1?",
+        "kind": "plus1",
+        "maximumCount": 1
       }
     ],
     "active": true,
@@ -99,7 +100,9 @@
     "additionalGuestAllocations": [
       {
         "id": "plus1-dev004-a",
-        "prompt": "Will Example Adult One be accompanied by a +1?"
+        "prompt": "Will Example Adult One be accompanied by a +1?",
+        "kind": "plus1",
+        "maximumCount": 1
       }
     ],
     "active": true,
@@ -152,7 +155,9 @@
     "additionalGuestAllocations": [
       {
         "id": "plus1-dev006-a",
-        "prompt": "Will Example Guest be accompanied by a +1?"
+        "prompt": "Will Example Guest be accompanied by a +1?",
+        "kind": "plus1",
+        "maximumCount": 1
       }
     ],
     "active": true,
@@ -239,15 +244,21 @@
     "additionalGuestAllocations": [
       {
         "id": "plus1-dev009-a",
-        "prompt": "Will Example Adult One be accompanied by a +1?"
+        "prompt": "Will Example Adult One be accompanied by a +1?",
+        "kind": "plus1",
+        "maximumCount": 1
       },
       {
         "id": "plus1-dev009-b",
-        "prompt": "Will Example Adult Two be accompanied by a +1?"
+        "prompt": "Will Example Adult Two be accompanied by a +1?",
+        "kind": "plus1",
+        "maximumCount": 1
       },
       {
         "id": "plus1-dev009-c",
-        "prompt": "Will Example Adult Three be accompanied by a +1?"
+        "prompt": "Will Example Adult Three be accompanied by a +1?",
+        "kind": "plus1",
+        "maximumCount": 1
       }
     ],
     "active": true,
@@ -278,7 +289,9 @@
     "additionalGuestAllocations": [
       {
         "id": "plus1-dev010-a",
-        "prompt": "Will Example Adult One be accompanied by a +1?"
+        "prompt": "Will Example Adult One be accompanied by a +1?",
+        "kind": "plus1",
+        "maximumCount": 1
       }
     ],
     "active": true,
@@ -301,7 +314,9 @@
     "additionalGuestAllocations": [
       {
         "id": "plus1-dev999-a",
-        "prompt": "Will Example Adult One be accompanied by a +1?"
+        "prompt": "Will Example Adult One be accompanied by a +1?",
+        "kind": "plus1",
+        "maximumCount": 1
       }
     ],
     "active": false,

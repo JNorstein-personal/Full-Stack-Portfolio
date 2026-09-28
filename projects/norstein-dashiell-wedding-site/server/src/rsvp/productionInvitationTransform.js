@@ -6,6 +6,9 @@ const {
   normalizeInvitationCode,
 } = require("./invitationCode");
 
+const GROUPED_CHILD_PROMPT =
+  "We'd love for your family to celebrate with us this Mayday - will your kid(s) be accompanying you?";
+
 const PRODUCTION_SOURCE_COLUMNS =
   Object.freeze({
     inviteNumber:
@@ -28,9 +31,14 @@ const PRODUCTION_AUDIT_TARGETS =
     uniqueCanonicalCodeCount: 57,
     singularCount: 35,
     pluralCount: 22,
+    namedInviteeCount: 84,
     invitationsWithAllocations: 23,
-    allocationCount: 26,
-    multiAllocationInvitationCount: 2,
+    allocationCount: 28,
+    plus1AllocationCount: 26,
+    groupedChildAllocationCount: 2,
+    additionalGuestCapacity: 31,
+    groupedChildCapacity: 5,
+    multiAllocationInvitationCount: 4,
     combinedMaximumAttendance: 115,
   });
 
@@ -87,6 +95,20 @@ function derivePartyId(
   );
 }
 
+function deriveInviteeId(
+  canonicalCode,
+  index,
+) {
+  return (
+    "invitee-" +
+    deriveStableId(
+      "invitee",
+      canonicalCode,
+      String(index),
+    )
+  );
+}
+
 function deriveAllocationId(
   canonicalCode,
   index,
@@ -97,6 +119,18 @@ function deriveAllocationId(
       "allocation",
       canonicalCode,
       String(index),
+    )
+  );
+}
+
+function deriveChildrenAllocationId(
+  canonicalCode,
+) {
+  return (
+    "children-" +
+    deriveStableId(
+      "unnamed-children",
+      canonicalCode,
     )
   );
 }
@@ -182,37 +216,121 @@ function derivePartyDisplayName(
   return `${firstNames} ${lastNames}`;
 }
 
-function derivePrimaryInviteeLabel(
-  row,
+function splitNamedSourceList(
+  value,
+  columnName,
   rowNumber,
 ) {
-  const firstNames =
+  const source =
     requireSourceValue(
-      row,
+      {
+        [columnName]: value,
+      },
+      columnName,
+      rowNumber,
+    );
+
+  const entries =
+    source
+      .split(",")
+      .map((entry) =>
+        cleanString(entry),
+      );
+
+  if (
+    entries.length === 0 ||
+    entries.some(
+      (entry) => entry === "",
+    )
+  ) {
+    throw new Error(
+      `Production invitation source row ${rowNumber} has malformed named-invitee data in ${columnName}.`,
+    );
+  }
+
+  return entries;
+}
+
+function buildNamedInvitees({
+  row,
+  rowNumber,
+  canonicalCode,
+}) {
+  const firstNames =
+    splitNamedSourceList(
+      row[
+        PRODUCTION_SOURCE_COLUMNS
+          .firstNames
+      ],
       PRODUCTION_SOURCE_COLUMNS
         .firstNames,
       rowNumber,
     );
 
   const lastNames =
-    requireSourceValue(
-      row,
+    splitNamedSourceList(
+      row[
+        PRODUCTION_SOURCE_COLUMNS
+          .lastNames
+      ],
       PRODUCTION_SOURCE_COLUMNS
         .lastNames,
       rowNumber,
     );
 
   if (
-    /(?:&|\/|,|;|\band\b|\n)/i.test(
-      firstNames,
-    )
+    firstNames.length !==
+    lastNames.length
+  ) {
+    throw new Error(
+      `Production invitation source row ${rowNumber} has mismatched named-invitee first-name and last-name counts.`,
+    );
+  }
+
+  return firstNames.map(
+    (firstName, index) => {
+      const displayName =
+        `${firstName} ${lastNames[index]}`
+          .trim();
+
+      if (
+        displayName.length === 0 ||
+        displayName.length > 200
+      ) {
+        throw new Error(
+          `Production invitation source row ${rowNumber} has an invalid named-invitee display name.`,
+        );
+      }
+
+      return Object.freeze({
+        id:
+          deriveInviteeId(
+            canonicalCode,
+            index + 1,
+          ),
+        displayName,
+      });
+    },
+  );
+}
+
+function derivePrimaryInviteeLabel(
+  namedInvitees,
+  rowNumber,
+) {
+  if (
+    !Array.isArray(
+      namedInvitees,
+    ) ||
+    namedInvitees.length !== 1
   ) {
     throw new Error(
       `Production invitation source row ${rowNumber} has an ambiguous primary invitee for an unparenthesized Plus1 allocation.`,
     );
   }
 
-  return `${firstNames} ${lastNames}`;
+  return namedInvitees[0]
+    .displayName;
 }
 
 function parsePlus1Entries(
@@ -350,75 +468,168 @@ function parsePlus1Entries(
   return entries;
 }
 
+function parseUnnamedChildrenCount(
+  value,
+  rowNumber,
+) {
+  const source =
+    cleanString(value);
+
+  if (source === "") {
+    return 0;
+  }
+
+  const pattern =
+    /\bKids\s*\(\s*(\d+)\s*\)/gi;
+
+  const matches = [];
+  let match;
+
+  while (
+    (match =
+      pattern.exec(
+        source,
+      )) !== null
+  ) {
+    matches.push(match[1]);
+  }
+
+  if (matches.length > 1) {
+    throw new Error(
+      `Production invitation source row ${rowNumber} contains more than one Kids(n) allocation.`,
+    );
+  }
+
+  if (matches.length === 0) {
+    if (/\bkids\b/i.test(source)) {
+      throw new Error(
+        `Production invitation source row ${rowNumber} has malformed or ambiguous Kids(n) text.`,
+      );
+    }
+
+    return 0;
+  }
+
+  const count =
+    Number(matches[0]);
+
+  if (
+    !Number.isInteger(count) ||
+    count <= 0
+  ) {
+    throw new Error(
+      `Production invitation source row ${rowNumber} has invalid Kids(n) capacity.`,
+    );
+  }
+
+  return count;
+}
+
 function buildAdditionalGuestAllocations({
   row,
   rowNumber,
   canonicalCode,
-  maximumAttendance,
+  namedInvitees,
 }) {
-  const parsed =
+  const sourceValue =
+    row[
+      PRODUCTION_SOURCE_COLUMNS
+        .plus1
+    ];
+
+  const plus1Entries =
     parsePlus1Entries(
-      row[
-        PRODUCTION_SOURCE_COLUMNS
-          .plus1
-      ],
+      sourceValue,
       rowNumber,
     );
 
-  if (
-    parsed.length >=
-    maximumAttendance
-  ) {
-    throw new Error(
-      `Production invitation source row ${rowNumber} has an allocation count incompatible with maximum attendance.`,
+  const unnamedChildrenCount =
+    parseUnnamedChildrenCount(
+      sourceValue,
+      rowNumber,
     );
-  }
 
   const primaryLabel =
-    parsed.length === 1 &&
-    parsed[0] === null
+    plus1Entries.length === 1 &&
+    plus1Entries[0] === null
       ? derivePrimaryInviteeLabel(
-          row,
+          namedInvitees,
           rowNumber,
         )
       : null;
 
-  return parsed.map(
-    (namedInvitee, index) => {
-      const label =
-        namedInvitee ||
-        primaryLabel;
+  const allocations =
+    plus1Entries.map(
+      (namedInvitee, index) => {
+        const label =
+          namedInvitee ||
+          primaryLabel;
 
-      if (
-        typeof label !==
-          "string" ||
-        label.trim() === ""
-      ) {
-        throw new Error(
-          `Production invitation source row ${rowNumber} has an ambiguous Plus1 invitee label.`,
-        );
-      }
+        if (
+          typeof label !==
+            "string" ||
+          label.trim() === ""
+        ) {
+          throw new Error(
+            `Production invitation source row ${rowNumber} has an ambiguous Plus1 invitee label.`,
+          );
+        }
 
-      const prompt =
-        `Will ${label.trim()} be accompanied by a +1?`;
+        const prompt =
+          `Will ${label.trim()} be accompanied by a +1?`;
 
-      if (
-        prompt.length > 200
-      ) {
-        throw new Error(
-          `Production invitation source row ${rowNumber} has an overlong Plus1 prompt.`,
-        );
-      }
+        if (
+          prompt.length > 200
+        ) {
+          throw new Error(
+            `Production invitation source row ${rowNumber} has an overlong Plus1 prompt.`,
+          );
+        }
 
-      return Object.freeze({
+        return Object.freeze({
+          id:
+            deriveAllocationId(
+              canonicalCode,
+              index + 1,
+            ),
+          kind: "plus1",
+          prompt,
+          maximumCount: 1,
+        });
+      },
+    );
+
+  if (unnamedChildrenCount > 0) {
+    allocations.push(
+      Object.freeze({
         id:
-          deriveAllocationId(
+          deriveChildrenAllocationId(
             canonicalCode,
-            index + 1,
           ),
-        prompt,
-      });
-    },
+        kind:
+          "unnamedChildren",
+        prompt:
+          GROUPED_CHILD_PROMPT,
+        maximumCount:
+          unnamedChildrenCount,
+      }),
+    );
+  }
+
+  return allocations;
+}
+
+function sumAllocationCapacity(
+  allocations,
+) {
+  return allocations.reduce(
+    (
+      total,
+      allocation,
+    ) =>
+      total +
+      allocation.maximumCount,
+    0,
   );
 }
 
@@ -483,14 +694,37 @@ function transformProductionInvitationRow(
       rowNumber,
     );
 
+  const namedInvitees =
+    buildNamedInvitees({
+      row,
+      rowNumber,
+      canonicalCode:
+        normalized.canonicalCode,
+    });
+
   const additionalGuestAllocations =
     buildAdditionalGuestAllocations({
       row,
       rowNumber,
       canonicalCode:
         normalized.canonicalCode,
-      maximumAttendance,
+      namedInvitees,
     });
+
+  const configuredCapacity =
+    namedInvitees.length +
+    sumAllocationCapacity(
+      additionalGuestAllocations,
+    );
+
+  if (
+    configuredCapacity !==
+    maximumAttendance
+  ) {
+    throw new Error(
+      `Production invitation source row ${rowNumber} has named-invitee and additional-guest capacity incompatible with maximum attendance.`,
+    );
+  }
 
   return Object.freeze({
     inviteCode:
@@ -506,6 +740,10 @@ function transformProductionInvitationRow(
       partyDisplayName,
     wordingMode,
     maximumAttendance,
+    namedInvitees:
+      Object.freeze(
+        namedInvitees,
+      ),
     additionalGuestAllocations:
       Object.freeze(
         additionalGuestAllocations,
@@ -523,9 +761,15 @@ function summarizeProductionConfigurations(
 
   let singularCount = 0;
   let pluralCount = 0;
+  let namedInviteeCount = 0;
   let invitationsWithAllocations =
     0;
   let allocationCount = 0;
+  let plus1AllocationCount = 0;
+  let groupedChildAllocationCount =
+    0;
+  let additionalGuestCapacity = 0;
+  let groupedChildCapacity = 0;
   let multiAllocationInvitationCount =
     0;
   let combinedMaximumAttendance =
@@ -553,23 +797,51 @@ function summarizeProductionConfigurations(
       pluralCount += 1;
     }
 
+    namedInviteeCount +=
+      configuration
+        .namedInvitees.length;
+
     const allocations =
       configuration
-        .additionalGuestAllocations
-        .length;
+        .additionalGuestAllocations;
 
-    if (allocations > 0) {
+    if (allocations.length > 0) {
       invitationsWithAllocations +=
         1;
     }
 
-    if (allocations > 1) {
+    if (allocations.length > 1) {
       multiAllocationInvitationCount +=
         1;
     }
 
     allocationCount +=
-      allocations;
+      allocations.length;
+
+    for (
+      const allocation of
+      allocations
+    ) {
+      additionalGuestCapacity +=
+        allocation.maximumCount;
+
+      if (
+        allocation.kind ===
+        "plus1"
+      ) {
+        plus1AllocationCount += 1;
+      }
+
+      if (
+        allocation.kind ===
+        "unnamedChildren"
+      ) {
+        groupedChildAllocationCount +=
+          1;
+        groupedChildCapacity +=
+          allocation.maximumCount;
+      }
+    }
 
     combinedMaximumAttendance +=
       configuration
@@ -587,8 +859,13 @@ function summarizeProductionConfigurations(
       canonicalCodes.size,
     singularCount,
     pluralCount,
+    namedInviteeCount,
     invitationsWithAllocations,
     allocationCount,
+    plus1AllocationCount,
+    groupedChildAllocationCount,
+    additionalGuestCapacity,
+    groupedChildCapacity,
     multiAllocationInvitationCount,
     combinedMaximumAttendance,
   });
@@ -719,7 +996,7 @@ function transformProductionInvitationRows(
 
   const codes = new Set();
   const partyIds = new Set();
-  const allocationIds =
+  const configurationIds =
     new Set();
   const inviteNumbers =
     new Set();
@@ -791,21 +1068,40 @@ function transformProductionInvitationRows(
     );
 
     for (
+      const invitee of
+      configuration.namedInvitees
+    ) {
+      if (
+        configurationIds.has(
+          invitee.id,
+        )
+      ) {
+        throw new Error(
+          `Production invitation source row ${sourceRowNumber} creates an invitee/allocation identifier collision.`,
+        );
+      }
+
+      configurationIds.add(
+        invitee.id,
+      );
+    }
+
+    for (
       const allocation of
       configuration
         .additionalGuestAllocations
     ) {
       if (
-        allocationIds.has(
+        configurationIds.has(
           allocation.id,
         )
       ) {
         throw new Error(
-          `Production invitation source row ${sourceRowNumber} creates an allocation-identifier collision.`,
+          `Production invitation source row ${sourceRowNumber} creates an invitee/allocation identifier collision.`,
         );
       }
 
-      allocationIds.add(
+      configurationIds.add(
         allocation.id,
       );
     }
@@ -833,12 +1129,17 @@ function transformProductionInvitationRows(
 }
 
 module.exports = {
+  GROUPED_CHILD_PROMPT,
   PRODUCTION_AUDIT_TARGETS,
   PRODUCTION_SOURCE_COLUMNS,
   assertProductionAuditTargets,
+  buildNamedInvitees,
   deriveAllocationId,
+  deriveChildrenAllocationId,
+  deriveInviteeId,
   derivePartyId,
   parsePlus1Entries,
+  parseUnnamedChildrenCount,
   summarizeProductionConfigurations,
   transformProductionInvitationRow,
   transformProductionInvitationRows,

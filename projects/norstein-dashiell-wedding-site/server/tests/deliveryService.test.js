@@ -9,6 +9,14 @@ const {
 const invitation = {
   partyDisplayName:
     "Example Guest",
+  namedInvitees: [
+    {
+      id:
+        "invitee-example-a",
+      displayName:
+        "Example Guest",
+    },
+  ],
   additionalGuestAllocations:
     [],
 };
@@ -17,6 +25,10 @@ const rsvp = {
   eventAttendance: [
     "ceremony",
   ],
+  namedInviteeResponses: {
+    "invitee-example-a":
+      "yes",
+  },
   attendanceTotals: {
     adults21Plus: 1,
     youngAdults18To20: 0,
@@ -24,6 +36,12 @@ const rsvp = {
     childrenUnder3: 0,
   },
   overallAttendance: 1,
+  attendeeDetails: [
+    {
+      attendeeName:
+        "Example Guest",
+    },
+  ],
   recordedAt:
     "2026-09-20T20:00:00.000Z",
   deadline:

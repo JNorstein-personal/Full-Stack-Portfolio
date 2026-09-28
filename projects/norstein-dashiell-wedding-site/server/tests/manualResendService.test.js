@@ -27,6 +27,14 @@ function makeInvitation() {
       "Example Guest",
     wordingMode: "singular",
     maximumAttendance: 1,
+    namedInvitees: [
+      {
+        id:
+          "invitee-example-a",
+        displayName:
+          "Example Guest",
+      },
+    ],
     additionalGuestAllocations:
       [],
     active: true,
@@ -79,6 +87,10 @@ async function seedCurrent(
     eventAttendance: [
       "ceremony",
     ],
+    namedInviteeResponses: {
+      "invitee-example-a":
+        "yes",
+    },
     attendanceTotals: {
       adults21Plus: 1,
       youngAdults18To20: 0,
@@ -86,6 +98,12 @@ async function seedCurrent(
       childrenUnder3: 0,
     },
     overallAttendance: 1,
+    attendeeDetails: [
+      {
+        attendeeName:
+          "Example Guest",
+      },
+    ],
     confirmation: {
       method: "email",
       email:

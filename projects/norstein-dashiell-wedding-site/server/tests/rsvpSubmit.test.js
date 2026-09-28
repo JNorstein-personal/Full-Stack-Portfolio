@@ -124,6 +124,12 @@ function ceremonyRequest({
   clientSubmissionId =
     "11111111-1111-4111-8111-111111111111",
 } = {}) {
+  if (inviteCode !== "DEV-001") {
+    throw new Error(
+      "ceremonyRequest currently supports DEV-001 only; use the fixture-specific request helper for other invitations.",
+    );
+  }
+
   return {
     inviteCode,
     clientSubmissionId,
@@ -134,6 +140,13 @@ function ceremonyRequest({
         operation: "replace",
         value: ["ceremony"],
       },
+      namedInviteeResponses: {
+        operation: "replace",
+        value: {
+          "invitee-dev001-a":
+            "yes",
+        },
+      },
       attendanceTotals: {
         operation: "replace",
         value: {
@@ -142,6 +155,15 @@ function ceremonyRequest({
           children3To17: 0,
           childrenUnder3: 0,
         },
+      },
+      attendeeDetails: {
+        operation: "replace",
+        value: [
+          {
+            attendeeName:
+              "Example Guest",
+          },
+        ],
       },
     },
   };
@@ -247,6 +269,15 @@ test(
             eventAttendance: [
               "ceremony",
             ],
+            namedInviteeResponses: [
+              {
+                id:
+                  "invitee-dev001-a",
+                displayName:
+                  "Example Guest",
+                response: "yes",
+              },
+            ],
             attendanceTotals: {
               adults21Plus: 1,
               youngAdults18To20: 0,
@@ -254,6 +285,12 @@ test(
               childrenUnder3: 0,
             },
             overallAttendance: 1,
+            attendeeDetails: [
+              {
+                attendeeName:
+                  "Example Guest",
+              },
+            ],
           },
         );
         assert.equal(
@@ -310,7 +347,7 @@ test(
 );
 
 test(
-  "valid initial Reception RSVP returns authorized Plus1 prompt and complete attendee details",
+  "valid initial Reception RSVP returns named invitee decision, authorized Plus1 prompt, and complete attendee details",
   async () => {
     const rsvpStore =
       createFixtureStore();
@@ -323,62 +360,10 @@ test(
         const result =
           await submit(
             baseUrl,
-            {
-              inviteCode:
-                "DEV-006",
+            dev006ReceptionRequest({
               clientSubmissionId:
                 "22222222-2222-4222-8222-222222222222",
-              confirmation:
-                emailConfirmation(),
-              changes: {
-                eventAttendance: {
-                  operation:
-                    "replace",
-                  value: [
-                    "reception",
-                  ],
-                },
-                additionalGuestResponses:
-                  {
-                    operation:
-                      "replace",
-                    value: {
-                      "plus1-dev006-a":
-                        "yes",
-                    },
-                  },
-                attendanceTotals: {
-                  operation:
-                    "replace",
-                  value: {
-                    adults21Plus: 2,
-                    youngAdults18To20:
-                      0,
-                    children3To17: 0,
-                    childrenUnder3: 0,
-                  },
-                },
-                receptionAttendeeDetails:
-                  {
-                    operation:
-                      "replace",
-                    value: [
-                      {
-                        attendeeName:
-                          "Example Guest",
-                        dietaryPreferences:
-                          "",
-                      },
-                      {
-                        attendeeName:
-                          "Example Companion",
-                        dietaryPreferences:
-                          "Vegetarian",
-                      },
-                    ],
-                  },
-              },
-            },
+            }),
           );
 
         assert.equal(
@@ -387,13 +372,29 @@ test(
         );
         assert.deepEqual(
           result.payload.rsvp
+            .namedInviteeResponses,
+          [
+            {
+              id:
+                "invitee-dev006-a",
+              displayName:
+                "Example Guest",
+              response: "yes",
+            },
+          ],
+        );
+        assert.deepEqual(
+          result.payload.rsvp
             .additionalGuestResponses,
           [
             {
               id:
                 "plus1-dev006-a",
+              kind:
+                "plus1",
               prompt:
                 "Will Example Guest be accompanied by a +1?",
+              maximumCount: 1,
               response: "yes",
             },
           ],
@@ -405,7 +406,7 @@ test(
         );
         assert.equal(
           result.payload.rsvp
-            .receptionAttendeeDetails
+            .attendeeDetails
             .length,
           2,
         );
@@ -413,6 +414,94 @@ test(
           result.payload.confirmation
             .deliveryWarning,
           true,
+        );
+      },
+    );
+  },
+);
+
+test(
+  "valid initial grouped-child RSVP preserves safe allocation metadata, structured response, derived attendance, and stored state",
+  async () => {
+    const rsvpStore =
+      createFixtureStore();
+
+    await withTestServer(
+      standardOptions({
+        rsvpStore,
+      }),
+      async (baseUrl) => {
+        const result =
+          await submit(
+            baseUrl,
+            dev002CeremonyRequest({
+              clientSubmissionId:
+                "22333333-3333-4333-8333-333333333333",
+              adults21Plus: 2,
+              children3To17: 2,
+            }),
+          );
+
+        assert.equal(
+          result.response.status,
+          201,
+        );
+
+        assert.deepEqual(
+          result.payload.rsvp
+            .additionalGuestResponses,
+          [
+            {
+              id:
+                "allocation-dev002-a",
+              kind:
+                "unnamedChildren",
+              prompt:
+                "We'd love for your family to celebrate with us this Mayday - will your kid(s) be accompanying you?",
+              maximumCount: 2,
+              response: {
+                attending:
+                  "yes",
+                count: 2,
+              },
+            },
+          ],
+        );
+
+        assert.equal(
+          result.payload.rsvp
+            .overallAttendance,
+          4,
+        );
+
+        assert.equal(
+          result.payload.rsvp
+            .attendeeDetails.length,
+          4,
+        );
+
+        const current =
+          await rsvpStore
+            .getCurrentRsvp(
+              "party-dev-archetype-b",
+            );
+
+        assert.deepEqual(
+          current
+            .additionalGuestResponses,
+          {
+            "allocation-dev002-a":
+              {
+                attending:
+                  "yes",
+                count: 2,
+              },
+          },
+        );
+
+        assert.equal(
+          current.overallAttendance,
+          4,
         );
       },
     );
@@ -565,17 +654,30 @@ test(
         changes: {
           ...ceremonyRequest()
             .changes,
-          receptionAttendeeDetails:
-            {
-              operation:
-                "replace",
-              value: [
-                {
-                  attendeeName:
-                    "Example Guest",
-                },
-              ],
-            },
+          overallAttendance: {
+            operation:
+              "replace",
+            value: 1,
+          },
+        },
+      },
+      {
+        ...ceremonyRequest(),
+        changes: {
+          ...ceremonyRequest()
+            .changes,
+          attendeeDetails: {
+            operation:
+              "replace",
+            value: [
+              {
+                attendeeName:
+                  "Example Guest",
+                dietaryPreferences:
+                  "Vegetarian",
+              },
+            ],
+          },
         },
       },
     ];
@@ -971,12 +1073,63 @@ test(
   },
 );
 
+function buildNamedResponses(
+  ids,
+  attendingCount,
+) {
+  return Object.fromEntries(
+    ids.map((id, index) => [
+      id,
+      index < attendingCount
+        ? "yes"
+        : "no",
+    ]),
+  );
+}
+
+function buildAttendeeDetails(
+  attendingCount,
+  {
+    reception = false,
+  } = {},
+) {
+  return Array.from(
+    {
+      length: attendingCount,
+    },
+    (_, index) => ({
+      attendeeName:
+        `Example Guest ${index + 1}`,
+      ...(reception
+        ? {
+            dietaryPreferences:
+              "",
+          }
+        : {}),
+    }),
+  );
+}
 
 function dev002CeremonyRequest({
   clientSubmissionId,
   adults21Plus = 1,
   children3To17 = 0,
 } = {}) {
+  if (
+    adults21Plus < 0 ||
+    adults21Plus > 3 ||
+    children3To17 < 0 ||
+    children3To17 > 2
+  ) {
+    throw new Error(
+      "DEV002 helper counts exceed the fictional invitation capacity.",
+    );
+  }
+
+  const overallAttendance =
+    adults21Plus +
+    children3To17;
+
   return {
     inviteCode: "DEV-002",
     clientSubmissionId,
@@ -987,6 +1140,34 @@ function dev002CeremonyRequest({
         operation: "replace",
         value: ["ceremony"],
       },
+      namedInviteeResponses: {
+        operation: "replace",
+        value:
+          buildNamedResponses(
+            [
+              "invitee-dev002-a",
+              "invitee-dev002-b",
+              "invitee-dev002-c",
+            ],
+            adults21Plus,
+          ),
+      },
+      additionalGuestResponses: {
+        operation: "replace",
+        value: {
+          "allocation-dev002-a":
+            children3To17 > 0
+              ? {
+                  attending: "yes",
+                  count:
+                    children3To17,
+                }
+              : {
+                  attending: "no",
+                  count: 0,
+                },
+        },
+      },
       attendanceTotals: {
         operation: "replace",
         value: {
@@ -996,6 +1177,13 @@ function dev002CeremonyRequest({
           childrenUnder3: 0,
         },
       },
+      attendeeDetails: {
+        operation: "replace",
+        value:
+          buildAttendeeDetails(
+            overallAttendance,
+          ),
+      },
     },
   };
 }
@@ -1003,7 +1191,23 @@ function dev002CeremonyRequest({
 function dev002ReceptionRequest({
   clientSubmissionId,
   adults21Plus = 2,
+  children3To17 = 0,
 } = {}) {
+  if (
+    adults21Plus < 0 ||
+    adults21Plus > 3 ||
+    children3To17 < 0 ||
+    children3To17 > 2
+  ) {
+    throw new Error(
+      "DEV002 helper counts exceed the fictional invitation capacity.",
+    );
+  }
+
+  const overallAttendance =
+    adults21Plus +
+    children3To17;
+
   return {
     inviteCode: "DEV-002",
     clientSubmissionId,
@@ -1014,29 +1218,51 @@ function dev002ReceptionRequest({
         operation: "replace",
         value: ["reception"],
       },
+      namedInviteeResponses: {
+        operation: "replace",
+        value:
+          buildNamedResponses(
+            [
+              "invitee-dev002-a",
+              "invitee-dev002-b",
+              "invitee-dev002-c",
+            ],
+            adults21Plus,
+          ),
+      },
+      additionalGuestResponses: {
+        operation: "replace",
+        value: {
+          "allocation-dev002-a":
+            children3To17 > 0
+              ? {
+                  attending: "yes",
+                  count:
+                    children3To17,
+                }
+              : {
+                  attending: "no",
+                  count: 0,
+                },
+        },
+      },
       attendanceTotals: {
         operation: "replace",
         value: {
           adults21Plus,
           youngAdults18To20: 0,
-          children3To17: 0,
+          children3To17,
           childrenUnder3: 0,
         },
       },
-      receptionAttendeeDetails: {
+      attendeeDetails: {
         operation: "replace",
         value:
-          Array.from(
+          buildAttendeeDetails(
+            overallAttendance,
             {
-              length:
-                adults21Plus,
+              reception: true,
             },
-            (_, index) => ({
-              attendeeName:
-                `Example Guest ${index + 1}`,
-              dietaryPreferences:
-                "",
-            }),
           ),
       },
     },
@@ -1056,6 +1282,13 @@ function dev006ReceptionRequest({
         operation: "replace",
         value: ["reception"],
       },
+      namedInviteeResponses: {
+        operation: "replace",
+        value: {
+          "invitee-dev006-a":
+            "yes",
+        },
+      },
       additionalGuestResponses:
         {
           operation: "replace",
@@ -1073,7 +1306,7 @@ function dev006ReceptionRequest({
           childrenUnder3: 0,
         },
       },
-      receptionAttendeeDetails:
+      attendeeDetails:
         {
           operation: "replace",
           value: [
@@ -1148,6 +1381,15 @@ test(
             eventAttendance: [
               "ceremony",
             ],
+            namedInviteeResponses: [
+              {
+                id:
+                  "invitee-dev001-a",
+                displayName:
+                  "Example Guest",
+                response: "yes",
+              },
+            ],
             attendanceTotals: {
               adults21Plus: 1,
               youngAdults18To20: 0,
@@ -1155,6 +1397,12 @@ test(
               childrenUnder3: 0,
             },
             overallAttendance: 1,
+            attendeeDetails: [
+              {
+                attendeeName:
+                  "Example Guest",
+              },
+            ],
           },
         );
 
@@ -1188,7 +1436,7 @@ test(
 );
 
 test(
-  "partial attendance-total revision merges omitted categories and honors explicit zero",
+  "partial attendance-total revision merges omitted categories and honors explicit zero without changing derived headcount",
   async () => {
     const rsvpStore =
       createFixtureStore();
@@ -1228,6 +1476,7 @@ test(
                   operation:
                     "replace",
                   value: {
+                    adults21Plus: 3,
                     children3To17:
                       0,
                   },
@@ -1244,7 +1493,7 @@ test(
           revision.payload.rsvp
             .attendanceTotals,
           {
-            adults21Plus: 2,
+            adults21Plus: 3,
             youngAdults18To20: 0,
             children3To17: 0,
             childrenUnder3: 0,
@@ -1253,6 +1502,172 @@ test(
         assert.equal(
           revision.payload.rsvp
             .overallAttendance,
+          3,
+        );
+      },
+    );
+  },
+);
+
+test(
+  "grouped-child count revision preserves structured response semantics and requires reconciled dependent state",
+  async () => {
+    const rsvpStore =
+      createFixtureStore();
+
+    await withTestServer(
+      standardOptions({
+        rsvpStore,
+      }),
+      async (baseUrl) => {
+        assert.equal(
+          (
+            await submit(
+              baseUrl,
+              dev002CeremonyRequest({
+                clientSubmissionId:
+                  "60500000-0000-4000-8000-000000000001",
+                adults21Plus: 1,
+                children3To17: 1,
+              }),
+            )
+          ).response.status,
+          201,
+        );
+
+        const incomplete =
+          await submit(
+            baseUrl,
+            {
+              inviteCode:
+                "DEV-002",
+              clientSubmissionId:
+                "60500000-0000-4000-8000-000000000002",
+              confirmation:
+                emailConfirmation(),
+              changes: {
+                additionalGuestResponses:
+                  {
+                    operation:
+                      "replace",
+                    value: {
+                      "allocation-dev002-a":
+                        {
+                          attending:
+                            "yes",
+                          count: 2,
+                        },
+                    },
+                  },
+              },
+            },
+          );
+
+        assert.equal(
+          incomplete.response.status,
+          400,
+        );
+
+        const revision =
+          await submit(
+            baseUrl,
+            {
+              inviteCode:
+                "DEV-002",
+              clientSubmissionId:
+                "60500000-0000-4000-8000-000000000003",
+              confirmation:
+                emailConfirmation(),
+              changes: {
+                additionalGuestResponses:
+                  {
+                    operation:
+                      "replace",
+                    value: {
+                      "allocation-dev002-a":
+                        {
+                          attending:
+                            "yes",
+                          count: 2,
+                        },
+                    },
+                  },
+                attendanceTotals: {
+                  operation:
+                    "replace",
+                  value: {
+                    children3To17:
+                      2,
+                  },
+                },
+                attendeeDetails: {
+                  operation:
+                    "replace",
+                  value:
+                    buildAttendeeDetails(
+                      3,
+                    ),
+                },
+              },
+            },
+          );
+
+        assert.equal(
+          revision.response.status,
+          200,
+        );
+
+        assert.equal(
+          revision.payload.rsvp
+            .overallAttendance,
+          3,
+        );
+
+        assert.deepEqual(
+          revision.payload.rsvp
+            .additionalGuestResponses,
+          [
+            {
+              id:
+                "allocation-dev002-a",
+              kind:
+                "unnamedChildren",
+              prompt:
+                "We'd love for your family to celebrate with us this Mayday - will your kid(s) be accompanying you?",
+              maximumCount: 2,
+              response: {
+                attending:
+                  "yes",
+                count: 2,
+              },
+            },
+          ],
+        );
+
+        const current =
+          await rsvpStore
+            .getCurrentRsvp(
+              "party-dev-archetype-b",
+            );
+
+        assert.deepEqual(
+          current
+            .additionalGuestResponses[
+            "allocation-dev002-a"
+          ],
+          {
+            attending: "yes",
+            count: 2,
+          },
+        );
+
+        assert.equal(
+          (
+            await rsvpStore
+              .listRsvpVersions(
+                "party-dev-archetype-b",
+              )
+          ).length,
           2,
         );
       },
@@ -1261,7 +1676,7 @@ test(
 );
 
 test(
-  "partial Plus1 revision merges selected allocation responses against current state",
+  "partial Plus1 revision merges selected allocation responses against current state and revalidates dependent data",
   async () => {
     const rsvpStore =
       createFixtureStore();
@@ -1289,6 +1704,21 @@ test(
                     "ceremony",
                   ],
                 },
+                namedInviteeResponses:
+                  {
+                    operation:
+                      "replace",
+                    value: {
+                      "invitee-dev009-a":
+                        "yes",
+                      "invitee-dev009-b":
+                        "yes",
+                      "invitee-dev009-c":
+                        "no",
+                      "invitee-dev009-d":
+                        "no",
+                    },
+                  },
                 additionalGuestResponses:
                   {
                     operation:
@@ -1312,6 +1742,14 @@ test(
                     children3To17: 0,
                     childrenUnder3: 0,
                   },
+                },
+                attendeeDetails: {
+                  operation:
+                    "replace",
+                  value:
+                    buildAttendeeDetails(
+                      3,
+                    ),
                 },
               },
             },
@@ -1342,6 +1780,21 @@ test(
                         "yes",
                     },
                   },
+                attendanceTotals: {
+                  operation:
+                    "replace",
+                  value: {
+                    adults21Plus: 4,
+                  },
+                },
+                attendeeDetails: {
+                  operation:
+                    "replace",
+                  value:
+                    buildAttendeeDetails(
+                      4,
+                    ),
+                },
               },
             },
           );
@@ -1373,6 +1826,16 @@ test(
             "plus1-dev009-c":
               "no",
           },
+        );
+        assert.equal(
+          revision.payload.rsvp
+            .overallAttendance,
+          4,
+        );
+        assert.equal(
+          revision.payload.rsvp
+            .attendeeDetails.length,
+          4,
         );
       },
     );
@@ -1444,37 +1907,31 @@ test(
               "party-dev-archetype-f",
             );
 
-        assert.equal(
-          Object.prototype
-            .hasOwnProperty.call(
-              current,
-              "attendanceTotals",
-            ),
-          false,
-        );
-        assert.equal(
-          Object.prototype
-            .hasOwnProperty.call(
-              current,
-              "additionalGuestResponses",
-            ),
-          false,
-        );
-        assert.equal(
-          Object.prototype
-            .hasOwnProperty.call(
-              current,
-              "receptionAttendeeDetails",
-            ),
-          false,
-        );
+        for (
+          const key of [
+            "namedInviteeResponses",
+            "additionalGuestResponses",
+            "attendanceTotals",
+            "overallAttendance",
+            "attendeeDetails",
+          ]
+        ) {
+          assert.equal(
+            Object.prototype
+              .hasOwnProperty.call(
+                current,
+                key,
+              ),
+            false,
+          );
+        }
       },
     );
   },
 );
 
 test(
-  "decline-to-Reception revision requires and then accepts all newly applicable data",
+  "decline-to-Reception revision requires and then accepts all newly applicable person-level data",
   async () => {
     const rsvpStore =
       createFixtureStore();
@@ -1564,6 +2021,15 @@ test(
                     "reception",
                   ],
                 },
+                namedInviteeResponses:
+                  {
+                    operation:
+                      "replace",
+                    value: {
+                      "invitee-dev006-a":
+                        "yes",
+                    },
+                  },
                 additionalGuestResponses:
                   {
                     operation:
@@ -1584,7 +2050,7 @@ test(
                     childrenUnder3: 0,
                   },
                 },
-                receptionAttendeeDetails:
+                attendeeDetails:
                   {
                     operation:
                       "replace",
@@ -1592,6 +2058,8 @@ test(
                       {
                         attendeeName:
                           "Example Guest",
+                        dietaryPreferences:
+                          "",
                       },
                     ],
                   },
@@ -1608,13 +2076,19 @@ test(
             .overallAttendance,
           1,
         );
+        assert.equal(
+          complete.payload.rsvp
+            .namedInviteeResponses[0]
+            .response,
+          "yes",
+        );
       },
     );
   },
 );
 
 test(
-  "adding Reception requires a complete attendee list before a revision can be stored",
+  "adding Reception without changing attendee composition preserves existing attendee names",
   async () => {
     const rsvpStore =
       createFixtureStore();
@@ -1634,7 +2108,7 @@ test(
           201,
         );
 
-        const incomplete =
+        const revision =
           await submit(
             baseUrl,
             {
@@ -1658,53 +2132,18 @@ test(
           );
 
         assert.equal(
-          incomplete.response.status,
-          400,
-        );
-
-        const complete =
-          await submit(
-            baseUrl,
-            {
-              inviteCode:
-                "DEV-001",
-              clientSubmissionId:
-                "64000000-0000-4000-8000-000000000003",
-              confirmation:
-                emailConfirmation(),
-              changes: {
-                eventAttendance: {
-                  operation:
-                    "replace",
-                  value: [
-                    "ceremony",
-                    "reception",
-                  ],
-                },
-                receptionAttendeeDetails:
-                  {
-                    operation:
-                      "replace",
-                    value: [
-                      {
-                        attendeeName:
-                          "Example Guest",
-                      },
-                    ],
-                  },
-              },
-            },
-          );
-
-        assert.equal(
-          complete.response.status,
+          revision.response.status,
           200,
         );
-        assert.equal(
-          complete.payload.rsvp
-            .receptionAttendeeDetails
-            .length,
-          1,
+        assert.deepEqual(
+          revision.payload.rsvp
+            .attendeeDetails,
+          [
+            {
+              attendeeName:
+                "Example Guest",
+            },
+          ],
         );
       },
     );
@@ -1712,7 +2151,7 @@ test(
 );
 
 test(
-  "removing Reception automatically clears stored attendee details",
+  "removing Reception preserves attendee names while clearing dietary information",
   async () => {
     const rsvpStore =
       createFixtureStore();
@@ -1761,13 +2200,19 @@ test(
           revision.response.status,
           200,
         );
-        assert.equal(
-          Object.prototype
-            .hasOwnProperty.call(
-              revision.payload.rsvp,
-              "receptionAttendeeDetails",
-            ),
-          false,
+        assert.deepEqual(
+          revision.payload.rsvp
+            .attendeeDetails,
+          [
+            {
+              attendeeName:
+                "Example Guest 1",
+            },
+            {
+              attendeeName:
+                "Example Guest 2",
+            },
+          ],
         );
       },
     );
@@ -1775,7 +2220,7 @@ test(
 );
 
 test(
-  "Reception attendance-cardinality change requires a full replacement attendee list",
+  "Reception person-level attendance change requires totals reconciliation and a full replacement attendee list",
   async () => {
     const rsvpStore =
       createFixtureStore();
@@ -1809,6 +2254,15 @@ test(
               confirmation:
                 emailConfirmation(),
               changes: {
+                namedInviteeResponses:
+                  {
+                    operation:
+                      "replace",
+                    value: {
+                      "invitee-dev002-c":
+                        "yes",
+                    },
+                  },
                 attendanceTotals: {
                   operation:
                     "replace",
@@ -1836,6 +2290,15 @@ test(
               confirmation:
                 emailConfirmation(),
               changes: {
+                namedInviteeResponses:
+                  {
+                    operation:
+                      "replace",
+                    value: {
+                      "invitee-dev002-c":
+                        "yes",
+                    },
+                  },
                 attendanceTotals: {
                   operation:
                     "replace",
@@ -1843,24 +2306,18 @@ test(
                     adults21Plus: 3,
                   },
                 },
-                receptionAttendeeDetails:
+                attendeeDetails:
                   {
                     operation:
                       "replace",
-                    value: [
-                      {
-                        attendeeName:
-                          "Example Guest 1",
-                      },
-                      {
-                        attendeeName:
-                          "Example Guest 2",
-                      },
-                      {
-                        attendeeName:
-                          "Example Guest 3",
-                      },
-                    ],
+                    value:
+                      buildAttendeeDetails(
+                        3,
+                        {
+                          reception:
+                            true,
+                        },
+                      ),
                   },
               },
             },
@@ -1877,7 +2334,7 @@ test(
         );
         assert.equal(
           complete.payload.rsvp
-            .receptionAttendeeDetails
+            .attendeeDetails
             .length,
           3,
         );
@@ -1913,14 +2370,17 @@ test(
         for (
           const [
             id,
-            total,
+            inviteeId,
+            expectedCount,
           ] of [
             [
               "67000000-0000-4000-8000-000000000002",
+              "invitee-dev002-b",
               2,
             ],
             [
               "67000000-0000-4000-8000-000000000003",
+              "invitee-dev002-c",
               3,
             ],
           ]
@@ -1936,14 +2396,32 @@ test(
                 confirmation:
                   emailConfirmation(),
                 changes: {
+                  namedInviteeResponses:
+                    {
+                      operation:
+                        "replace",
+                      value: {
+                        [inviteeId]:
+                          "yes",
+                      },
+                    },
                   attendanceTotals: {
                     operation:
                       "replace",
                     value: {
                       adults21Plus:
-                        total,
+                        expectedCount,
                     },
                   },
+                  attendeeDetails:
+                    {
+                      operation:
+                        "replace",
+                      value:
+                        buildAttendeeDetails(
+                          expectedCount,
+                        ),
+                    },
                 },
               },
             );
@@ -1955,7 +2433,7 @@ test(
           assert.equal(
             revision.payload.rsvp
               .overallAttendance,
-            total,
+            expectedCount,
           );
         }
 
@@ -2025,7 +2503,9 @@ test(
                     operation:
                       "replace",
                     value: {
-                      adults21Plus: 2,
+                      adults21Plus: 0,
+                      youngAdults18To20:
+                        1,
                     },
                   },
                 },
@@ -2161,7 +2641,9 @@ test(
               operation:
                 "replace",
               value: {
-                adults21Plus: 2,
+                adults21Plus: 0,
+                youngAdults18To20:
+                  1,
               },
             },
           },
@@ -2302,7 +2784,6 @@ test(
   },
 );
 
-
 test(
   "successful submission records private delivery channel, destinations, version, action, and independent statuses",
   async () => {
@@ -2377,7 +2858,6 @@ test(
     );
   },
 );
-
 
 function withStoreOverrides(
   store,
@@ -2919,9 +3399,7 @@ test(
           (
             await submit(
               baseUrl,
-              ceremonyRequest({
-                inviteCode:
-                  "DEV-002",
+              dev002CeremonyRequest({
                 clientSubmissionId:
                   "72000000-0000-4000-8000-000000000006",
               }),
@@ -2935,35 +3413,24 @@ test(
             "DEV-002",
           clientSubmissionId:
             "72000000-0000-4000-8000-000000000007",
-          confirmation:
-            emailConfirmation(),
-          changes: {
-            attendanceTotals: {
-              operation:
-                "replace",
-              value: {
-                adults21Plus: 2,
-              },
-            },
+          confirmation: {
+            method: "email",
+            email:
+              "first-revision@example.com",
           },
+          changes: {},
         };
         const secondRevision = {
           inviteCode:
             "DEV-002",
           clientSubmissionId:
             "72000000-0000-4000-8000-000000000008",
-          confirmation:
-            emailConfirmation(),
-          changes: {
-            attendanceTotals: {
-              operation:
-                "replace",
-              value: {
-                youngAdults18To20:
-                  1,
-              },
-            },
+          confirmation: {
+            method: "email",
+            email:
+              "second-revision@example.com",
           },
+          changes: {},
         };
 
         const results =
@@ -3009,14 +3476,17 @@ test(
           3,
         );
         assert.equal(
-          current.attendanceTotals
-            .adults21Plus,
-          2,
-        );
-        assert.equal(
-          current.attendanceTotals
-            .youngAdults18To20,
+          current.overallAttendance,
           1,
+        );
+        assert.deepEqual(
+          current.attendeeDetails,
+          [
+            {
+              attendeeName:
+                "Example Guest 1",
+            },
+          ],
         );
       },
     );

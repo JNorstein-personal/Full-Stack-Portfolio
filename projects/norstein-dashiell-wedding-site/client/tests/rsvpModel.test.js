@@ -6,25 +6,45 @@ import {
   buildSubmissionRequest,
   confirmationState,
   createBlankDraft,
+  derivedOverallAttendance,
   lookupFailureState,
-  resizeReceptionDetails,
+  resizeAttendeeDetails,
   submitFailureState,
   toggleAttendance,
 } from "../src/services/rsvpModel.js";
 
+const GROUPED_CHILD_PROMPT =
+  "We'd love for your family to celebrate with us this Mayday - will your kid(s) be accompanying you?";
+
 const lookup = Object.freeze({
   invitation: {
-    partyDisplayName:
-      "Example Household",
-    greeting:
-      "Welcome, Example Household!",
+    partyDisplayName: "Example Household",
+    greeting: "Welcome, Example Household!",
     wordingMode: "plural",
-    maximumAttendance: 4,
+    maximumAttendance: 5,
+    namedInvitees: [
+      {
+        id: "invitee-a",
+        displayName: "Example Guest One",
+      },
+      {
+        id: "invitee-b",
+        displayName: "Example Guest Two",
+      },
+    ],
     additionalGuestAllocations: [
       {
         id: "plus1-a",
+        kind: "plus1",
         prompt:
-          "Will Example Guest be accompanied by a +1?",
+          "Will Example Guest One be accompanied by a +1?",
+        maximumCount: 1,
+      },
+      {
+        id: "children-a",
+        kind: "unnamedChildren",
+        prompt: GROUPED_CHILD_PROMPT,
+        maximumCount: 2,
       },
     ],
   },
@@ -36,40 +56,72 @@ const lookup = Object.freeze({
   },
 });
 
-function completeFirstDraft() {
-  const draft =
-    createBlankDraft(lookup);
+function completeFirstDraft({
+  reception = true,
+} = {}) {
+  const draft = createBlankDraft(lookup);
 
-  draft.completionMode =
-    "first";
+  draft.completionMode = "first";
+
   draft.attendance = {
     ceremony: true,
-    reception: true,
+    reception,
     decline: false,
     touched: true,
   };
+
+  draft.namedInviteeResponses[
+    "invitee-a"
+  ] = "yes";
+
+  draft.namedInviteeResponses[
+    "invitee-b"
+  ] = "no";
+
   draft.additionalGuestResponses[
     "plus1-a"
   ] = "yes";
+
+  draft.additionalGuestResponses[
+    "children-a"
+  ] = {
+    attending: "yes",
+    count: "2",
+  };
+
   draft.attendanceTotals = {
     adults21Plus: "2",
     youngAdults18To20: "0",
-    children3To17: "0",
+    children3To17: "2",
     childrenUnder3: "0",
   };
-  draft.receptionAttendeeDetails = [
+
+  draft.attendeeDetails = [
     {
       attendeeName:
-        "Example Guest",
+        "Example Guest One",
       dietaryPreferences: "",
     },
     {
       attendeeName:
         "Example Companion",
       dietaryPreferences:
-        "Vegetarian",
+        reception
+          ? "Vegetarian"
+          : "",
+    },
+    {
+      attendeeName:
+        "Example Child One",
+      dietaryPreferences: "",
+    },
+    {
+      attendeeName:
+        "Example Child Two",
+      dietaryPreferences: "",
     },
   ];
+
   draft.confirmation.email =
     "guest@example.com";
 
@@ -77,7 +129,7 @@ function completeFirstDraft() {
 }
 
 test(
-  "blank draft contains no stored RSVP values and uses available email confirmation",
+  "blank draft contains blank named, Plus1, and grouped-child controls without stored RSVP values",
   () => {
     const draft =
       createBlankDraft(lookup);
@@ -86,26 +138,46 @@ test(
       draft.completionMode,
       "",
     );
+
+    assert.deepEqual(
+      draft.namedInviteeResponses,
+      {
+        "invitee-a": "",
+        "invitee-b": "",
+      },
+    );
+
     assert.deepEqual(
       draft.additionalGuestResponses,
       {
         "plus1-a": "",
+        "children-a": {
+          attending: "",
+          count: "",
+        },
       },
     );
+
     assert.deepEqual(
       draft.attendanceTotals,
       {
         adults21Plus: "",
-        youngAdults18To20:
-          "",
+        youngAdults18To20: "",
         children3To17: "",
         childrenUnder3: "",
       },
     );
+
+    assert.deepEqual(
+      draft.attendeeDetails,
+      [],
+    );
+
     assert.equal(
       draft.confirmation.method,
       "email",
     );
+
     assert.equal(
       draft.confirmation.email,
       "",
@@ -128,6 +200,7 @@ test(
         state,
         "ceremony",
       );
+
     state =
       toggleAttendance(
         state,
@@ -163,15 +236,67 @@ test(
 );
 
 test(
-  "complete first RSVP builds the exact submission regions including explicit zero totals",
+  "derived attendance counts named Yes responses, Plus1 Yes responses, and grouped-child count",
+  () => {
+    assert.equal(
+      derivedOverallAttendance({
+        invitation:
+          lookup.invitation,
+
+        namedInviteeResponses: {
+          "invitee-a": "yes",
+          "invitee-b": "no",
+        },
+
+        additionalGuestResponses: {
+          "plus1-a": "yes",
+
+          "children-a": {
+            attending: "yes",
+            count: 2,
+          },
+        },
+      }),
+      4,
+    );
+
+    assert.equal(
+      derivedOverallAttendance({
+        invitation:
+          lookup.invitation,
+
+        namedInviteeResponses: {
+          "invitee-a": "yes",
+          "invitee-b": "yes",
+        },
+
+        additionalGuestResponses: {
+          "plus1-a": "no",
+
+          "children-a": {
+            attending: "no",
+            count: 0,
+          },
+        },
+      }),
+      2,
+    );
+  },
+);
+
+test(
+  "complete first RSVP builds the five substantive regions with mixed additional-guest response shapes",
   () => {
     const result =
       buildSubmissionRequest({
         inviteCode:
-          "DEV-006",
+          "DEV-002",
+
         lookup,
+
         draft:
           completeFirstDraft(),
+
         clientSubmissionId:
           "00000000-0000-4000-8000-000000000001",
       });
@@ -180,68 +305,450 @@ test(
       result.ok,
       true,
     );
+
     assert.deepEqual(
       result.request,
       {
         inviteCode:
-          "DEV-006",
+          "DEV-002",
+
         clientSubmissionId:
           "00000000-0000-4000-8000-000000000001",
+
         confirmation: {
           method: "email",
           email:
             "guest@example.com",
         },
+
         changes: {
           eventAttendance: {
             operation:
               "replace",
+
             value: [
               "ceremony",
               "reception",
             ],
           },
+
+          namedInviteeResponses:
+            {
+              operation:
+                "replace",
+
+              value: {
+                "invitee-a":
+                  "yes",
+
+                "invitee-b":
+                  "no",
+              },
+            },
+
           additionalGuestResponses:
             {
               operation:
                 "replace",
+
               value: {
                 "plus1-a":
                   "yes",
+
+                "children-a":
+                  {
+                    attending:
+                      "yes",
+
+                    count: 2,
+                  },
               },
             },
+
           attendanceTotals: {
             operation:
               "replace",
+
             value: {
               adults21Plus: 2,
+
               youngAdults18To20:
                 0,
-              children3To17: 0,
-              childrenUnder3: 0,
+
+              children3To17:
+                2,
+
+              childrenUnder3:
+                0,
             },
           },
-          receptionAttendeeDetails:
-            {
-              operation:
-                "replace",
-              value: [
-                {
-                  attendeeName:
-                    "Example Guest",
-                  dietaryPreferences:
-                    "",
-                },
-                {
-                  attendeeName:
-                    "Example Companion",
-                  dietaryPreferences:
-                    "Vegetarian",
-                },
-              ],
-            },
+
+          attendeeDetails: {
+            operation:
+              "replace",
+
+            value: [
+              {
+                attendeeName:
+                  "Example Guest One",
+
+                dietaryPreferences:
+                  "",
+              },
+              {
+                attendeeName:
+                  "Example Companion",
+
+                dietaryPreferences:
+                  "Vegetarian",
+              },
+              {
+                attendeeName:
+                  "Example Child One",
+
+                dietaryPreferences:
+                  "",
+              },
+              {
+                attendeeName:
+                  "Example Child Two",
+
+                dietaryPreferences:
+                  "",
+              },
+            ],
+          },
         },
       },
+    );
+
+    assert.equal(
+      Object.prototype
+        .hasOwnProperty.call(
+          result.request.changes,
+          "receptionAttendeeDetails",
+        ),
+      false,
+    );
+  },
+);
+
+test(
+  "grouped-child No response is normalized to count zero and contributes no attendance",
+  () => {
+    const draft =
+      createBlankDraft(lookup);
+
+    draft.completionMode =
+      "first";
+
+    draft.attendance = {
+      ceremony: true,
+      reception: false,
+      decline: false,
+      touched: true,
+    };
+
+    draft.namedInviteeResponses =
+      {
+        "invitee-a":
+          "yes",
+
+        "invitee-b":
+          "yes",
+      };
+
+    draft.additionalGuestResponses[
+      "plus1-a"
+    ] = "no";
+
+    draft.additionalGuestResponses[
+      "children-a"
+    ] = {
+      attending: "no",
+      count: "",
+    };
+
+    draft.attendanceTotals = {
+      adults21Plus: "2",
+      youngAdults18To20: "0",
+      children3To17: "0",
+      childrenUnder3: "0",
+    };
+
+    draft.attendeeDetails = [
+      {
+        attendeeName:
+          "Example Guest One",
+
+        dietaryPreferences:
+          "",
+      },
+      {
+        attendeeName:
+          "Example Guest Two",
+
+        dietaryPreferences:
+          "",
+      },
+    ];
+
+    draft.confirmation.email =
+      "guest@example.com";
+
+    const result =
+      buildSubmissionRequest({
+        inviteCode:
+          "DEV-002",
+
+        lookup,
+
+        draft,
+
+        clientSubmissionId:
+          "00000000-0000-4000-8000-000000000002",
+      });
+
+    assert.equal(
+      result.ok,
+      true,
+    );
+
+    assert.deepEqual(
+      result.request.changes
+        .additionalGuestResponses
+        .value[
+        "children-a"
+      ],
+      {
+        attending: "no",
+        count: 0,
+      },
+    );
+
+    assert.equal(
+      result.request.changes
+        .attendeeDetails
+        .value.length,
+      2,
+    );
+  },
+);
+
+test(
+  "grouped-child response rejects missing, zero, fractional, and above-maximum Yes counts",
+  () => {
+    for (
+      const count of [
+        "",
+        "0",
+        "1.5",
+        "3",
+      ]
+    ) {
+      const draft =
+        completeFirstDraft();
+
+      draft.additionalGuestResponses[
+        "children-a"
+      ] = {
+        attending: "yes",
+        count,
+      };
+
+      const result =
+        buildSubmissionRequest({
+          inviteCode:
+            "DEV-002",
+
+          lookup,
+
+          draft,
+
+          clientSubmissionId:
+            "00000000-0000-4000-8000-000000000003",
+        });
+
+      assert.equal(
+        result.ok,
+        false,
+      );
+
+      assert.ok(
+        result.errors
+          .additionalGuestResponses,
+      );
+    }
+  },
+);
+
+test(
+  "first attending RSVP requires every named invitee and additional-guest response",
+  () => {
+    const draft =
+      completeFirstDraft();
+
+    draft.namedInviteeResponses[
+      "invitee-b"
+    ] = "";
+
+    draft.additionalGuestResponses[
+      "plus1-a"
+    ] = "";
+
+    const result =
+      buildSubmissionRequest({
+        inviteCode:
+          "DEV-002",
+
+        lookup,
+
+        draft,
+
+        clientSubmissionId:
+          "00000000-0000-4000-8000-000000000004",
+      });
+
+    assert.equal(
+      result.ok,
+      false,
+    );
+
+    assert.ok(
+      result.errors
+        .namedInviteeResponses,
+    );
+
+    assert.ok(
+      result.errors
+        .additionalGuestResponses,
+    );
+  },
+);
+
+test(
+  "first attending RSVP requires age totals to equal derived attending headcount",
+  () => {
+    const draft =
+      completeFirstDraft();
+
+    draft.attendanceTotals
+      .adults21Plus =
+      "1";
+
+    const result =
+      buildSubmissionRequest({
+        inviteCode:
+          "DEV-002",
+
+        lookup,
+
+        draft,
+
+        clientSubmissionId:
+          "00000000-0000-4000-8000-000000000005",
+      });
+
+    assert.equal(
+      result.ok,
+      false,
+    );
+
+    assert.match(
+      result.errors
+        .attendanceTotals,
+      /must add up to the 4 people marked as attending/,
+    );
+  },
+);
+
+test(
+  "Ceremony-only initial RSVP still requires Attendee Details and omits dietary fields from the request",
+  () => {
+    const draft =
+      completeFirstDraft({
+        reception: false,
+      });
+
+    const result =
+      buildSubmissionRequest({
+        inviteCode:
+          "DEV-002",
+
+        lookup,
+
+        draft,
+
+        clientSubmissionId:
+          "00000000-0000-4000-8000-000000000006",
+      });
+
+    assert.equal(
+      result.ok,
+      true,
+    );
+
+    assert.equal(
+      result.request.changes
+        .attendeeDetails
+        .value.length,
+      4,
+    );
+
+    for (
+      const detail of
+      result.request.changes
+        .attendeeDetails
+        .value
+    ) {
+      assert.deepEqual(
+        Object.keys(
+          detail,
+        ),
+        [
+          "attendeeName",
+        ],
+      );
+    }
+  },
+);
+
+test(
+  "Ceremony-only attendee details reject dietary or allergy information",
+  () => {
+    const draft =
+      completeFirstDraft({
+        reception: false,
+      });
+
+    draft.attendeeDetails[
+      0
+    ].dietaryPreferences =
+      "Vegetarian";
+
+    const result =
+      buildSubmissionRequest({
+        inviteCode:
+          "DEV-002",
+
+        lookup,
+
+        draft,
+
+        clientSubmissionId:
+          "00000000-0000-4000-8000-000000000007",
+      });
+
+    assert.equal(
+      result.ok,
+      false,
+    );
+
+    assert.match(
+      result.errors[
+        "0.dietaryPreferences"
+      ],
+      /only when Reception is selected/,
     );
   },
 );
@@ -254,35 +761,45 @@ test(
 
     draft.completionMode =
       "first";
+
     draft.attendance = {
       ceremony: false,
       reception: false,
       decline: true,
       touched: true,
     };
+
     draft.confirmation.email =
       "guest@example.com";
 
     const result =
       buildSubmissionRequest({
         inviteCode:
-          "DEV-006",
+          "DEV-002",
+
         lookup,
+
         draft,
+
         clientSubmissionId:
-          "00000000-0000-4000-8000-000000000002",
+          "00000000-0000-4000-8000-000000000008",
       });
 
     assert.equal(
       result.ok,
       true,
     );
+
     assert.deepEqual(
       result.request.changes,
       {
         eventAttendance: {
-          operation: "replace",
-          value: ["decline"],
+          operation:
+            "replace",
+
+          value: [
+            "decline",
+          ],
         },
       },
     );
@@ -290,34 +807,40 @@ test(
 );
 
 test(
-  "revision omits untouched RSVP regions and may replace confirmation only",
+  "revision may omit all substantive regions and replace confirmation only",
   () => {
     const draft =
       createBlankDraft(lookup);
 
     draft.completionMode =
       "revision";
+
     draft.confirmation.email =
       "new@example.com";
 
     const result =
       buildSubmissionRequest({
         inviteCode:
-          "DEV-006",
+          "DEV-002",
+
         lookup,
+
         draft,
+
         clientSubmissionId:
-          "00000000-0000-4000-8000-000000000003",
+          "00000000-0000-4000-8000-000000000009",
       });
 
     assert.equal(
       result.ok,
       true,
     );
+
     assert.deepEqual(
       result.request.changes,
       {},
     );
+
     assert.deepEqual(
       result.request.confirmation,
       {
@@ -330,39 +853,136 @@ test(
 );
 
 test(
-  "revision distinguishes untouched total from explicit zero replacement",
+  "revision sends only explicitly answered named and mixed additional-guest response entries",
   () => {
     const draft =
       createBlankDraft(lookup);
 
     draft.completionMode =
       "revision";
+
     draft.confirmation.email =
       "guest@example.com";
-    draft.attendanceTotals
-      .children3To17 = "0";
+
+    draft.namedInviteeResponses[
+      "invitee-b"
+    ] = "yes";
+
+    draft.additionalGuestResponses[
+      "children-a"
+    ] = {
+      attending: "yes",
+      count: "1",
+    };
 
     const result =
       buildSubmissionRequest({
         inviteCode:
-          "DEV-006",
+          "DEV-002",
+
         lookup,
+
         draft,
+
         clientSubmissionId:
-          "00000000-0000-4000-8000-000000000004",
+          "00000000-0000-4000-8000-000000000010",
       });
 
     assert.equal(
       result.ok,
       true,
     );
+
+    assert.deepEqual(
+      result.request.changes
+        .namedInviteeResponses,
+      {
+        operation:
+          "replace",
+
+        value: {
+          "invitee-b":
+            "yes",
+        },
+      },
+    );
+
+    assert.deepEqual(
+      result.request.changes
+        .additionalGuestResponses,
+      {
+        operation:
+          "replace",
+
+        value: {
+          "children-a":
+            {
+              attending:
+                "yes",
+
+              count: 1,
+            },
+        },
+      },
+    );
+
+    assert.equal(
+      Object.prototype
+        .hasOwnProperty.call(
+          result.request.changes
+            .additionalGuestResponses
+            .value,
+          "plus1-a",
+        ),
+      false,
+    );
+  },
+);
+
+test(
+  "revision distinguishes untouched age totals from explicit zero replacement",
+  () => {
+    const draft =
+      createBlankDraft(lookup);
+
+    draft.completionMode =
+      "revision";
+
+    draft.confirmation.email =
+      "guest@example.com";
+
+    draft.attendanceTotals
+      .children3To17 =
+      "0";
+
+    const result =
+      buildSubmissionRequest({
+        inviteCode:
+          "DEV-002",
+
+        lookup,
+
+        draft,
+
+        clientSubmissionId:
+          "00000000-0000-4000-8000-000000000011",
+      });
+
+    assert.equal(
+      result.ok,
+      true,
+    );
+
     assert.deepEqual(
       result.request.changes
         .attendanceTotals,
       {
-        operation: "replace",
+        operation:
+          "replace",
+
         value: {
-          children3To17: 0,
+          children3To17:
+            0,
         },
       },
     );
@@ -370,108 +990,30 @@ test(
 );
 
 test(
-  "first attending RSVP fails client validation when complete totals or Plus 1 response are missing",
-  () => {
-    const draft =
-      createBlankDraft(lookup);
-
-    draft.completionMode =
-      "first";
-    draft.attendance = {
-      ceremony: true,
-      reception: false,
-      decline: false,
-      touched: true,
-    };
-    draft.confirmation.email =
-      "guest@example.com";
-
-    const result =
-      buildSubmissionRequest({
-        inviteCode:
-          "DEV-006",
-        lookup,
-        draft,
-        clientSubmissionId:
-          "00000000-0000-4000-8000-000000000005",
-      });
-
-    assert.equal(
-      result.ok,
-      false,
-    );
-    assert.ok(
-      result.errors
-        .additionalGuestResponses,
-    );
-    assert.ok(
-      result.errors
-        .attendanceTotals,
-    );
-  },
-);
-
-test(
-  "client validation rejects attendance above invitation capacity",
-  () => {
-    const draft =
-      completeFirstDraft();
-
-    draft.attendance.reception =
-      false;
-    draft.receptionAttendeeDetails =
-      [];
-    draft.attendanceTotals =
-      {
-        adults21Plus: "5",
-        youngAdults18To20:
-          "0",
-        children3To17: "0",
-        childrenUnder3: "0",
-      };
-
-    const result =
-      buildSubmissionRequest({
-        inviteCode:
-          "DEV-006",
-        lookup,
-        draft,
-        clientSubmissionId:
-          "00000000-0000-4000-8000-000000000006",
-      });
-
-    assert.equal(
-      result.ok,
-      false,
-    );
-    assert.match(
-      result.errors
-        .attendanceTotals,
-      /between 1 and 4/,
-    );
-  },
-);
-
-test(
-  "reception detail resizing preserves existing entries while matching requested count",
+  "attendee-detail resizing preserves existing rows and creates blank rows to the requested count",
   () => {
     const current = [
       {
-        attendeeName: "A",
+        attendeeName:
+          "A",
+
         dietaryPreferences:
           "",
       },
     ];
 
     assert.deepEqual(
-      resizeReceptionDetails(
+      resizeAttendeeDetails(
         current,
         2,
       ),
       [
         current[0],
+
         {
-          attendeeName: "",
+          attendeeName:
+            "",
+
           dietaryPreferences:
             "",
         },
@@ -479,7 +1021,7 @@ test(
     );
 
     assert.deepEqual(
-      resizeReceptionDetails(
+      resizeAttendeeDetails(
         current,
         0,
       ),
@@ -492,21 +1034,32 @@ test(
   "lookup errors map to invalid, closed, or service-unavailable states",
   () => {
     assert.equal(
-      lookupFailureState(400),
+      lookupFailureState(
+        400,
+      ),
       RSVP_STATES
         .INVALID_INVITATION,
     );
+
     assert.equal(
-      lookupFailureState(404),
+      lookupFailureState(
+        404,
+      ),
       RSVP_STATES
         .INVALID_INVITATION,
     );
+
     assert.equal(
-      lookupFailureState(410),
+      lookupFailureState(
+        410,
+      ),
       RSVP_STATES.CLOSED,
     );
+
     assert.equal(
-      lookupFailureState(503),
+      lookupFailureState(
+        503,
+      ),
       RSVP_STATES
         .SERVICE_UNAVAILABLE,
     );
@@ -517,21 +1070,32 @@ test(
   "submission errors keep validation, closed, and service failures distinct",
   () => {
     assert.equal(
-      submitFailureState(400),
+      submitFailureState(
+        400,
+      ),
       RSVP_STATES
         .VALIDATION_FAILURE,
     );
+
     assert.equal(
-      submitFailureState(403),
+      submitFailureState(
+        403,
+      ),
       RSVP_STATES
         .VALIDATION_FAILURE,
     );
+
     assert.equal(
-      submitFailureState(410),
+      submitFailureState(
+        410,
+      ),
       RSVP_STATES.CLOSED,
     );
+
     assert.equal(
-      submitFailureState(429),
+      submitFailureState(
+        429,
+      ),
       RSVP_STATES
         .SERVICE_UNAVAILABLE,
     );
@@ -547,27 +1111,35 @@ test(
         action: "initial",
         idempotentRepeat:
           false,
+
         recordedAt:
           "2026-09-20T20:30:00Z",
       },
+
       invitation: {
         partyDisplayName:
           "Example Household",
       },
+
       rsvp: {
         eventAttendance: [
           "ceremony",
         ],
       },
+
       confirmation: {
         method: "email",
+
         guestDeliveryStatus:
           "sent",
+
         administrativeDeliveryStatus:
           "sent",
+
         deliveryWarning:
           false,
       },
+
       revisionPolicy: {
         deadline:
           "2027-03-01T23:59:00-05:00",
@@ -575,24 +1147,31 @@ test(
     };
 
     assert.equal(
-      confirmationState(base),
+      confirmationState(
+        base,
+      ),
       RSVP_STATES
         .CONFIRMED_INITIAL,
     );
+
     assert.equal(
       confirmationState({
         ...base,
+
         submission: {
           ...base.submission,
-          action: "revision",
+          action:
+            "revision",
         },
       }),
       RSVP_STATES
         .CONFIRMED_REVISION,
     );
+
     assert.equal(
       confirmationState({
         ...base,
+
         confirmation: {
           ...base.confirmation,
           deliveryWarning:
@@ -602,8 +1181,11 @@ test(
       RSVP_STATES
         .DELIVERY_WARNING,
     );
+
     assert.equal(
-      confirmationState(null),
+      confirmationState(
+        null,
+      ),
       RSVP_STATES
         .CONFIRMATION_FALLBACK,
     );

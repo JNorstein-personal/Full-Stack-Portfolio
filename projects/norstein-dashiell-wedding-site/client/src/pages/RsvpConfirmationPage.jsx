@@ -35,11 +35,26 @@ function methodLabel(method) {
     : "Email";
 }
 
+function responseLabel(response) {
+  return response === "yes"
+    ? "Yes"
+    : "No";
+}
+
+function groupedChildResponse(response) {
+  return Boolean(
+    response &&
+      typeof response === "object" &&
+      !Array.isArray(response),
+  );
+}
+
 function RsvpConfirmationPage() {
   const [confirmation] =
     useState(() =>
       getTransientConfirmation(),
     );
+
   const state =
     confirmationState(
       confirmation,
@@ -48,10 +63,12 @@ function RsvpConfirmationPage() {
   useEffect(() => {
     const priorTitle =
       document.title;
+
     let robots =
       document.querySelector(
         'meta[name="robots"]',
       );
+
     const created = !robots;
 
     if (!robots) {
@@ -102,21 +119,14 @@ function RsvpConfirmationPage() {
             type="uncertainty"
             title="Your on-screen summary is unavailable"
           >
-            The temporary confirmation
-            summary is no longer
-            available. An RSVP may
-            already have been
-            recorded. Check the email
-            or text confirmation you
-            selected before submitting
-            again.
+            The temporary confirmation summary is no longer available. An RSVP
+            may already have been recorded. Check the email or text confirmation
+            you selected before submitting again.
           </StatusMessage>
 
           <p>
-            If you need to make a
-            deliberate revision, return
-            to RSVP and enter your
-            invitation code manually.
+            If you need to make a deliberate revision, return to RSVP and enter
+            your invitation code manually.
           </p>
 
           <p>
@@ -149,12 +159,40 @@ function RsvpConfirmationPage() {
   const isRevision =
     submission.action ===
     "revision";
+
   const attendance =
     rsvp.eventAttendance;
+
   const isDecline =
     attendance.includes(
       "decline",
     );
+
+  const receptionSelected =
+    attendance.includes(
+      "reception",
+    );
+
+  const namedInviteeResponses =
+    Array.isArray(
+      rsvp.namedInviteeResponses,
+    )
+      ? rsvp.namedInviteeResponses
+      : [];
+
+  const additionalGuestResponses =
+    Array.isArray(
+      rsvp.additionalGuestResponses,
+    )
+      ? rsvp.additionalGuestResponses
+      : [];
+
+  const attendeeDetails =
+    Array.isArray(
+      rsvp.attendeeDetails,
+    )
+      ? rsvp.attendeeDetails
+      : [];
 
   return (
     <PageContainer>
@@ -193,13 +231,9 @@ function RsvpConfirmationPage() {
             type="warning"
             title="Confirmation Delivery Needs Attention"
           >
-            Your RSVP remains recorded.
-            One or more confirmation
-            delivery attempts failed or
-            have an uncertain status.
-            Do not resubmit solely
-            because of this delivery
-            warning.
+            Your RSVP remains recorded. One or more confirmation delivery
+            attempts failed or have an uncertain status. Do not resubmit solely
+            because of this delivery warning.
           </StatusMessage>
         )}
 
@@ -207,19 +241,16 @@ function RsvpConfirmationPage() {
           <p className="rsvp-kicker">
             RSVP for
           </p>
+
           <h2>
-            {
-              invitation
-                .partyDisplayName
-            }
+            {invitation.partyDisplayName}
           </h2>
 
           <h3>Attendance</h3>
 
           {isDecline ? (
             <p>
-              {invitation
-                .wordingMode ===
+              {invitation.wordingMode ===
               "plural"
                 ? "Regretfully, we are unable to attend."
                 : "Regretfully, I am unable to attend."}
@@ -231,6 +262,7 @@ function RsvpConfirmationPage() {
               ) && (
                 <li>Ceremony</li>
               )}
+
               {attendance.includes(
                 "reception",
               ) && (
@@ -239,134 +271,127 @@ function RsvpConfirmationPage() {
             </ul>
           )}
 
-          {Array.isArray(
-            rsvp
-              .additionalGuestResponses,
-          ) &&
-            rsvp
-              .additionalGuestResponses
-              .length > 0 && (
-            <>
-              <h3>
-                Authorized Plus 1
-                Responses
-              </h3>
-              <dl className="rsvp-summary-list">
-                {rsvp
-                  .additionalGuestResponses
-                  .map(
-                    (response) => (
-                      <div
-                        key={
-                          response.id
-                        }
-                      >
-                        <dt>
-                          {
-                            response.prompt
-                          }
-                        </dt>
-                        <dd>
-                          {response.response ===
-                          "yes"
-                            ? "Yes"
-                            : "No"}
-                        </dd>
-                      </div>
-                    ),
-                  )}
-              </dl>
-            </>
-          )}
+          {!isDecline &&
+            namedInviteeResponses.length > 0 && (
+              <>
+                <h3>Named Invitees</h3>
+
+                <dl className="rsvp-summary-list">
+                  {namedInviteeResponses.map((response) => (
+                    <div key={response.id}>
+                      <dt>{response.displayName}</dt>
+                      <dd>{responseLabel(response.response)}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </>
+            )}
 
           {!isDecline &&
-            rsvp
-              .attendanceTotals && (
-            <>
-              <h3>
-                Party Totals
-              </h3>
-              <dl className="rsvp-summary-list">
-                {ATTENDANCE_TOTAL_FIELDS.map(
-                  (field) => (
+            additionalGuestResponses.length > 0 && (
+              <>
+                <h3>
+                  Additional Guest Responses
+                </h3>
+
+                <dl className="rsvp-summary-list">
+                  {additionalGuestResponses.map((response) => {
+                    const isGroupedChildren =
+                      response.kind ===
+                        "unnamedChildren" &&
+                      groupedChildResponse(
+                        response.response,
+                      );
+
+                    if (isGroupedChildren) {
+                      const attending =
+                        response.response
+                          .attending ===
+                        "yes";
+
+                      return (
+                        <div key={response.id}>
+                          <dt>{response.prompt}</dt>
+                          <dd>
+                            {attending ? "Yes" : "No"}
+                            {attending && (
+                              <>
+                                <br />
+                                Children attending:{" "}
+                                {response.response.count}
+                              </>
+                            )}
+                          </dd>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div key={response.id}>
+                        <dt>{response.prompt}</dt>
+                        <dd>{responseLabel(response.response)}</dd>
+                      </div>
+                    );
+                  })}
+                </dl>
+              </>
+            )}
+
+          {!isDecline &&
+            rsvp.attendanceTotals && (
+              <>
+                <h3>Party Totals</h3>
+
+                <dl className="rsvp-summary-list">
+                  {ATTENDANCE_TOTAL_FIELDS.map((field) => (
                     <div key={field}>
                       <dt>
-                        {
-                          ATTENDANCE_TOTAL_LABELS[
-                            field
-                          ]
-                        }
+                        {ATTENDANCE_TOTAL_LABELS[field]}
                       </dt>
                       <dd>
-                        {
-                          rsvp
-                            .attendanceTotals[
-                            field
-                          ]
-                        }
+                        {rsvp.attendanceTotals[field]}
                       </dd>
                     </div>
-                  ),
-                )}
-                <div>
-                  <dt>
-                    Overall attendance
-                  </dt>
-                  <dd>
-                    {
-                      rsvp
-                        .overallAttendance
-                    }
-                  </dd>
-                </div>
-              </dl>
-            </>
-          )}
+                  ))}
 
-          {Array.isArray(
-            rsvp
-              .receptionAttendeeDetails,
-          ) &&
-            rsvp
-              .receptionAttendeeDetails
-              .length > 0 && (
-            <>
-              <h3>
-                Reception Attendee
-                Details
-              </h3>
-              <ol className="rsvp-attendee-summary">
-                {rsvp
-                  .receptionAttendeeDetails
-                  .map(
-                    (
-                      detail,
-                      index,
-                    ) => (
-                      <li
-                        key={
-                          detail.attendeeName +
-                          index
-                        }
-                      >
-                        <strong>
-                          {
-                            detail
-                              .attendeeName
-                          }
-                        </strong>
+                  <div>
+                    <dt>
+                      Overall attendance
+                    </dt>
+                    <dd>
+                      {rsvp.overallAttendance}
+                    </dd>
+                  </div>
+                </dl>
+              </>
+            )}
+
+          {!isDecline &&
+            attendeeDetails.length > 0 && (
+              <>
+                <h3>Attendee Details</h3>
+
+                <ol className="rsvp-attendee-summary">
+                  {attendeeDetails.map((detail, index) => (
+                    <li
+                      key={`${detail.attendeeName}-${index}`}
+                    >
+                      <strong>
+                        {detail.attendeeName}
+                      </strong>
+
+                      {receptionSelected && (
                         <span>
-                          Dietary/allergy:{" "}
-                          {detail
-                            .dietaryPreferences ||
+                          Dietary or allergy information:{" "}
+                          {detail.dietaryPreferences ||
                             "None provided"}
                         </span>
-                      </li>
-                    ),
-                  )}
-              </ol>
-            </>
-          )}
+                      )}
+                    </li>
+                  ))}
+                </ol>
+              </>
+            )}
         </section>
 
         <section className="rsvp-summary-section">
@@ -385,17 +410,16 @@ function RsvpConfirmationPage() {
                   : "Initial RSVP"}
               </dd>
             </div>
+
             <div>
-              <dt>
-                Recorded
-              </dt>
+              <dt>Recorded</dt>
               <dd>
                 {new Date(
-                  submission
-                    .recordedAt,
+                  submission.recordedAt,
                 ).toLocaleString()}
               </dd>
             </div>
+
             <div>
               <dt>
                 Confirmation method
@@ -406,25 +430,25 @@ function RsvpConfirmationPage() {
                 )}
               </dd>
             </div>
+
             <div>
               <dt>
                 Guest delivery
               </dt>
               <dd>
                 {statusLabel(
-                  delivery
-                    .guestDeliveryStatus,
+                  delivery.guestDeliveryStatus,
                 )}
               </dd>
             </div>
+
             <div>
               <dt>
                 Administrative attempt
               </dt>
               <dd>
                 {statusLabel(
-                  delivery
-                    .administrativeDeliveryStatus,
+                  delivery.administrativeDeliveryStatus,
                 )}
               </dd>
             </div>
@@ -432,9 +456,7 @@ function RsvpConfirmationPage() {
         </section>
 
         <section className="rsvp-summary-section">
-          <h2>
-            Need to Revise?
-          </h2>
+          <h2>Need to Revise?</h2>
 
           <p>
             {revisionPolicy.mayRevise
@@ -445,8 +467,7 @@ function RsvpConfirmationPage() {
           <p>
             Deadline:{" "}
             <strong>
-              March 1, 2027, at
-              11:59 p.m. EST
+              March 1, 2027, at 11:59 p.m. EST
             </strong>
           </p>
 
@@ -466,14 +487,10 @@ function RsvpConfirmationPage() {
             <a
               href={
                 "mailto:" +
-                revisionPolicy
-                  .assistanceEmail
+                revisionPolicy.assistanceEmail
               }
             >
-              {
-                revisionPolicy
-                  .assistanceEmail
-              }
+              {revisionPolicy.assistanceEmail}
             </a>
             .
           </p>

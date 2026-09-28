@@ -258,7 +258,7 @@ Date:
 ## Decision 015 — Final RSVP Question Set
 
 Decision:
-The couple-supplied private `Invitees List` spreadsheet remains authoritative for production invitation capacity, party identity, wording mode, and authorized `Plus1` allocations. The attendance-composition clarification approved on September 20, 2026 supplements the spreadsheet display notes by requiring the RSVP to identify which potential attendees are actually attending before the age-category totals and attendee-detail count are finalized.
+The couple-supplied private `Invitees List` spreadsheet remains authoritative for production invitation capacity, party identity, wording mode, specifically named invitees, authorized `Plus1` allocations, and source-authorized unnamed children. The attendance-composition clarification approved on September 20, 2026 requires the RSVP to identify which potential attendees are actually attending before the age-category totals and attendee-detail count are finalized. The September 27, 2026 source clarification establishes that a child represented by `Kids(n)` whose name is not specified in Columns C and D is an authorized unnamed child rather than a named invitee; if such a child attends, the child's name is supplied later through ordinary `Attendee Details`. The later September 27 grouped-children clarification establishes that all such unnamed children authorized for one invitation are represented by one family-level grouped allocation rather than one separate allocation/question per child.
 
 All active production invitations use one reusable substantive form structure. Invitation-specific variation comes from the validated private invitation configuration rather than from separately coded production question structures.
 
@@ -276,7 +276,7 @@ The event-attendance choice establishes which wedding event or events the attend
 
 ### Named-Invitee Attendance Decisions
 
-Every non-`Plus1` potential attendee represented by the invitation configuration must have one individually addressable named-invitee attendance decision when the party is attending.
+Every potential attendee whose individual name is specified in the authoritative source's parallel First Name(s) and Last Name(s) entries becomes one authorized `namedInvitees` record and receives one individually addressable named-invitee attendance decision when the party is attending.
 
 For each authorized `namedInvitees` record:
 
@@ -286,34 +286,64 @@ For each authorized `namedInvitees` record:
 * Permit ordinary revisions to preserve an omitted stored response unless another submitted change makes a complete replacement necessary.
 * Reject unknown, duplicate, or cross-party invitee identifiers.
 
-A full party decline makes individual named-invitee attendance responses inapplicable and produces an actual attending count of zero.
+A specifically named child uses this same named-invitee mechanism. A full party decline makes individual named-invitee attendance responses inapplicable and produces an actual attending count of zero.
 
-### Named `Plus1` Questions
+### Authorized Additional-Guest Allocation Questions
 
-When Column E contains one or more `Plus1` allocations:
+`additionalGuestAllocations` represents source-authorized attendance capacity whose attendee names are not known in the source at invitation time. An allocation is an authorization/control unit and is **not necessarily one person per allocation object**.
 
-* Render one Yes/No question for each allocation.
-* Use the label `Will [Named Invitee] be accompanied by a +1?`
-* When multiple `Plus1` entries appear in one row, the parenthesized invitee name following each `Plus1` identifies the named invitee for that question.
-* A single unparenthesized `Plus1` is associated with the primary named invitee for that row.
-* Do not request the additional guest's own name in the allocation question.
-* Use a stable opaque allocation identifier for submission and reject unknown, duplicate, or cross-party allocation identifiers.
+Each allocation contains a stable opaque `id`, a safe `kind`, the reviewed guest-facing `prompt`, and a positive whole-number `maximumCount`. The active source currently produces two variants:
 
-The additional guest's name is collected later through the ordinary `Attendee Details` structure when that additional guest is attending.
+1. **Named-invitee `Plus1` allocation**
+   * Create one allocation for each source `Plus1`.
+   * Use `kind: "plus1"`.
+   * Use `maximumCount: 1`.
+   * Render one Yes/No question using `Will [Named Invitee] be accompanied by a +1?`
+   * When multiple `Plus1` entries appear in one row, the parenthesized name following each `Plus1` identifies the named invitee for that question.
+   * A single unparenthesized `Plus1` is associated with the row's primary named invitee.
+   * The canonical `additionalGuestResponses[allocationId]` value remains `"yes"` or `"no"`.
+
+2. **Grouped unnamed-children allocation**
+   * If reconciliation shows one or more source-authorized children whose names are absent from Columns C and D, create **one** grouped allocation for the invitation rather than one allocation per child.
+   * Use `kind: "unnamedChildren"`.
+   * Set `maximumCount` to the reconciled number of unnamed child attendance slots for that invitation, not blindly to the raw `Kids(n)` value when one or more children are already represented by name in Columns C and D.
+   * Render one family-level Yes/No question using the approved wording: `We'd love for your family to celebrate with us this Mayday - will your kid(s) be accompanying you?`
+   * When the family answers Yes, reveal one required count selector containing the whole numbers `1` through `maximumCount`.
+   * When the family answers No, no child-count selector remains applicable.
+   * The canonical `additionalGuestResponses[allocationId]` value is `{ "attending": "yes", "count": k }` when Yes, where `k` is an integer from `1` through `maximumCount`, and `{ "attending": "no", "count": 0 }` when No.
+
+For every allocation variant:
+
+* Use the stable opaque allocation identifier for submission and reject unknown, duplicate, or cross-party allocation identifiers.
+* Require the allocation's complete applicable response on an initial attending RSVP and when a previously declined party changes to an attending state.
+* Do not request the additional guest's or children's own names in the allocation question.
+* Collect the actual name of every attending additional person later through the ordinary `Attendee Details` structure.
+
+A child whose name is already represented in Columns C and D remains an ordinary `namedInvitees` record and must not also contribute to the grouped unnamed-children `maximumCount`.
+
+No separate child-specific substantive response region is introduced. Both `Plus1` and grouped unnamed-children allocations use the existing `additionalGuestResponses` map.
 
 ### Authoritative Attending Count
 
 `maximumAttendance`, derived from Column F `Total Potential Attendees (Including Plus1 and Kids)`, remains the maximum possible size of the invitation-code party. It is not an independently selectable attending headcount.
 
-For an attending RSVP, the backend derives `overallAttendance` from the complete person-level attendance decisions:
+For an attending RSVP, the backend derives `overallAttendance` from the complete person-level and grouped-allocation responses.
 
-`overallAttendance = named invitees answered Yes + authorized Plus1 allocations answered Yes`
+For counting purposes:
 
-The complete invitation configuration must account for every potential attendance slot represented by `maximumAttendance`. Therefore:
+* A named invitee answered Yes contributes `1`; No contributes `0`.
+* A `Plus1` allocation answered Yes contributes `1`; No contributes `0`.
+* A grouped unnamed-children response with `attending: "yes"` contributes its validated `count`; a No response contributes `0`.
 
-`namedInvitees.length + additionalGuestAllocations.length = maximumAttendance`
+Therefore:
 
-A configuration that cannot satisfy this relationship must fail validation for private source review rather than guessing at an unidentified attendee.
+`overallAttendance = named-invitee Yes count + Plus1 Yes count + grouped unnamed-child attending count`
+
+The complete invitation configuration must account for every potential-attendance slot represented by `maximumAttendance`. Because a grouped child allocation may represent more than one person, the governing capacity invariant is:
+
+`namedInvitees.length + sum(additionalGuestAllocations.maximumCount) = maximumAttendance`
+
+A grouped unnamed-children allocation may exist only when the authoritative source explicitly authorizes the residual child capacity through `Kids(n)`. The transformation must not create unidentified attendance capacity merely from the numeric maximum.
 
 For an attending RSVP, `overallAttendance` must be at least 1 and may never exceed `maximumAttendance`. For a full decline, `overallAttendance` is 0.
 
@@ -353,7 +383,7 @@ Ceremony-only attendance retains the attendee-detail records and required attend
 
 A full decline produces zero attendee-detail records.
 
-If a revision changes the composition of the attending party, the complete `attendeeDetails` list must be replaced even when the numeric `overallAttendance` remains unchanged. A composition change includes any change to a named-invitee Yes/No response or authorized `Plus1` Yes/No response that changes which people are attending. If the composition remains unchanged and `attendeeDetails` is omitted from a valid revision, the stored attendee-detail list remains unchanged subject to Reception-specific dietary clearing.
+If a revision changes the composition of the attending party, the complete `attendeeDetails` list must be replaced even when the numeric `overallAttendance` remains unchanged. A composition change includes any named-invitee Yes/No change, any `Plus1` Yes/No change, or any grouped unnamed-children response/count change that changes the attending party. If the composition remains unchanged and `attendeeDetails` is omitted from a valid revision, the stored attendee-detail list remains unchanged subject to Reception-specific dietary clearing.
 
 ### Operational Online Fields
 
@@ -378,6 +408,7 @@ Date:
 Clarified:
 9/19/2026
 9/20/2026
+9/27/2026
 
 ## Decision 016 — Blank RSVP Forms and Partial Revisions
 
@@ -586,35 +617,61 @@ Each of the **57 rows** in the authoritative private `Invitees List` spreadsheet
 The source-to-configuration mapping is:
 
 * `inviteCode` — Guest ID normalized to the canonical six-character lookup key; `XXX-XXX` is retained only for approved display.
-* `partyDisplayName` — use `Attendee Names Clarification` when populated; otherwise concatenate `First Name(s)` and `Last Name(s)` for the guest-facing form heading.
+* `partyDisplayName` — use `Attendee Names Clarification` when populated; otherwise derive the guest-facing heading from the supplied First Name(s) and Last Name(s).
 * `wordingMode` — taken directly from `I/We wording`; `I` maps to singular and `we` maps to plural.
 * `maximumAttendance` — taken from `Total Potential Attendees (Including Plus1 and Kids)` and retained as the maximum possible size of the invitation-code party.
-* `namedInvitees` — one private roster record for every non-`Plus1` potential attendee represented by the invitation, with a stable opaque non-name identifier and an approved guest-facing display name used for the person's individual attendance question.
-* `additionalGuestAllocations` — one private allocation record per `Plus1`, including a stable opaque allocation identifier and the named invitee used in the question label. Multiple allocations use the names supplied in parentheses in Column E.
+* `namedInvitees` — one private roster record for each specifically named potential attendee represented by the parallel comma-separated First Name(s) and Last Name(s) entries in Columns C and D, with a stable opaque non-name identifier and an approved guest-facing display name used for that person's individual attendance question.
+* `additionalGuestAllocations` — zero or more private authorization/control records for source-authorized potential attendees whose own names are not known in Columns C and D. Each record contains a stable opaque `id`, safe `kind`, reviewed `prompt`, and positive whole-number `maximumCount`.
 * `active` and `environment` — protected backend configuration values distinguishing active production records from disabled development/testing records.
 
-The private transformation must reconcile the person-level roster with the authoritative maximum:
+For source `Plus1` entries, create one `kind: "plus1"` allocation per occurrence with `maximumCount: 1`. Multiple `Plus1` occurrences use the names supplied in parentheses in Column E; a single unparenthesized `Plus1` is associated with the row's primary named invitee.
 
-`namedInvitees.length + additionalGuestAllocations.length = maximumAttendance`
+For source-authorized unnamed children, the transformation first derives:
 
-The transformation must not infer unnamed people merely from the numeric maximum. If the private source row cannot identify every required non-`Plus1` potential attendee unambiguously enough to build the roster, that row must fail transformation for private source review rather than silently generating an incomplete or guessed configuration.
+`plus1Count = number of source Plus1 occurrences`
 
-The current authoritative source does not require separate production invitation-specific form-configuration assignments. All 57 active production invitations use the same substantive form model, with invitation-specific variation supplied by the row-level heading, wording mode, named-invitee roster, `Plus1` allocations, and maximum attendance.
+`unnamedChildCapacity = maximumAttendance - namedInvitees.length - plus1Count`
+
+A positive `unnamedChildCapacity` is valid only when Column E contains `Kids(n)` authorizing at least that many children whose names are not represented in Columns C and D. `Kids(n)` remains an authorization/count source and does not convert a child whose name is already present in Columns C and D into unnamed capacity.
+
+When `unnamedChildCapacity > 0`, create **one** `kind: "unnamedChildren"` grouped allocation for the invitation with:
+
+* `maximumCount: unnamedChildCapacity`
+* the approved family-level prompt `We'd love for your family to celebrate with us this Mayday - will your kid(s) be accompanying you?`
+
+Do not create one allocation object per unnamed child.
+
+When `unnamedChildCapacity = 0`, create no grouped unnamed-children allocation even if `Kids(n)` appears in the source, because the potential children are already fully represented elsewhere in the reconciled configuration.
+
+A negative residual, an unexplained positive residual, or a positive residual greater than the source-authorized `Kids(n)` count must fail transformation for private source review.
+
+The transformation therefore does not invent unnamed people merely from the numeric maximum. Every unit of potential attendance capacity must be supported by a specifically named C/D pair, an explicit `Plus1`, or an explicit `Kids(n)` authorization.
+
+Because one grouped child allocation may represent several people, the governing capacity reconciliation is:
+
+`namedInvitees.length + sum(additionalGuestAllocations.maximumCount) = maximumAttendance`
+
+The current authoritative source does not require separate production invitation-specific form-configuration assignments. All 57 active production invitations use the same substantive form model, with invitation-specific variation supplied by the row-level heading, wording mode, named-invitee roster, authorized additional-guest allocations, their safe rendering/count metadata, and maximum attendance.
 
 Production-Source Validation Summary:
 
 * 57 invitation records are present.
 * 35 records use singular `I` wording and 22 use plural `we` wording.
-* 23 records authorize at least one additional guest.
-* 26 total `Plus1` allocations are represented.
-* Two invitations authorize more than one additional guest.
-* The sum of the supplied maximum-attendance values is 115.
+* 23 records contain at least one `Plus1`.
+* 26 total `Plus1` allocation objects are required.
+* Two invitations contain more than one `Plus1`.
+* 84 specifically named potential attendees are represented by the parallel C/D name lists.
+* Five source-authorized unnamed-child attendance slots are required across two invitations.
+* Those five child slots are represented by two grouped `unnamedChildren` allocation objects, one for each applicable invitation.
+* 28 total `additionalGuestAllocations` objects are therefore required: 26 `Plus1` objects plus two grouped child objects.
+* The combined additional-guest **capacity** is 31 people: 26 Plus1 slots plus five unnamed-child slots.
+* `84 namedInvitees + 31 additional-guest capacity = 115` total maximum-attendance capacity.
 * No active production placeholder code is required.
 
 Implementation Requirement:
-The transformation must be repeatable and validated. It must reject malformed codes, duplicate normalized keys, missing required source values, unsupported wording modes, invalid or duplicate named-invitee identifiers, ambiguous or incomplete named-invitee roster data, malformed `Plus1` allocation text, duplicate allocation identifiers, invalid maximum-attendance values, a roster/allocation count that does not equal `maximumAttendance`, ambiguous heading data, or other contradictory records.
+The transformation must be repeatable and validated. It must reject malformed codes, duplicate normalized keys, missing required source values, unsupported wording modes, invalid or duplicate named-invitee identifiers, unequal or ambiguous parallel C/D name lists, malformed or ambiguous `Plus1` text, invalid or duplicate allocation identifiers, invalid allocation kinds or maximum counts, an unnamed-child residual not authorized by `Kids(n)`, invalid maximum-attendance values, a total configuration capacity that does not equal `maximumAttendance`, ambiguous heading data, or other contradictory records.
 
-The real source spreadsheet, generated production configuration, named-invitee roster, production codes, and code-to-party/name mappings remain private and outside public source control and frontend build output. After a guest successfully validates one invitation code, the backend may return only that party's limited guest-safe named-invitee display information and opaque identifiers required to render the blank personalized form.
+The real source spreadsheet, generated production configuration, named-invitee roster, allocation mappings, production codes, and code-to-party/name mappings remain private and outside public source control and frontend build output. After a guest successfully validates one invitation code, the backend may return only that party's limited guest-safe named-invitee display information and the safe allocation fields required to render the blank personalized form. For grouped children, the browser may receive the safe allocation kind and `maximumCount` because those values are required to render and constrain the approved Yes/No-plus-count interaction; raw `Kids(n)` source text and unrelated source metadata remain private.
 
 Status:
 Final
@@ -625,6 +682,7 @@ Date:
 Clarified:
 9/19/2026
 9/20/2026
+9/27/2026
 
 ## Decision 024 — Phase 3 RSVP Privacy and Security Standard
 
@@ -689,7 +747,7 @@ Analytics must not receive:
 * Mobile numbers.
 * Confirmation destinations.
 * `clientSubmissionId` values.
-* Invitation-specific form-configuration details, including `Plus1` allocation mappings and derived additional-guest counts.
+* Invitation-specific form-configuration details, including additional-guest allocation mappings and derived additional-guest counts.
 * RSVP version numbers.
 * Delivery-provider payloads.
 
@@ -1152,7 +1210,7 @@ The application must use one reusable RSVP form-building system rather than a se
 Required
 
 **Completion Test:**
-The same React renderer and backend form-building process serve every invitation while applying the spreadsheet-authoritative party heading, singular or plural wording, authorized `namedInvitees` roster, authorized named-invitee `Plus1` allocation configuration, `maximumAttendance`, coordinated event-attendance controls, person-level attendance decisions, age-category dials, and repeating `attendeeDetails` rules. No invitation requires a separately coded React page.
+The same React renderer and backend form-building process serve every invitation while applying the spreadsheet-authoritative party heading, singular or plural wording, authorized `namedInvitees` roster, authorized `additionalGuestAllocations` for one-person `Plus1` slots and grouped unnamed-child capacity, `maximumAttendance`, coordinated event-attendance controls, person-level and grouped-count attendance decisions, age-category dials, and repeating `attendeeDetails` rules. No invitation requires a separately coded React page.
 
 **Status:**
 Final
@@ -1160,13 +1218,13 @@ Final
 ### RSVP-004 — Invitation-Specific Questions
 
 **Requirement:**
-Every active production invitation must use the approved closed RSVP question structure. Invitation-specific variation is limited to the source-controlled party heading, singular or plural wording, named-invitee roster, named `Plus1` allocations, and maximum attendance.
+Every active production invitation must use the approved closed RSVP question structure. Invitation-specific variation is limited to the source-controlled party heading, singular or plural wording, named-invitee roster, authorized additional-guest allocations, and maximum attendance.
 
 **Priority:**
 Required
 
 **Completion Test:**
-The validated invitation renders the correct `I` or `We` wording, one individual Yes/No attendance decision for every authorized named invitee when the party is attending, exactly one Yes/No question for each authorized named-invitee `Plus1` allocation, four age-category dials whose sum must equal the derived `overallAttendance`, and exactly one `attendeeDetails` record per attending person. `Attendee name` is always required for an attending person; `Dietary or allergy information` appears only when Reception is selected. No invitation receives an unapproved substantive question.
+The validated invitation renders the correct `I` or `We` wording, one individual Yes/No attendance decision for every authorized named invitee when the party is attending, one Yes/No question for each authorized `Plus1` allocation, and at most one grouped unnamed-children Yes/No question for an invitation whose reconciled source data authorizes unnamed child capacity. A Yes response to the grouped child question reveals a required count selector from 1 through that allocation's `maximumCount`. The form also renders four age-category dials whose sum must equal derived `overallAttendance` and exactly one `attendeeDetails` record per attending person. `Attendee name` is always required for an attending person; `Dietary or allergy information` appears only when Reception is selected. No invitation receives an unapproved substantive question.
 
 **Status:**
 Final
@@ -1180,7 +1238,7 @@ The browser must not receive invitation records belonging to other households or
 Required
 
 **Completion Test:**
-A personalized-form API response contains only the configuration needed to render the requested party's blank form—such as wording mode, the validated party's limited `namedInvitees` display roster with opaque identifiers, `Plus1` allocation configuration, party maximum, authorized invitation configuration, and permitted question schema—and contains no other codes, identities belonging to another invited party, stored RSVP answers, confirmation destinations, private notes, source-spreadsheet rows, or unrelated configuration records.
+A personalized-form API response contains only the configuration needed to render the requested party's blank form—such as wording mode, the validated party's limited `namedInvitees` display roster with opaque identifiers, authorized additional-guest allocation ids/prompts plus the safe allocation kind and maximum count needed to render the applicable control, party maximum, and permitted question schema—and contains no other codes, identities belonging to another invited party, stored RSVP answers, confirmation destinations, private notes, raw source-spreadsheet rows, source-only allocation metadata, or unrelated configuration records.
 
 **Status:**
 Final
@@ -1306,7 +1364,7 @@ Each authorized `Plus1` allocation in the authoritative source must render as it
 Required
 
 **Completion Test:**
-Rows without `Plus1` receive no plus-one question. A row with one `Plus1` receives one question using `Will [Named Invitee] be accompanied by a +1?`. A row with multiple `Plus1` allocations receives one such question for each allocation using the parenthesized invitee names from the source. No field requests the additional guest's own name.
+Rows without `Plus1` receive no plus-one question. A row with one `Plus1` receives one question using `Will [Named Invitee] be accompanied by a +1?`. A row with multiple `Plus1` allocations receives one such question for each allocation using the parenthesized invitee names from the source. No field requests the Plus1 person's own name at the allocation stage; if attending, that person's name is collected later through ordinary `attendeeDetails`.
 
 **Status:**
 Final
@@ -1314,13 +1372,21 @@ Final
 ### RSVP-014 — Invited Children
 
 **Requirement:**
-Invited children who are potential attendees must participate in the same person-level attendance model as other non-`Plus1` invitees, while the age-category dials continue to record the age distribution of the complete attending party.
+Invited children who are potential attendees must participate in the approved attendance model without creating a separate child-specific substantive response region, while the age-category dials continue to record the age distribution of the complete attending party.
 
 **Priority:**
 Required
 
 **Completion Test:**
-A child represented as a non-`Plus1` potential attendee in the validated invitation configuration has the same authorized Yes/No named-invitee attendance decision as another named invitee. If attending, that child is counted in either Children ages 3–17 or Children under 3 as applicable and receives one ordinary `attendeeDetails` record. The form does not create a separate child-specific control type beyond the reusable named-invitee attendance control.
+A child whose individual name is represented in the authoritative C/D name lists becomes an ordinary `namedInvitees` record and receives the same named-invitee Yes/No attendance decision as another specifically named invitee.
+
+For an invitation with source-authorized child capacity not represented by name in Columns C and D, the transformer derives the reconciled `unnamedChildCapacity` and creates one grouped `additionalGuestAllocations` object with `kind: "unnamedChildren"` and `maximumCount: unnamedChildCapacity`. It does not create one allocation/question per unnamed child.
+
+The grouped control asks the approved family-level Yes/No question. If the family answers Yes, the form requires one child-count selection from `1` through `maximumCount`; if the family answers No, the canonical count is `0` and no count selector remains applicable. No fabricated child name is created at this stage.
+
+The grouped response remains inside `additionalGuestResponses`. Its canonical value is `{ "attending": "yes", "count": k }` for an attending count `k` within the authorized range, or `{ "attending": "no", "count": 0 }` when no unnamed children will attend.
+
+If one or more unnamed children attend, their actual names are collected later through ordinary `attendeeDetails`, one row per attending person. Whether named or unnamed at invitation time, an attending child is classified in either Children ages 3–17 or Children under 3 as applicable.
 
 **Status:**
 Final
@@ -1532,7 +1598,7 @@ The backend must reject substantive fields, dynamic named-invitee or allocation 
 Required
 
 **Completion Test:**
-Unknown question IDs, unknown or duplicate `namedInviteeResponses` IDs, unknown or duplicate `Plus1` allocation IDs, extra attendee-detail entries, malformed attendee-detail objects, accessibility/travel/message/entrée fields, or any other unsupported substantive field cause rejection and no unauthorized data is stored.
+Unknown question IDs, unknown or duplicate `namedInviteeResponses` IDs, unknown or duplicate additional-guest allocation IDs, extra attendee-detail entries, malformed attendee-detail objects, accessibility/travel/message/entrée fields, or any other unsupported substantive field cause rejection and no unauthorized data is stored.
 
 **Status:**
 Final
@@ -1554,17 +1620,29 @@ Final
 ### RSVP-029 — Maximum and Derived Attendance
 
 **Requirement:**
-The backend must preserve each invitation's Column-F `maximumAttendance` as the maximum possible party size while deriving the actual attending count from explicit person-level attendance decisions.
+The backend must preserve each invitation's Column-F `maximumAttendance` as the maximum possible party size while deriving actual attendance from the complete authorized named-invitee, Plus1, and grouped-child responses.
 
 **Priority:**
 Required
 
 **Completion Test:**
-For an attending RSVP, `overallAttendance` equals the number of authorized named invitees answered Yes plus the number of authorized `Plus1` allocations answered Yes. It is at least 1 and never exceeds `maximumAttendance`. For a full decline it is 0.
+For an attending RSVP:
 
-Adults 21+, Young Adults 18–20, Children 3–17, and Children under 3 are nonnegative whole numbers whose complete sum must equal the derived `overallAttendance` exactly. The browser constrains the four dials against the derived attending count rather than allowing the guest to choose an unrelated headcount up to `maximumAttendance`.
+* Each authorized named invitee answered Yes contributes one person.
+* Each `Plus1` allocation answered Yes contributes one person.
+* A grouped unnamed-children allocation contributes the validated selected count when `attending` is `"yes"` and contributes zero when `attending` is `"no"`.
 
-The invitation configuration itself must reconcile `namedInvitees.length + additionalGuestAllocations.length` exactly to `maximumAttendance`.
+Therefore:
+
+`overallAttendance = named-invitee Yes count + Plus1 Yes count + grouped unnamed-child attending count`
+
+`overallAttendance` is at least 1 and never exceeds `maximumAttendance`. For a full decline it is 0.
+
+Adults 21+, Young Adults 18–20, Children 3–17, and Children under 3 are nonnegative whole numbers whose complete sum must equal derived `overallAttendance` exactly. The browser constrains the four dials against the derived attending count rather than allowing the guest to choose an unrelated headcount up to `maximumAttendance`.
+
+The invitation configuration itself must reconcile person capacity rather than allocation-object count:
+
+`namedInvitees.length + sum(additionalGuestAllocations.maximumCount) === maximumAttendance`
 
 **Status:**
 Final
@@ -1578,7 +1656,7 @@ The backend must clear stored values that become inapplicable because of a contr
 Required
 
 **Completion Test:**
-A full decline stores the decline attendance state and clears named-invitee responses, per-allocation `Plus1` responses, age-category totals, derived attending state, and `attendeeDetails`. Changing from Reception attendance to Ceremony-only preserves applicable attendee names and attendee-detail records but clears dietary/allergy values because those values are Reception-specific. Operational confirmation remains required.
+A full decline stores the decline attendance state and clears named-invitee responses, per-allocation additional-guest responses, age-category totals, derived attending state, and `attendeeDetails`. Changing from Reception attendance to Ceremony-only preserves applicable attendee names and attendee-detail records but clears dietary/allergy values because those values are Reception-specific. Operational confirmation remains required.
 
 **Status:**
 Final
@@ -1592,7 +1670,7 @@ A first-time RSVP submission must create one current party-level response withou
 Required
 
 **Completion Test:**
-When no response exists for the invitation, the backend requires every substantive field made applicable by that invitation's authorized configuration and the guest's current selections. An attending response stores Ceremony/Reception selections, one response for every authorized named invitee, one response for every applicable named-invitee `Plus1` allocation, the four age-category totals, backend-derived `overallAttendance`, and exactly that many `attendeeDetails` records with required attendee names. Dietary/allergy values are accepted only when Reception is selected and may be blank. The response also stores the selected confirmation method and destination, any required transactional SMS authorization, timestamp, version, and client submission identifier.
+When no response exists for the invitation, the backend requires every substantive field made applicable by that invitation's authorized configuration and the guest's current selections. An attending response stores Ceremony/Reception selections, one response for every authorized named invitee, one response for every authorized additional-guest allocation, the four age-category totals, backend-derived `overallAttendance`, and exactly that many `attendeeDetails` records with required attendee names. Dietary/allergy values are accepted only when Reception is selected and may be blank. The response also stores the selected confirmation method and destination, any required transactional SMS authorization, timestamp, version, and client submission identifier.
 
 A full decline stores the decline attendance state with zero attending guests and no person-level attendance responses, age totals, attendee details, or dietary/allergy values. Conditionally inapplicable fields are not required, stored as fabricated answers, or accepted from the browser.
 
@@ -1682,7 +1760,7 @@ A protected administrative email confirmation must be attempted after every succ
 Required
 
 **Completion Test:**
-The administrative email identifies the invitation, states whether the action is new or revised, and contains the complete current RSVP. This includes Ceremony/Reception or decline status, every applicable named-invitee attendance response, each applicable named-invitee `Plus1` response, all four age-category totals and derived `overallAttendance` when attending, the complete attendee-name list when attending, dietary/allergy information when Reception is selected and supplied, guest confirmation method and destination, submission version, and timestamp.
+The administrative email identifies the invitation, states whether the action is new or revised, and contains the complete current RSVP. This includes Ceremony/Reception or decline status, every applicable named-invitee attendance response, each applicable additional-guest allocation response using its configured guest-facing prompt and any applicable grouped child count, all four age-category totals and derived `overallAttendance` when attending, the complete attendee-name list when attending, dietary/allergy information when Reception is selected and supplied, guest confirmation method and destination, submission version, and timestamp.
 
 The email does not invent or display fields that are not applicable to the invitation's current form configuration and attendance state.
 
@@ -1781,7 +1859,7 @@ After successful storage, the on-screen confirmation must display the complete c
 Required
 
 **Completion Test:**
-A successful submission displays the recorded Ceremony and Reception selections or decline status, every applicable named-invitee attendance response, each applicable named-invitee `Plus1` response, all four age-category totals and derived `overallAttendance` when attending, the complete attendee-name list when attending, dietary/allergy information when Reception is selected and supplied, whether the action was an initial submission or revision, submission timestamp, selected guest confirmation channel, guest-delivery status, and a limited administrative-attempt status.
+A successful submission displays the recorded Ceremony and Reception selections or decline status, every applicable named-invitee attendance response, each applicable additional-guest allocation response using its configured guest-facing prompt and any applicable grouped child count, all four age-category totals and derived `overallAttendance` when attending, the complete attendee-name list when attending, dietary/allergy information when Reception is selected and supplied, whether the action was an initial submission or revision, submission timestamp, selected guest confirmation channel, guest-delivery status, and a limited administrative-attempt status.
 
 The confirmation omits fields that are not applicable to the invitation's current form state and does not expose the administrative email address, private spreadsheet fields, administrative notes, provider credentials, internal identifiers, or another invitation record.
 
@@ -1963,7 +2041,7 @@ Final
 ### RSVP-054 — Named-Invitee `Plus1` Questions
 
 **Requirement:**
-Each source `Plus1` allocation must create one named-invitee Yes/No question.
+Each source `Plus1` allocation must create one named-invitee Yes/No question within the reusable additional-guest allocation mechanism.
 
 **Priority:**
 Required
@@ -2005,13 +2083,13 @@ Final
 ### RSVP-057 — Closed RSVP Question Set and Spreadsheet Parity
 
 **Requirement:**
-The substantive online RSVP questions must remain consistent with the authoritative invitation source together with the approved attendance-composition clarification.
+The substantive online RSVP questions must remain consistent with the authoritative invitation source together with the approved attendance-composition and unnamed-child clarifications.
 
 **Priority:**
 Required
 
 **Completion Test:**
-The production form contains only the coordinated event-attendance triad, individual named-invitee Yes/No attendance decisions, authorized named-invitee `Plus1` Yes/No questions, four age-category dials describing the derived attending party, and repeating `Attendee Details` records equal in count to derived `overallAttendance`. Attendee name is always collected for an attending person; `Dietary or allergy information` appears only when Reception is selected. The form does not introduce accessibility, lodging, transportation, message-to-couple, or entrée-selection questions.
+The production form contains only the coordinated event-attendance triad, individual named-invitee Yes/No attendance decisions, authorized `Plus1` Yes/No questions, at most one grouped unnamed-children Yes/No-plus-count control when source-authorized, four age-category dials describing the derived attending party, and repeating `Attendee Details` records equal in count to derived `overallAttendance`. Attendee name is always collected for an attending person; `Dietary or allergy information` appears only when Reception is selected. The form does not introduce accessibility, lodging, transportation, message-to-couple, entrée-selection, or a separate child-specific substantive response region.
 
 The separately required confirmation method, confirmation destination, and any applicable SMS authorization remain operational online fields.
 
@@ -2061,7 +2139,7 @@ Required
 **Completion Test:**
 Omitted substantive fields remain unchanged when they remain applicable. Explicit zero remains a valid age-total replacement. Full decline automatically clears person-level attendance responses, age totals, and attendee details. Removing Reception while continuing to attend clears only dietary/allergy values and preserves attendee names.
 
-If a revision changes which named invitees or authorized `Plus1` guests are attending, the complete `attendeeDetails` list must be replaced even when the derived numeric `overallAttendance` remains unchanged. If the attending composition remains unchanged and `attendeeDetails` is omitted, the stored list remains unchanged subject to Reception-specific dietary clearing. The complete merged age totals must always equal the newly derived `overallAttendance` before storage.
+If a revision changes which named invitees or authorized additional guests are attending, the complete `attendeeDetails` list must be replaced even when the derived numeric `overallAttendance` remains unchanged. If the attending composition remains unchanged and `attendeeDetails` is omitted, the stored list remains unchanged subject to Reception-specific dietary clearing. The complete merged age totals must always equal the newly derived `overallAttendance` before storage.
 
 **Status:**
 Final
@@ -2091,7 +2169,7 @@ Every guest confirmation and administrative confirmation must contain the comple
 Required
 
 **Completion Test:**
-The confirmation contains the current attendance or decline status, every applicable named-invitee attendance response, each applicable named-invitee `Plus1` response, all four age-category totals and derived `overallAttendance` when attending, the complete attendee-name list when attending, dietary/allergy information when Reception is selected and supplied, timestamp, revision status, and assistance information. A revision confirmation does not contain only the fields changed in that submission.
+The confirmation contains the current attendance or decline status, every applicable named-invitee attendance response, each applicable additional-guest allocation response and any applicable grouped child count, all four age-category totals and derived `overallAttendance` when attending, the complete attendee-name list when attending, dietary/allergy information when Reception is selected and supplied, timestamp, revision status, and assistance information. A revision confirmation does not contain only the fields changed in that submission.
 
 **Status:**
 Superseded
@@ -2115,16 +2193,24 @@ Final
 
 ---
 
-### RSVP-064 — Authorized `Plus1` Allocation Attendance
+### RSVP-064 — Authorized Additional-Guest Allocation Attendance
 
 **Requirement:**
-Each invitation configuration must store the count and named-invitee mapping of its authorized `Plus1` allocations.
+Each invitation configuration must represent source-authorized attendance capacity whose attendee names are unknown at invitation time through `additionalGuestAllocations`. Allocation objects are authorization/control units and may represent either one person or grouped child capacity.
 
 **Priority:**
 Required
 
 **Completion Test:**
-Zero allocations produce no `Plus1` question. Each allocation produces a separate Yes/No response keyed by a stable non-name allocation identifier and labeled `Will [Named Invitee] be accompanied by a +1?`. Unknown, duplicate, or cross-party allocation IDs and missing newly applicable allocation responses are rejected. A Yes response contributes one person to derived `overallAttendance`. The allocation question itself never requests the additional guest's own name; an attending additional guest's name is supplied through the ordinary `attendeeDetails` list.
+Each allocation contains a stable opaque id, safe kind, reviewed prompt, and positive whole-number `maximumCount`.
+
+A `kind: "plus1"` allocation has `maximumCount: 1`, is labeled `Will [Named Invitee] be accompanied by a +1?`, and uses a canonical `"yes"` or `"no"` value in `additionalGuestResponses`. A `Plus1` Yes contributes one person to derived `overallAttendance`; a grouped unnamed-children Yes contributes its validated selected count.
+
+A `kind: "unnamedChildren"` allocation exists at most once per invitation and only when reconciled source data leaves positive unnamed-child capacity authorized by `Kids(n)`. Its `maximumCount` equals that reconciled capacity. It renders the approved family-level Yes/No question. Yes requires an integer count from `1` through `maximumCount`; No uses count `0`. Its canonical response is `{ "attending": "yes", "count": k }` or `{ "attending": "no", "count": 0 }`, and the validated count rather than the allocation-object count contributes to `overallAttendance`.
+
+Unknown, duplicate, cross-party, wrong-kind, malformed, over-capacity, or missing newly applicable allocation responses are rejected. Allocation questions never request the additional person's own name. Actual names for every attending Plus1 or unnamed child are supplied later through the ordinary `attendeeDetails` list.
+
+The configuration capacity invariant is `namedInvitees.length + sum(additionalGuestAllocations.maximumCount) === maximumAttendance`.
 
 **Status:**
 Final
@@ -2132,13 +2218,19 @@ Final
 ### RSVP-065 — Spreadsheet-Authoritative Question Structure
 
 **Requirement:**
-All active production invitations use the same reusable substantive form structure defined from the authoritative `Invitees List` and the later approved attendance-composition clarification.
+All active production invitations use the same reusable substantive form structure defined from the authoritative `Invitees List` and the later approved attendance-composition, unnamed-child, and grouped-child clarifications.
 
 **Priority:**
 Required
 
 **Completion Test:**
-Every active invitation supports the coordinated event-attendance triad, individual named-invitee attendance decisions, attendance totals, and `Attendee Details`. `Plus1` questions appear only for authorized source allocations and are labeled per associated named invitee. `overallAttendance` is derived from named-invitee and `Plus1` Yes responses; the four age-category totals must equal that count. Attendee details exist for all attending event combinations, while dietary/allergy fields exist only when Reception is selected. The current architecture uses one production substantive form structure rather than separate production question profiles.
+Every active invitation supports the coordinated event-attendance triad, individual named-invitee attendance decisions, authorized additional-guest allocation decisions, attendance totals, and `Attendee Details`.
+
+`Plus1` questions appear only for authorized source `Plus1` allocations and are labeled per associated named invitee. A source row with positive reconciled unnamed-child capacity produces one grouped family-level child question rather than one question per child. Answering Yes to that grouped question makes the authorized 1-through-`maximumCount` selector applicable.
+
+`overallAttendance` is derived from named-invitee Yes responses, Plus1 Yes responses, and the grouped child attending count. The four age-category totals must equal that derived number exactly. Attendee details exist for all attending event combinations, while dietary/allergy fields exist only when Reception is selected.
+
+The current architecture uses one production substantive form structure rather than separate production question profiles, and the grouped-child interaction remains within `additionalGuestResponses` rather than creating a child-specific substantive region.
 
 Every online initial submission and revision still requires the separate operational confirmation method, applicable destination, and any required transactional SMS authorization.
 
@@ -2164,15 +2256,29 @@ Final
 ### RSVP-067 — Invitees List Configuration Mapping
 
 **Requirement:**
-The private production transformation must reproduce the authoritative spreadsheet's row-level heading, wording, maximum-attendance, named-invitee roster, and `Plus1` allocation semantics required by the approved attendance model.
+The private production transformation must reproduce the authoritative spreadsheet's row-level heading, wording, maximum-attendance, specifically named roster, `Plus1` semantics, and source-authorized grouped unnamed-child semantics required by the approved attendance model.
 
 **Priority:**
 Required
 
 **Completion Test:**
-The transformation maps Guest ID to `inviteCode`; Column G to `partyDisplayName` when present or otherwise combines Columns C and D; Column I to `wordingMode`; Column F to `maximumAttendance`; the reviewed non-`Plus1` potential attendees represented by the private source to `namedInvitees` with stable opaque IDs and approved display names; and Column E to the named `additionalGuestAllocations` needed to render one question per allocation.
+The transformation maps Guest ID to `inviteCode`; Column G to `partyDisplayName` when present or otherwise derives the heading from Columns C and D; Column I to `wordingMode`; Column F to `maximumAttendance`; and each parallel C/D name pair to a `namedInvitees` record with a stable opaque ID and approved display name.
 
-The produced configuration must satisfy `namedInvitees.length + additionalGuestAllocations.length === maximumAttendance`. The transformation rejects malformed codes, duplicate normalized keys, unsupported wording values, invalid maximum attendance, ambiguous or incomplete named-invitee roster data, duplicate/invalid invitee IDs, malformed or ambiguous `Plus1` allocation text, duplicate/invalid allocation IDs, a roster/allocation count inconsistent with the maximum, or ambiguous party-display data. It must fail for private review rather than infer an unidentified person from the numeric maximum alone.
+Each Column-E `Plus1` occurrence becomes one `kind: "plus1"` additional-guest allocation with `maximumCount: 1`.
+
+The transformation then derives:
+
+`unnamedChildCapacity = maximumAttendance - namedInvitees.length - plus1Count`
+
+When the residual is positive and explicitly supported by `Kids(n)`, the transformation creates one `kind: "unnamedChildren"` grouped allocation with `maximumCount: unnamedChildCapacity`. It does not create one allocation object per child. A named child already represented in C/D is never duplicated into this grouped capacity.
+
+The produced configuration must satisfy:
+
+`namedInvitees.length + sum(additionalGuestAllocations.maximumCount) === maximumAttendance`
+
+The transformation rejects malformed codes, duplicate normalized keys, unsupported wording values, invalid maximum attendance, unequal or ambiguous C/D name lists, duplicate/invalid invitee IDs, malformed or ambiguous `Plus1` text, duplicate/invalid allocation IDs, unsupported allocation kinds or maximum counts, an unnamed-child residual not authorized by `Kids(n)`, a total capacity inconsistent with the maximum, or ambiguous party-display data. It must fail for private review rather than infer unidentified attendance capacity from the numeric maximum alone.
+
+For the current authoritative source, the transformed audit must establish 84 named potential attendees, 26 Plus1 allocation objects/capacity, two grouped unnamed-child allocation objects carrying five total child slots, 28 total additional-allocation objects, 31 total additional-guest capacity, and 115 combined maximum-attendance capacity.
 
 **Status:**
 Final
@@ -2186,14 +2292,12 @@ Every guest and administrative confirmation must contain the complete current RS
 Required
 
 **Completion Test:**
-Every confirmation includes current Ceremony/Reception selections or decline status, every applicable named-invitee attendance response, each applicable named-invitee `Plus1` response, all four age-category totals and derived `overallAttendance` when attending, the complete attendee-name list when attending, and dietary/allergy information when Reception is selected and supplied, plus timestamp, revision status, and assistance information.
+Every confirmation includes current Ceremony/Reception selections or decline status, every applicable named-invitee attendance response, each applicable additional-guest allocation response using its configured guest-facing prompt, and—for a grouped unnamed-children allocation—the recorded attending child count when the family answered Yes. It also includes all four age-category totals and derived `overallAttendance` when attending, the complete attendee-name list when attending, and dietary/allergy information when Reception is selected and supplied, plus timestamp, revision status, and assistance information.
 
 A revision confirmation contains the complete merged current RSVP rather than only the fields changed in that submission.
 
 **Status:**
 Final
-
-## CONTENT Requirements
 
 ### CONTENT-001 — Wedding Homepage
 
@@ -2871,9 +2975,9 @@ The private Google Sheets workbook must serve as the initial administrative inte
 Required
 
 **Completion Test:**
-The couple can review and maintain invitation records, wording mode, maximum attendance, authorized named-invitee rosters, `Plus1` allocation configuration, question structure, event selections or decline status, each applicable named-invitee attendance response, each applicable named-invitee `Plus1` response, age-category and derived overall attendance totals, attendee-name lists, Reception-specific dietary/allergy values, guest confirmation methods, destinations, authorization states, client submission identifiers, timestamps, versions, merged current responses, and separate per-channel delivery statuses through the private workbook.
+The couple can review and maintain invitation records, wording mode, maximum attendance, authorized named-invitee rosters, additional-guest allocation configuration, question structure, event selections or decline status, each applicable named-invitee attendance response, each applicable additional-guest allocation response, age-category and derived overall attendance totals, attendee-name lists, Reception-specific dietary/allergy values, guest confirmation methods, destinations, authorization states, client submission identifiers, timestamps, versions, merged current responses, and separate per-channel delivery statuses through the private workbook.
 
-The workbook distinguishes inapplicable conditional fields from unanswered applicable fields, including named-invitee attendance responses, `Plus1` allocations, attendee details, and Reception-specific dietary/allergy values.
+The workbook distinguishes inapplicable conditional fields from unanswered applicable fields, including named-invitee attendance responses, additional-guest allocations, attendee details, and Reception-specific dietary/allergy values.
 
 **Status:**
 Final
@@ -3305,9 +3409,9 @@ One invited party must never receive another invited party’s personalized info
 Required
 
 **Completion Test:**
-A valid invitation-code lookup returns only the configuration needed for that party’s blank form, including its greeting, singular or plural wording, limited authorized named-invitee display roster with opaque identifiers, `Plus1` allocation configuration, permitted party maximum, question structure, and approved questions. It does not return the party’s stored answers or confirmation destinations and does not reveal another invitation record.
+A valid invitation-code lookup returns only the configuration needed for that party’s blank form, including its greeting, singular or plural wording, limited authorized named-invitee display roster with opaque identifiers, authorized additional-guest allocation prompts with opaque identifiers, permitted party maximum, question structure, and approved questions. It does not return the party’s stored answers or confirmation destinations and does not reveal another invitation record.
 
-Testing confirms that changing submitted invitation codes, question identifiers, named-invitee identifiers or values, `Plus1` allocation identifiers or values, attendee-detail structures, or invitation-configuration fields cannot retrieve or authorize another party’s information.
+Testing confirms that changing submitted invitation codes, question identifiers, named-invitee identifiers or values, additional-guest allocation identifiers or values, attendee-detail structures, or invitation-configuration fields cannot retrieve or authorize another party’s information.
 
 **Status:**
 Final
@@ -3417,7 +3521,7 @@ Required
 **Completion Test:**
 `/wedding/rsvp/` and `/wedding/rsvp/confirmation` use appropriate page-level crawler directives and production server no-index behavior. `/wedding/not-found` and unmatched wedding routes are likewise excluded.
 
-No invitation code, guest identity, RSVP answer, confirmation destination, invitation-specific form-configuration detail, `Plus1` allocation configuration, or other personalized value appears in page titles, descriptions, canonical URLs, structured data, social-preview data, or other crawler-visible metadata.
+No invitation code, guest identity, RSVP answer, confirmation destination, invitation-specific form-configuration detail, additional-guest allocation configuration, or other personalized value appears in page titles, descriptions, canonical URLs, structured data, social-preview data, or other crawler-visible metadata.
 
 The public `/wedding/privacy` page remains indexable.
 
@@ -3435,7 +3539,7 @@ The on-screen RSVP confirmation must display the complete current guest-facing R
 Required
 
 **Completion Test:**
-The confirmation page may display event selections or decline status, each applicable named-invitee attendance response, each applicable named-invitee `Plus1` response, all four age-category totals and derived overall attendance when attending, the complete attendee-name list when attending, dietary/allergy information when Reception is selected and supplied, whether the action was an initial submission or revision, selected confirmation method, submission time, revision instructions, guest-delivery status, and a limited administrative-attempt status.
+The confirmation page may display event selections or decline status, each applicable named-invitee attendance response, each applicable additional-guest allocation response and any applicable grouped child count, all four age-category totals and derived overall attendance when attending, the complete attendee-name list when attending, dietary/allergy information when Reception is selected and supplied, whether the action was an initial submission or revision, selected confirmation method, submission time, revision instructions, guest-delivery status, and a limited administrative-attempt status.
 
 It omits fields that are not applicable to the invitation’s current form state and does not display the protected administrative address, spreadsheet row numbers, internal identifiers, administrative notes, provider credentials, unrelated party data, or other private backend information.
 
@@ -3553,7 +3657,7 @@ Analytics instrumentation must not receive personalized RSVP or invitation data.
 Required
 
 **Completion Test:**
-Analytics payloads contain none of the following: invitation codes, guest/party identities derived from invitation records, named-invitee rosters or attendance responses, RSVP answers, attendee names, dietary/allergy information, email addresses, mobile numbers, confirmation destinations, `clientSubmissionId` values, invitation-specific form-configuration details, `Plus1` allocation configurations, RSVP versions, or delivery-provider payloads.
+Analytics payloads contain none of the following: invitation codes, guest/party identities derived from invitation records, named-invitee rosters or attendance responses, RSVP answers, attendee names, dietary/allergy information, email addresses, mobile numbers, confirmation destinations, `clientSubmissionId` values, invitation-specific form-configuration details, additional-guest allocation configurations, RSVP versions, or delivery-provider payloads.
 
 If analytics are present on RSVP or confirmation routes, they are limited to non-personalized aggregate event names and are not required for RSVP operation.
 
@@ -4389,7 +4493,7 @@ Conditional RSVP behavior must be represented through reusable rules rather than
 Required
 
 **Completion Test:**
-Reusable configuration controls singular or plural wording, the authorized `namedInvitees` roster, `Plus1` allocation configuration and control type, mutual exclusivity between event attendance and full decline, person-level attendance authorization, derived `overallAttendance`, age-total equality, attendee-detail cardinality, and Reception-specific dietary applicability.
+Reusable configuration controls singular or plural wording, the authorized `namedInvitees` roster, additional-guest allocation configuration and prompt type, mutual exclusivity between event attendance and full decline, person-level attendance authorization, derived `overallAttendance`, age-total equality, attendee-detail cardinality, and Reception-specific dietary applicability.
 
 The single production question structure is driven by reusable configuration and dependency rules rather than separately coded invitation-specific components. No accessibility, travel, message-to-couple, or entrée-selection question is introduced through invitation-specific component logic.
 

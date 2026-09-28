@@ -20,16 +20,72 @@ const {
   createFakeSheetsClient,
 } = require("./helpers/fakeGoogleSheets");
 
+function makeStoredRsvp({
+  version,
+  eventAttendance = [
+    "ceremony",
+  ],
+} = {}) {
+  const includesReception =
+    eventAttendance.includes(
+      "reception",
+    );
+
+  return {
+    version,
+    eventAttendance,
+    namedInviteeResponses: {
+      "invitee-dev001-a":
+        "yes",
+    },
+    attendanceTotals: {
+      adults21Plus: 1,
+      youngAdults18To20: 0,
+      children3To17: 0,
+      childrenUnder3: 0,
+    },
+    overallAttendance: 1,
+    attendeeDetails: [
+      {
+        attendeeName:
+          "Example Guest",
+        ...(includesReception
+          ? {
+              dietaryPreferences:
+                "Vegetarian",
+            }
+          : {}),
+      },
+    ],
+  };
+}
+
 async function createInitializedStore() {
   const fake =
     createFakeSheetsClient();
 
   const invitation = {
     inviteCode: "DEV001",
+    inviteCodeDisplay:
+      "DEV-001",
     partyId:
       "party-dev-example",
     partyDisplayName:
       "Example Guest",
+    greeting:
+      "Welcome, Example Guest!",
+    wordingMode: "singular",
+    maximumAttendance: 1,
+    namedInvitees: [
+      {
+        id:
+          "invitee-dev001-a",
+        displayName:
+          "Example Guest",
+      },
+    ],
+    additionalGuestAllocations:
+      [],
     active: true,
     environment: "development",
   };
@@ -75,7 +131,7 @@ test(
 );
 
 test(
-  "Google Sheets store reads private invitation configuration and preserves current/version separation",
+  "Google Sheets store round-trips corrected person-level RSVP state while preserving current/version separation",
   async () => {
     const {
       store,
@@ -106,75 +162,108 @@ test(
       null,
     );
 
+    const initialRsvp =
+      makeStoredRsvp({
+        version: 1,
+        eventAttendance: [
+          "ceremony",
+        ],
+      });
+    const revisedRsvp =
+      makeStoredRsvp({
+        version: 2,
+        eventAttendance: [
+          "ceremony",
+          "reception",
+        ],
+      });
+
     await store.appendRsvpVersion(
       invitation.partyId,
       {
         action: "initial",
-        version: 1,
         recordedAt:
           "2026-09-20T19:00:00.000Z",
-        eventAttendance: [
-          "ceremony",
-        ],
+        ...initialRsvp,
       },
     );
 
     await store.replaceCurrentRsvp(
       invitation.partyId,
-      {
-        version: 1,
-        eventAttendance: [
-          "ceremony",
-        ],
-      },
+      initialRsvp,
     );
 
     await store.appendRsvpVersion(
       invitation.partyId,
       {
         action: "revision",
-        version: 2,
         recordedAt:
           "2026-09-20T19:05:00.000Z",
-        eventAttendance: [
-          "reception",
-        ],
+        ...revisedRsvp,
       },
     );
 
     await store.replaceCurrentRsvp(
       invitation.partyId,
-      {
-        version: 2,
-        eventAttendance: [
-          "reception",
-        ],
-      },
+      revisedRsvp,
     );
 
     assert.deepEqual(
       await store.getCurrentRsvp(
         invitation.partyId,
       ),
-      {
-        version: 2,
-        eventAttendance: [
-          "reception",
-        ],
-      },
+      revisedRsvp,
     );
 
+    const versions =
+      await store
+        .listRsvpVersions(
+          invitation.partyId,
+        );
+
     assert.deepEqual(
-      (
-        await store
-          .listRsvpVersions(
-            invitation.partyId,
-          )
-      ).map(
+      versions.map(
         (record) =>
           record.version,
       ),
       [1, 2],
+    );
+
+    assert.deepEqual(
+      versions[0]
+        .namedInviteeResponses,
+      {
+        "invitee-dev001-a":
+          "yes",
+      },
+    );
+    assert.equal(
+      versions[0]
+        .overallAttendance,
+      1,
+    );
+    assert.deepEqual(
+      versions[0]
+        .attendeeDetails,
+      [
+        {
+          attendeeName:
+            "Example Guest",
+        },
+      ],
+    );
+
+    assert.deepEqual(
+      versions[1]
+        .attendeeDetails,
+      [
+        {
+          attendeeName:
+            "Example Guest",
+          dietaryPreferences:
+            "Vegetarian",
+        },
+      ],
     );
   },
 );
@@ -303,12 +392,10 @@ test(
     } =
       await createInitializedStore();
 
-    const currentRsvp = {
-      version: 1,
-      eventAttendance: [
-        "ceremony",
-      ],
-    };
+    const currentRsvp =
+      makeStoredRsvp({
+        version: 1,
+      });
     const versionRecord = {
       action: "initial",
       mutationId:
@@ -376,12 +463,10 @@ test(
     } =
       await createInitializedStore();
 
-    const currentRsvp = {
-      version: 1,
-      eventAttendance: [
-        "ceremony",
-      ],
-    };
+    const currentRsvp =
+      makeStoredRsvp({
+        version: 1,
+      });
 
     await store.appendRsvpVersion(
       invitation.partyId,

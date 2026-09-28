@@ -36,6 +36,9 @@ const {
   "./helpers/fakeGoogleSheets"
 );
 
+const GROUPED_CHILD_PROMPT =
+  "We'd love for your family to celebrate with us this Mayday - will your kid(s) be accompanying you?";
+
 async function createInitializedFake() {
   const fake =
     createFakeSheetsClient();
@@ -64,6 +67,24 @@ async function createInitializedFake() {
 function productionInvitation(
   inviteCode,
   partyId,
+  {
+    maximumAttendance = 2,
+    namedInvitees = [
+      {
+        id:
+          `invitee-${partyId}-a`,
+        displayName:
+          "Example Guest One",
+      },
+      {
+        id:
+          `invitee-${partyId}-b`,
+        displayName:
+          "Example Guest Two",
+      },
+    ],
+    additionalGuestAllocations = [],
+  } = {},
 ) {
   return {
     inviteCode,
@@ -76,10 +97,9 @@ function productionInvitation(
       "Example Party",
     wordingMode:
       "plural",
-    maximumAttendance:
-      2,
-    additionalGuestAllocations:
-      [],
+    maximumAttendance,
+    namedInvitees,
+    additionalGuestAllocations,
     active: true,
     environment:
       "production",
@@ -173,7 +193,7 @@ test(
 );
 
 test(
-  "production invitation verification requires an exact private source-to-workbook match",
+  "production invitation verification requires an exact private source-to-workbook match with safe named rosters",
   async () => {
     const {
       fake,
@@ -220,6 +240,31 @@ test(
       },
     );
 
+    const firstStored =
+      JSON.parse(
+        snapshot.sections
+          .Invitations[1][2],
+      );
+
+    assert.equal(
+      firstStored
+        .namedInvitees.length,
+      2,
+    );
+
+    assert.deepEqual(
+      firstStored
+        .additionalGuestAllocations,
+      [],
+    );
+
+    assert.equal(
+      firstStored
+        .namedInvitees.length,
+      firstStored
+        .maximumAttendance,
+    );
+
     const changed =
       JSON.parse(
         JSON.stringify(
@@ -238,6 +283,139 @@ test(
           expected,
         ),
       /configuration mismatch/,
+    );
+  },
+);
+
+test(
+  "production activation round trip preserves grouped-child allocation kind and person capacity",
+  async () => {
+    const {
+      fake,
+    } =
+      await createInitializedFake();
+
+    const expectedInvitation =
+      productionInvitation(
+        "GHI789",
+        "party-prod-children",
+        {
+          maximumAttendance: 3,
+          namedInvitees: [
+            {
+              id:
+                "invitee-prod-children-a",
+              displayName:
+                "Example Adult",
+            },
+          ],
+          additionalGuestAllocations: [
+            {
+              id:
+                "children-prod-children-a",
+              kind:
+                "unnamedChildren",
+              prompt:
+                GROUPED_CHILD_PROMPT,
+              maximumCount: 2,
+            },
+          ],
+        },
+      );
+
+    await replaceInvitationConfigurations({
+      sheets:
+        fake.sheets,
+      spreadsheetId:
+        "fictional-sheet",
+      invitations: [
+        expectedInvitation,
+      ],
+      expectedEnvironment:
+        "production",
+    });
+
+    const snapshot =
+      await readGoogleSheetsStoreSnapshot({
+        sheets:
+          fake.sheets,
+        spreadsheetId:
+          "fictional-sheet",
+      });
+
+    assert.deepEqual(
+      assertProductionInvitationsMatchExpected(
+        snapshot,
+        [expectedInvitation],
+      ),
+      {
+        invitationCount: 1,
+      },
+    );
+
+    const stored =
+      JSON.parse(
+        snapshot.sections
+          .Invitations[1][2],
+      );
+
+    assert.deepEqual(
+      stored.namedInvitees,
+      [
+        {
+          id:
+            "invitee-prod-children-a",
+          displayName:
+            "Example Adult",
+        },
+      ],
+    );
+
+    assert.deepEqual(
+      stored
+        .additionalGuestAllocations,
+      [
+        {
+          id:
+            "children-prod-children-a",
+          kind:
+            "unnamedChildren",
+          prompt:
+            GROUPED_CHILD_PROMPT,
+          maximumCount: 2,
+        },
+      ],
+    );
+
+    const allocationCapacity =
+      stored
+        .additionalGuestAllocations
+        .reduce(
+          (
+            total,
+            allocation,
+          ) =>
+            total +
+            allocation.maximumCount,
+          0,
+        );
+
+    assert.equal(
+      stored.namedInvitees.length +
+        allocationCapacity,
+      stored.maximumAttendance,
+    );
+
+    assert.equal(
+      stored
+        .additionalGuestAllocations
+        .length,
+      1,
+    );
+
+    assert.equal(
+      allocationCapacity,
+      2,
     );
   },
 );
@@ -374,7 +552,7 @@ test(
             fake.sheets,
           spreadsheetId:
             "fictional-sheet",
-      });
+        });
 
       assert.deepEqual(
         restored.sections[

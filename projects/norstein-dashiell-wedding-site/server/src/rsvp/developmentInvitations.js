@@ -12,6 +12,9 @@ const DEFAULT_DEVELOPMENT_FIXTURE_PATH =
     "../../../docs/rsvp-example-configurations.json",
   );
 
+const GROUPED_CHILD_PROMPT =
+  "We'd love for your family to celebrate with us this Mayday - will your kid(s) be accompanying you?";
+
 const namedInviteeSchema = z
   .object({
     id: z
@@ -27,23 +30,90 @@ const namedInviteeSchema = z
   })
   .strict();
 
+const plusOneAllocationPromptPattern =
+  /^Will .+ be accompanied by a \+1\?$/;
+
 const additionalGuestAllocationSchema = z
   .object({
     id: z
       .string()
       .regex(
-        /^plus1-[a-z0-9]+(?:-[a-z0-9]+)*$/,
+        /^(?:plus1|allocation|children)-[a-z0-9]+(?:-[a-z0-9]+)*$/,
       ),
+
+    kind: z.enum([
+      "plus1",
+      "unnamedChildren",
+    ]),
 
     prompt: z
       .string()
       .min(1)
-      .max(200)
-      .regex(
-        /^Will .+ be accompanied by a \+1\?$/,
-      ),
+      .max(200),
+
+    maximumCount: z
+      .number()
+      .int()
+      .positive(),
   })
-  .strict();
+  .strict()
+  .superRefine((allocation, context) => {
+    if (allocation.kind === "plus1") {
+      if (!allocation.id.startsWith("plus1-")) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["id"],
+          message:
+            "Plus1 allocation IDs must use the plus1- prefix.",
+        });
+      }
+
+      if (allocation.maximumCount !== 1) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["maximumCount"],
+          message:
+            "Plus1 allocations must have maximumCount 1.",
+        });
+      }
+
+      if (
+        !plusOneAllocationPromptPattern.test(
+          allocation.prompt,
+        )
+      ) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["prompt"],
+          message:
+            "Plus1 allocation prompts must use the approved Plus1 question wording.",
+        });
+      }
+
+      return;
+    }
+
+    if (
+      !allocation.id.startsWith("allocation-") &&
+      !allocation.id.startsWith("children-")
+    ) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["id"],
+        message:
+          "Grouped unnamed-children allocation IDs must use the allocation- or children- prefix.",
+      });
+    }
+
+    if (allocation.prompt !== GROUPED_CHILD_PROMPT) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["prompt"],
+        message:
+          "Grouped unnamed-children allocations must use the approved family-level question wording.",
+      });
+    }
+  });
 
 const invitationFixtureSchema = z
   .object({
@@ -111,6 +181,8 @@ const invitationFixtureSchema = z
     }
 
     const allocationIds = new Set();
+    let groupedUnnamedChildrenCount = 0;
+    let additionalGuestCapacity = 0;
 
     for (
       let index = 0;
@@ -135,18 +207,43 @@ const invitationFixtureSchema = z
       }
 
       allocationIds.add(allocation.id);
+
+      additionalGuestCapacity +=
+        allocation.maximumCount;
+
+      if (
+        allocation.kind ===
+        "unnamedChildren"
+      ) {
+        groupedUnnamedChildrenCount += 1;
+
+        if (
+          groupedUnnamedChildrenCount > 1
+        ) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: [
+              "additionalGuestAllocations",
+              index,
+              "kind",
+            ],
+            message:
+              "An invitation may contain at most one grouped unnamed-children allocation.",
+          });
+        }
+      }
     }
 
     if (
       fixture.namedInvitees.length +
-        fixture.additionalGuestAllocations.length !==
+        additionalGuestCapacity !==
       fixture.maximumAttendance
     ) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["maximumAttendance"],
         message:
-          "namedInvitees plus additionalGuestAllocations must equal maximumAttendance",
+          "namedInvitees plus summed additionalGuestAllocations.maximumCount must equal maximumAttendance",
       });
     }
   });
@@ -157,7 +254,7 @@ const invitationFixtureRegistrySchema =
 function validateFixtureSemantics(fixtures) {
   const canonicalCodes = new Set();
   const partyIds = new Set();
-  const personSlotIds = new Set();
+  const configurationIds = new Set();
 
   for (
     let index = 0;
@@ -209,26 +306,32 @@ function validateFixtureSemantics(fixtures) {
       const invitee of
       fixture.namedInvitees
     ) {
-      if (personSlotIds.has(invitee.id)) {
+      if (configurationIds.has(invitee.id)) {
         throw new Error(
-          `Development invitation fixture ${index} duplicates an attendee-slot identifier.`,
+          `Development invitation fixture ${index} duplicates an invitee/allocation identifier.`,
         );
       }
 
-      personSlotIds.add(invitee.id);
+      configurationIds.add(invitee.id);
     }
 
     for (
       const allocation of
       fixture.additionalGuestAllocations
     ) {
-      if (personSlotIds.has(allocation.id)) {
+      if (
+        configurationIds.has(
+          allocation.id,
+        )
+      ) {
         throw new Error(
-          `Development invitation fixture ${index} duplicates an attendee-slot identifier.`,
+          `Development invitation fixture ${index} duplicates an invitee/allocation identifier.`,
         );
       }
 
-      personSlotIds.add(allocation.id);
+      configurationIds.add(
+        allocation.id,
+      );
     }
   }
 }

@@ -138,9 +138,10 @@ test(
           ),
           [
             "eventAttendance",
+            "namedInviteeResponses",
             "additionalGuestResponses",
             "attendanceTotals",
-            "receptionAttendeeDetails",
+            "attendeeDetails",
             "confirmationMethod",
             "confirmationEmail",
             "confirmationMobile",
@@ -182,6 +183,7 @@ test(
           response.status,
           200,
         );
+
         assert.deepEqual(
           Object.keys(
             payload.invitation,
@@ -191,11 +193,42 @@ test(
             "greeting",
             "wordingMode",
             "maximumAttendance",
+            "namedInvitees",
             "additionalGuestAllocations",
             "deadline",
             "timeZone",
           ],
         );
+
+        assert.deepEqual(
+          payload.invitation
+            .namedInvitees
+            .map(
+              (invitee) =>
+                invitee.id,
+            ),
+          [
+            "invitee-dev009-a",
+            "invitee-dev009-b",
+            "invitee-dev009-c",
+            "invitee-dev009-d",
+          ],
+        );
+
+        for (
+          const invitee of
+          payload.invitation
+            .namedInvitees
+        ) {
+          assert.deepEqual(
+            Object.keys(invitee),
+            [
+              "id",
+              "displayName",
+            ],
+          );
+        }
+
         assert.deepEqual(
           payload.invitation
             .additionalGuestAllocations
@@ -208,6 +241,183 @@ test(
             "plus1-dev009-b",
             "plus1-dev009-c",
           ],
+        );
+
+        for (
+          const allocation of
+          payload.invitation
+            .additionalGuestAllocations
+        ) {
+          assert.deepEqual(
+            Object.keys(
+              allocation,
+            ),
+            [
+              "id",
+              "kind",
+              "prompt",
+              "maximumCount",
+            ],
+          );
+
+          assert.equal(
+            allocation.kind,
+            "plus1",
+          );
+
+          assert.equal(
+            allocation.maximumCount,
+            1,
+          );
+        }
+
+        assert.equal(
+          Object.hasOwn(
+            payload.invitation,
+            "partyId",
+          ),
+          false,
+        );
+        assert.equal(
+          Object.hasOwn(
+            payload.invitation,
+            "inviteCode",
+          ),
+          false,
+        );
+        assert.equal(
+          Object.hasOwn(
+            payload.invitation,
+            "inviteCodeDisplay",
+          ),
+          false,
+        );
+        assert.equal(
+          Object.hasOwn(
+            payload.invitation,
+            "active",
+          ),
+          false,
+        );
+        assert.equal(
+          Object.hasOwn(
+            payload.invitation,
+            "environment",
+          ),
+          false,
+        );
+      },
+    );
+  },
+);
+
+test(
+  "lookup returns the grouped unnamed-children allocation with only approved safe metadata",
+  async () => {
+    await withTestServer(
+      standardOptions(),
+      async (baseUrl) => {
+        const {
+          response,
+          payload,
+        } = await lookup(
+          baseUrl,
+          {
+            inviteCode:
+              "DEV-002",
+          },
+        );
+
+        assert.equal(
+          response.status,
+          200,
+        );
+
+        assert.equal(
+          payload.invitation
+            .maximumAttendance,
+          5,
+        );
+
+        assert.equal(
+          payload.invitation
+            .namedInvitees.length,
+          3,
+        );
+
+        assert.deepEqual(
+          payload.invitation
+            .additionalGuestAllocations,
+          [
+            {
+              id:
+                "allocation-dev002-a",
+              kind:
+                "unnamedChildren",
+              prompt:
+                "We'd love for your family to celebrate with us this Mayday - will your kid(s) be accompanying you?",
+              maximumCount: 2,
+            },
+          ],
+        );
+
+        assert.equal(
+          payload.invitation
+            .namedInvitees.length +
+            payload.invitation
+              .additionalGuestAllocations
+              .reduce(
+                (
+                  total,
+                  allocation,
+                ) =>
+                  total +
+                  allocation
+                    .maximumCount,
+                0,
+              ),
+          payload.invitation
+            .maximumAttendance,
+        );
+
+        const allocation =
+          payload.invitation
+            .additionalGuestAllocations[0];
+
+        assert.deepEqual(
+          Object.keys(
+            allocation,
+          ),
+          [
+            "id",
+            "kind",
+            "prompt",
+            "maximumCount",
+          ],
+        );
+
+        assert.equal(
+          Object.hasOwn(
+            allocation,
+            "source",
+          ),
+          false,
+        );
+
+        assert.equal(
+          Object.hasOwn(
+            allocation,
+            "rawKids",
+          ),
+          false,
+        );
+
+        assert.equal(
+          Object.hasOwn(
+            allocation,
+            "sourceRow",
+          ),
+          false,
         );
       },
     );
@@ -484,7 +694,7 @@ test(
 );
 
 test(
-  "Plus1 variation remains invitation configuration rather than schema variation",
+  "named-invitee, Plus1, and grouped-child variation remains invitation configuration rather than schema variation",
   async () => {
     await withTestServer(
       standardOptions(),
@@ -498,7 +708,16 @@ test(
             },
           );
 
-        const oneAllocation =
+        const groupedChildren =
+          await lookup(
+            baseUrl,
+            {
+              inviteCode:
+                "DEV-002",
+            },
+          );
+
+        const onePlusOne =
           await lookup(
             baseUrl,
             {
@@ -507,7 +726,7 @@ test(
             },
           );
 
-        const multipleAllocations =
+        const multiplePlusOnes =
           await lookup(
             baseUrl,
             {
@@ -516,49 +735,137 @@ test(
             },
           );
 
-        assert.equal(
-          noAllocation.response.status,
-          200,
-        );
-        assert.equal(
-          oneAllocation.response.status,
-          200,
-        );
-        assert.equal(
-          multipleAllocations.response.status,
-          200,
+        for (
+          const result of [
+            noAllocation,
+            groupedChildren,
+            onePlusOne,
+            multiplePlusOnes,
+          ]
+        ) {
+          assert.equal(
+            result.response.status,
+            200,
+          );
+        }
+
+        assert.deepEqual(
+          noAllocation
+            .payload.questions,
+          groupedChildren
+            .payload.questions,
         );
 
         assert.deepEqual(
-          noAllocation.payload.questions,
-          oneAllocation.payload.questions,
+          groupedChildren
+            .payload.questions,
+          onePlusOne
+            .payload.questions,
         );
+
         assert.deepEqual(
-          oneAllocation.payload.questions,
-          multipleAllocations.payload.questions,
+          onePlusOne
+            .payload.questions,
+          multiplePlusOnes
+            .payload.questions,
         );
 
         assert.equal(
-          noAllocation.payload.invitation
+          noAllocation
+            .payload.invitation
+            .namedInvitees.length,
+          1,
+        );
+
+        assert.equal(
+          groupedChildren
+            .payload.invitation
+            .namedInvitees.length,
+          3,
+        );
+
+        assert.equal(
+          onePlusOne
+            .payload.invitation
+            .namedInvitees.length,
+          1,
+        );
+
+        assert.equal(
+          multiplePlusOnes
+            .payload.invitation
+            .namedInvitees.length,
+          4,
+        );
+
+        assert.equal(
+          noAllocation
+            .payload.invitation
             .additionalGuestAllocations
             .length,
           0,
         );
-        assert.equal(
-          oneAllocation.payload.invitation
-            .additionalGuestAllocations
-            .length,
-          1,
+
+        assert.deepEqual(
+          groupedChildren
+            .payload.invitation
+            .additionalGuestAllocations,
+          [
+            {
+              id:
+                "allocation-dev002-a",
+              kind:
+                "unnamedChildren",
+              prompt:
+                "We'd love for your family to celebrate with us this Mayday - will your kid(s) be accompanying you?",
+              maximumCount: 2,
+            },
+          ],
         );
+
+        assert.deepEqual(
+          onePlusOne
+            .payload.invitation
+            .additionalGuestAllocations,
+          [
+            {
+              id:
+                "plus1-dev003-a",
+              kind:
+                "plus1",
+              prompt:
+                "Will Example Guest be accompanied by a +1?",
+              maximumCount: 1,
+            },
+          ],
+        );
+
         assert.equal(
-          multipleAllocations.payload.invitation
+          multiplePlusOnes
+            .payload.invitation
             .additionalGuestAllocations
             .length,
           3,
         );
 
-        const plusOneQuestion =
-          noAllocation.payload.questions
+        const namedInviteeQuestion =
+          noAllocation
+            .payload.questions
+            .find(
+              (question) =>
+                question.id ===
+                "namedInviteeResponses",
+            );
+
+        assert.equal(
+          namedInviteeQuestion
+            .repeatFromInvitationArray,
+          "invitation.namedInvitees",
+        );
+
+        const additionalGuestQuestion =
+          noAllocation
+            .payload.questions
             .find(
               (question) =>
                 question.id ===
@@ -566,9 +873,27 @@ test(
             );
 
         assert.equal(
-          plusOneQuestion
+          additionalGuestQuestion
             .repeatFromInvitationArray,
           "invitation.additionalGuestAllocations",
+        );
+
+        assert.equal(
+          additionalGuestQuestion
+            .type,
+          "repeated-allocation-dependent-control",
+        );
+
+        assert.deepEqual(
+          Object.keys(
+            additionalGuestQuestion
+              .instanceShape
+              .renderByKind,
+          ),
+          [
+            "plus1",
+            "unnamedChildren",
+          ],
         );
       },
     );

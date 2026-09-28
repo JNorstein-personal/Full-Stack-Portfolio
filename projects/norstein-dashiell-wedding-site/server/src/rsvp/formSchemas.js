@@ -10,9 +10,10 @@ const DEFAULT_FORM_SCHEMA_PATH =
 const EXPECTED_QUESTION_IDS =
   Object.freeze([
     "eventAttendance",
+    "namedInviteeResponses",
     "additionalGuestResponses",
     "attendanceTotals",
-    "receptionAttendeeDetails",
+    "attendeeDetails",
     "confirmationMethod",
     "confirmationEmail",
     "confirmationMobile",

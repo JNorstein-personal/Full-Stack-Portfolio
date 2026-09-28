@@ -143,6 +143,29 @@ function buildGuestRsvp(
 
   if (
     storedRsvp
+      .namedInviteeResponses
+  ) {
+    guestRsvp
+      .namedInviteeResponses =
+      invitation
+        .namedInvitees
+        .map(
+          (invitee) => ({
+            id: invitee.id,
+            displayName:
+              invitee
+                .displayName,
+            response:
+              storedRsvp
+                .namedInviteeResponses[
+                invitee.id
+              ],
+          }),
+        );
+  }
+
+  if (
+    storedRsvp
       .additionalGuestResponses
   ) {
     guestRsvp
@@ -150,16 +173,44 @@ function buildGuestRsvp(
       invitation
         .additionalGuestAllocations
         .map(
-          (allocation) => ({
-            id: allocation.id,
-            prompt:
-              allocation.prompt,
-            response:
+          (allocation) => {
+            const storedResponse =
               storedRsvp
                 .additionalGuestResponses[
                 allocation.id
-              ],
-          }),
+              ];
+
+            const response =
+              allocation.kind ===
+                "unnamedChildren" &&
+              storedResponse &&
+              typeof storedResponse ===
+                "object" &&
+              !Array.isArray(
+                storedResponse,
+              )
+                ? {
+                    attending:
+                      storedResponse
+                        .attending,
+                    count:
+                      storedResponse
+                        .count,
+                  }
+                : storedResponse;
+
+            return {
+              id: allocation.id,
+              kind:
+                allocation.kind,
+              prompt:
+                allocation.prompt,
+              maximumCount:
+                allocation
+                  .maximumCount,
+              response,
+            };
+          },
         );
   }
 
@@ -177,12 +228,11 @@ function buildGuestRsvp(
 
   if (
     storedRsvp
-      .receptionAttendeeDetails
+      .attendeeDetails
   ) {
-    guestRsvp
-      .receptionAttendeeDetails =
+    guestRsvp.attendeeDetails =
       storedRsvp
-        .receptionAttendeeDetails;
+        .attendeeDetails;
   }
 
   return guestRsvp;

@@ -1,6 +1,6 @@
 {
-  "documentPurpose": "Development-only reusable RSVP form-schema example synchronized with the approved spreadsheet-authoritative person-level attendance model. The schema defines one reusable form whose conditional regions are driven by the validated invitation configuration, explicit named-invitee and authorized Plus 1 attendance decisions, the guest's current event-attendance selections, and backend-derived overall attendance. It contains no production invitation codes, real guest identities, stored RSVP answers, provider credentials, or protected administrative destinations.",
-  "schemaVersion": "spreadsheet-authoritative-person-level-attendance-2026-09-20",
+  "documentPurpose": "Development-only reusable RSVP form-schema example synchronized with the approved spreadsheet-authoritative attendance model through the September 27, 2026 grouped Kids(n) clarification. The schema defines one reusable form whose conditional regions are driven by the validated invitation configuration, explicit named-invitee decisions, typed additional-guest allocations, the guest's current event-attendance selections, and backend-derived overall attendance. Plus1 allocations remain one-person Yes/No controls. An applicable Kids(n) source row produces one grouped unnamedChildren allocation whose Yes response reveals a required child-count selector from 1 through allocation.maximumCount. It contains no production invitation codes, real guest identities, stored RSVP answers, provider credentials, or protected administrative destinations.",
+  "schemaVersion": "spreadsheet-authoritative-grouped-children-2026-09-27",
   "permanentQuestionIds": {
     "substantive": [
       "eventAttendance",
@@ -22,22 +22,46 @@
     "productionInvitationDataIncluded": false,
     "singleReusableSubstantiveSchema": true,
     "namedInviteeRosterIsInvitationSpecific": true,
-    "namedInviteeSource": "Only safe named-invitee definitions returned in invitation.namedInvitees produce named-invitee attendance questions. Each object contains a stable opaque id and an approved displayName; private source-row identifiers and unrelated invitation data are not returned.",
-    "namedPlusOneQuestionsAreInvitationSpecific": true,
-    "plusOneSource": "Only allocation definitions returned in invitation.additionalGuestAllocations produce Plus 1 questions. An empty allocation array produces no Plus 1 questions.",
-    "capacityInvariant": "For every valid invitation configuration, invitation.namedInvitees.length plus invitation.additionalGuestAllocations.length equals invitation.maximumAttendance.",
+    "namedInviteeSource": "Only safe specifically named invitee definitions returned in invitation.namedInvitees produce named-invitee attendance questions. Each object contains a stable opaque id and an approved displayName; specifically named children use this same roster mechanism. Private source-row identifiers and unrelated invitation data are not returned.",
+    "additionalGuestQuestionsAreInvitationSpecific": true,
+    "additionalGuestSource": "Only allocation definitions returned in invitation.additionalGuestAllocations produce additional-guest controls. Each public allocation exposes exactly the safe rendering fields id, kind, prompt, and maximumCount. A plus1 allocation represents one authorized unnamed adult/guest slot and always has maximumCount 1. An unnamedChildren allocation represents the complete grouped unnamed-child capacity for that invitation. An empty allocation array produces no additional-guest controls.",
+    "additionalGuestAllocationVariants": {
+      "plus1": {
+        "kind": "plus1",
+        "maximumCount": 1,
+        "promptPattern": "Will [Named Invitee] be accompanied by a +1?",
+        "responseShape": "\"yes\" or \"no\"",
+        "attendanceContribution": "yes contributes 1; no contributes 0"
+      },
+      "unnamedChildren": {
+        "kind": "unnamedChildren",
+        "prompt": "We'd love for your family to celebrate with us this Mayday - will your kid(s) be accompanying you?",
+        "responseShape": "{ \"attending\": \"yes\", \"count\": k } or { \"attending\": \"no\", \"count\": 0 }",
+        "attendanceContribution": "yes contributes validated count; no contributes 0",
+        "countSelector": "When attending=yes, render one required whole-number selector from 1 through allocation.maximumCount."
+      }
+    },
+    "allocationTypeMetadataPublic": true,
+    "namedChildNonDuplication": "A child already represented in invitation.namedInvitees must not also contribute to an unnamedChildren allocation. The latest authoritative source uses Kids(n) only for children whose names are unknown at invitation time.",
+    "capacityInvariant": "For every valid invitation configuration, invitation.namedInvitees.length plus the sum of invitation.additionalGuestAllocations[].maximumCount equals invitation.maximumAttendance.",
+    "personAttendancePresentation": "When the party attends Ceremony, Reception, or both, every authorized named invitee receives an explicit Yes/No decision; every plus1 allocation receives an explicit Yes/No decision; and each applicable unnamedChildren allocation receives one family-level Yes/No decision plus a conditional count selector after Yes. These authorized responses, not the age-category dials, determine actual headcount.",
     "attendancePresentation": "Ceremony, Reception, and the invitation-specific decline statement are coordinated checkbox choices in one attendance region. Decline is mutually exclusive with Ceremony and Reception.",
-    "personAttendancePresentation": "When the party attends Ceremony, Reception, or both, every authorized named invitee and every authorized Plus 1 allocation receives an explicit Yes/No attendance decision. These person-level decisions, not the age-category dials, determine actual headcount.",
-    "overallAttendanceDerivation": "overallAttendance is backend-derived as the number of namedInviteeResponses equal to yes plus the number of additionalGuestResponses equal to yes. The browser may mirror this calculation for usability, but it never submits overallAttendance as an authoritative client-writable field.",
+    "overallAttendanceDerivation": "overallAttendance is backend-derived as count(namedInviteeResponses == yes) plus count(plus1 additionalGuestResponses == yes) plus the validated count from any unnamedChildren response whose attending value is yes. The browser may mirror this calculation for usability, but it never submits overallAttendance as an authoritative client-writable field.",
     "attendanceTotalsPresentation": "The four age-category values are presented as coordinated numerical dials or equivalent whole-number controls. Their complete sum must equal derived overallAttendance exactly.",
-    "attendeeDetailsApplicability": "attendeeDetails exists for every attending RSVP, including Ceremony-only attendance. Exactly one row is required for each person included in derived overallAttendance.",
+    "attendeeDetailsApplicability": "attendeeDetails exists for every attending RSVP, including Ceremony-only attendance. Exactly one row is required for each person included in derived overallAttendance, including each child represented by a grouped unnamed-child count.",
     "attendeeNameMaximumLength": 100,
     "dietaryPreferenceMaximumLength": 1000,
     "dietaryFieldLabel": "Dietary or allergy information",
     "dietaryFieldApplicability": "dietaryPreferences is available within each attendeeDetails row only when Reception is selected. It is optional when applicable and is absent or cleared when Reception is not selected.",
     "blankLookupInvariant": "Lookup returns schema and the validated invitation's limited safe configuration only; it never includes stored RSVP answers or stored confirmation destinations.",
     "operationalConfirmationCopyStatus": "Provider-gated. Email is available. Production Text Message remains disabled until the selected provider's disclosure, authorization, backend-secret, sender-configuration, and production-flow requirements are satisfied.",
-    "transactionalMobileNumberUse": "A confirmation mobile number is operational RSVP contact data used only for the requested transactional RSVP confirmation and approved manual resend unless a later recorded decision separately authorizes another use."
+    "transactionalMobileNumberUse": "A confirmation mobile number is operational RSVP contact data used only for the requested transactional RSVP confirmation and approved manual resend unless a later recorded decision separately authorizes another use.",
+    "allocationPublicFields": [
+      "id",
+      "kind",
+      "prompt",
+      "maximumCount"
+    ]
   },
   "conditionLanguage": {
     "always": "Boolean true means the region is always present in the validated blank form.",
@@ -50,11 +74,13 @@
     "fieldNotEquals": "Two-item array [questionId, disallowedValue]; true when the current page-entered value does not equal disallowedValue.",
     "all": "Array of conditions; every nested condition must be true.",
     "any": "Array of conditions; at least one nested condition must be true.",
-    "not": "Negates one nested condition."
+    "not": "Negates one nested condition.",
+    "allocationKindEquals": "Two-item array [allocation kind source, expected kind]; used inside a repeated additionalGuestResponses instance to select the correct control shape.",
+    "allocationResponseFieldEquals": "Three-item array [allocation response source, field name, expected value]; used for conditional grouped-child count rendering after attending=yes."
   },
   "repeatableRegionLanguage": {
-    "repeatFromInvitationArray": "Create one control instance for each authorized object in the referenced invitation array. The stable source object's id is the submission key; approved display text is presentation-only.",
-    "repeatCountFromDerivedValue": "Create exactly the number of rows represented by the referenced derived value after the current person-level attendance decisions produce a valid overallAttendance.",
+    "repeatFromInvitationArray": "Create one control instance for each authorized object in the referenced invitation array. The stable source object's id is the submission key; approved display text and safe kind/maximumCount metadata drive presentation and usability constraints.",
+    "repeatCountFromDerivedValue": "Create exactly the number of rows represented by the referenced derived value after the current named-invitee, Plus1, and grouped-child attendance responses produce a valid overallAttendance.",
     "completeReplacementWhenSubmitted": "When a repeatable region marked this way is submitted during a revision, the submitted array replaces the complete stored array for that region."
   },
   "validationExtensions": {
@@ -62,19 +88,23 @@
     "authorizedNamedInviteeIdsOnly": "Every named-invitee response key must match an id in invitation.namedInvitees; unknown or duplicate ids are rejected.",
     "allNamedInviteesRequiredWhenNewlyApplicable": "On an initial attending response or a transition from decline to attendance, every authorized named invitee requires an explicit yes/no answer.",
     "authorizedAllocationIdsOnly": "Every additional-guest response key must match an id in invitation.additionalGuestAllocations; unknown or duplicate ids are rejected.",
-    "allAuthorizedAllocationsRequiredWhenNewlyApplicable": "On an initial attending response or a transition from decline to attendance, every authorized allocation requires an explicit yes/no answer.",
-    "derivedOverallAttendanceFormula": "count(namedInviteeResponses == yes) + count(additionalGuestResponses == yes)",
+    "allAuthorizedAllocationsRequiredWhenNewlyApplicable": "On an initial attending response or a transition from decline to attendance, every authorized allocation requires one complete response in the shape required by that allocation's kind.",
+    "derivedOverallAttendanceFormula": "count(namedInviteeResponses == yes) + count(plus1 responses == yes) + sum(unnamedChildren response.count where response.attending == yes)",
     "derivedOverallAttendanceMinimumWhenAttending": "When eventAttendance represents Ceremony, Reception, or both, derived overallAttendance must be at least 1.",
     "derivedOverallAttendanceZeroWhenDeclined": "When eventAttendance is decline, overallAttendance is 0 and attendance-dependent substantive data is cleared.",
     "coordinatedNumberGroup": "Each age-category control is a nonnegative whole number. The UI coordinates the controls against derived overallAttendance while the backend independently validates the final exact sum.",
     "dynamicMaximumFormula": "For each age-category control, the current UI maximum is derived overallAttendance minus the sum of the other three current category values.",
     "sumEqualsDerived": "The complete attendanceTotals sum must equal the referenced derived value exactly.",
     "repeatCountEqualsOverallAttendance": "When the party is attending, attendeeDetails length must equal complete derived overallAttendance.",
-    "attendeeCompositionChangeRequiresReplacement": "If any namedInviteeResponses or additionalGuestResponses change in a way that changes which people are attending, the complete attendeeDetails array must be replaced even when overallAttendance remains numerically unchanged.",
+    "attendeeCompositionChangeRequiresReplacement": "If namedInviteeResponses or plus1 responses change who is attending, or if any unnamedChildren response/count changes, the complete attendeeDetails array must be replaced even when overallAttendance remains numerically unchanged.",
     "receptionRemovalClearsDietaryOnly": "When Reception becomes inapplicable but the party remains attending Ceremony, preserve attendeeDetails and attendeeName values but remove dietaryPreferences from every stored row.",
     "nonblankTrimmedString": "After ordinary trimming, the value must contain at least one character.",
     "maximumLength": "String length may not exceed the configured maximum.",
-    "backendAuthoritative": "Browser visibility and client validation never authorize otherwise-invalid data; Express independently applies all configuration and complete-result rules."
+    "backendAuthoritative": "Browser visibility and client validation never authorize otherwise-invalid data; Express independently applies all configuration and complete-result rules.",
+    "allocationResponseShapeByKind": "Response shape is selected only from the matched allocation.kind. plus1 accepts scalar yes/no. unnamedChildren accepts an object containing exactly attending and count.",
+    "plus1ResponseRule": "For kind=plus1, maximumCount must equal 1 and the response must be exactly yes or no.",
+    "unnamedChildrenResponseRule": "For kind=unnamedChildren, attending must be yes or no. attending=yes requires a whole-number count from 1 through allocation.maximumCount. attending=no requires count exactly 0.",
+    "groupedChildrenCountSelectorRange": "For kind=unnamedChildren and attending=yes, the browser selector contains exactly the consecutive whole numbers 1 through allocation.maximumCount. The backend independently validates the same range."
   },
   "productionEnablementRules": {
     "textMessageConfirmation": {
@@ -102,7 +132,7 @@
     {
       "id": "dependency-processing-order",
       "scope": "backend-authoritative",
-      "rule": "Authorize request fields and all person/allocation identifiers, determine initial versus revision, merge submitted changes with stored values, preserve permitted omissions, resolve the complete eventAttendance state, apply person-level attendance decisions, derive overallAttendance, clear values made inapplicable by the resulting state, require newly applicable mandatory structures or complete replacements, validate age totals and attendee details against the complete result, then store only if valid."
+      "rule": "Authorize request fields and all named-invitee/allocation identifiers, validate invitation configuration kinds and maximumCount capacity, determine initial versus revision, merge submitted changes with stored values, preserve permitted omissions, resolve the complete eventAttendance state, resolve named-invitee, Plus1, and grouped-child responses, derive overallAttendance, clear values made inapplicable by the resulting state, require newly applicable mandatory structures or complete replacements, validate age totals and attendee details against the complete result, then store only if valid."
     },
     {
       "id": "attendance-valid-states",
@@ -130,29 +160,29 @@
       "rule": "Every namedInviteeResponses key must be an authorized named-invitee id for the validated invitation."
     },
     {
-      "id": "plus-one-questions-authorized-only",
+      "id": "additional-guest-questions-authorized-only",
       "scope": "substantive",
-      "rule": "A Plus 1 control exists only for an allocation object in invitation.additionalGuestAllocations. A party with an empty allocation array receives no Plus 1 controls and cannot submit additionalGuestResponses."
+      "rule": "An additional-guest control exists only for an allocation object in invitation.additionalGuestAllocations. Each allocation uses its backend-supplied id, kind, prompt, and maximumCount. kind=plus1 renders one Yes/No control. kind=unnamedChildren renders one grouped family Yes/No control and, after Yes, one required count selector. A party with an empty allocation array receives no additional-guest controls and cannot submit additionalGuestResponses."
     },
     {
-      "id": "plus-one-response-required-when-newly-applicable",
+      "id": "additional-guest-response-required-when-newly-applicable",
       "scope": "substantive",
-      "rule": "For an initial attending RSVP or a transition from decline to attendance, each authorized Plus 1 allocation requires exactly one yes/no response. On an ordinary revision that remains attending, omitted authorized allocation responses remain unchanged."
+      "rule": "For an initial attending RSVP or a transition from decline to attendance, each authorized additional-guest allocation requires one complete response in the shape required by its kind. On an ordinary revision that remains attending, omitted authorized allocation responses remain unchanged."
     },
     {
-      "id": "plus-one-response-authorization",
+      "id": "additional-guest-response-authorization",
       "scope": "substantive",
-      "rule": "Every additionalGuestResponses key must be an authorized allocation id for the validated invitation. The guest-facing prompt text is never used as an authorization key."
+      "rule": "Every additionalGuestResponses key must be an authorized allocation id for the validated invitation. The matched allocation.kind determines the accepted response shape. Prompt text, raw Kids(n) source text, and any private source mapping are never authorization keys."
     },
     {
       "id": "invitation-capacity-reconciliation",
       "scope": "configuration",
-      "rule": "A valid invitation configuration satisfies namedInvitees.length plus additionalGuestAllocations.length equals maximumAttendance. A contradictory configuration must fail validation rather than be served to the browser."
+      "rule": "A valid invitation configuration satisfies namedInvitees.length plus sum(additionalGuestAllocations.maximumCount) equals maximumAttendance. plus1 maximumCount must be 1; at most one unnamedChildren allocation may exist for an invitation. A contradictory configuration must fail validation rather than be served to the browser."
     },
     {
       "id": "overall-attendance-derivation",
       "scope": "backend-authoritative",
-      "rule": "When attending, overallAttendance equals the count of authorized namedInviteeResponses equal to yes plus the count of authorized additionalGuestResponses equal to yes. The browser may mirror the value for usability but cannot submit or override it."
+      "rule": "When attending, overallAttendance equals the count of authorized namedInviteeResponses equal to yes, plus one for each authorized plus1 response equal to yes, plus the validated count from any unnamedChildren response whose attending value is yes. The browser may mirror the value for usability but cannot submit or override it."
     },
     {
       "id": "overall-attendance-validity",
@@ -197,7 +227,7 @@
     {
       "id": "attendee-details-replacement",
       "scope": "substantive",
-      "rule": "When attendeeDetails is submitted, it replaces the complete applicable array. Omission on revision leaves the stored array unchanged only when the attending-person composition is unchanged. Any change to which named invitees or authorized Plus 1 slots are attending requires a complete replacement array, even when overallAttendance is numerically unchanged."
+      "rule": "When attendeeDetails is submitted, it replaces the complete applicable array. Omission on revision leaves the stored array unchanged only when attending-person composition is unchanged. Any named-invitee or plus1 change that changes who attends requires complete replacement. Any unnamedChildren response/count change also requires complete replacement because the identities of previously unnamed child rows cannot safely be presumed unchanged."
     },
     {
       "id": "reception-removal-clears-dietary-only",
@@ -232,7 +262,17 @@
     {
       "id": "backend-authority-over-visibility",
       "scope": "backend-authoritative",
-      "rule": "Client visibility and usability validation do not authorize values. Express independently validates event attendance, named-invitee ids and responses, Plus 1 allocation ids and responses, derived overallAttendance, exact age-total equality, attendee-detail cardinality and lengths, Reception-specific dietary applicability, operational dependencies, deadline, environment, and all complete-result invariants."
+      "rule": "Client visibility and usability validation do not authorize values. Express independently validates event attendance, named-invitee ids/responses, allocation ids/kinds/maximumCount, plus1 responses, grouped-child response shape/count bounds, derived overallAttendance, exact age-total equality, attendee-detail cardinality/composition/lengths, Reception-specific dietary applicability, operational dependencies, deadline, environment, and all complete-result invariants."
+    },
+    {
+      "id": "grouped-children-control",
+      "scope": "browser-and-backend",
+      "rule": "For kind=unnamedChildren, render exactly one family-level Yes/No question using the approved prompt. No means count 0 and no count selector remains applicable. Yes reveals one required selector containing the consecutive whole numbers 1 through allocation.maximumCount."
+    },
+    {
+      "id": "grouped-children-response-validation",
+      "scope": "substantive",
+      "rule": "A grouped child response contains exactly attending and count. attending=yes requires a whole-number count from 1 through allocation.maximumCount. attending=no requires count exactly 0. Scalar yes/no, missing count, fractional/non-numeric count, negative count, and over-capacity count are rejected."
     }
   ],
   "formSchemas": [
@@ -390,7 +430,7 @@
         {
           "id": "additionalGuestResponses",
           "scope": "authorized-allocation-list",
-          "type": "repeated-radio",
+          "type": "repeated-allocation-dependent-control",
           "label": "Additional guest attendance",
           "requiredOnInitial": false,
           "requiredWhenVisible": true,
@@ -398,16 +438,75 @@
           "instanceShape": {
             "submissionKeyFrom": "allocation.id",
             "labelFrom": "allocation.prompt",
-            "options": [
-              {
-                "value": "yes",
-                "label": "Yes"
+            "renderByKind": {
+              "plus1": {
+                "controlType": "radio",
+                "required": true,
+                "maximumCountRequired": 1,
+                "options": [
+                  {
+                    "value": "yes",
+                    "label": "Yes"
+                  },
+                  {
+                    "value": "no",
+                    "label": "No"
+                  }
+                ],
+                "submissionValueShape": "\"yes\" or \"no\"",
+                "attendanceContribution": "yes => 1; no => 0"
               },
-              {
-                "value": "no",
-                "label": "No"
+              "unnamedChildren": {
+                "controlType": "grouped-children-attendance",
+                "required": true,
+                "promptRequired": "We'd love for your family to celebrate with us this Mayday - will your kid(s) be accompanying you?",
+                "attendanceControl": {
+                  "type": "radio",
+                  "field": "attending",
+                  "options": [
+                    {
+                      "value": "yes",
+                      "label": "Yes"
+                    },
+                    {
+                      "value": "no",
+                      "label": "No"
+                    }
+                  ]
+                },
+                "countControl": {
+                  "type": "select",
+                  "field": "count",
+                  "label": "How many?",
+                  "displayWhen": {
+                    "allocationResponseFieldEquals": [
+                      "currentAllocationResponse",
+                      "attending",
+                      "yes"
+                    ]
+                  },
+                  "requiredWhenDisplayed": true,
+                  "wholeNumber": true,
+                  "minimum": 1,
+                  "maximumFrom": "allocation.maximumCount",
+                  "optionsFromInclusiveRange": [
+                    1,
+                    "allocation.maximumCount"
+                  ]
+                },
+                "submissionValueShapes": {
+                  "yes": {
+                    "attending": "yes",
+                    "count": "integer 1..allocation.maximumCount"
+                  },
+                  "no": {
+                    "attending": "no",
+                    "count": 0
+                  }
+                },
+                "attendanceContribution": "attending=yes => count; attending=no => 0"
               }
-            ]
+            }
           },
           "displayCondition": {
             "all": [
@@ -430,14 +529,15 @@
             ]
           },
           "validation": {
-            "allowedValues": [
-              "yes",
-              "no"
-            ],
             "authorizedAllocationIdsOnly": true,
             "duplicateAllocationIdsRejected": true,
             "allAuthorizedAllocationsRequiredOnInitialAttending": true,
-            "allAuthorizedAllocationsRequiredWhenNewlyApplicable": true
+            "allAuthorizedAllocationsRequiredWhenNewlyApplicable": true,
+            "allocationResponseShapeByKind": true,
+            "plus1ResponseRule": true,
+            "unnamedChildrenResponseRule": true,
+            "groupedChildrenCountSelectorRange": true,
+            "atMostOneUnnamedChildrenAllocationPerInvitation": true
           },
           "patchBehavior": {
             "omittedWholeRegionOnRevision": "leaveUnchangedWhenStillApplicable",
@@ -448,7 +548,7 @@
             "whenAttendanceContains": "decline",
             "action": "clear"
           },
-          "helpText": "This section appears only when the validated invitation contains one or more authorized Plus 1 allocations. One Yes/No question is rendered for each allocation; no general Plus 1 question is offered to other parties."
+          "helpText": "This section appears only when the validated invitation contains one or more authorized additional-guest allocations. A plus1 allocation renders one Yes/No question. An unnamedChildren allocation renders one family-level Yes/No question and, after Yes, a required count selector from 1 through allocation.maximumCount. The grouped child control never repeats once per child and never collects child names; actual names are supplied later through Attendee Details."
         },
         {
           "id": "attendanceTotals",
@@ -517,7 +617,7 @@
             "omittedNestedFieldOnRevision": "leaveThatCategoryUnchangedWhenStillApplicable",
             "explicitZero": "replaceWithZero",
             "replaceOperation": "replace",
-            "replacementRequiredWhen": "person-level response changes cause the complete merged attendanceTotals sum to differ from newly derived overallAttendance"
+            "replacementRequiredWhen": "authorized attendance-response changes cause the complete merged attendanceTotals sum to differ from newly derived overallAttendance"
           },
           "clearBehavior": {
             "whenAttendanceContains": "decline",
@@ -586,8 +686,9 @@
             "completeReplacementWhenSubmitted": true,
             "omittedOnRevision": "leaveUnchangedOnlyWhenAttendingPersonCompositionIsUnchanged",
             "replacementRequiredWhen": [
-              "overallAttendance changes because person-level attendance decisions change",
-              "attending-person composition changes even when overallAttendance remains numerically unchanged"
+              "overallAttendance changes because named-invitee, Plus1, or grouped-child attendance changes",
+              "named-invitee or Plus1 composition changes even when overallAttendance remains numerically unchanged",
+              "any unnamedChildren response/count changes"
             ],
             "replacementNotRequiredSolelyWhen": [
               "Reception is added while attending-person composition remains unchanged",
@@ -618,7 +719,7 @@
               ]
             }
           },
-          "helpText": "Provide one Attendee name for every person who will attend. When Reception is selected, each attendee row also shows optional Dietary or allergy information. Ceremony-only attendance still requires attendee names."
+          "helpText": "Provide one Attendee name for every person who will attend, including every Plus1 and each child represented by a grouped unnamed-child count. When Reception is selected, each attendee row also shows optional Dietary or allergy information. Ceremony-only attendance still requires attendee names."
         },
         {
           "id": "confirmationMethod",
@@ -786,16 +887,16 @@
           "rule": "Render and accept named-invitee responses only for objects in invitation.namedInvitees. Every authorized named invitee requires an explicit yes/no response when person-level attendance becomes newly applicable."
         },
         {
-          "id": "authorized-plus-one-controls-only",
-          "rule": "Render and accept Plus 1 responses only for objects in invitation.additionalGuestAllocations. Empty allocations mean no Plus 1 controls and no accepted Plus 1 responses."
+          "id": "authorized-additional-guest-controls-only",
+          "rule": "Render and accept additionalGuestResponses only for objects in invitation.additionalGuestAllocations. Each allocation exposes id, kind, prompt, maximumCount. plus1 uses scalar yes/no; unnamedChildren uses one grouped family response with conditional count. Empty allocations mean no additional-guest controls and no accepted additionalGuestResponses."
         },
         {
           "id": "invitation-capacity-reconciliation",
-          "rule": "A valid invitation configuration must satisfy namedInvitees.length plus additionalGuestAllocations.length equals maximumAttendance."
+          "rule": "A valid invitation configuration must satisfy namedInvitees.length plus sum(additionalGuestAllocations.maximumCount) equals maximumAttendance."
         },
         {
           "id": "overall-attendance-derived-from-person-decisions",
-          "rule": "overallAttendance is backend-derived from yes responses across namedInviteeResponses and additionalGuestResponses. It is not accepted as a client-writable field."
+          "rule": "overallAttendance is backend-derived from named-invitee yes responses, plus1 yes responses, and any grouped unnamed-child attending count. It is not accepted as a client-writable field."
         },
         {
           "id": "attending-party-must-not-be-empty",
@@ -819,7 +920,7 @@
         },
         {
           "id": "attendee-details-composition-replacement",
-          "rule": "If the attending-person composition changes, a revision must submit the complete replacement attendeeDetails array even if overallAttendance remains numerically unchanged."
+          "rule": "If named-invitee or Plus1 composition changes, or if any grouped unnamed-child response/count changes, a revision must submit the complete replacement attendeeDetails array even if overallAttendance remains numerically unchanged."
         },
         {
           "id": "reception-removal-preserves-names",
@@ -827,7 +928,7 @@
         },
         {
           "id": "decline-clears-dependent-data",
-          "rule": "A complete decline clears named-invitee responses, Plus 1 responses, attendance totals, derived overallAttendance, and attendee details before final validation."
+          "rule": "A complete decline clears named-invitee responses, additional-guest responses, attendance totals, derived overallAttendance, and attendee details before final validation."
         },
         {
           "id": "operational-confirmation-required",
@@ -836,6 +937,14 @@
         {
           "id": "backend-authority",
           "rule": "Client visibility and usability validation do not authorize values; the backend independently validates the complete resulting RSVP."
+        },
+        {
+          "id": "grouped-children-response-shape",
+          "rule": "For kind=unnamedChildren, attending=yes requires a whole-number count from 1 through allocation.maximumCount; attending=no requires count 0. Other shapes and values are rejected."
+        },
+        {
+          "id": "allocation-count-is-not-person-count",
+          "rule": "The number of allocation objects is not used as additional-person capacity. Person capacity is the sum of allocation.maximumCount values."
         }
       ],
       "dependencyRuleRefs": [
@@ -845,9 +954,9 @@
         "named-invitee-questions-authorized-only",
         "named-invitee-response-required-when-newly-applicable",
         "named-invitee-response-authorization",
-        "plus-one-questions-authorized-only",
-        "plus-one-response-required-when-newly-applicable",
-        "plus-one-response-authorization",
+        "additional-guest-questions-authorized-only",
+        "additional-guest-response-required-when-newly-applicable",
+        "additional-guest-response-authorization",
         "invitation-capacity-reconciliation",
         "overall-attendance-derivation",
         "overall-attendance-validity",
@@ -865,7 +974,9 @@
         "revision-omission-means-unchanged",
         "email-confirmation-dependency",
         "text-confirmation-dependency",
-        "backend-authority-over-visibility"
+        "backend-authority-over-visibility",
+        "grouped-children-control",
+        "grouped-children-response-validation"
       ]
     }
   ]

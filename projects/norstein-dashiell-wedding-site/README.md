@@ -18,21 +18,35 @@ with its backend API available beneath:
 
 ## Project Status
 
-**Active development — Workstream 2 RSVP model resynchronization and backend reconciliation underway**
+**Active development — Workstream 2 RSVP architecture reconciled; integrated regression and production-gate verification remain**
 
 Workstream 1 is complete. It established the client/server structure, shared application shell, canonical routing, centralized wedding and event configuration, reusable design-system foundations, relative client/API boundary, initial launch-oriented content, and an Ubuntu deployment proof.
 
-The application has progressed substantially through Workstream 2, including private RSVP lookup and submission infrastructure, persistence boundaries, confirmation delivery, production-readiness tooling, and guest-facing integration. Those later implementation stages were originally completed against an earlier attendance model.
+Workstream 2 has implemented the RSVP system across private invitation lookup, blank-form construction, server-side validation, initial submission and revision handling, persistence, version history, idempotent retry behavior, confirmation delivery, production invitation transformation, activation/readiness tooling, and guest-facing React integration.
 
-On September 20, 2026, the governing RSVP specification was corrected and resynchronized around explicit person-level attendance. The authoritative documentation and fictional development configuration now use a safe `namedInvitees` roster, individually authorized Plus 1 slots, backend-derived `overallAttendance`, age totals that must equal that derived count, and `attendeeDetails` for every attending person.
+During September 2026, the RSVP architecture was resynchronized around explicit person-level attendance and the clarified treatment of unnamed children. The governing documentation, fictional development fixtures, backend lookup and submission boundaries, confirmation output, private production transformation, production activation coverage, client state model, RSVP form, and confirmation page now use the same corrected contract.
 
-The development invitation fixture loader and its automated tests have now been reconciled to that corrected model. Downstream form-schema, lookup, submission/revision, confirmation, production-transformation, and guest-interface code must be resynchronized in dependency order before earlier end-to-end or production-readiness results are treated as current.
+The current RSVP model uses:
 
-At this checkpoint, client tests, linting, and the production client build pass. The complete server suite is temporarily expected to contain downstream failures because `formSchemas.js` and dependent RSVP modules still validate the superseded schema; those failures are part of the active resynchronization work rather than a completed production-ready state.
+* A safe invitation-specific `namedInvitees` roster.
+* Explicit Yes/No attendance decisions for every authorized named invitee.
+* Typed `additionalGuestAllocations`.
+* One-person `plus1` allocations.
+* At most one grouped `unnamedChildren` allocation when applicable.
+* A conditional grouped-child count bounded by the invitation's authorized `maximumCount`.
+* Backend-derived `overallAttendance`.
+* Four age-category totals whose sum must equal derived attendance.
+* `attendeeDetails` for every attending person, including Ceremony-only attendees.
+* Reception-specific optional dietary/allergy information.
+* Blank-form partial revision semantics.
+* Composition-sensitive attendee-detail replacement.
+* Email confirmation as the production baseline.
+
+The approved 34-file RSVP reconciliation set is complete at the source/documentation level. Focused syntax checks and selected targeted tests were run during the reconciliation where the available environment supported them. Before the reconciled implementation is treated as launch-ready, the complete repository test suites, client lint/build checks, and production activation/readiness/runtime gates must be rerun together against the fully updated working tree.
 
 ## Core Technology
 
-The planned application architecture uses:
+The application architecture uses:
 
 ### Front End
 
@@ -66,7 +80,7 @@ The planned application architecture uses:
 
 The application is maintained as one portable project root with separate client, server, and documentation responsibilities.
 
-The project is organized around the following client, server, and documentation structure. Some feature-specific subdirectories will be added as later workstreams require them:
+The project is organized around the following client, server, and documentation structure:
 
 ```text
 norstein-dashiell-wedding-site/
@@ -83,6 +97,7 @@ norstein-dashiell-wedding-site/
 │       └── utils/
 │
 ├── server/
+│   ├── scripts/
 │   ├── src/
 │   │   ├── config/
 │   │   ├── middleware/
@@ -105,7 +120,7 @@ The root package is intended to coordinate the client and server while allowing 
 
 ## Public Application Routes
 
-The canonical browser routes are planned beneath `/wedding/`:
+The canonical browser routes are beneath `/wedding/`:
 
 ```text
 /wedding/
@@ -234,7 +249,7 @@ Pages that depend upon venue or schedule configuration consume the same centrali
 
 ## RSVP System
 
-The RSVP system is the primary focus of the current backend workstream. Its governing architecture is specified in the project documentation and is implemented against fictional development data before protected production invitation data is used.
+The RSVP system is the primary feature of Workstream 2. Its governing architecture is specified in the project documentation and is implemented against fictional development data before protected production invitation data is activated.
 
 ### Access and lookup model
 
@@ -244,95 +259,342 @@ Guests use the shared route:
 /wedding/rsvp/
 ```
 
-and manually enter the six-character invitation code printed with their invitation. Invitation codes are submitted to the backend in request bodies rather than embedded in personalized browser URLs.
+and manually enter the six-character invitation code printed with their invitation.
 
-A successful lookup returns only the limited invitation configuration required to construct a **blank** authorized form. It may include that party's safe named-invitee roster and authorized Plus 1 definitions, but it does not return previously stored RSVP answers, prior confirmation destinations, response history, internal party identifiers, source-spreadsheet data, or another party's information.
+Invitation codes are submitted to the backend in request bodies rather than embedded in personalized browser URLs.
+
+A successful lookup returns only the limited safe configuration required to construct a **blank** authorized form.
+
+Depending on the invitation, that safe response may include:
+
+* Party display information.
+* Singular or plural wording mode.
+* Maximum authorized attendance capacity.
+* A safe `namedInvitees` roster.
+* Zero or more safe `additionalGuestAllocations`.
+* Reusable form-schema metadata.
+* Available confirmation methods.
+
+Lookup does **not** return:
+
+* Previously stored RSVP answers.
+* Prior confirmation destinations.
+* Response history.
+* Internal party identifiers.
+* Private source-spreadsheet rows or notes.
+* Another invited party's information.
+
+Entering the same invitation code again therefore produces another blank authorized form rather than displaying a stored RSVP for editing.
 
 ### Spreadsheet-authoritative production configuration
 
-The current private source contains **57 active assigned production invitation records**. Real invitation codes, guest identities, and source-to-party mappings remain outside the public client and public documentation.
+The current private source contains **57 active assigned production invitation records**.
 
-Each corrected production configuration is derived privately from the authoritative source and includes only the values needed by the backend, such as:
+Real invitation codes, guest identities, and source-to-party mappings remain outside the public client and public repository documentation.
 
-* Reviewed party/form heading
-* Explicit singular or plural wording mode
-* `maximumAttendance` as the party's maximum potential capacity
-* A limited `namedInvitees` roster containing stable opaque IDs and approved display names
-* Zero or more authorized named `additionalGuestAllocations`
-* Active/environment state
+Each production invitation configuration is derived privately from the authoritative source and includes only the values required by the RSVP backend, including:
 
-Every configuration must satisfy:
+* Reviewed party/form heading.
+* Explicit singular or plural wording mode.
+* `maximumAttendance`.
+* A safe `namedInvitees` roster containing stable opaque IDs and approved display names.
+* Zero or more typed `additionalGuestAllocations`.
+* Active/environment state.
 
-```text
-namedInvitees.length + additionalGuestAllocations.length === maximumAttendance
+The safe public shape of an additional-guest allocation is:
+
+```js
+{
+  id,
+  kind,
+  prompt,
+  maximumCount
+}
 ```
 
-Production RSVP behavior does not use separate substantive question profiles, a generic aggregate additional-guest allowance, or a client-selected overall headcount.
+Supported allocation kinds are:
 
-Any production configuration generated, loaded, activated, or smoke-tested under the superseded attendance model is historical evidence only. The corrected production transformation and activation/runtime gates must be rerun before launch.
+```text
+plus1
+unnamedChildren
+```
+
+A `plus1` allocation:
+
+* Represents exactly one potential additional attendee.
+* Always has `maximumCount: 1`.
+* Uses one invitation-specific Yes/No response.
+
+An `unnamedChildren` allocation:
+
+* Represents the complete authorized capacity for children whose individual names were not known at invitation time.
+* Appears at most once on an invitation.
+* Uses one family-level Yes/No response.
+* Reveals one count selector when Yes is chosen.
+* Allows only whole-number counts from `1` through that allocation's `maximumCount`.
+* Uses count `0` when the response is No.
+
+Specifically named children remain ordinary members of `namedInvitees`; they are not duplicated in grouped unnamed-child capacity.
+
+Every valid invitation configuration must satisfy:
+
+```text
+namedInvitees.length
++ sum(additionalGuestAllocations.maximumCount)
+= maximumAttendance
+```
+
+The number of allocation objects is **not** treated as person capacity.
+
+The current private-source transformation audit reconciles to these safe aggregate totals:
+
+* 57 active invitation records.
+* 35 singular-wording invitations.
+* 22 plural-wording invitations.
+* 84 specifically named potential attendees.
+* 26 Plus 1 allocation objects.
+* 2 grouped unnamed-child allocation objects.
+* 28 total allocation objects.
+* 31 total additional-person capacity slots.
+* 5 grouped unnamed-child capacity slots.
+* 115 combined maximum attendance.
+
+Production transformation and activation code validate the corrected person-capacity model rather than the superseded one-allocation-equals-one-person assumption.
 
 ### Reusable substantive RSVP structure
 
-Every invitation uses the same reusable substantive form structure, with invitation-specific variation supplied only by authorized configuration.
+Every invitation uses the same five substantive RSVP regions:
 
-The form supports:
+1. `eventAttendance`
+2. `namedInviteeResponses`
+3. `additionalGuestResponses`
+4. `attendanceTotals`
+5. `attendeeDetails`
 
-* Ceremony attendance
-* Reception attendance
-* Mutually exclusive invitation-specific decline wording
-* One explicit Yes/No attendance decision for every authorized named invitee
-* Zero or more independently authorized Plus 1 Yes/No questions
-* Backend-derived `overallAttendance`
-* Four numerical age-category totals
-* `Attendee Details` for every attending person
-* Operational confirmation fields
+Operational confirmation fields remain separate from substantive RSVP answers.
 
-A Plus 1 question appears **only** when the private invitation configuration contains the corresponding authorization. Multiple allocations remain separate Yes/No decisions rather than becoming a numeric guest-count control.
+### Event attendance
 
-`overallAttendance` is derived from the complete set of Yes responses across `namedInviteeResponses` and `additionalGuestResponses`. It is not independently writable by the client.
+The complete attendance state is one of:
 
-The four attendance categories are:
+```text
+Ceremony
+Reception
+Ceremony + Reception
+Decline
+```
 
-* Adults, ages 21 and older
-* Young Adults, ages 18–20
-* Children, ages 3–17
-* Children under 3
+Ceremony and Reception may be selected together.
 
-Those values classify the already-derived attending party. Their complete sum must equal `overallAttendance` exactly.
+Decline is mutually exclusive with both attending choices.
 
-Whenever at least one person is attending, the RSVP contains exactly one `attendeeDetails` record per attending person, including Ceremony-only attendance. Each record contains:
+A full decline produces zero attendance and clears attendance-dependent substantive data.
 
-* Attendee name — required, maximum 100 characters
-* `Dietary or allergy information` — optional, maximum 1000 characters, and present only when Reception is selected
+### Named invitee attendance
 
-A full decline clears named-invitee responses, Plus 1 responses, attendance totals, derived attendance, and attendee details.
+Whenever the party is attending, each authorized object in `namedInvitees` receives an explicit Yes/No attendance decision.
 
-If the identity composition of the attending party changes, the complete `attendeeDetails` list must be replaced even when the numerical count is unchanged. Removing Reception while Ceremony attendance remains preserves attendee names and removes only Reception-specific dietary/allergy information.
+Responses are keyed by stable opaque invitee IDs. Display names are presentation-only and are not authorization keys.
+
+Mixed household attendance is permitted. Specifically named children use this same named-invitee mechanism.
+
+On an initial attending RSVP, every authorized named invitee requires an explicit response.
+
+On an ordinary revision that remains attending, an omitted named-invitee response may remain unchanged when no controlling dependency requires replacement.
+
+### Additional guest attendance
+
+Additional-guest controls appear only when the validated invitation contains corresponding authorization.
+
+A Plus 1 response is scalar:
+
+```js
+"yes"
+```
+
+or:
+
+```js
+"no"
+```
+
+A grouped unnamed-child Yes response is:
+
+```js
+{
+  attending: "yes",
+  count: 2
+}
+```
+
+A grouped unnamed-child No response is:
+
+```js
+{
+  attending: "no",
+  count: 0
+}
+```
+
+The approved grouped-child guest-facing question is:
+
+```text
+We'd love for your family to celebrate with us this Mayday - will your kid(s) be accompanying you?
+```
+
+If Yes is selected, the browser displays one required count selector containing the consecutive whole numbers from `1` through the allocation's authorized `maximumCount`.
+
+The grouped control is rendered once for the family allocation, not once per unnamed child.
+
+Child names are not collected in this control. Like Plus 1 names, they are entered later through ordinary `Attendee Details`.
+
+No generic client-selected “How many additional guests?” field exists.
+
+### Derived overall attendance
+
+Guests do not directly submit `overallAttendance`.
+
+The authoritative backend derives it as:
+
+```text
+number of named invitees answered Yes
++ number of Plus 1 allocations answered Yes
++ grouped unnamed-child attending count
+= overallAttendance
+```
+
+The browser mirrors this calculation for usability, but server-side validation remains authoritative.
+
+An attending RSVP requires at least one actual attendee.
+
+A full decline has derived attendance of zero.
+
+### Attendance totals
+
+The four age categories are:
+
+* Adults, ages 21 and older.
+* Young Adults, ages 18–20.
+* Children, ages 3–17.
+* Children under 3.
+
+These controls classify the already-derived attending party.
+
+They do not independently choose party size.
+
+Each value must be a nonnegative whole number and the complete sum must equal `overallAttendance` exactly.
+
+The browser coordinates the controls against the derived attending count, while the backend independently validates the final result.
+
+### Attendee Details
+
+Whenever at least one person is attending, the RSVP contains exactly one `attendeeDetails` record per attendee.
+
+This includes:
+
+* Named invitees who are attending.
+* Attending Plus 1 guests.
+* Every child represented by the grouped unnamed-child attending count.
+* Ceremony-only attendees.
+* Reception-only attendees.
+* Attendees participating in both events.
+
+Every attendee row contains:
+
+* `attendeeName` — required, maximum 100 characters.
+
+When Reception is selected, the row may additionally contain:
+
+* `dietaryPreferences` — optional, maximum 1000 characters.
+
+The visible field label is:
+
+```text
+Dietary or allergy information
+```
+
+Dietary/allergy information is not applicable to Ceremony-only attendance and is omitted or cleared when Reception is not selected.
+
+### Composition-sensitive revisions
+
+The revision model is intentionally stricter than a simple numerical-headcount patch.
+
+A change to who is attending may require complete `attendeeDetails` replacement even if the total number of attendees remains the same.
+
+Composition-sensitive changes include:
+
+* Named-invitee Yes/No changes that change who attends.
+* Plus 1 Yes/No changes that change who attends.
+* Any grouped unnamed-child response or count change.
+
+Grouped-child response/count changes are always treated as composition-sensitive because the identities represented by previously unnamed child rows cannot safely be assumed unchanged.
+
+When composition changes, a complete replacement `attendeeDetails` list is required.
+
+If Reception is removed while Ceremony attendance remains and composition is otherwise unchanged:
+
+* `attendeeDetails` and `attendeeName` values are preserved.
+* Reception-specific `dietaryPreferences` values are removed.
+
+If Reception is added while attending-person composition remains unchanged, existing attendee names may remain unchanged and dietary/allergy fields simply become available.
 
 ### Submission and revision model
 
 The architecture supports:
 
-* Server-side authorization and validation
-* Initial responses
-* Blank-form partial revisions
-* Omitted-field-means-unchanged semantics
-* Explicit replacement, explicit zero, and explicit clear behavior
-* Dependency-driven clearing
-* Composition-sensitive attendee-detail replacement
-* Idempotent submissions and safe retries
-* Current-response storage and version history
-* Backend-authoritative deadline enforcement
-* Guest confirmation
-* Protected administrative confirmation
-* Independent delivery-warning handling
-* Confirmation-page refresh fallback
+* Server-side authorization and validation.
+* Initial responses.
+* Blank-form partial revisions.
+* Omitted-field-means-unchanged semantics where dependencies permit omission.
+* Explicit replacement values.
+* Explicit zero values for nested attendance totals.
+* Dependency-driven clearing.
+* Composition-sensitive attendee-detail replacement.
+* Idempotent submissions and safe retries.
+* Current-response storage and version history.
+* Backend-authoritative deadline enforcement.
+* Guest confirmation.
+* Protected administrative confirmation.
+* Independent delivery-warning handling.
+* Confirmation-page refresh fallback.
 
-Operational confirmation information is entered again for every initial submission and revision. Email is the required baseline channel. Text Message remains disabled in production until its separate provider/disclosure/authorization/testing gate is satisfied.
+A revision may submit `changes: {}` when the guest intends only to replace the operational confirmation destination.
 
-The RSVP interface is designed around clearly defined application states rather than assuming that every request succeeds immediately.
+The browser does not submit an authoritative `overallAttendance` and does not send an `expectedVersion` concurrency field. The backend determines and validates the complete resulting RSVP.
 
-Production invitation records are not used during ordinary development. Development and automated tests use fictional fixtures so backend work can proceed without exposing real invitation codes or guest identities.
+Operational confirmation information is entered again for every initial submission and revision.
+
+Email is the required baseline channel. Text Message remains disabled in production until its separate provider/disclosure/authorization/testing gate is satisfied.
+
+### Confirmation behavior
+
+A successful confirmation presents the complete current guest-facing RSVP rather than only the fields included in the latest request.
+
+Applicable confirmation content includes:
+
+* Event attendance.
+* Named-invitee Yes/No responses.
+* Plus 1 Yes/No responses.
+* Grouped unnamed-child Yes/No response and selected attending count when applicable.
+* Age-category totals.
+* Derived `overallAttendance`.
+* `Attendee Details`.
+* Dietary/allergy information only when Reception is selected.
+* Submission type and recorded timestamp.
+* Guest delivery status.
+* Administrative delivery-attempt status without exposing the protected administrative destination.
+
+The email and on-screen confirmation render grouped children as one family-level response. When children are attending, they also report the selected child count. They do not invent synthetic per-child authorization responses.
+
+### Development and production separation
+
+Production invitation records are not used during ordinary development.
+
+Development and automated tests use fictional fixtures so backend and client work can proceed without exposing real invitation codes or guest identities.
+
+The private production source remains backend-only input and is excluded from public source-control and client bundles.
+
+Before production launch, the reconciled production transformation, activation/readiness checks, runtime verification, and smoke tests must all be rerun against the final protected environment.
 
 ## Client/API Boundary
 
@@ -388,7 +650,7 @@ The repository is intended to exclude:
 * Real invitation codes
 * Guest identities and RSVP data
 * Attendee names and, when Reception is selected, dietary/allergy responses
-* Private Plus 1 allocation mappings
+* Private additional-guest allocation mappings, including Plus 1 and grouped-child authorization
 * Google service-account credentials
 * Email credentials
 * SMS credentials
@@ -530,28 +792,50 @@ The application foundation has been exercised as a navigable application, its pr
 
 ## Current RSVP Backend Workstream
 
-Workstream 2 builds the RSVP backend and private data layer on top of the completed application foundation.
+Workstream 2 builds the RSVP backend, private data layer, confirmation pipeline, production activation tooling, and guest-facing RSVP interface on top of the completed application foundation.
 
-The repository already contains substantial Workstream 2 implementation from the earlier RSVP model, including private invitation lookup, submission and revision handling, persistence adapters, idempotency and history handling, deadline/rate-limit/cache protections, email confirmation services, production transformation/readiness tooling, and guest-facing RSVP integration.
-
-The September 20 person-level attendance clarification requires those affected components to be resynchronized in dependency order rather than assumed current merely because they previously passed integration or production-readiness gates.
+The corrected RSVP architecture has now been propagated through the approved 34-file reconciliation set in dependency order.
 
 Current corrected checkpoint:
 
-* Centralized environment parsing and validation remains implemented.
+* Centralized environment parsing and validation remain implemented.
 * Development/production configuration separation remains established.
 * Invitation-code normalization and display formatting remain implemented.
-* The governing RSVP documentation has been resynchronized to the corrected person-level attendance model.
-* Fictional development invitation configuration now includes `namedInvitees` and authorized `additionalGuestAllocations`.
-* The development invitation fixture loader validates the corrected roster structure, opaque identifiers, uniqueness, development-only boundary, and exact capacity reconciliation.
-* Focused fixture-loader tests cover the corrected model and pass.
+* Governing RSVP documentation is synchronized to the grouped-child/person-level attendance model.
+* Fictional development invitation configuration uses safe `namedInvitees` and typed `additionalGuestAllocations`.
+* Development fixtures validate allocation `kind`, `maximumCount`, opaque identifiers, uniqueness, development-only boundaries, and exact person-capacity reconciliation.
+* Lookup exposes only safe allocation fields: `id`, `kind`, `prompt`, and `maximumCount`.
+* Submission validation accepts scalar Plus 1 responses and structured grouped-child responses in the same `additionalGuestResponses` map.
+* Backend attendance derivation counts named-invitee Yes responses, Plus 1 Yes responses, and grouped-child selected count.
+* Age-category totals must reconcile exactly to derived `overallAttendance`.
+* `attendeeDetails` applies to every attendee, including Ceremony-only attendance.
+* Dietary/allergy information is limited to Reception attendance.
+* Grouped-child response/count changes are composition-sensitive and require complete attendee-detail replacement.
+* RSVP submission success responses preserve safe allocation metadata and structured grouped-child response data.
+* Guest and administrative confirmation emails render grouped-child Yes/No and child count safely.
+* The production transformation parses `Kids(n)` as one grouped `unnamedChildren` allocation while preserving specifically named children as ordinary named invitees.
+* The production transformation's safe aggregate audit reconciles 84 named potential attendees plus 31 additional-person capacity slots to 115 maximum attendees.
+* Production activation tests now distinguish allocation-object count from person capacity and include grouped-child round-trip coverage.
+* The client RSVP model supports named invitee responses, mixed allocation response shapes, derived headcount, all-attendance attendee details, and Reception-only dietary fields.
+* The guest RSVP form renders one grouped child family question with a conditional `1..maximumCount` selector.
+* The confirmation page renders named invitees, Plus 1 responses, grouped-child response/count, party totals, and all-attendance attendee details.
 * Public/private source-control boundaries continue to protect production invitation data and credentials.
-* Client tests, client linting, and the production client build pass at this checkpoint.
-* The complete server suite remains temporarily red because reusable form-schema and downstream RSVP modules still implement the superseded attendance contract.
 
-The next implementation stage is to resynchronize the private invitation configuration/lookup and blank-form schema boundary, beginning with `formSchemas.js` and its tests and then the lookup projection/service path. Submission/revision validation and the remaining downstream modules follow after that foundation is current.
+The reconciliation does **not** by itself constitute final production verification. Focused syntax checks and selected targeted tests were performed during the update sequence, but the next repository-level step is to run the complete integrated regression and deployment checks against the fully reconciled tree.
 
-After the backend and client are fully reconciled, the private production invitation transformation must be regenerated under the corrected `namedInvitees` model and the production activation/readiness/runtime gates must be rerun.
+That final verification stage should include, as applicable to the repository's package scripts and protected environment:
+
+* Complete server automated test suite.
+* Complete client automated test suite.
+* Client linting.
+* Production client build.
+* Production invitation transformation audit.
+* Production readiness verification.
+* Protected production activation verification.
+* Production runtime verification.
+* Production RSVP smoke testing.
+
+Any failure found during that integrated pass should be treated as a dependency or regression to reconcile before production activation rather than bypassed because an earlier pre-reconciliation checkpoint passed.
 
 The current production source remains private backend input. It is not copied into the React client, committed to public source control, or used as ordinary development test data.
 
@@ -602,6 +886,7 @@ The project is particularly intended to demonstrate the progression from extensi
 This project is developed and maintained by Joshua Norstein. AI-assisted tools may be used as development aids for tasks such as planning, research, proofreading documentation, troubleshooting, syntax and error checking, architecture review, code review, and implementation support. Final project decisions, integration, testing, repository management, and maintenance remain the developer's responsibility.
 
 Third-party and open-source libraries, frameworks, packages, tools, templates, assets, and other external material remain the work of their respective authors and are used in accordance with their applicable licenses and attribution requirements. Material adapted from an external source should be identified and attributed where its license or terms require it.
+
 ## Author
 
 **Joshua Norstein**

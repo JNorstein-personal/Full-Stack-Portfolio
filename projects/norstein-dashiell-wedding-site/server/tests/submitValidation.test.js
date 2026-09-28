@@ -10,20 +10,260 @@ const {
 
 const invitation = Object.freeze({
   maximumAttendance: 3,
-  additionalGuestAllocations:
-    Object.freeze([
-      Object.freeze({
-        id: "plus1-example-a",
-        prompt:
-          "Will Example Guest be accompanied by a +1?",
-      }),
-    ]),
+  namedInvitees: Object.freeze([
+    Object.freeze({
+      id: "invitee-example-a",
+      displayName: "Example Guest One",
+    }),
+    Object.freeze({
+      id: "invitee-example-b",
+      displayName: "Example Guest Two",
+    }),
+  ]),
+  additionalGuestAllocations: Object.freeze([
+    Object.freeze({
+      id: "plus1-example-a",
+      kind: "plus1",
+      prompt:
+        "Will Example Guest One be accompanied by a +1?",
+      maximumCount: 1,
+    }),
+  ]),
 });
+
+const noPlusOneInvitation = Object.freeze({
+  maximumAttendance: 2,
+  namedInvitees:
+    invitation.namedInvitees,
+  additionalGuestAllocations:
+    Object.freeze([]),
+});
+
+const groupedChildrenInvitation =
+  Object.freeze({
+    maximumAttendance: 4,
+    namedInvitees:
+      invitation.namedInvitees,
+    additionalGuestAllocations:
+      Object.freeze([
+        Object.freeze({
+          id:
+            "allocation-children-a",
+          kind:
+            "unnamedChildren",
+          prompt:
+            "We'd love for your family to celebrate with us this Mayday - will your kid(s) be accompanying you?",
+          maximumCount: 2,
+        }),
+      ]),
+  });
+
+const mixedAllocationInvitation =
+  Object.freeze({
+    maximumAttendance: 5,
+    namedInvitees:
+      invitation.namedInvitees,
+    additionalGuestAllocations:
+      Object.freeze([
+        Object.freeze({
+          id:
+            "plus1-example-a",
+          kind: "plus1",
+          prompt:
+            "Will Example Guest One be accompanied by a +1?",
+          maximumCount: 1,
+        }),
+        Object.freeze({
+          id:
+            "allocation-children-a",
+          kind:
+            "unnamedChildren",
+          prompt:
+            "We'd love for your family to celebrate with us this Mayday - will your kid(s) be accompanying you?",
+          maximumCount: 2,
+        }),
+      ]),
+  });
 
 function replace(value) {
   return {
     operation: "replace",
     value,
+  };
+}
+
+function makeInitialAttendingChanges({
+  eventAttendance = [
+    "ceremony",
+  ],
+  namedInviteeResponses = {
+    "invitee-example-a":
+      "yes",
+    "invitee-example-b":
+      "no",
+  },
+  additionalGuestResponses = {
+    "plus1-example-a":
+      "no",
+  },
+  attendanceTotals = {
+    adults21Plus: 1,
+    youngAdults18To20: 0,
+    children3To17: 0,
+    childrenUnder3: 0,
+  },
+  attendeeDetails = [
+    {
+      attendeeName:
+        "Example Guest One",
+    },
+  ],
+} = {}) {
+  return {
+    eventAttendance:
+      replace(
+        eventAttendance,
+      ),
+    namedInviteeResponses:
+      replace(
+        namedInviteeResponses,
+      ),
+    additionalGuestResponses:
+      replace(
+        additionalGuestResponses,
+      ),
+    attendanceTotals:
+      replace(
+        attendanceTotals,
+      ),
+    attendeeDetails:
+      replace(
+        attendeeDetails,
+      ),
+  };
+}
+
+function makeGroupedChildrenChanges({
+  childResponse = {
+    attending: "yes",
+    count: 2,
+  },
+  namedInviteeResponses = {
+    "invitee-example-a":
+      "yes",
+    "invitee-example-b":
+      "no",
+  },
+  attendanceTotals = {
+    adults21Plus: 1,
+    youngAdults18To20: 0,
+    children3To17: 2,
+    childrenUnder3: 0,
+  },
+  attendeeDetails = [
+    {
+      attendeeName:
+        "Example Guest One",
+    },
+    {
+      attendeeName:
+        "Example Child One",
+    },
+    {
+      attendeeName:
+        "Example Child Two",
+    },
+  ],
+  eventAttendance = [
+    "ceremony",
+  ],
+} = {}) {
+  return {
+    eventAttendance:
+      replace(
+        eventAttendance,
+      ),
+    namedInviteeResponses:
+      replace(
+        namedInviteeResponses,
+      ),
+    additionalGuestResponses:
+      replace({
+        "allocation-children-a":
+          childResponse,
+      }),
+    attendanceTotals:
+      replace(
+        attendanceTotals,
+      ),
+    attendeeDetails:
+      replace(
+        attendeeDetails,
+      ),
+  };
+}
+
+function makeMixedAllocationChanges({
+  namedInviteeResponses = {
+    "invitee-example-a":
+      "yes",
+    "invitee-example-b":
+      "no",
+  },
+  plus1Response = "yes",
+  childResponse = {
+    attending: "yes",
+    count: 2,
+  },
+  attendanceTotals = {
+    adults21Plus: 2,
+    youngAdults18To20: 0,
+    children3To17: 2,
+    childrenUnder3: 0,
+  },
+  attendeeDetails = [
+    {
+      attendeeName:
+        "Example Guest One",
+    },
+    {
+      attendeeName:
+        "Example Companion",
+    },
+    {
+      attendeeName:
+        "Example Child One",
+    },
+    {
+      attendeeName:
+        "Example Child Two",
+    },
+  ],
+} = {}) {
+  return {
+    eventAttendance:
+      replace([
+        "ceremony",
+      ]),
+    namedInviteeResponses:
+      replace(
+        namedInviteeResponses,
+      ),
+    additionalGuestResponses:
+      replace({
+        "plus1-example-a":
+          plus1Response,
+        "allocation-children-a":
+          childResponse,
+      }),
+    attendanceTotals:
+      replace(
+        attendanceTotals,
+      ),
+    attendeeDetails:
+      replace(
+        attendeeDetails,
+      ),
   };
 }
 
@@ -43,28 +283,36 @@ test(
         changes: {},
       });
 
-    assert.equal(parsed.ok, true);
     assert.equal(
-      parsed.value.inviteCode,
+      parsed.ok,
+      true,
+    );
+
+    assert.equal(
+      parsed.value
+        .inviteCode,
       123456,
     );
 
     for (
       const body of [
         {
-          inviteCode: "DEV001",
+          inviteCode:
+            "DEV001",
           confirmation: {},
           changes: {},
         },
         {
-          inviteCode: "DEV001",
+          inviteCode:
+            "DEV001",
           clientSubmissionId:
             "not-a-uuid",
           confirmation: {},
           changes: {},
         },
         {
-          inviteCode: "DEV001",
+          inviteCode:
+            "DEV001",
           clientSubmissionId:
             "2bc9b79c-b707-4e10-a488-8d9575b961f5",
           confirmation: {},
@@ -74,7 +322,9 @@ test(
       ]
     ) {
       assert.equal(
-        parseSubmitRequest(body).ok,
+        parseSubmitRequest(
+          body,
+        ).ok,
         false,
       );
     }
@@ -139,7 +389,7 @@ test(
 );
 
 test(
-  "disabled text-message confirmation is an authorization failure",
+  "text-message confirmation enforces channel authorization and required transactional authorization",
   () => {
     assert.equal(
       parseConfirmation(
@@ -156,6 +406,42 @@ test(
         },
       ).status,
       403,
+    );
+
+    assert.equal(
+      parseConfirmation(
+        {
+          method:
+            "textMessage",
+          mobile:
+            "+15555550123",
+        },
+        {
+          textMessage: true,
+          smsAuthorizationRequired:
+            true,
+        },
+      ).status,
+      400,
+    );
+
+    assert.equal(
+      parseConfirmation(
+        {
+          method:
+            "textMessage",
+          mobile:
+            "+15555550123",
+          smsAuthorization:
+            true,
+        },
+        {
+          textMessage: true,
+          smsAuthorizationRequired:
+            true,
+        },
+      ).ok,
+      true,
     );
   },
 );
@@ -174,44 +460,39 @@ test(
         ["decline"],
       ]
     ) {
-      const changes = {
-        eventAttendance:
-          replace(value),
-      };
-
-      if (
-        value[0] !==
+      const changes =
+        value[0] ===
         "decline"
-      ) {
-        changes
-          .additionalGuestResponses =
-          replace({
-            "plus1-example-a":
-              "no",
-          });
-        changes.attendanceTotals =
-          replace({
-            adults21Plus: 1,
-            youngAdults18To20: 0,
-            children3To17: 0,
-            childrenUnder3: 0,
-          });
-
-        if (
-          value.includes(
-            "reception",
-          )
-        ) {
-          changes
-            .receptionAttendeeDetails =
-            replace([
+          ? {
+              eventAttendance:
+                replace(
+                  value,
+                ),
+            }
+          : makeInitialAttendingChanges(
               {
-                attendeeName:
-                  "Example Guest",
+                eventAttendance:
+                  value,
+                attendeeDetails:
+                  value.includes(
+                    "reception",
+                  )
+                    ? [
+                        {
+                          attendeeName:
+                            "Example Guest One",
+                          dietaryPreferences:
+                            "",
+                        },
+                      ]
+                    : [
+                        {
+                          attendeeName:
+                            "Example Guest One",
+                        },
+                      ],
               },
-            ]);
-        }
-      }
+            );
 
       assert.equal(
         validateInitialChanges(
@@ -224,32 +505,22 @@ test(
 
     const reversed =
       validateInitialChanges(
-        {
-          eventAttendance:
-            replace([
+        makeInitialAttendingChanges(
+          {
+            eventAttendance: [
               "reception",
               "ceremony",
-            ]),
-          additionalGuestResponses:
-            replace({
-              "plus1-example-a":
-                "no",
-            }),
-          attendanceTotals:
-            replace({
-              adults21Plus: 1,
-              youngAdults18To20: 0,
-              children3To17: 0,
-              childrenUnder3: 0,
-            }),
-          receptionAttendeeDetails:
-            replace([
+            ],
+            attendeeDetails: [
               {
                 attendeeName:
-                  "Example Guest",
+                  "Example Guest One",
+                dietaryPreferences:
+                  "",
               },
-            ]),
-        },
+            ],
+          },
+        ),
         invitation,
       );
 
@@ -265,7 +536,7 @@ test(
 );
 
 test(
-  "contradictory or empty attendance is rejected",
+  "contradictory, empty, duplicate, or unknown attendance is rejected",
   () => {
     for (
       const value of [
@@ -278,6 +549,10 @@ test(
           "decline",
           "reception",
         ],
+        [
+          "ceremony",
+          "ceremony",
+        ],
         ["unknown"],
       ]
     ) {
@@ -285,229 +560,182 @@ test(
         validateInitialChanges(
           {
             eventAttendance:
-              replace(value),
+              replace(
+                value,
+              ),
           },
           invitation,
         ).status,
         400,
       );
     }
+  },
+);
+
+test(
+  "initial attending response requires one valid response for every authorized named invitee",
+  () => {
+    const missing =
+      makeInitialAttendingChanges();
+
+    delete missing
+      .namedInviteeResponses;
+
+    assert.equal(
+      validateInitialChanges(
+        missing,
+        invitation,
+      ).status,
+      400,
+    );
+
+    const incomplete =
+      makeInitialAttendingChanges(
+        {
+          namedInviteeResponses:
+            {
+              "invitee-example-a":
+                "yes",
+            },
+        },
+      );
+
+    assert.equal(
+      validateInitialChanges(
+        incomplete,
+        invitation,
+      ).status,
+      400,
+    );
   },
 );
 
 test(
   "initial attending response requires every authorized Plus1 allocation response",
   () => {
-    const result =
-      validateInitialChanges(
-        {
-          eventAttendance:
-            replace([
-              "ceremony",
-            ]),
-          attendanceTotals:
-            replace({
-              adults21Plus: 1,
-              youngAdults18To20: 0,
-              children3To17: 0,
-              childrenUnder3: 0,
-            }),
-        },
-        invitation,
-      );
+    const changes =
+      makeInitialAttendingChanges();
+
+    delete changes
+      .additionalGuestResponses;
 
     assert.equal(
-      result.status,
+      validateInitialChanges(
+        changes,
+        invitation,
+      ).status,
       400,
     );
   },
 );
 
 test(
-  "unknown Plus1 allocation IDs are forbidden",
+  "unknown named-invitee and Plus1 identifiers are forbidden",
   () => {
-    const result =
-      validateInitialChanges(
-        {
-          eventAttendance:
-            replace([
-              "ceremony",
-            ]),
-          additionalGuestResponses:
-            replace({
-              "not-authorized":
-                "yes",
-            }),
-          attendanceTotals:
-            replace({
-              adults21Plus: 1,
-              youngAdults18To20: 0,
-              children3To17: 0,
-              childrenUnder3: 0,
-            }),
-        },
-        invitation,
-      );
-
     assert.equal(
-      result.status,
-      403,
-    );
-  },
-);
-
-test(
-  "party with no allocations cannot submit additionalGuestResponses",
-  () => {
-    const result =
       validateInitialChanges(
-        {
-          eventAttendance:
-            replace([
-              "ceremony",
-            ]),
-          additionalGuestResponses:
-            replace({}),
-          attendanceTotals:
-            replace({
-              adults21Plus: 1,
-              youngAdults18To20: 0,
-              children3To17: 0,
-              childrenUnder3: 0,
-            }),
-        },
-        {
-          maximumAttendance: 2,
-          additionalGuestAllocations:
-            [],
-        },
-      );
-
-    assert.equal(
-      result.status,
-      403,
-    );
-  },
-);
-
-test(
-  "attendance totals require four nonnegative integers within invitation capacity",
-  () => {
-    const base = {
-      eventAttendance:
-        replace(["ceremony"]),
-      additionalGuestResponses:
-        replace({
-          "plus1-example-a":
-            "no",
-        }),
-    };
-
-    for (
-      const totals of [
-        {
-          adults21Plus: 1,
-          youngAdults18To20: 0,
-          children3To17: 0,
-        },
-        {
-          adults21Plus: -1,
-          youngAdults18To20: 0,
-          children3To17: 0,
-          childrenUnder3: 0,
-        },
-        {
-          adults21Plus: 1.5,
-          youngAdults18To20: 0,
-          children3To17: 0,
-          childrenUnder3: 0,
-        },
-        {
-          adults21Plus: 4,
-          youngAdults18To20: 0,
-          children3To17: 0,
-          childrenUnder3: 0,
-        },
-      ]
-    ) {
-      assert.equal(
-        validateInitialChanges(
+        makeInitialAttendingChanges(
           {
-            ...base,
-            attendanceTotals:
-              replace(totals),
+            namedInviteeResponses:
+              {
+                "invitee-example-a":
+                  "yes",
+                "not-authorized":
+                  "no",
+              },
           },
-          invitation,
-        ).status,
-        400,
-      );
-    }
+        ),
+        invitation,
+      ).status,
+      403,
+    );
+
+    assert.equal(
+      validateInitialChanges(
+        makeInitialAttendingChanges(
+          {
+            additionalGuestResponses:
+              {
+                "not-authorized":
+                  "no",
+              },
+          },
+        ),
+        invitation,
+      ).status,
+      403,
+    );
   },
 );
 
 test(
-  "Reception initial response requires exactly one valid detail record per attendee",
+  "party with no Plus1 allocations must omit additionalGuestResponses",
   () => {
-    const base = {
-      eventAttendance:
-        replace(["reception"]),
-      additionalGuestResponses:
-        replace({
-          "plus1-example-a":
-            "yes",
-        }),
-      attendanceTotals:
-        replace({
-          adults21Plus: 2,
-          youngAdults18To20: 0,
-          children3To17: 0,
-          childrenUnder3: 0,
-        }),
-    };
+    const changes =
+      makeInitialAttendingChanges();
 
     assert.equal(
       validateInitialChanges(
-        base,
-        invitation,
+        changes,
+        noPlusOneInvitation,
       ).status,
-      400,
+      403,
     );
+
+    delete changes
+      .additionalGuestResponses;
 
     assert.equal(
       validateInitialChanges(
-        {
-          ...base,
-          receptionAttendeeDetails:
-            replace([
-              {
-                attendeeName:
-                  "Only One",
-              },
-            ]),
-        },
-        invitation,
-      ).status,
-      400,
+        changes,
+        noPlusOneInvitation,
+      ).ok,
+      true,
     );
+  },
+);
 
+test(
+  "overall attendance is derived from person-level Yes responses and age totals must match it exactly",
+  () => {
     const validResult =
       validateInitialChanges(
-        {
-          ...base,
-          receptionAttendeeDetails:
-            replace([
+        makeInitialAttendingChanges(
+          {
+            namedInviteeResponses:
+              {
+                "invitee-example-a":
+                  "yes",
+                "invitee-example-b":
+                  "yes",
+              },
+            additionalGuestResponses:
+              {
+                "plus1-example-a":
+                  "no",
+              },
+            attendanceTotals:
+              {
+                adults21Plus: 2,
+                youngAdults18To20:
+                  0,
+                children3To17:
+                  0,
+                childrenUnder3:
+                  0,
+              },
+            attendeeDetails: [
               {
                 attendeeName:
-                  "Example Guest",
+                  "Example Guest One",
               },
               {
                 attendeeName:
-                  "Example Companion",
-                dietaryPreferences:
-                  "",
+                  "Example Guest Two",
               },
-            ]),
-        },
+            ],
+          },
+        ),
         invitation,
       );
 
@@ -515,49 +743,240 @@ test(
       validResult.ok,
       true,
     );
+
     assert.equal(
       validResult.value
-        .receptionAttendeeDetails[0]
-        .dietaryPreferences,
-      "",
+        .overallAttendance,
+      2,
+    );
+
+    assert.equal(
+      validateInitialChanges(
+        makeInitialAttendingChanges(
+          {
+            attendanceTotals:
+              {
+                adults21Plus: 2,
+                youngAdults18To20:
+                  0,
+                children3To17:
+                  0,
+                childrenUnder3:
+                  0,
+              },
+          },
+        ),
+        invitation,
+      ).status,
+      400,
+    );
+
+    assert.equal(
+      validateInitialChanges(
+        makeInitialAttendingChanges(
+          {
+            namedInviteeResponses:
+              {
+                "invitee-example-a":
+                  "no",
+                "invitee-example-b":
+                  "no",
+              },
+            additionalGuestResponses:
+              {
+                "plus1-example-a":
+                  "no",
+              },
+            attendanceTotals:
+              {
+                adults21Plus: 0,
+                youngAdults18To20:
+                  0,
+                children3To17:
+                  0,
+                childrenUnder3:
+                  0,
+              },
+            attendeeDetails: [],
+          },
+        ),
+        invitation,
+      ).status,
+      400,
     );
   },
 );
 
 test(
-  "Reception details are forbidden when Reception is not selected",
+  "attendance totals require all four nonnegative whole-number categories",
+  () => {
+    for (
+      const totals of [
+        {
+          adults21Plus: 1,
+          youngAdults18To20:
+            0,
+          children3To17: 0,
+        },
+        {
+          adults21Plus: -1,
+          youngAdults18To20:
+            0,
+          children3To17: 0,
+          childrenUnder3: 2,
+        },
+        {
+          adults21Plus: 1.5,
+          youngAdults18To20:
+            0,
+          children3To17: 0,
+          childrenUnder3: 0,
+        },
+      ]
+    ) {
+      assert.equal(
+        validateInitialChanges(
+          makeInitialAttendingChanges(
+            {
+              attendanceTotals:
+                totals,
+            },
+          ),
+          invitation,
+        ).status,
+        400,
+      );
+    }
+  },
+);
+
+test(
+  "attendeeDetails is required for every attending state and must match derived attendance exactly",
+  () => {
+    const missing =
+      makeInitialAttendingChanges();
+
+    delete missing
+      .attendeeDetails;
+
+    assert.equal(
+      validateInitialChanges(
+        missing,
+        invitation,
+      ).status,
+      400,
+    );
+
+    assert.equal(
+      validateInitialChanges(
+        makeInitialAttendingChanges(
+          {
+            namedInviteeResponses:
+              {
+                "invitee-example-a":
+                  "yes",
+                "invitee-example-b":
+                  "yes",
+              },
+            attendanceTotals:
+              {
+                adults21Plus: 2,
+                youngAdults18To20:
+                  0,
+                children3To17:
+                  0,
+                childrenUnder3:
+                  0,
+              },
+            attendeeDetails: [
+              {
+                attendeeName:
+                  "Only One",
+              },
+            ],
+          },
+        ),
+        invitation,
+      ).status,
+      400,
+    );
+  },
+);
+
+test(
+  "Ceremony-only attendee details require names and reject Reception-only dietary fields",
+  () => {
+    assert.equal(
+      validateInitialChanges(
+        makeInitialAttendingChanges(
+          {
+            attendeeDetails: [
+              {
+                attendeeName:
+                  "   ",
+              },
+            ],
+          },
+        ),
+        invitation,
+      ).status,
+      400,
+    );
+
+    assert.equal(
+      validateInitialChanges(
+        makeInitialAttendingChanges(
+          {
+            attendeeDetails: [
+              {
+                attendeeName:
+                  "Example Guest One",
+                dietaryPreferences:
+                  "Vegetarian",
+              },
+            ],
+          },
+        ),
+        invitation,
+      ).status,
+      403,
+    );
+  },
+);
+
+test(
+  "Reception attendee details accept optional dietary or allergy information",
   () => {
     const result =
       validateInitialChanges(
-        {
-          eventAttendance:
-            replace(["ceremony"]),
-          additionalGuestResponses:
-            replace({
-              "plus1-example-a":
-                "no",
-            }),
-          attendanceTotals:
-            replace({
-              adults21Plus: 1,
-              youngAdults18To20: 0,
-              children3To17: 0,
-              childrenUnder3: 0,
-            }),
-          receptionAttendeeDetails:
-            replace([
+        makeInitialAttendingChanges(
+          {
+            eventAttendance: [
+              "reception",
+            ],
+            attendeeDetails: [
               {
                 attendeeName:
-                  "Example Guest",
+                  "Example Guest One",
+                dietaryPreferences:
+                  "",
               },
-            ]),
-        },
+            ],
+          },
+        ),
         invitation,
       );
 
     assert.equal(
-      result.status,
-      403,
+      result.ok,
+      true,
+    );
+
+    assert.equal(
+      result.value
+        .attendeeDetails[0]
+        .dietaryPreferences,
+      "",
     );
   },
 );
@@ -569,13 +988,15 @@ test(
       validateInitialChanges(
         {
           eventAttendance:
-            replace(["decline"]),
-          attendanceTotals:
+            replace([
+              "decline",
+            ]),
+          namedInviteeResponses:
             replace({
-              adults21Plus: 0,
-              youngAdults18To20: 0,
-              children3To17: 0,
-              childrenUnder3: 0,
+              "invitee-example-a":
+                "no",
+              "invitee-example-b":
+                "no",
             }),
         },
         invitation,
@@ -589,9 +1010,21 @@ test(
 );
 
 test(
-  "generic client clear operation is forbidden",
+  "unknown substantive regions, client-writable overallAttendance, and generic clear operations are forbidden",
   () => {
-    const result =
+    assert.equal(
+      validateInitialChanges(
+        {
+          ...makeInitialAttendingChanges(),
+          overallAttendance:
+            replace(1),
+        },
+        invitation,
+      ).status,
+      403,
+    );
+
+    assert.equal(
       validateInitialChanges(
         {
           eventAttendance: {
@@ -599,15 +1032,11 @@ test(
           },
         },
         invitation,
-      );
-
-    assert.equal(
-      result.status,
+      ).status,
       403,
     );
   },
 );
-
 
 function makeCurrentReceptionRsvp() {
   return {
@@ -615,6 +1044,12 @@ function makeCurrentReceptionRsvp() {
       "ceremony",
       "reception",
     ],
+    namedInviteeResponses: {
+      "invitee-example-a":
+        "yes",
+      "invitee-example-b":
+        "yes",
+    },
     additionalGuestResponses: {
       "plus1-example-a":
         "yes",
@@ -626,22 +1061,22 @@ function makeCurrentReceptionRsvp() {
       childrenUnder3: 0,
     },
     overallAttendance: 3,
-    receptionAttendeeDetails: [
+    attendeeDetails: [
       {
         attendeeName:
-          "Example Guest",
+          "Example Guest One",
         dietaryPreferences:
           "",
       },
       {
         attendeeName:
-          "Example Companion",
+          "Example Guest Two",
         dietaryPreferences:
           "Vegetarian",
       },
       {
         attendeeName:
-          "Example Child",
+          "Example Companion",
         dietaryPreferences:
           "",
       },
@@ -666,6 +1101,7 @@ test(
       result.ok,
       true,
     );
+
     assert.deepEqual(
       result.value,
       current,
@@ -684,19 +1120,186 @@ test(
         {
           attendanceTotals:
             replace({
-              children3To17: 0,
+              adults21Plus: 3,
+              children3To17:
+                0,
             }),
-          receptionAttendeeDetails:
+        },
+        invitation,
+        current,
+      );
+
+    assert.equal(
+      result.ok,
+      true,
+    );
+
+    assert.deepEqual(
+      result.value
+        .attendanceTotals,
+      {
+        adults21Plus: 3,
+        youngAdults18To20: 0,
+        children3To17: 0,
+        childrenUnder3: 0,
+      },
+    );
+
+    assert.equal(
+      result.value
+        .overallAttendance,
+      3,
+    );
+  },
+);
+
+test(
+  "same-count named-invitee composition change requires complete attendeeDetails replacement",
+  () => {
+    const current = {
+      eventAttendance: [
+        "reception",
+      ],
+      namedInviteeResponses: {
+        "invitee-example-a":
+          "yes",
+        "invitee-example-b":
+          "no",
+      },
+      additionalGuestResponses:
+        {
+          "plus1-example-a":
+            "yes",
+        },
+      attendanceTotals: {
+        adults21Plus: 2,
+        youngAdults18To20: 0,
+        children3To17: 0,
+        childrenUnder3: 0,
+      },
+      overallAttendance: 2,
+      attendeeDetails: [
+        {
+          attendeeName:
+            "Example Guest One",
+          dietaryPreferences:
+            "",
+        },
+        {
+          attendeeName:
+            "Example Companion",
+          dietaryPreferences:
+            "",
+        },
+      ],
+    };
+
+    assert.equal(
+      validateRevisionChanges(
+        {
+          namedInviteeResponses:
+            replace({
+              "invitee-example-a":
+                "no",
+              "invitee-example-b":
+                "yes",
+            }),
+        },
+        invitation,
+        current,
+      ).status,
+      400,
+    );
+
+    const replacement =
+      validateRevisionChanges(
+        {
+          namedInviteeResponses:
+            replace({
+              "invitee-example-a":
+                "no",
+              "invitee-example-b":
+                "yes",
+            }),
+          attendeeDetails:
             replace([
               {
                 attendeeName:
-                  "Example Guest",
+                  "Example Guest Two",
                 dietaryPreferences:
                   "",
               },
               {
                 attendeeName:
                   "Example Companion",
+                dietaryPreferences:
+                  "",
+              },
+            ]),
+        },
+        invitation,
+        current,
+      );
+
+    assert.equal(
+      replacement.ok,
+      true,
+    );
+
+    assert.equal(
+      replacement.value
+        .overallAttendance,
+      2,
+    );
+  },
+);
+
+test(
+  "revision partially replaces authorized Plus1 responses and requires totals and details when attendance count changes",
+  () => {
+    const current =
+      makeCurrentReceptionRsvp();
+
+    assert.equal(
+      validateRevisionChanges(
+        {
+          additionalGuestResponses:
+            replace({
+              "plus1-example-a":
+                "no",
+            }),
+        },
+        invitation,
+        current,
+      ).status,
+      400,
+    );
+
+    const result =
+      validateRevisionChanges(
+        {
+          additionalGuestResponses:
+            replace({
+              "plus1-example-a":
+                "no",
+            }),
+          attendanceTotals:
+            replace({
+              adults21Plus: 2,
+              children3To17:
+                0,
+            }),
+          attendeeDetails:
+            replace([
+              {
+                attendeeName:
+                  "Example Guest One",
+                dietaryPreferences:
+                  "",
+              },
+              {
+                attendeeName:
+                  "Example Guest Two",
                 dietaryPreferences:
                   "Vegetarian",
               },
@@ -710,86 +1313,11 @@ test(
       result.ok,
       true,
     );
-    assert.deepEqual(
-      result.value
-        .attendanceTotals,
-      {
-        adults21Plus: 2,
-        youngAdults18To20: 0,
-        children3To17: 0,
-        childrenUnder3: 0,
-      },
-    );
+
     assert.equal(
       result.value
         .overallAttendance,
       2,
-    );
-  },
-);
-
-test(
-  "revision partially replaces authorized Plus1 responses while preserving omitted allocations",
-  () => {
-    const multiInvitation = {
-      maximumAttendance: 4,
-      additionalGuestAllocations: [
-        {
-          id:
-            "plus1-example-a",
-        },
-        {
-          id:
-            "plus1-example-b",
-        },
-      ],
-    };
-
-    const current = {
-      eventAttendance: [
-        "ceremony",
-      ],
-      additionalGuestResponses: {
-        "plus1-example-a":
-          "yes",
-        "plus1-example-b":
-          "no",
-      },
-      attendanceTotals: {
-        adults21Plus: 2,
-        youngAdults18To20: 0,
-        children3To17: 0,
-        childrenUnder3: 0,
-      },
-      overallAttendance: 2,
-    };
-
-    const result =
-      validateRevisionChanges(
-        {
-          additionalGuestResponses:
-            replace({
-              "plus1-example-b":
-                "yes",
-            }),
-        },
-        multiInvitation,
-        current,
-      );
-
-    assert.equal(
-      result.ok,
-      true,
-    );
-    assert.deepEqual(
-      result.value
-        .additionalGuestResponses,
-      {
-        "plus1-example-a":
-          "yes",
-        "plus1-example-b":
-          "yes",
-      },
     );
   },
 );
@@ -824,7 +1352,7 @@ test(
 );
 
 test(
-  "decline-to-attending revision requires all newly applicable attendance data",
+  "decline-to-attending revision requires all newly applicable person responses, totals, and attendee details",
   () => {
     const current = {
       eventAttendance: [
@@ -848,24 +1376,7 @@ test(
 
     const validResult =
       validateRevisionChanges(
-        {
-          eventAttendance:
-            replace([
-              "ceremony",
-            ]),
-          additionalGuestResponses:
-            replace({
-              "plus1-example-a":
-                "no",
-            }),
-          attendanceTotals:
-            replace({
-              adults21Plus: 1,
-              youngAdults18To20: 0,
-              children3To17: 0,
-              childrenUnder3: 0,
-            }),
-        },
+        makeInitialAttendingChanges(),
         invitation,
         current,
       );
@@ -878,66 +1389,7 @@ test(
 );
 
 test(
-  "adding Reception newly requires a complete attendee-detail replacement",
-  () => {
-    const current = {
-      eventAttendance: [
-        "ceremony",
-      ],
-      additionalGuestResponses: {
-        "plus1-example-a":
-          "no",
-      },
-      attendanceTotals: {
-        adults21Plus: 1,
-        youngAdults18To20: 0,
-        children3To17: 0,
-        childrenUnder3: 0,
-      },
-      overallAttendance: 1,
-    };
-
-    assert.equal(
-      validateRevisionChanges(
-        {
-          eventAttendance:
-            replace([
-              "ceremony",
-              "reception",
-            ]),
-        },
-        invitation,
-        current,
-      ).status,
-      400,
-    );
-
-    assert.equal(
-      validateRevisionChanges(
-        {
-          eventAttendance:
-            replace([
-              "ceremony",
-              "reception",
-            ]),
-          receptionAttendeeDetails:
-            replace([
-              {
-                attendeeName:
-                  "Example Guest",
-              },
-            ]),
-        },
-        invitation,
-        current,
-      ).ok,
-      true,
-    );
-  },
-);
-
-test(
-  "removing Reception clears stored attendee details automatically",
+  "removing Reception preserves attendee names while clearing dietary information",
   () => {
     const result =
       validateRevisionChanges(
@@ -955,56 +1407,69 @@ test(
       result.ok,
       true,
     );
-    assert.equal(
-      Object.prototype
-        .hasOwnProperty.call(
-          result.value,
-          "receptionAttendeeDetails",
-        ),
-      false,
-    );
-  },
-);
 
-test(
-  "changing overall attendance while Reception remains selected requires a complete attendee-detail replacement",
-  () => {
-    const current =
-      makeCurrentReceptionRsvp();
-
-    const result =
-      validateRevisionChanges(
+    assert.deepEqual(
+      result.value
+        .attendeeDetails,
+      [
         {
-          attendanceTotals:
-            replace({
-              children3To17: 0,
-            }),
+          attendeeName:
+            "Example Guest One",
         },
-        invitation,
-        current,
-      );
-
-    assert.equal(
-      result.status,
-      400,
+        {
+          attendeeName:
+            "Example Guest Two",
+        },
+        {
+          attendeeName:
+            "Example Companion",
+        },
+      ],
     );
   },
 );
 
 test(
-  "Reception revision with unchanged overall attendance may omit attendee details and preserve them",
+  "adding Reception without changing attendee composition may preserve existing attendee names",
   () => {
-    const current =
-      makeCurrentReceptionRsvp();
+    const current = {
+      eventAttendance: [
+        "ceremony",
+      ],
+      namedInviteeResponses: {
+        "invitee-example-a":
+          "yes",
+        "invitee-example-b":
+          "no",
+      },
+      additionalGuestResponses:
+        {
+          "plus1-example-a":
+            "no",
+        },
+      attendanceTotals: {
+        adults21Plus: 1,
+        youngAdults18To20: 0,
+        children3To17: 0,
+        childrenUnder3: 0,
+      },
+      overallAttendance: 1,
+      attendeeDetails: [
+        {
+          attendeeName:
+            "Example Guest One",
+        },
+      ],
+    };
 
     const result =
       validateRevisionChanges(
         {
-          additionalGuestResponses:
-            replace({
-              "plus1-example-a":
-                "no",
-            }),
+          eventAttendance:
+            replace([
+              "ceremony",
+              "reception",
+            ]),
         },
         invitation,
         current,
@@ -1014,26 +1479,38 @@ test(
       result.ok,
       true,
     );
+
     assert.deepEqual(
       result.value
-        .receptionAttendeeDetails,
-      current
-        .receptionAttendeeDetails,
+        .attendeeDetails,
+      [
+        {
+          attendeeName:
+            "Example Guest One",
+        },
+      ],
     );
   },
 );
 
 test(
-  "revision rejects unauthorized allocation IDs and Reception details in a non-Reception resulting state",
+  "revision rejects unauthorized person identifiers and dietary information in a non-Reception resulting state",
   () => {
     const current = {
       eventAttendance: [
         "ceremony",
       ],
-      additionalGuestResponses: {
-        "plus1-example-a":
+      namedInviteeResponses: {
+        "invitee-example-a":
+          "yes",
+        "invitee-example-b":
           "no",
       },
+      additionalGuestResponses:
+        {
+          "plus1-example-a":
+            "no",
+        },
       attendanceTotals: {
         adults21Plus: 1,
         youngAdults18To20: 0,
@@ -1041,14 +1518,20 @@ test(
         childrenUnder3: 0,
       },
       overallAttendance: 1,
+      attendeeDetails: [
+        {
+          attendeeName:
+            "Example Guest One",
+        },
+      ],
     };
 
     assert.equal(
       validateRevisionChanges(
         {
-          additionalGuestResponses:
+          namedInviteeResponses:
             replace({
-              "unknown-allocation":
+              "unknown-invitee":
                 "yes",
             }),
         },
@@ -1061,11 +1544,13 @@ test(
     assert.equal(
       validateRevisionChanges(
         {
-          receptionAttendeeDetails:
+          attendeeDetails:
             replace([
               {
                 attendeeName:
-                  "Example Guest",
+                  "Example Guest One",
+                dietaryPreferences:
+                  "Vegetarian",
               },
             ]),
         },
@@ -1074,5 +1559,746 @@ test(
       ).status,
       403,
     );
+  },
+);
+
+test(
+  "grouped unnamed-children allocation uses maximumCount as person capacity rather than allocation-object count",
+  () => {
+    const result =
+      validateInitialChanges(
+        makeGroupedChildrenChanges(),
+        groupedChildrenInvitation,
+      );
+
+    assert.equal(
+      result.ok,
+      true,
+    );
+
+    assert.equal(
+      groupedChildrenInvitation
+        .namedInvitees.length,
+      2,
+    );
+
+    assert.equal(
+      groupedChildrenInvitation
+        .additionalGuestAllocations
+        .length,
+      1,
+    );
+
+    assert.equal(
+      groupedChildrenInvitation
+        .additionalGuestAllocations[0]
+        .maximumCount,
+      2,
+    );
+
+    assert.equal(
+      result.value
+        .overallAttendance,
+      3,
+    );
+  },
+);
+
+test(
+  "grouped unnamed-children No response requires count zero and contributes no attendance",
+  () => {
+    const result =
+      validateInitialChanges(
+        makeGroupedChildrenChanges({
+          childResponse: {
+            attending: "no",
+            count: 0,
+          },
+          attendanceTotals: {
+            adults21Plus: 1,
+            youngAdults18To20:
+              0,
+            children3To17: 0,
+            childrenUnder3: 0,
+          },
+          attendeeDetails: [
+            {
+              attendeeName:
+                "Example Guest One",
+            },
+          ],
+        }),
+        groupedChildrenInvitation,
+      );
+
+    assert.equal(
+      result.ok,
+      true,
+    );
+
+    assert.deepEqual(
+      result.value
+        .additionalGuestResponses[
+          "allocation-children-a"
+        ],
+      {
+        attending: "no",
+        count: 0,
+      },
+    );
+
+    assert.equal(
+      result.value
+        .overallAttendance,
+      1,
+    );
+  },
+);
+
+test(
+  "grouped unnamed-children Yes response accepts every whole-number count from one through maximumCount",
+  () => {
+    const oneChild =
+      validateInitialChanges(
+        makeGroupedChildrenChanges({
+          childResponse: {
+            attending: "yes",
+            count: 1,
+          },
+          attendanceTotals: {
+            adults21Plus: 1,
+            youngAdults18To20:
+              0,
+            children3To17: 1,
+            childrenUnder3: 0,
+          },
+          attendeeDetails: [
+            {
+              attendeeName:
+                "Example Guest One",
+            },
+            {
+              attendeeName:
+                "Example Child One",
+            },
+          ],
+        }),
+        groupedChildrenInvitation,
+      );
+
+    assert.equal(
+      oneChild.ok,
+      true,
+    );
+
+    assert.equal(
+      oneChild.value
+        .overallAttendance,
+      2,
+    );
+
+    const twoChildren =
+      validateInitialChanges(
+        makeGroupedChildrenChanges(),
+        groupedChildrenInvitation,
+      );
+
+    assert.equal(
+      twoChildren.ok,
+      true,
+    );
+
+    assert.equal(
+      twoChildren.value
+        .overallAttendance,
+      3,
+    );
+  },
+);
+
+test(
+  "grouped unnamed-children response rejects scalar, missing, extra, malformed, and contradictory values",
+  () => {
+    const invalidResponses = [
+      "yes",
+      "no",
+      {
+        attending: "yes",
+      },
+      {
+        count: 1,
+      },
+      {
+        attending: "yes",
+        count: 1,
+        extra: true,
+      },
+      {
+        attending: "maybe",
+        count: 1,
+      },
+      {
+        attending: "yes",
+        count: 0,
+      },
+      {
+        attending: "yes",
+        count: 3,
+      },
+      {
+        attending: "yes",
+        count: 1.5,
+      },
+      {
+        attending: "yes",
+        count: "1",
+      },
+      {
+        attending: "yes",
+        count: true,
+      },
+      {
+        attending: "yes",
+        count: null,
+      },
+      {
+        attending: "yes",
+        count: -1,
+      },
+      {
+        attending: "no",
+        count: 1,
+      },
+    ];
+
+    for (
+      const childResponse of
+      invalidResponses
+    ) {
+      const result =
+        validateInitialChanges(
+          makeGroupedChildrenChanges({
+            childResponse,
+          }),
+          groupedChildrenInvitation,
+        );
+
+      assert.equal(
+        result.status,
+        400,
+      );
+    }
+  },
+);
+
+test(
+  "mixed Plus1 and grouped-child responses derive attendance from one-person Plus1 and grouped child count",
+  () => {
+    const result =
+      validateInitialChanges(
+        makeMixedAllocationChanges(),
+        mixedAllocationInvitation,
+      );
+
+    assert.equal(
+      result.ok,
+      true,
+    );
+
+    assert.equal(
+      result.value
+        .overallAttendance,
+      4,
+    );
+
+    assert.deepEqual(
+      result.value
+        .additionalGuestResponses,
+      {
+        "plus1-example-a":
+          "yes",
+        "allocation-children-a":
+          {
+            attending: "yes",
+            count: 2,
+          },
+      },
+    );
+  },
+);
+
+test(
+  "mixed additional-guest response maps remain complete and allocation-authorized",
+  () => {
+    const incomplete =
+      makeMixedAllocationChanges();
+
+    incomplete
+      .additionalGuestResponses =
+      replace({
+        "plus1-example-a":
+          "yes",
+      });
+
+    assert.equal(
+      validateInitialChanges(
+        incomplete,
+        mixedAllocationInvitation,
+      ).status,
+      400,
+    );
+
+    const unauthorized =
+      makeMixedAllocationChanges();
+
+    unauthorized
+      .additionalGuestResponses =
+      replace({
+        "plus1-example-a":
+          "yes",
+        "not-authorized":
+          {
+            attending: "yes",
+            count: 2,
+          },
+      });
+
+    assert.equal(
+      validateInitialChanges(
+        unauthorized,
+        mixedAllocationInvitation,
+      ).status,
+      403,
+    );
+  },
+);
+
+test(
+  "revision may partially replace a grouped child response but count changes require reconciled totals and complete attendeeDetails",
+  () => {
+    const current = {
+      eventAttendance: [
+        "ceremony",
+      ],
+      namedInviteeResponses: {
+        "invitee-example-a":
+          "yes",
+        "invitee-example-b":
+          "no",
+      },
+      additionalGuestResponses: {
+        "allocation-children-a":
+          {
+            attending: "yes",
+            count: 2,
+          },
+      },
+      attendanceTotals: {
+        adults21Plus: 1,
+        youngAdults18To20: 0,
+        children3To17: 2,
+        childrenUnder3: 0,
+      },
+      overallAttendance: 3,
+      attendeeDetails: [
+        {
+          attendeeName:
+            "Example Guest One",
+        },
+        {
+          attendeeName:
+            "Example Child One",
+        },
+        {
+          attendeeName:
+            "Example Child Two",
+        },
+      ],
+    };
+
+    const missingDependents =
+      validateRevisionChanges(
+        {
+          additionalGuestResponses:
+            replace({
+              "allocation-children-a":
+                {
+                  attending:
+                    "yes",
+                  count: 1,
+                },
+            }),
+        },
+        groupedChildrenInvitation,
+        current,
+      );
+
+    assert.equal(
+      missingDependents.status,
+      400,
+    );
+
+    const result =
+      validateRevisionChanges(
+        {
+          additionalGuestResponses:
+            replace({
+              "allocation-children-a":
+                {
+                  attending:
+                    "yes",
+                  count: 1,
+                },
+            }),
+          attendanceTotals:
+            replace({
+              children3To17: 1,
+            }),
+          attendeeDetails:
+            replace([
+              {
+                attendeeName:
+                  "Example Guest One",
+              },
+              {
+                attendeeName:
+                  "Example Child One",
+              },
+            ]),
+        },
+        groupedChildrenInvitation,
+        current,
+      );
+
+    assert.equal(
+      result.ok,
+      true,
+    );
+
+    assert.equal(
+      result.value
+        .overallAttendance,
+      2,
+    );
+  },
+);
+
+test(
+  "grouped child response change requires attendeeDetails replacement even when another attendance change preserves numeric headcount",
+  () => {
+    const current = {
+      eventAttendance: [
+        "ceremony",
+      ],
+      namedInviteeResponses: {
+        "invitee-example-a":
+          "yes",
+        "invitee-example-b":
+          "no",
+      },
+      additionalGuestResponses: {
+        "allocation-children-a":
+          {
+            attending: "yes",
+            count: 2,
+          },
+      },
+      attendanceTotals: {
+        adults21Plus: 1,
+        youngAdults18To20: 0,
+        children3To17: 2,
+        childrenUnder3: 0,
+      },
+      overallAttendance: 3,
+      attendeeDetails: [
+        {
+          attendeeName:
+            "Example Guest One",
+        },
+        {
+          attendeeName:
+            "Example Child One",
+        },
+        {
+          attendeeName:
+            "Example Child Two",
+        },
+      ],
+    };
+
+    const withoutReplacement =
+      validateRevisionChanges(
+        {
+          namedInviteeResponses:
+            replace({
+              "invitee-example-b":
+                "yes",
+            }),
+          additionalGuestResponses:
+            replace({
+              "allocation-children-a":
+                {
+                  attending:
+                    "yes",
+                  count: 1,
+                },
+            }),
+          attendanceTotals:
+            replace({
+              adults21Plus: 2,
+              children3To17: 1,
+            }),
+        },
+        groupedChildrenInvitation,
+        current,
+      );
+
+    assert.equal(
+      withoutReplacement.status,
+      400,
+    );
+
+    assert.equal(
+      withoutReplacement.reason,
+      "missing-attendee-details",
+    );
+
+    const withReplacement =
+      validateRevisionChanges(
+        {
+          namedInviteeResponses:
+            replace({
+              "invitee-example-b":
+                "yes",
+            }),
+          additionalGuestResponses:
+            replace({
+              "allocation-children-a":
+                {
+                  attending:
+                    "yes",
+                  count: 1,
+                },
+            }),
+          attendanceTotals:
+            replace({
+              adults21Plus: 2,
+              children3To17: 1,
+            }),
+          attendeeDetails:
+            replace([
+              {
+                attendeeName:
+                  "Example Guest One",
+              },
+              {
+                attendeeName:
+                  "Example Guest Two",
+              },
+              {
+                attendeeName:
+                  "Example Child One",
+              },
+            ]),
+        },
+        groupedChildrenInvitation,
+        current,
+      );
+
+    assert.equal(
+      withReplacement.ok,
+      true,
+    );
+
+    assert.equal(
+      withReplacement.value
+        .overallAttendance,
+      3,
+    );
+  },
+);
+
+test(
+  "revision rejects invalid stored grouped-child response state rather than silently repairing it",
+  () => {
+    const current = {
+      eventAttendance: [
+        "ceremony",
+      ],
+      namedInviteeResponses: {
+        "invitee-example-a":
+          "yes",
+        "invitee-example-b":
+          "no",
+      },
+      additionalGuestResponses: {
+        "allocation-children-a":
+          "yes",
+      },
+      attendanceTotals: {
+        adults21Plus: 1,
+        youngAdults18To20: 0,
+        children3To17: 1,
+        childrenUnder3: 0,
+      },
+      overallAttendance: 2,
+      attendeeDetails: [
+        {
+          attendeeName:
+            "Example Guest One",
+        },
+        {
+          attendeeName:
+            "Example Child One",
+        },
+      ],
+    };
+
+    const result =
+      validateRevisionChanges(
+        {},
+        groupedChildrenInvitation,
+        current,
+      );
+
+    assert.equal(
+      result.status,
+      400,
+    );
+
+    assert.equal(
+      result.reason,
+      "invalid-stored-additional-guest-responses",
+    );
+  },
+);
+
+test(
+  "decline-to-attending revision with grouped children requires a complete grouped response and dependent state",
+  () => {
+    const current = {
+      eventAttendance: [
+        "decline",
+      ],
+    };
+
+    const incomplete =
+      makeGroupedChildrenChanges();
+
+    delete incomplete
+      .additionalGuestResponses;
+
+    assert.equal(
+      validateRevisionChanges(
+        incomplete,
+        groupedChildrenInvitation,
+        current,
+      ).status,
+      400,
+    );
+
+    const valid =
+      validateRevisionChanges(
+        makeGroupedChildrenChanges(),
+        groupedChildrenInvitation,
+        current,
+      );
+
+    assert.equal(
+      valid.ok,
+      true,
+    );
+  },
+);
+
+test(
+  "invitation capacity validation rejects malformed allocation metadata and summed-capacity contradictions",
+  () => {
+    const malformedInvitations = [
+      {
+        maximumAttendance: 3,
+        namedInvitees:
+          invitation.namedInvitees,
+        additionalGuestAllocations: [
+          {
+            id:
+              "plus1-example-a",
+            prompt:
+              "Will Example Guest One be accompanied by a +1?",
+            maximumCount: 1,
+          },
+        ],
+      },
+      {
+        maximumAttendance: 4,
+        namedInvitees:
+          invitation.namedInvitees,
+        additionalGuestAllocations: [
+          {
+            id:
+              "plus1-example-a",
+            kind: "plus1",
+            prompt:
+              "Will Example Guest One be accompanied by a +1?",
+            maximumCount: 2,
+          },
+        ],
+      },
+      {
+        maximumAttendance: 5,
+        namedInvitees:
+          invitation.namedInvitees,
+        additionalGuestAllocations: [
+          {
+            id:
+              "allocation-children-a",
+            kind:
+              "unnamedChildren",
+            prompt:
+              "Grouped children",
+            maximumCount: 1,
+          },
+          {
+            id:
+              "allocation-children-b",
+            kind:
+              "unnamedChildren",
+            prompt:
+              "Grouped children",
+            maximumCount: 2,
+          },
+        ],
+      },
+      {
+        maximumAttendance: 3,
+        namedInvitees:
+          invitation.namedInvitees,
+        additionalGuestAllocations: [
+          {
+            id:
+              "allocation-children-a",
+            kind:
+              "unnamedChildren",
+            prompt:
+              "Grouped children",
+            maximumCount: 2,
+          },
+        ],
+      },
+    ];
+
+    for (
+      const malformedInvitation of
+      malformedInvitations
+    ) {
+      assert.throws(
+        () =>
+          validateInitialChanges(
+            makeInitialAttendingChanges(),
+            malformedInvitation,
+          ),
+        /failed capacity validation/,
+      );
+    }
   },
 );

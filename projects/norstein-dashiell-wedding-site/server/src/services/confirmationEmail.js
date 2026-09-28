@@ -33,6 +33,28 @@ function attendanceLabel(
   return labels.join(" and ");
 }
 
+function formatNamedInvitees(
+  invitation,
+  rsvp,
+) {
+  if (
+    !rsvp.namedInviteeResponses
+  ) {
+    return [];
+  }
+
+  return invitation
+    .namedInvitees
+    .map(
+      (invitee) =>
+        `${invitee.displayName}: ${rsvp.namedInviteeResponses[
+          invitee.id
+        ] === "yes"
+          ? "Yes"
+          : "No"}`,
+    );
+}
+
 function formatAdditionalGuests(
   invitation,
   rsvp,
@@ -45,13 +67,49 @@ function formatAdditionalGuests(
 
   return invitation
     .additionalGuestAllocations
-    .map(
-      (allocation) =>
-        `${allocation.prompt} ${rsvp.additionalGuestResponses[
-          allocation.id
-        ] === "yes"
-          ? "Yes"
-          : "No"}`,
+    .flatMap(
+      (allocation) => {
+        const response =
+          rsvp
+            .additionalGuestResponses[
+            allocation.id
+          ];
+
+        if (
+          allocation.kind ===
+          "unnamedChildren"
+        ) {
+          if (
+            !response ||
+            typeof response !==
+              "object" ||
+            Array.isArray(response)
+          ) {
+            return [];
+          }
+
+          const attending =
+            response.attending ===
+            "yes";
+
+          return [
+            `${allocation.prompt} ${attending
+              ? "Yes"
+              : "No"}`,
+            ...(attending
+              ? [
+                  `Children attending: ${response.count}`,
+                ]
+              : []),
+          ];
+        }
+
+        return [
+          `${allocation.prompt} ${response === "yes"
+            ? "Yes"
+            : "No"}`,
+        ];
+      },
     );
 }
 
@@ -71,20 +129,18 @@ function formatAttendanceTotals(
   ];
 }
 
-function formatReceptionDetails(
+function formatAttendeeDetails(
   rsvp,
 ) {
-  if (
-    !rsvp.receptionAttendeeDetails
-  ) {
+  if (!rsvp.attendeeDetails) {
     return [];
   }
 
   const lines = [
-    "Reception attendees:",
+    "Attendee Details:",
   ];
 
-  rsvp.receptionAttendeeDetails
+  rsvp.attendeeDetails
     .forEach(
       (detail, index) => {
         lines.push(
@@ -95,7 +151,7 @@ function formatReceptionDetails(
           detail.dietaryPreferences
         ) {
           lines.push(
-            `   Dietary/allergy information: ${detail.dietaryPreferences}`,
+            `   Dietary or allergy information: ${detail.dietaryPreferences}`,
           );
         }
       },
@@ -114,17 +170,36 @@ function buildRsvpSummaryLines({
     )}`,
   ];
 
-  const plus1Lines =
+  const namedInviteeLines =
+    formatNamedInvitees(
+      invitation,
+      rsvp,
+    );
+
+  if (
+    namedInviteeLines.length > 0
+  ) {
+    lines.push(
+      "",
+      "Named invitees:",
+      ...namedInviteeLines,
+    );
+  }
+
+  const additionalGuestLines =
     formatAdditionalGuests(
       invitation,
       rsvp,
     );
 
-  if (plus1Lines.length > 0) {
+  if (
+    additionalGuestLines.length >
+    0
+  ) {
     lines.push(
       "",
       "Additional guests:",
-      ...plus1Lines,
+      ...additionalGuestLines,
     );
   }
 
@@ -141,17 +216,18 @@ function buildRsvpSummaryLines({
     );
   }
 
-  const receptionLines =
-    formatReceptionDetails(
+  const attendeeDetailLines =
+    formatAttendeeDetails(
       rsvp,
     );
 
   if (
-    receptionLines.length > 0
+    attendeeDetailLines.length >
+    0
   ) {
     lines.push(
       "",
-      ...receptionLines,
+      ...attendeeDetailLines,
     );
   }
 

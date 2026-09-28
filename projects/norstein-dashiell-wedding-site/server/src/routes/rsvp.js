@@ -67,11 +67,25 @@ function buildGuestInvitation(
       invitation.wordingMode,
     maximumAttendance:
       invitation.maximumAttendance,
+    namedInvitees:
+      invitation.namedInvitees.map(
+        ({ id, displayName }) => ({
+          id,
+          displayName,
+        }),
+      ),
     additionalGuestAllocations:
       invitation.additionalGuestAllocations.map(
-        ({ id, prompt }) => ({
+        ({
           id,
+          kind,
           prompt,
+          maximumCount,
+        }) => ({
+          id,
+          kind,
+          prompt,
+          maximumCount,
         }),
       ),
     deadline:
