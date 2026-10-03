@@ -125,7 +125,7 @@ Confirm that the guest has reached the correct wedding website and direct the gu
 - Read repeated event information from centralized content or configuration.
 - Remain publicly indexable.
 
-The static QR code printed on all 57 assigned invitations opens this route.
+Every assigned guest invitation uses the same static QR code to open this route. Any later printed invitation created from a reserved production code uses the same route.
 
 ### `/wedding/rsvp/` — RSVP Entry and Validated Form
 

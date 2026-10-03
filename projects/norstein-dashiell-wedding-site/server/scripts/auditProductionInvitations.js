@@ -7,6 +7,7 @@ const {
 } = require(
   "../src/rsvp/productionInvitationTransform"
 );
+
 const {
   loadProductionSourceFile,
 } = require(
@@ -15,19 +16,29 @@ const {
 
 function formatSummary(summary) {
   return [
-    `active invitations=${summary.activeInvitationCount}`,
-    `unique codes=${summary.uniqueCanonicalCodeCount}`,
-    `singular=${summary.singularCount}`,
-    `plural=${summary.pluralCount}`,
-    `named invitees=${summary.namedInviteeCount}`,
-    `invitations with allocations=${summary.invitationsWithAllocations}`,
-    `allocation objects=${summary.allocationCount}`,
-    `Plus1 allocations=${summary.plus1AllocationCount}`,
-    `grouped-child allocations=${summary.groupedChildAllocationCount}`,
-    `additional-guest capacity=${summary.additionalGuestCapacity}`,
-    `grouped-child capacity=${summary.groupedChildCapacity}`,
-    `multi-allocation invitations=${summary.multiAllocationInvitationCount}`,
-    `combined maximum attendance=${summary.combinedMaximumAttendance}`,
+    `numbered source rows=${summary.numberedSourceRowCount}`,
+    `unique source codes=${summary.uniqueSourceCodeCount}`,
+    `source sequence valid=${summary.sourceInviteNumberSequenceValid}`,
+    `reserved placeholders=${summary.reservedPlaceholderCount}`,
+    `functional invitations=${summary.functionalInvitationCount}`,
+    `functional unique codes=${summary.functionalUniqueCanonicalCodeCount}`,
+    `functional maximum attendance=${summary.functionalCombinedMaximumAttendance}`,
+    `guest-list invitations=${summary.guestListInvitationCount}`,
+    `guest-list maximum attendance=${summary.combinedMaximumAttendance}`,
+    `permanent test invitations=${summary.testInvitationCount}`,
+    `test maximum attendance=${summary.testCombinedMaximumAttendance}`,
+    `baseline invitations 1-57=${summary.baselineInvitationCount}`,
+    `baseline maximum attendance=${summary.baselineCombinedMaximumAttendance}`,
+    `singular guest-list invitations=${summary.singularCount}`,
+    `plural guest-list invitations=${summary.pluralCount}`,
+    `named guest-list invitees=${summary.namedInviteeCount}`,
+    `guest-list invitations with allocations=${summary.invitationsWithAllocations}`,
+    `guest-list allocation objects=${summary.allocationCount}`,
+    `guest-list Plus1 allocations=${summary.plus1AllocationCount}`,
+    `guest-list grouped-child allocations=${summary.groupedChildAllocationCount}`,
+    `guest-list additional-guest capacity=${summary.additionalGuestCapacity}`,
+    `guest-list grouped-child capacity=${summary.groupedChildCapacity}`,
+    `guest-list multi-allocation invitations=${summary.multiAllocationInvitationCount}`,
   ].join(", ");
 }
 
@@ -58,6 +69,7 @@ function main() {
     console.error(
       "Production invitation transformation audit: FAIL",
     );
+
     process.exitCode = 1;
   }
 }

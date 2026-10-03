@@ -3,46 +3,151 @@ require("dotenv").config();
 const { once } = require("node:events");
 
 const {
+  PRODUCTION_AUDIT_TARGETS,
+  assertProductionAuditTargets,
+  transformProductionInvitationRows,
+} = require(
+  "../src/rsvp/productionInvitationTransform"
+);
+
+const {
+  loadProductionSourceFile,
+} = require(
+  "../src/rsvp/productionSourceFile"
+);
+
+const {
+  normalizeInvitationCode,
+} = require(
+  "../src/rsvp/invitationCode"
+);
+
+const {
   loadEnvironment,
 } = require(
   "../src/config/env"
 );
+
 const {
   createApp,
 } = require(
   "../src/app"
 );
+
 const {
   createConfiguredEmailTransport,
 } = require(
   "../src/services/resendEmailTransport"
 );
+
 const {
   createGoogleSheetsConnection,
 } = require(
   "../src/services/storage/googleSheetsConnection"
 );
+
 const {
   createGoogleSheetsStore,
 } = require(
   "../src/services/storage/googleSheetsStore"
 );
+
 const {
   verifyGoogleSheetsStoreSchema,
 } = require(
   "../src/services/storage/googleSheetsStoreSetup"
 );
+
 const {
   assertOperationalSectionsUnchanged,
   readGoogleSheetsStoreSnapshot,
 } = require(
   "../src/services/storage/productionActivation"
 );
+
 const {
   validateProductionSmokeInvocation,
 } = require(
   "../src/services/productionRuntime"
 );
+
+function findPermanentTestInvitation(
+  configurations,
+) {
+  const testInvitations =
+    configurations.filter(
+      (invitation) =>
+        invitation &&
+        invitation.recordRole ===
+          "test" &&
+        invitation
+          .guestListEligible ===
+          false,
+    );
+
+  if (
+    testInvitations.length !== 1
+  ) {
+    throw new Error(
+      "Production smoke requires exactly one permanent test invitation.",
+    );
+  }
+
+  return testInvitations[0];
+}
+
+function assertSmokeUsesPermanentTest({
+  invocation,
+  permanentTestInvitation,
+}) {
+  const normalized =
+    normalizeInvitationCode(
+      invocation.inviteCode,
+    );
+
+  if (
+    !normalized ||
+    normalized.canonicalCode !==
+      permanentTestInvitation
+        .inviteCode
+  ) {
+    throw new Error(
+      "Production smoke invitation code must identify the permanent Test Sample.",
+    );
+  }
+
+  return normalized.canonicalCode;
+}
+
+function assertStoredTestInvitationMatches({
+  storedInvitation,
+  expectedInvitation,
+}) {
+  if (
+    !storedInvitation ||
+    storedInvitation.recordRole !==
+      "test" ||
+    storedInvitation
+      .guestListEligible !==
+      false ||
+    storedInvitation.active !==
+      true ||
+    storedInvitation.environment !==
+      "production" ||
+    JSON.stringify(
+      storedInvitation,
+    ) !==
+      JSON.stringify(
+        expectedInvitation,
+      )
+  ) {
+    throw new Error(
+      "Production smoke permanent Test Sample does not match the authoritative production source.",
+    );
+  }
+
+  return true;
+}
 
 async function main() {
   const environment =
@@ -59,6 +164,33 @@ async function main() {
           .RSVP_PRODUCTION_SMOKE_ACK,
     });
 
+  const rows =
+    loadProductionSourceFile(
+      process.env
+        .RSVP_PRODUCTION_SOURCE_FILE,
+    );
+
+  const transformed =
+    transformProductionInvitationRows(
+      rows,
+    );
+
+  assertProductionAuditTargets(
+    transformed.summary,
+    PRODUCTION_AUDIT_TARGETS,
+  );
+
+  const permanentTestInvitation =
+    findPermanentTestInvitation(
+      transformed.configurations,
+    );
+
+  const smokeInviteCode =
+    assertSmokeUsesPermanentTest({
+      invocation,
+      permanentTestInvitation,
+    });
+
   const connection =
     createGoogleSheetsConnection({
       spreadsheetId:
@@ -70,6 +202,7 @@ async function main() {
 
   const sheets =
     connection.getSheetsClient();
+
   const spreadsheetId =
     connection.getSpreadsheetId();
 
@@ -89,6 +222,20 @@ async function main() {
       sheets,
       spreadsheetId,
     });
+
+  const storedTestInvitation =
+    await store
+      .findInvitationByCanonicalCode(
+        permanentTestInvitation
+          .inviteCode,
+      );
+
+  assertStoredTestInvitationMatches({
+    storedInvitation:
+      storedTestInvitation,
+    expectedInvitation:
+      permanentTestInvitation,
+  });
 
   const emailTransport =
     createConfiguredEmailTransport({
@@ -116,6 +263,7 @@ async function main() {
   try {
     const address =
       server.address();
+
     const baseUrl =
       `http://127.0.0.1:${address.port}`;
 
@@ -158,8 +306,7 @@ async function main() {
           },
           body: JSON.stringify({
             inviteCode:
-              invocation
-                .inviteCode,
+              smokeInviteCode,
           }),
         },
       );
@@ -194,6 +341,34 @@ async function main() {
         "Production smoke lookup boundary failed.",
       );
     }
+
+    if (
+      !payload.invitation ||
+      payload.invitation
+        .maximumAttendance !==
+        permanentTestInvitation
+          .maximumAttendance ||
+      JSON.stringify(
+        payload.invitation
+          .namedInvitees,
+      ) !==
+        JSON.stringify(
+          permanentTestInvitation
+            .namedInvitees,
+        ) ||
+      JSON.stringify(
+        payload.invitation
+          .additionalGuestAllocations,
+      ) !==
+        JSON.stringify(
+          permanentTestInvitation
+            .additionalGuestAllocations,
+        )
+    ) {
+      throw new Error(
+        "Production smoke lookup did not return the permanent Test Sample configuration.",
+      );
+    }
   } finally {
     await new Promise(
       (resolve) =>
@@ -215,13 +390,14 @@ async function main() {
   );
 
   console.log(
-    "Production RSVP loopback smoke: PASS",
+    "Production RSVP permanent Test Sample loopback smoke: PASS",
   );
 }
 
 main().catch(() => {
   console.error(
-    "Production RSVP loopback smoke: FAIL",
+    "Production RSVP permanent Test Sample loopback smoke: FAIL",
   );
+
   process.exitCode = 1;
 });

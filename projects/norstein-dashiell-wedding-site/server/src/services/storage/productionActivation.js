@@ -30,6 +30,100 @@ function rowHasData(row) {
   );
 }
 
+function sameJson(
+  left,
+  right,
+) {
+  return (
+    JSON.stringify(left) ===
+    JSON.stringify(right)
+  );
+}
+
+function parsePrivateJson(
+  value,
+  context,
+) {
+  if (
+    typeof value !== "string" ||
+    value.trim() === ""
+  ) {
+    throw new Error(
+      `${context} contains missing private JSON.`,
+    );
+  }
+
+  try {
+    return JSON.parse(value);
+  } catch {
+    throw new Error(
+      `${context} contains invalid private JSON.`,
+    );
+  }
+}
+
+function validateExpectedProductionInvitations(
+  expectedInvitations,
+) {
+  if (
+    !Array.isArray(
+      expectedInvitations,
+    ) ||
+    expectedInvitations.length === 0
+  ) {
+    throw new Error(
+      "Production invitation verification requires expected configurations.",
+    );
+  }
+
+  const byCode = new Map();
+  const byPartyId = new Map();
+
+  for (
+    const invitation of
+    expectedInvitations
+  ) {
+    if (
+      !invitation ||
+      invitation.environment !==
+        "production" ||
+      typeof invitation.inviteCode !==
+        "string" ||
+      invitation.inviteCode.trim() ===
+        "" ||
+      typeof invitation.partyId !==
+        "string" ||
+      invitation.partyId.trim() ===
+        "" ||
+      byCode.has(
+        invitation.inviteCode,
+      ) ||
+      byPartyId.has(
+        invitation.partyId,
+      )
+    ) {
+      throw new Error(
+        "Production invitation verification received invalid expected configuration.",
+      );
+    }
+
+    byCode.set(
+      invitation.inviteCode,
+      invitation,
+    );
+
+    byPartyId.set(
+      invitation.partyId,
+      invitation,
+    );
+  }
+
+  return Object.freeze({
+    byCode,
+    byPartyId,
+  });
+}
+
 async function readGoogleSheetsStoreSnapshot({
   sheets,
   spreadsheetId,
@@ -165,6 +259,7 @@ function assertOperationalSectionsUnchanged(
       before.sections[
         section.title
       ] || [];
+
     const afterRows =
       after.sections[
         section.title
@@ -200,20 +295,350 @@ function invitationRows(
     .filter(rowHasData);
 }
 
+function readStoredInvitationIndexes(
+  snapshot,
+) {
+  const byCode = new Map();
+  const byPartyId = new Map();
+
+  for (
+    const row of
+    invitationRows(snapshot)
+  ) {
+    const [
+      inviteCode,
+      partyId,
+      configurationJson,
+    ] = row;
+
+    if (
+      typeof inviteCode !==
+        "string" ||
+      inviteCode.trim() === "" ||
+      typeof partyId !==
+        "string" ||
+      partyId.trim() === "" ||
+      byCode.has(inviteCode) ||
+      byPartyId.has(partyId)
+    ) {
+      throw new Error(
+        "Production invitation synchronization found duplicate or invalid stored invitation rows.",
+      );
+    }
+
+    const configuration =
+      parsePrivateJson(
+        configurationJson,
+        "Production invitation synchronization",
+      );
+
+    if (
+      !configuration ||
+      typeof configuration !==
+        "object" ||
+      configuration.inviteCode !==
+        inviteCode ||
+      configuration.partyId !==
+        partyId
+    ) {
+      throw new Error(
+        "Production invitation synchronization found an inconsistent stored invitation configuration.",
+      );
+    }
+
+    const record =
+      Object.freeze({
+        inviteCode,
+        partyId,
+        configuration,
+      });
+
+    byCode.set(
+      inviteCode,
+      record,
+    );
+
+    byPartyId.set(
+      partyId,
+      record,
+    );
+  }
+
+  return Object.freeze({
+    byCode,
+    byPartyId,
+  });
+}
+
+function directOperationalPartyId(
+  row,
+  sectionTitle,
+) {
+  const partyId = row[0];
+
+  if (
+    typeof partyId !== "string" ||
+    partyId.trim() === ""
+  ) {
+    throw new Error(
+      `Production invitation synchronization found operational RSVP data without a party identifier in ${sectionTitle}.`,
+    );
+  }
+
+  return partyId;
+}
+
+function submissionRecordPartyId(
+  row,
+) {
+  const submissionKey = row[0];
+
+  if (
+    typeof submissionKey !==
+      "string" ||
+    submissionKey.trim() === ""
+  ) {
+    throw new Error(
+      "Production invitation synchronization found a submission record without a submission key.",
+    );
+  }
+
+  const separatorIndex =
+    submissionKey.indexOf(":");
+
+  const keyPartyId =
+    separatorIndex > 0
+      ? submissionKey.slice(
+          0,
+          separatorIndex,
+        )
+      : "";
+
+  const record =
+    parsePrivateJson(
+      row[2],
+      "Production invitation synchronization submission record",
+    );
+
+  const jsonPartyId =
+    record &&
+    typeof record.partyId ===
+      "string"
+      ? record.partyId.trim()
+      : "";
+
+  if (
+    keyPartyId === "" &&
+    jsonPartyId === ""
+  ) {
+    throw new Error(
+      "Production invitation synchronization could not determine the party for a submission record.",
+    );
+  }
+
+  if (
+    keyPartyId !== "" &&
+    jsonPartyId !== "" &&
+    keyPartyId !== jsonPartyId
+  ) {
+    throw new Error(
+      "Production invitation synchronization found inconsistent submission-record party identifiers.",
+    );
+  }
+
+  return (
+    jsonPartyId ||
+    keyPartyId
+  );
+}
+
+function collectOperationalPartyIds(
+  snapshot,
+) {
+  const partyIds = new Set();
+
+  for (
+    const section of
+    GOOGLE_SHEETS_STORE_SECTIONS
+  ) {
+    if (
+      section ===
+      GOOGLE_SHEETS_STORE_SCHEMA
+        .invitations
+    ) {
+      continue;
+    }
+
+    const rows =
+      (
+        snapshot.sections[
+          section.title
+        ] || []
+      )
+        .slice(1)
+        .filter(rowHasData);
+
+    for (const row of rows) {
+      const partyId =
+        section ===
+        GOOGLE_SHEETS_STORE_SCHEMA
+          .submissionRecords
+          ? submissionRecordPartyId(
+              row,
+            )
+          : directOperationalPartyId(
+              row,
+              section.title,
+            );
+
+      partyIds.add(partyId);
+    }
+  }
+
+  return partyIds;
+}
+
+function assertOperationalInvitationCompatibility(
+  snapshot,
+  expectedInvitations,
+) {
+  const expected =
+    validateExpectedProductionInvitations(
+      expectedInvitations,
+    );
+
+  const stored =
+    readStoredInvitationIndexes(
+      snapshot,
+    );
+
+  const referencedPartyIds =
+    collectOperationalPartyIds(
+      snapshot,
+    );
+
+  for (
+    const partyId of
+    referencedPartyIds
+  ) {
+    const existingRecord =
+      stored.byPartyId.get(
+        partyId,
+      );
+
+    if (!existingRecord) {
+      throw new Error(
+        "Production invitation synchronization found operational RSVP data without its existing invitation configuration.",
+      );
+    }
+
+    const expectedInvitation =
+      expected.byPartyId.get(
+        partyId,
+      );
+
+    if (!expectedInvitation) {
+      throw new Error(
+        "Production invitation synchronization would remove an invitation referenced by operational RSVP data.",
+      );
+    }
+
+    if (
+      existingRecord.inviteCode !==
+        expectedInvitation.inviteCode ||
+      !sameJson(
+        existingRecord.configuration,
+        expectedInvitation,
+      )
+    ) {
+      throw new Error(
+        "Production invitation synchronization would change an invitation referenced by operational RSVP data.",
+      );
+    }
+  }
+
+  let newInvitationCount = 0;
+  let changedUnreferencedInvitationCount =
+    0;
+  let removedUnreferencedInvitationCount =
+    0;
+
+  for (
+    const [
+      inviteCode,
+      expectedInvitation,
+    ] of expected.byCode.entries()
+  ) {
+    const existingRecord =
+      stored.byCode.get(
+        inviteCode,
+      );
+
+    if (!existingRecord) {
+      newInvitationCount += 1;
+      continue;
+    }
+
+    if (
+      !referencedPartyIds.has(
+        existingRecord.partyId,
+      ) &&
+      !sameJson(
+        existingRecord.configuration,
+        expectedInvitation,
+      )
+    ) {
+      changedUnreferencedInvitationCount +=
+        1;
+    }
+  }
+
+  for (
+    const existingRecord of
+    stored.byCode.values()
+  ) {
+    if (
+      !expected.byCode.has(
+        existingRecord.inviteCode,
+      ) &&
+      !referencedPartyIds.has(
+        existingRecord.partyId,
+      )
+    ) {
+      removedUnreferencedInvitationCount +=
+        1;
+    }
+  }
+
+  return Object.freeze({
+    referencedPartyCount:
+      referencedPartyIds.size,
+
+    preservedReferencedInvitationCount:
+      referencedPartyIds.size,
+
+    existingInvitationCount:
+      stored.byCode.size,
+
+    expectedInvitationCount:
+      expected.byCode.size,
+
+    newInvitationCount,
+
+    changedUnreferencedInvitationCount,
+
+    removedUnreferencedInvitationCount,
+  });
+}
+
 function assertProductionInvitationsMatchExpected(
   snapshot,
   expectedInvitations,
 ) {
-  if (
-    !Array.isArray(
+  const expected =
+    validateExpectedProductionInvitations(
       expectedInvitations,
-    ) ||
-    expectedInvitations.length === 0
-  ) {
-    throw new Error(
-      "Production invitation verification requires expected configurations.",
     );
-  }
 
   const rows =
     invitationRows(
@@ -229,38 +654,7 @@ function assertProductionInvitationsMatchExpected(
     );
   }
 
-  const expectedByCode =
-    new Map();
-
-  for (
-    const invitation of
-    expectedInvitations
-  ) {
-    if (
-      !invitation ||
-      invitation.environment !==
-        "production" ||
-      typeof invitation.inviteCode !==
-        "string" ||
-      typeof invitation.partyId !==
-        "string" ||
-      expectedByCode.has(
-        invitation.inviteCode,
-      )
-    ) {
-      throw new Error(
-        "Production invitation verification received invalid expected configuration.",
-      );
-    }
-
-    expectedByCode.set(
-      invitation.inviteCode,
-      invitation,
-    );
-  }
-
-  const seen =
-    new Set();
+  const seen = new Set();
 
   for (const row of rows) {
     const [
@@ -281,12 +675,12 @@ function assertProductionInvitationsMatchExpected(
 
     seen.add(inviteCode);
 
-    const expected =
-      expectedByCode.get(
+    const expectedInvitation =
+      expected.byCode.get(
         inviteCode,
       );
 
-    if (!expected) {
+    if (!expectedInvitation) {
       throw new Error(
         "Production invitation verification found an unexpected invitation row.",
       );
@@ -307,15 +701,13 @@ function assertProductionInvitationsMatchExpected(
 
     if (
       partyId !==
-        expected.partyId ||
+        expectedInvitation.partyId ||
       actual.environment !==
         "production" ||
-      JSON.stringify(
+      !sameJson(
         actual,
-      ) !==
-        JSON.stringify(
-          expected,
-        )
+        expectedInvitation,
+      )
     ) {
       throw new Error(
         "Production invitation verification found a configuration mismatch.",
@@ -422,6 +814,7 @@ async function restoreInvitationsFromSnapshot({
   const section =
     GOOGLE_SHEETS_STORE_SCHEMA
       .invitations;
+
   const rows =
     snapshot &&
     snapshot.sections
@@ -472,9 +865,11 @@ async function restoreInvitationsFromSnapshot({
 
 module.exports = {
   SNAPSHOT_VERSION,
+  assertOperationalInvitationCompatibility,
   assertOperationalSectionsEmpty,
   assertOperationalSectionsUnchanged,
   assertProductionInvitationsMatchExpected,
+  collectOperationalPartyIds,
   readGoogleSheetsStoreSnapshot,
   restoreInvitationsFromSnapshot,
   writePrivateSnapshotFile,

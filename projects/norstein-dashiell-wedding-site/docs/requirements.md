@@ -207,6 +207,10 @@ The invitation-launch version must include:
   summary.
 - Confirmation-delivery status handling that does not undo a stored RSVP
   or encourage duplicate submission.
+- Protected production invitation synchronization that can add later
+  assigned invitations without rewriting existing RSVP operational history.
+- Permanent Test Sample production smoke verification that does not require
+  use of a real guest invitation code.
 - Theme and Attire.
 - Our Story.
 - Read, Listen, and Watch.
@@ -295,8 +299,9 @@ warning.
 ## Production Invitation Configuration Requirements
 
 The couple-supplied private `Invitees List` spreadsheet is the
-authoritative source for active production invitation configurations and
-for the RSVP form-display rules recorded in its bottom-row notes.
+authoritative source for production invitation-code rows, functional
+production invitation configurations, source-role classification, and
+the RSVP form-display rules recorded in its bottom-row notes.
 
 The September 27, 2026 unnamed-child clarification establishes that a
 child counted by `Kids(n)` whose name is absent from the parallel
@@ -311,13 +316,40 @@ invitation containing `Kids(n)` produces one grouped family-level
 children authorization, not one allocation object or one Yes/No question
 per child.
 
-The current authoritative source contains 57 populated invitation records
-corresponding to 57 assigned printed invitations. No production placeholder
-record is required. The application must load transformed records
-dynamically and must not embed a permanently fixed invitation count in the
-RSVP renderer, validation logic, or route structure.
+The current authoritative source contains **68 numbered invitation-code
+rows** with three intentional roles:
 
-Each populated source row must be transformed into one private party-level
+- **Invites 1–57** are established assigned guest-list invitations.
+- **Invites 58–67** are reserved invitation-code placeholders and are not
+  currently functional RSVP identities.
+- **Invite 68** is the permanent production **Test Sample** identity.
+
+All 68 numbered source codes must normalize successfully and remain unique.
+A numbered source row does not automatically become a functional RSVP
+configuration.
+
+For invites 58–67, an exact reserved placeholder consists of the reserved
+invite number, its unique Guest ID, `?` in `First Name(s)`, `?` in
+`Last Name(s)`, and otherwise blank invitation-defining fields. An exact
+placeholder produces no functional invitation configuration. A partially
+populated or ambiguous reserved row must fail closed for private review.
+If one of these rows is later populated as an ordinary valid invitation,
+it becomes an assigned guest-list invitation and produces a functional
+production configuration.
+
+Invite 68 must always produce one functional production Test Sample
+configuration. It must remain capable of the same lookup, blank-form,
+submission, revision, persistence, version-history, idempotency,
+confirmation, and operational-storage behavior as an ordinary production
+invitation, while remaining excluded from real wedding guest-list counts
+and capacity totals.
+
+The application must load transformed records dynamically and must not
+embed a permanently fixed invitation count or guest-list capacity in the
+RSVP renderer, validation logic, route structure, synchronization logic,
+or operational audit logic.
+
+Each functional source row must be transformed into one private party-level
 configuration record containing, at minimum:
 
 - `inviteCode`, using the normalized six-character Guest ID as the
@@ -342,10 +374,17 @@ configuration record containing, at minimum:
   - safe `kind`;
   - reviewed guest-facing `prompt`; and
   - positive whole-number `maximumCount`.
-- Protected `active` and `environment` values distinguishing active
-  production records from disabled development/testing records.
+- Protected `recordRole`, set to `assigned` for real guest-list invitations
+  and `test` for the permanent Test Sample.
+- Protected `guestListEligible`, set to `true` only for assigned real-guest
+  invitations and `false` for the permanent Test Sample.
+- Protected `active` and `environment` values. Every functional source-
+  derived record is active in `production`.
 
-The active source produces two allocation variants.
+The private `recordRole` and `guestListEligible` fields must not be exposed
+through the ordinary guest-facing lookup response.
+
+The functional source produces two allocation variants.
 
 For source `Plus1` transformation:
 
@@ -401,14 +440,16 @@ response region is introduced.
 The limited validated lookup response may expose only the safe allocation
 properties needed by the browser to render the correct control:
 `id`, `kind`, `prompt`, and `maximumCount`. Raw source text, allocation
-ownership notes beyond the approved prompt, and unrelated spreadsheet
-metadata remain private.
+ownership notes beyond the approved prompt, source-role classification,
+guest-list eligibility, and unrelated spreadsheet metadata remain private.
 
 The production transformation must fail before deployment when it finds:
 
 - A malformed invitation code.
-- Duplicate canonical lookup keys or normalization collisions.
-- A missing required source value.
+- Duplicate canonical lookup keys or normalization collisions, including
+  collisions involving reserved codes.
+- An invalid or incomplete numbered-row sequence.
+- A missing required source value on a functional row.
 - An unsupported wording mode.
 - A missing, negative, zero, or non-whole-number maximum-attendance value.
 - Unequal or ambiguous parallel C/D name lists.
@@ -426,13 +467,28 @@ The production transformation must fail before deployment when it finds:
   reconciled unnamed-child capacity.
 - A total configuration capacity that does not equal `maximumAttendance`.
 - Ambiguous party-display data.
+- A partially populated or otherwise ambiguous reserved row.
+- An invalid permanent Test Sample row.
 - Any other contradictory production record.
 
 The current production transformation must reproduce these authoritative
 source-audit results:
 
-- 57 active invitation records.
-- 57 unique canonical invitation-code keys.
+- 68 numbered source rows.
+- 68 unique canonical source invitation-code keys.
+- A valid numbered sequence through Invite 68.
+- 10 exact reserved placeholders.
+- 58 functional production invitation configurations:
+  - 57 guest-list-eligible assigned invitations;
+  - one permanent Test Sample.
+- Functional combined maximum-attendance capacity of 117:
+  - current guest-list capacity of 115;
+  - Test Sample capacity of 2.
+
+The established invites 1–57 guest-list baseline must independently
+continue to audit to:
+
+- 57 assigned invitations.
 - 35 singular `I` wording records and 22 plural `we` wording records.
 - 23 records containing at least one `Plus1`.
 - 26 total `Plus1` allocation objects.
@@ -446,21 +502,120 @@ source-audit results:
   grouped child objects.
 - 31 total additional-guest person-capacity slots: 26 Plus1 slots plus
   five unnamed-child slots.
-- A combined maximum-attendance capacity of 115.
-- No required active production placeholder record.
+- Combined maximum-attendance capacity of 115.
+
+The permanent Test Sample must independently audit to one named invitee,
+one `Plus1` allocation, and maximum attendance 2.
+
+The **115-person value is a stable baseline for invites 1–57, not a
+permanent guest-list ceiling**. If one or more reserved invites 58–67 is
+later populated as a real assigned invitation, the reserved-placeholder
+count decreases and the current guest-list invitation count and maximum-
+attendance capacity increase accordingly. The established 1–57 baseline
+remains separately auditable at 57 invitations and 115 maximum attendance.
 
 These aggregate values are transformation-validation targets only. They
 must not be hard-coded into reusable RSVP rendering or business logic.
 
 The real Invitees List, generated production configurations, production
-codes, guest names, named-invitee roster mappings, additional-guest
-allocation mappings, and every mapping among them must remain private.
-They must not appear in public documentation, frontend source files,
-public repositories, public assets, analytics, metadata, or ordinary
-application logs. A validated browser response may receive only the
-limited invitation-specific identifiers, approved names/labels, allocation
-kind/count metadata, and configuration required to render that party's own
-blank RSVP form.
+codes, permanent Test Sample code, guest names, named-invitee roster
+mappings, additional-guest allocation mappings, and every mapping among
+them must remain private. They must not appear in public documentation,
+frontend source files, public repositories, public assets, analytics,
+metadata, or ordinary application logs. A validated browser response may
+receive only the limited invitation-specific identifiers, approved
+names/labels, allocation kind/count metadata, and configuration required to
+render that party's own blank RSVP form.
+
+## Production Invitation Synchronization and Verification Requirements
+
+The production `Invitations` sheet is a derived private registry and must
+support guarded resynchronization after RSVP activity has begun.
+Operational RSVP tables are **not** required to remain permanently empty
+before a later invitation synchronization.
+
+Before replacing production invitation configurations, the backend must:
+
+- Load and audit the authoritative private source.
+- Verify the production environment and exact Google Sheets schema/access.
+- Read a complete private snapshot of every RSVP store section.
+- Compare the source-derived expected invitation registry with the current
+  stored invitation registry and all operationally referenced parties.
+- Require explicit destructive-write acknowledgement before changing the
+  production invitation registry.
+- Write a private pre-load snapshot to the protected backup location before
+  the first invitation-registry write.
+
+Operational invitation compatibility must inspect references from:
+
+- Current RSVPs.
+- RSVP Versions.
+- Submission Records.
+- Delivery Records.
+- Resend Records.
+
+For every party referenced by any operational RSVP record:
+
+- The existing stored invitation configuration must exist.
+- The new source-derived registry must continue to contain the same party.
+- The party's invitation code must remain unchanged.
+- The complete private invitation configuration must remain unchanged.
+
+An invitation configuration that has operational history is therefore
+immutable through the ordinary synchronization path. A proposed change or
+removal of such a referenced invitation must fail before the replacement
+write begins.
+
+An existing invitation with no operational history may be corrected or
+removed through the guarded synchronization path. A newly populated
+reserved invitation may be added as a new assigned configuration.
+
+A guarded synchronization must:
+
+1. Replace only the `Invitations` configuration rows with the complete
+   expected functional registry.
+2. Read the workbook again after replacement.
+3. Verify every non-invitation operational section is unchanged.
+4. Verify the stored Invitations sheet exactly matches the source-derived
+   expected registry.
+5. Attempt to restore the prior Invitations sheet from the private snapshot
+   if a guarded write or post-write verification fails after snapshot
+   creation.
+
+Synchronization must never clear, rewrite, migrate, or otherwise modify
+Current RSVPs, RSVP Versions, Submission Records, Delivery Records, or
+Resend Records merely because the invitation registry is being updated.
+
+Production readiness verification must confirm the source audit, production
+environment, Google Sheets access/schema, and compatibility of the expected
+registry with existing operational history. Readiness must work with
+non-empty operational tables when all referenced invitation configurations
+remain compatible.
+
+Post-load activation verification must confirm the source still passes its
+audit, the stored Invitations sheet exactly matches the current functional
+source-derived registry, and existing operational history remains compatible
+with the invitation configurations it references.
+
+Production audit output must distinguish source-row, functional,
+guest-list, reserved-placeholder, Test Sample, functional-capacity,
+guest-list-capacity, and stable invites 1–57 baseline metrics.
+
+Production loopback smoke testing must use the permanent Test Sample rather
+than a real guest invitation. The smoke command must require explicit
+operator acknowledgement and an explicitly supplied code, then independently
+verify that the supplied code resolves to the source-derived configuration
+classified as `recordRole: "test"` and `guestListEligible: false`.
+
+Before exercising the API, the smoke path must verify that the stored Test
+Sample configuration exactly matches its authoritative source-derived
+configuration. The smoke test must remain read-only: it may perform health
+and blank-form lookup checks, but it must not submit, revise, or otherwise
+mutate an RSVP. It must verify that operational RSVP storage remains
+unchanged after the smoke run.
+
+The real permanent Test Sample code remains private and must not be written
+into repository documentation, public fixtures, or ordinary logs.
 
 ## RSVP Access Requirements
 
@@ -507,6 +662,8 @@ The browser must not receive or display:
   for the validated party's own form.
 - Private administrative notes.
 - Complete spreadsheet data.
+- Private production classification values such as `recordRole` or
+  `guestListEligible`.
 - The validated party's previously stored RSVP answers, including prior
   named-invitee attendance decisions, additional-guest allocation responses,
   age totals, attendee names, or dietary/allergy information.
@@ -516,6 +673,7 @@ The browser must not receive or display:
 
 Every valid invitation-code lookup must display a blank RSVP form,
 regardless of whether that invitation already has a stored response.
+
 ## RSVP Submission and Revision Requirements
 
 ### Initial Submissions
@@ -1098,6 +1256,7 @@ assistance information.
 The private administrative records must track delivery status by channel
 and attempt. The couple must have a documented method for resending a
 failed guest confirmation without changing the stored RSVP.
+
 ## Privacy and Security Requirements
 
 The RSVP entry page and personalized RSVP form must display a concise
@@ -1191,9 +1350,8 @@ The application must prevent one invited party from receiving another
 party's information. RSVP records, confirmation destinations, source
 invitation data, named-invitee roster mappings, additional-guest
 allocation mappings, attendee names, dietary/allergy information,
-administrative
-notes, spreadsheet contents, credentials, and internal identifiers must
-not be exposed publicly.
+administrative notes, spreadsheet contents, credentials, and internal
+identifiers must not be exposed publicly.
 
 RSVP entry, form, confirmation, not-found, and unmatched transactional
 experiences must not be indexed by public search engines. Personalized
@@ -1224,9 +1382,8 @@ Ordinary application, reverse-proxy, and delivery logs must not record
 raw or normalized invitation codes, guest names or party display names,
 RSVP request or response bodies, guest answers, named-invitee roster or
 additional-guest allocation mappings, attendee names, dietary or allergy
-text,
-confirmation destinations, `clientSubmissionId` values, private workbook
-content, protected administrative addresses, or provider
+text, confirmation destinations, `clientSubmissionId` values, private
+workbook content, protected administrative addresses, or provider
 credentials/secrets.
 
 The production RSVP API must enforce these initial rate limits:
@@ -1245,14 +1402,22 @@ production proxy chain rather than arbitrary forwarded-address headers.
 
 Google credentials, email credentials, SMS credentials, sender
 configuration, and the protected administrative-recipient address must
-remain backend-only. Production and development/testing invitation data,
-fixtures, and secrets must remain separated.
+remain backend-only. Production secrets must remain separate from
+development/testing secrets. Fictional development/test invitation data
+and fixtures must remain separated from production invitation data and
+must never be authorized by the production registry.
+
+The permanent Test Sample is an intentional protected production identity,
+not a development fixture. Its private code and complete configuration are
+subject to the same production secrecy, logging, analytics, URL, metadata,
+and browser-exposure restrictions as real guest invitation records.
 
 Guest-facing backend errors must not expose stack traces, framework
 diagnostics, filesystem paths, spreadsheet identifiers, worksheet names,
 provider payloads, credentials, protected administrative addresses,
-internal record identifiers, close-match invitation information, or
-development-record existence.
+internal record identifiers, close-match invitation information, reserved
+source-row existence, development-record existence, or private production
+classification.
 
 Attendee names may appear only in the submitting party's own temporary
 on-screen confirmation, that party's selected electronic confirmation,
@@ -1284,18 +1449,32 @@ retirement when they cannot reasonably be used to reconstruct an invited
 party's RSVP.
 
 The separate private `Invitees List` may remain as the couple's personal
-wedding-planning/address record outside the active RSVP system. Its
-retention must not keep the public RSVP application dependent on retired
-RSVP response history.
+wedding-planning/address record outside the retired real-guest RSVP system.
+Retirement of real wedding RSVP operations must not disable the permanent
+production Test Sample or the protected portfolio-demonstration capability
+it exists to support.
 
-A minimum necessary RSVP record may temporarily remain beyond the ordinary
-retirement date only for a concrete documented correction, dispute,
+The permanent Test Sample configuration remains a functional production
+RSVP identity after real-guest RSVP retirement. Historical Test Sample
+responses, versions, confirmation destinations, delivery records, and other
+operational data remain subject to data-minimization and may be deleted or
+irreversibly de-identified without disabling the Test Sample identity or its
+ability to create a new ordinary test RSVP later.
+
+Real assigned guest invitations may be disabled or retired from guest-facing
+RSVP use after the response period while the permanent Test Sample remains
+available for protected demonstration. Retaining the Test Sample must not
+require exposing or reactivating retired real-guest invitation records.
+
+A minimum necessary real-guest RSVP record may temporarily remain beyond the
+ordinary retirement date only for a concrete documented correction, dispute,
 delivery investigation, or comparable unresolved administrative need and
 must be deleted when that need ends.
 
 The production wedding website and RSVP API must use HTTPS. Ordinary HTTP
 navigation must redirect to HTTPS before RSVP information can be
 submitted.
+
 ## User Groups
 
 ### Public Wedding Guests
@@ -1366,13 +1545,23 @@ An invited party may:
 - View the concise privacy notice and complete Privacy page.
 - Use the RSVP system from more than one supported browser or device.
 
-The form must never display or prefill the invited party's current stored
+The permanent Test Sample follows the same functional RSVP behavior as an
+ordinary invited party when deliberately used for protected production
+verification. Its activity must not be interpreted as a real wedding guest
+or counted toward guest-list invitation/capacity totals.
+
+The form must never display or prefill an invited party's current stored
 answers or confirmation-contact information.
 
 ### Couple and Administrators
 
 The couple may:
 
+- Maintain the authoritative numbered production source and its source-role
+  distinctions among assigned invitations, reserved placeholders, and the
+  permanent Test Sample.
+- Populate a reserved invite 58–67 later as a real assigned invitation,
+  subject to the guarded synchronization requirements.
 - Maintain invitation records.
 - Maintain invitation-specific singular or plural wording.
 - Maintain the reviewed party-display heading or greeting.
@@ -1386,6 +1575,8 @@ The couple may:
 
   `namedInvitees.length + sum(additionalGuestAllocations.maximumCount) = maximumAttendance`
 
+- Review guest-list-eligible totals separately from functional production
+  totals so the permanent Test Sample does not affect wedding counts.
 - Maintain and activate the appropriate venue and schedule configuration.
 - Maintain the public reception description without assigning fixed times
   to flexible or unconfirmed internal reception activities.
@@ -1424,22 +1615,43 @@ Post-wedding visitors may:
 - View permanent wedding-history pages.
 - View the public Privacy page while it remains applicable.
 
-They will not retain access to personalized RSVP forms after the RSVP
-system has been retired.
+Real wedding guests will not retain access to their personalized RSVP
+forms after the real-guest RSVP system has been retired. The permanent
+production Test Sample is the intentional exception: it remains a functional
+RSVP identity for protected portfolio demonstration and production
+verification without re-enabling retired real-guest invitation records.
+
 ## Phase 3 Step 14 Requirements Synchronization Review
 
 The requirements remain synchronized with the finalized Phase 3 privacy
 and security rules, the spreadsheet-authoritative RSVP source, the
 September 20 person-level attendance clarification, the September 27
-unnamed-child source clarification, the cleaned latest Invitees List, and
-the grouped-children interaction when all of the following remain true:
+unnamed-child source clarification, the cleaned latest Invitees List, the
+grouped-children interaction, and the October 3 production-source extension
+when all of the following remain true:
 
 - The private `Invitees List` spreadsheet and its bottom-row notes control
-  the active production substantive RSVP model, subject to later approved
+  the production substantive RSVP model, subject to later approved
   clarifications recorded in governing project documents.
-- The current production source contains 57 active assigned invitations
-  with no required active production placeholder.
-- All active production invitations use one reusable substantive form
+- The current production source contains 68 numbered rows with 68 unique
+  source codes: 57 established assigned invitations, 10 exact reserved
+  placeholders, and one permanent production Test Sample.
+- Exact reserved rows 58–67 are not functional RSVP identities until
+  populated as valid assigned invitations; a partial or ambiguous reserved
+  row fails closed.
+- The permanent Test Sample is a functional production RSVP identity with
+  `recordRole: "test"` and `guestListEligible: false` and is excluded from
+  real guest-list counts and capacity.
+- The current functional registry contains 58 invitation configurations:
+  57 guest-list eligible plus the permanent Test Sample.
+- The current functional combined maximum-attendance capacity is 117:
+  115 guest-list eligible plus 2 Test Sample capacity.
+- The established invites 1–57 baseline remains independently auditable at
+  57 invitations and maximum attendance 115.
+- The 115-person baseline is not a permanent guest-list ceiling; assigning
+  a reserved invite 58–67 increases current guest-list invitation and
+  capacity totals dynamically while preserving the 1–57 baseline audit.
+- All functional production invitations use one reusable substantive form
   structure rather than separate production question profiles.
 - Specifically named potential attendees are represented through
   `namedInvitees`.
@@ -1453,11 +1665,13 @@ the grouped-children interaction when all of the following remain true:
   children and reconciles exactly to the grouped child capacity.
 - The configuration-capacity invariant is
   `namedInvitees.length + sum(additionalGuestAllocations.maximumCount) = maximumAttendance`.
-- The current source requires 84 specifically named potential attendees,
-  26 Plus1 allocation objects, two grouped child allocation objects,
-  five total unnamed-child slots, 28 total allocation objects, 31 total
-  additional-guest person-capacity slots, and combined maximum capacity
-  of 115.
+- The established invites 1–57 baseline requires 84 specifically named
+  potential attendees, 26 Plus1 allocation objects, two grouped child
+  allocation objects, five total unnamed-child slots, 28 total allocation
+  objects, 31 total additional-guest person-capacity slots, and combined
+  maximum capacity of 115.
+- The permanent Test Sample has one named invitee, one Plus1 allocation,
+  and maximum attendance 2.
 - Ceremony, Reception, and singular/plural full decline remain one
   coordinated event-attendance interface.
 - Every authorized named invitee receives one Yes/No attendance decision
@@ -1491,3 +1705,29 @@ the grouped-children interaction when all of the following remain true:
   named-invitee, Plus1, and grouped child attendance/count information.
 - Guest and administrative delivery attempts remain independent and their
   results remain separate from RSVP substantive/version data.
+- Production invitation synchronization may run after operational RSVP
+  data exists; operational tables do not need to remain empty.
+- Every invitation referenced by Current RSVPs, RSVP Versions, Submission
+  Records, Delivery Records, or Resend Records is immutable through the
+  ordinary synchronization path unless a later explicit migration design
+  replaces this rule.
+- A synchronization that would change or remove an operationally
+  referenced invitation fails before invitation replacement begins.
+- Unreferenced invitation configurations may be corrected or removed, and
+  newly populated reserved invitations may be added, through the guarded
+  synchronization path.
+- A private pre-write snapshot, explicit destructive-write acknowledgement,
+  post-write exact-registry verification, operational-section
+  unchanged verification, and rollback attempt remain required.
+- Production readiness checks compatibility with existing operational
+  history rather than requiring those sections to be empty.
+- Post-load activation verification confirms both exact invitation-registry
+  parity and compatibility with retained operational history.
+- Production audit output separates source, functional, guest-list,
+  reserved-placeholder, Test Sample, and stable-baseline metrics.
+- Real-guest RSVP retirement does not disable the permanent Test Sample;
+  old Test Sample operational data may be minimized or cleared while the
+  Test Sample configuration remains capable of fresh ordinary RSVP use.
+- Production loopback smoke testing uses only the permanent Test Sample,
+  verifies its source/stored configuration before lookup, remains read-only,
+  and verifies that no operational RSVP data changed.

@@ -196,7 +196,7 @@ If analytics are used on RSVP or confirmation routes, they must be limited to no
 
 ### Special behavior
 
-- The static QR code printed on all 57 active assigned invitations opens this page.
+- The static QR code printed on every assigned guest invitation opens this page. Any later printed invitation created from a reserved production code must use the same static homepage QR destination.
 - The RSVP destination must be immediately apparent to guests arriving through the QR code.
 - The approved final-month RSVP countdown is not required on Home. It belongs on the RSVP entry and validated-form states.
 

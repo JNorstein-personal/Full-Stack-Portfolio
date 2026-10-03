@@ -9,6 +9,12 @@ const {
 const GROUPED_CHILD_PROMPT =
   "We'd love for your family to celebrate with us this Mayday - will your kid(s) be accompanying you?";
 
+const BASELINE_INVITE_NUMBER_MAX = 57;
+const RESERVED_INVITE_NUMBER_MIN = 58;
+const RESERVED_INVITE_NUMBER_MAX = 67;
+const PERMANENT_TEST_INVITE_NUMBER = 68;
+const EXPECTED_NUMBERED_SOURCE_ROW_COUNT = 68;
+
 const PRODUCTION_SOURCE_COLUMNS =
   Object.freeze({
     inviteNumber:
@@ -25,21 +31,44 @@ const PRODUCTION_SOURCE_COLUMNS =
       "I/We wording",
   });
 
+/*
+ * These targets intentionally distinguish the stable 1-57 baseline from
+ * the expandable 58-67 reserve. Filling a reserved row with a complete
+ * invitation therefore increases the guest-list-eligible totals without
+ * requiring these targets to be rewritten.
+ */
 const PRODUCTION_AUDIT_TARGETS =
   Object.freeze({
-    activeInvitationCount: 57,
-    uniqueCanonicalCodeCount: 57,
-    singularCount: 35,
-    pluralCount: 22,
-    namedInviteeCount: 84,
-    invitationsWithAllocations: 23,
-    allocationCount: 28,
-    plus1AllocationCount: 26,
-    groupedChildAllocationCount: 2,
-    additionalGuestCapacity: 31,
-    groupedChildCapacity: 5,
-    multiAllocationInvitationCount: 4,
-    combinedMaximumAttendance: 115,
+    numberedSourceRowCount:
+      EXPECTED_NUMBERED_SOURCE_ROW_COUNT,
+    uniqueSourceCodeCount:
+      EXPECTED_NUMBERED_SOURCE_ROW_COUNT,
+    sourceInviteNumberSequenceValid:
+      true,
+
+    baselineInvitationCount: 57,
+    baselineUniqueCanonicalCodeCount:
+      57,
+    baselineSingularCount: 35,
+    baselinePluralCount: 22,
+    baselineNamedInviteeCount: 84,
+    baselineInvitationsWithAllocations:
+      23,
+    baselineAllocationCount: 28,
+    baselinePlus1AllocationCount: 26,
+    baselineGroupedChildAllocationCount:
+      2,
+    baselineAdditionalGuestCapacity: 31,
+    baselineGroupedChildCapacity: 5,
+    baselineMultiAllocationInvitationCount:
+      4,
+    baselineCombinedMaximumAttendance:
+      115,
+
+    testInvitationCount: 1,
+    testNamedInviteeCount: 1,
+    testPlus1AllocationCount: 1,
+    testCombinedMaximumAttendance: 2,
   });
 
 function cleanString(value) {
@@ -234,8 +263,7 @@ function splitNamedSourceList(
     source
       .split(",")
       .map((entry) =>
-        cleanString(entry),
-      );
+        cleanString(entry));
 
   if (
     entries.length === 0 ||
@@ -578,9 +606,7 @@ function buildAdditionalGuestAllocations({
         const prompt =
           `Will ${label.trim()} be accompanied by a +1?`;
 
-        if (
-          prompt.length > 200
-        ) {
+        if (prompt.length > 200) {
           throw new Error(
             `Production invitation source row ${rowNumber} has an overlong Plus1 prompt.`,
           );
@@ -633,10 +659,27 @@ function sumAllocationCapacity(
   );
 }
 
+function normalizeRecordRole(
+  recordRole,
+  rowNumber,
+) {
+  if (
+    recordRole !== "assigned" &&
+    recordRole !== "test"
+  ) {
+    throw new Error(
+      `Production invitation source row ${rowNumber} has an unsupported record role.`,
+    );
+  }
+
+  return recordRole;
+}
+
 function transformProductionInvitationRow(
   row,
   {
     rowNumber = 1,
+    recordRole = "assigned",
   } = {},
 ) {
   if (
@@ -648,6 +691,12 @@ function transformProductionInvitationRow(
       `Production invitation source row ${rowNumber} must be an object.`,
     );
   }
+
+  const normalizedRecordRole =
+    normalizeRecordRole(
+      recordRole,
+      rowNumber,
+    );
 
   const rawCode =
     requireSourceValue(
@@ -748,17 +797,95 @@ function transformProductionInvitationRow(
       Object.freeze(
         additionalGuestAllocations,
       ),
+    recordRole:
+      normalizedRecordRole,
+    guestListEligible:
+      normalizedRecordRole ===
+      "assigned",
     active: true,
     environment: "production",
   });
 }
 
-function summarizeProductionConfigurations(
+function isReservedPlaceholderSourceRow(
+  row,
+  inviteNumber,
+  rowNumber,
+) {
+  if (
+    inviteNumber <
+      RESERVED_INVITE_NUMBER_MIN ||
+    inviteNumber >
+      RESERVED_INVITE_NUMBER_MAX
+  ) {
+    return false;
+  }
+
+  const firstNames =
+    cleanString(
+      row[
+        PRODUCTION_SOURCE_COLUMNS
+          .firstNames
+      ],
+    );
+  const lastNames =
+    cleanString(
+      row[
+        PRODUCTION_SOURCE_COLUMNS
+          .lastNames
+      ],
+    );
+
+  const hasPlaceholderMarker =
+    firstNames === "?" ||
+    lastNames === "?";
+
+  if (!hasPlaceholderMarker) {
+    return false;
+  }
+
+  if (
+    firstNames !== "?" ||
+    lastNames !== "?"
+  ) {
+    throw new Error(
+      `Production invitation source row ${rowNumber} has a partially populated reserved placeholder.`,
+    );
+  }
+
+  const fieldsThatMustRemainBlank = [
+    PRODUCTION_SOURCE_COLUMNS
+      .clarification,
+    PRODUCTION_SOURCE_COLUMNS.plus1,
+    PRODUCTION_SOURCE_COLUMNS
+      .maximumAttendance,
+    PRODUCTION_SOURCE_COLUMNS
+      .wordingMode,
+  ];
+
+  if (
+    fieldsThatMustRemainBlank.some(
+      (columnName) =>
+        cleanString(
+          row[columnName],
+        ) !== "",
+    )
+  ) {
+    throw new Error(
+      `Production invitation source row ${rowNumber} has a partially populated reserved placeholder.`,
+    );
+  }
+
+  return true;
+}
+
+function summarizeConfigurationSet(
   configurations,
 ) {
   const canonicalCodes =
     new Set();
 
+  let activeInvitationCount = 0;
   let singularCount = 0;
   let pluralCount = 0;
   let namedInviteeCount = 0;
@@ -782,6 +909,10 @@ function summarizeProductionConfigurations(
     canonicalCodes.add(
       configuration.inviteCode,
     );
+
+    if (configuration.active === true) {
+      activeInvitationCount += 1;
+    }
 
     if (
       configuration.wordingMode ===
@@ -849,12 +980,7 @@ function summarizeProductionConfigurations(
   }
 
   return Object.freeze({
-    activeInvitationCount:
-      configurations.filter(
-        (configuration) =>
-          configuration.active ===
-          true,
-      ).length,
+    activeInvitationCount,
     uniqueCanonicalCodeCount:
       canonicalCodes.size,
     singularCount,
@@ -868,6 +994,160 @@ function summarizeProductionConfigurations(
     groupedChildCapacity,
     multiAllocationInvitationCount,
     combinedMaximumAttendance,
+  });
+}
+
+function summarizeProductionConfigurations(
+  configurations,
+  {
+    numberedSourceRowCount =
+      configurations.length,
+    uniqueSourceCodeCount =
+      configurations.length,
+    reservedPlaceholderCount = 0,
+    sourceInviteNumberSequenceValid =
+      false,
+    baselineConfigurations =
+      null,
+  } = {},
+) {
+  const functional =
+    summarizeConfigurationSet(
+      configurations,
+    );
+
+  const guestListConfigurations =
+    configurations.filter(
+      (configuration) =>
+        configuration
+          .guestListEligible !== false,
+    );
+
+  const testConfigurations =
+    configurations.filter(
+      (configuration) =>
+        configuration.recordRole ===
+          "test" ||
+        configuration
+          .guestListEligible === false,
+    );
+
+  const guestList =
+    summarizeConfigurationSet(
+      guestListConfigurations,
+    );
+
+  const test =
+    summarizeConfigurationSet(
+      testConfigurations,
+    );
+
+  const baseline =
+    summarizeConfigurationSet(
+      Array.isArray(
+        baselineConfigurations,
+      )
+        ? baselineConfigurations
+        : guestListConfigurations,
+    );
+
+  return Object.freeze({
+    numberedSourceRowCount,
+    uniqueSourceCodeCount,
+    reservedPlaceholderCount,
+    sourceInviteNumberSequenceValid,
+
+    functionalInvitationCount:
+      functional.activeInvitationCount,
+    functionalUniqueCanonicalCodeCount:
+      functional
+        .uniqueCanonicalCodeCount,
+    functionalCombinedMaximumAttendance:
+      functional
+        .combinedMaximumAttendance,
+
+    guestListInvitationCount:
+      guestList.activeInvitationCount,
+    testInvitationCount:
+      test.activeInvitationCount,
+
+    /*
+     * Backward-compatible aggregate names now deliberately mean
+     * guest-list-eligible production invitations. This prevents the
+     * permanent Test Sample identity from affecting wedding counts.
+     */
+    activeInvitationCount:
+      guestList.activeInvitationCount,
+    uniqueCanonicalCodeCount:
+      guestList
+        .uniqueCanonicalCodeCount,
+    singularCount:
+      guestList.singularCount,
+    pluralCount:
+      guestList.pluralCount,
+    namedInviteeCount:
+      guestList.namedInviteeCount,
+    invitationsWithAllocations:
+      guestList
+        .invitationsWithAllocations,
+    allocationCount:
+      guestList.allocationCount,
+    plus1AllocationCount:
+      guestList.plus1AllocationCount,
+    groupedChildAllocationCount:
+      guestList
+        .groupedChildAllocationCount,
+    additionalGuestCapacity:
+      guestList
+        .additionalGuestCapacity,
+    groupedChildCapacity:
+      guestList.groupedChildCapacity,
+    multiAllocationInvitationCount:
+      guestList
+        .multiAllocationInvitationCount,
+    combinedMaximumAttendance:
+      guestList
+        .combinedMaximumAttendance,
+
+    testNamedInviteeCount:
+      test.namedInviteeCount,
+    testPlus1AllocationCount:
+      test.plus1AllocationCount,
+    testCombinedMaximumAttendance:
+      test.combinedMaximumAttendance,
+
+    baselineInvitationCount:
+      baseline.activeInvitationCount,
+    baselineUniqueCanonicalCodeCount:
+      baseline
+        .uniqueCanonicalCodeCount,
+    baselineSingularCount:
+      baseline.singularCount,
+    baselinePluralCount:
+      baseline.pluralCount,
+    baselineNamedInviteeCount:
+      baseline.namedInviteeCount,
+    baselineInvitationsWithAllocations:
+      baseline
+        .invitationsWithAllocations,
+    baselineAllocationCount:
+      baseline.allocationCount,
+    baselinePlus1AllocationCount:
+      baseline.plus1AllocationCount,
+    baselineGroupedChildAllocationCount:
+      baseline
+        .groupedChildAllocationCount,
+    baselineAdditionalGuestCapacity:
+      baseline
+        .additionalGuestCapacity,
+    baselineGroupedChildCapacity:
+      baseline.groupedChildCapacity,
+    baselineMultiAllocationInvitationCount:
+      baseline
+        .multiAllocationInvitationCount,
+    baselineCombinedMaximumAttendance:
+      baseline
+        .combinedMaximumAttendance,
   });
 }
 
@@ -891,6 +1171,63 @@ function assertProductionAuditTargets(
       throw new Error(
         `Production invitation transformation audit failed for ${key}.`,
       );
+    }
+  }
+
+  if (
+    summary.functionalInvitationCount !==
+    summary.guestListInvitationCount +
+      summary.testInvitationCount
+  ) {
+    throw new Error(
+      "Production invitation transformation audit failed for functional invitation classification.",
+    );
+  }
+
+  if (
+    summary.numberedSourceRowCount !==
+    summary.functionalInvitationCount +
+      summary.reservedPlaceholderCount
+  ) {
+    throw new Error(
+      "Production invitation transformation audit failed for numbered source-row classification.",
+    );
+  }
+
+  if (
+    summary.combinedMaximumAttendance <
+    summary.baselineCombinedMaximumAttendance
+  ) {
+    throw new Error(
+      "Production invitation transformation audit failed for guest-list-eligible capacity.",
+    );
+  }
+
+  return true;
+}
+
+function hasExpectedInviteNumberSequence(
+  inviteNumbers,
+) {
+  if (
+    inviteNumbers.size !==
+    EXPECTED_NUMBERED_SOURCE_ROW_COUNT
+  ) {
+    return false;
+  }
+
+  for (
+    let inviteNumber = 1;
+    inviteNumber <=
+      EXPECTED_NUMBERED_SOURCE_ROW_COUNT;
+    inviteNumber += 1
+  ) {
+    if (
+      !inviteNumbers.has(
+        String(inviteNumber),
+      )
+    ) {
+      return false;
     }
   }
 
@@ -980,86 +1317,135 @@ function transformProductionInvitationRows(
     );
   }
 
-  const configurations =
-    invitationRows.map(
-      ({
-        row,
-        rowNumber,
-      }) =>
-        transformProductionInvitationRow(
-          row,
-          {
-            rowNumber,
-          },
-        ),
-    );
-
-  const codes = new Set();
-  const partyIds = new Set();
-  const configurationIds =
-    new Set();
-  const inviteNumbers =
-    new Set();
+  const sourceCodes = new Set();
+  const inviteNumbers = new Set();
+  const configurationRecords = [];
+  let reservedPlaceholderCount = 0;
 
   for (
-    let index = 0;
-    index <
-    configurations.length;
-    index += 1
+    const {
+      row,
+      rowNumber,
+    } of invitationRows
   ) {
-    const configuration =
-      configurations[index];
+    const rawCode =
+      requireSourceValue(
+        row,
+        PRODUCTION_SOURCE_COLUMNS
+          .guestId,
+        rowNumber,
+      );
 
-    const sourceRowNumber =
-      invitationRows[index]
-        .rowNumber;
+    const normalizedCode =
+      normalizeInvitationCode(
+        rawCode,
+      );
 
-    if (hasInviteNumberColumn) {
-      const inviteNumber =
-        cleanString(
-          invitationRows[index]
-            .row[
-              PRODUCTION_SOURCE_COLUMNS
-                .inviteNumber
-            ],
-        );
-
-      if (
-        inviteNumbers.has(
-          inviteNumber,
-        )
-      ) {
-        throw new Error(
-          `Production invitation source row ${sourceRowNumber} duplicates an invitation number.`,
-        );
-      }
-
-      inviteNumbers.add(
-        inviteNumber,
+    if (!normalizedCode) {
+      throw new Error(
+        `Production invitation source row ${rowNumber} has a malformed Guest ID.`,
       );
     }
 
     if (
-      codes.has(
-        configuration.inviteCode,
+      sourceCodes.has(
+        normalizedCode.canonicalCode,
       )
     ) {
       throw new Error(
-        `Production invitation source row ${sourceRowNumber} creates a canonical invitation-code collision.`,
+        `Production invitation source row ${rowNumber} creates a canonical invitation-code collision.`,
       );
     }
 
-    codes.add(
-      configuration.inviteCode,
+    sourceCodes.add(
+      normalizedCode.canonicalCode,
     );
 
+    let inviteNumber = null;
+
+    if (hasInviteNumberColumn) {
+      const inviteNumberText =
+        cleanString(
+          row[
+            PRODUCTION_SOURCE_COLUMNS
+              .inviteNumber
+          ],
+        );
+
+      if (
+        inviteNumbers.has(
+          inviteNumberText,
+        )
+      ) {
+        throw new Error(
+          `Production invitation source row ${rowNumber} duplicates an invitation number.`,
+        );
+      }
+
+      inviteNumbers.add(
+        inviteNumberText,
+      );
+      inviteNumber =
+        Number(inviteNumberText);
+    }
+
+    if (
+      inviteNumber !== null &&
+      isReservedPlaceholderSourceRow(
+        row,
+        inviteNumber,
+        rowNumber,
+      )
+    ) {
+      reservedPlaceholderCount += 1;
+      continue;
+    }
+
+    const recordRole =
+      inviteNumber ===
+      PERMANENT_TEST_INVITE_NUMBER
+        ? "test"
+        : "assigned";
+
+    const configuration =
+      transformProductionInvitationRow(
+        row,
+        {
+          rowNumber,
+          recordRole,
+        },
+      );
+
+    configurationRecords.push({
+      inviteNumber,
+      rowNumber,
+      configuration,
+    });
+  }
+
+  const configurations =
+    configurationRecords.map(
+      ({ configuration }) =>
+        configuration,
+    );
+
+  const partyIds = new Set();
+  const configurationIds =
+    new Set();
+
+  for (
+    const {
+      configuration,
+      rowNumber,
+    } of configurationRecords
+  ) {
     if (
       partyIds.has(
         configuration.partyId,
       )
     ) {
       throw new Error(
-        `Production invitation source row ${sourceRowNumber} creates a party-identifier collision.`,
+        `Production invitation source row ${rowNumber} creates a party-identifier collision.`,
       );
     }
 
@@ -1077,7 +1463,7 @@ function transformProductionInvitationRows(
         )
       ) {
         throw new Error(
-          `Production invitation source row ${sourceRowNumber} creates an invitee/allocation identifier collision.`,
+          `Production invitation source row ${rowNumber} creates an invitee/allocation identifier collision.`,
         );
       }
 
@@ -1097,7 +1483,7 @@ function transformProductionInvitationRows(
         )
       ) {
         throw new Error(
-          `Production invitation source row ${sourceRowNumber} creates an invitee/allocation identifier collision.`,
+          `Production invitation source row ${rowNumber} creates an invitee/allocation identifier collision.`,
         );
       }
 
@@ -1107,9 +1493,42 @@ function transformProductionInvitationRows(
     }
   }
 
+  const baselineConfigurations =
+    configurationRecords
+      .filter(
+        ({ inviteNumber }) =>
+          inviteNumber !== null &&
+          inviteNumber >= 1 &&
+          inviteNumber <=
+            BASELINE_INVITE_NUMBER_MAX,
+      )
+      .map(
+        ({ configuration }) =>
+          configuration,
+      );
+
   const summary =
     summarizeProductionConfigurations(
       configurations,
+      {
+        numberedSourceRowCount:
+          hasInviteNumberColumn
+            ? invitationRows.length
+            : 0,
+        uniqueSourceCodeCount:
+          sourceCodes.size,
+        reservedPlaceholderCount,
+        sourceInviteNumberSequenceValid:
+          hasInviteNumberColumn
+            ? hasExpectedInviteNumberSequence(
+                inviteNumbers,
+              )
+            : false,
+        baselineConfigurations:
+          hasInviteNumberColumn
+            ? baselineConfigurations
+            : null,
+      },
     );
 
   if (auditTargets) {
@@ -1129,15 +1548,21 @@ function transformProductionInvitationRows(
 }
 
 module.exports = {
+  BASELINE_INVITE_NUMBER_MAX,
+  EXPECTED_NUMBERED_SOURCE_ROW_COUNT,
   GROUPED_CHILD_PROMPT,
+  PERMANENT_TEST_INVITE_NUMBER,
   PRODUCTION_AUDIT_TARGETS,
   PRODUCTION_SOURCE_COLUMNS,
+  RESERVED_INVITE_NUMBER_MAX,
+  RESERVED_INVITE_NUMBER_MIN,
   assertProductionAuditTargets,
   buildNamedInvitees,
   deriveAllocationId,
   deriveChildrenAllocationId,
   deriveInviteeId,
   derivePartyId,
+  isReservedPlaceholderSourceRow,
   parsePlus1Entries,
   parseUnnamedChildrenCount,
   summarizeProductionConfigurations,

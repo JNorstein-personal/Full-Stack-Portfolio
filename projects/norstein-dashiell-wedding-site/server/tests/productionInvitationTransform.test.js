@@ -2,13 +2,19 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 
 const {
+  BASELINE_INVITE_NUMBER_MAX,
+  EXPECTED_NUMBERED_SOURCE_ROW_COUNT,
   GROUPED_CHILD_PROMPT,
+  PERMANENT_TEST_INVITE_NUMBER,
   PRODUCTION_AUDIT_TARGETS,
+  RESERVED_INVITE_NUMBER_MAX,
+  RESERVED_INVITE_NUMBER_MIN,
   assertProductionAuditTargets,
   deriveAllocationId,
   deriveChildrenAllocationId,
   deriveInviteeId,
   derivePartyId,
+  isReservedPlaceholderSourceRow,
   parsePlus1Entries,
   parseUnnamedChildrenCount,
   summarizeProductionConfigurations,
@@ -22,22 +28,285 @@ function makeRow(
   return {
     "Invite #": "1",
     "Guest ID": "ABC123",
-    "First Name(s)":
-      "Example",
-    "Last Name(s)":
-      "Guest",
-    "Attendee Names Clarification":
-      "",
+    "First Name(s)": "Example",
+    "Last Name(s)": "Guest",
+    "Attendee Names Clarification": "",
     Plus1: "",
-    "Total Potential Attendees (Including Plus1 and Kids)":
-      1,
+    "Total Potential Attendees (Including Plus1 and Kids)": 1,
     "I/We wording": "I",
     ...overrides,
   };
 }
 
+function makeReservedRow(
+  inviteNumber,
+  overrides = {},
+) {
+  return makeRow({
+    "Invite #": String(inviteNumber),
+    "Guest ID":
+      `R${String(inviteNumber).padStart(
+        5,
+        "0",
+      )}`,
+    "First Name(s)": "?",
+    "Last Name(s)": "?",
+    "Attendee Names Clarification": "",
+    Plus1: "",
+    "Total Potential Attendees (Including Plus1 and Kids)": "",
+    "I/We wording": "",
+    ...overrides,
+  });
+}
+
+function makeTestRow(
+  overrides = {},
+) {
+  return makeRow({
+    "Invite #":
+      String(
+        PERMANENT_TEST_INVITE_NUMBER,
+      ),
+    "Guest ID": "TST068",
+    "First Name(s)": "Test",
+    "Last Name(s)": "Sample",
+    Plus1: "Plus1",
+    "Total Potential Attendees (Including Plus1 and Kids)": 2,
+    "I/We wording": "I",
+    ...overrides,
+  });
+}
+
+function namedSource(
+  index,
+  count,
+) {
+  const firstNames =
+    Array.from(
+      {
+        length: count,
+      },
+      (_, offset) =>
+        `Guest${index}${String.fromCharCode(
+          65 + offset,
+        )}`,
+    );
+
+  const lastNames =
+    Array.from(
+      {
+        length: count,
+      },
+      () => "Example",
+    );
+
+  return {
+    firstNames:
+      firstNames.join(", "),
+    lastNames:
+      lastNames.join(", "),
+    displayNames:
+      firstNames.map(
+        (firstName) =>
+          `${firstName} Example`,
+      ),
+  };
+}
+
+function makeBaselineRows() {
+  const rows = [];
+
+  for (
+    let index = 1;
+    index <=
+      BASELINE_INVITE_NUMBER_MAX;
+    index += 1
+  ) {
+    const code =
+      `P${String(index).padStart(
+        5,
+        "0",
+      )}`;
+
+    let namedCount = 1;
+
+    if (index === 2) {
+      namedCount = 4;
+    } else if (
+      index === 4 ||
+      (
+        index >= 5 &&
+        index <= 27
+      )
+    ) {
+      namedCount = 2;
+    }
+
+    const names =
+      namedSource(
+        index,
+        namedCount,
+      );
+
+    let plus1 = "";
+    let plus1Count = 0;
+    let childCapacity = 0;
+
+    if (index === 1) {
+      plus1 =
+        "Plus1, Kids(3)";
+      plus1Count = 1;
+      childCapacity = 3;
+    } else if (
+      index === 2
+    ) {
+      plus1 =
+        `Plus1 (${names.displayNames[0]}), Plus1 (${names.displayNames[1]}), Plus1 (${names.displayNames[2]})`;
+      plus1Count = 3;
+    } else if (
+      index === 3
+    ) {
+      plus1 =
+        "Plus1, kids(2)";
+      plus1Count = 1;
+      childCapacity = 2;
+    } else if (
+      index === 4
+    ) {
+      plus1 =
+        `Plus1 (${names.displayNames[0]}), Plus1 (${names.displayNames[1]})`;
+      plus1Count = 2;
+    } else if (
+      index <= 23
+    ) {
+      plus1 =
+        `Plus1 (${names.displayNames[0]})`;
+      plus1Count = 1;
+    }
+
+    rows.push(
+      makeRow({
+        "Invite #":
+          String(index),
+        "Guest ID": code,
+        "First Name(s)":
+          names.firstNames,
+        "Last Name(s)":
+          names.lastNames,
+        Plus1: plus1,
+        "Total Potential Attendees (Including Plus1 and Kids)":
+          namedCount +
+          plus1Count +
+          childCapacity,
+        "I/We wording":
+          index <= 35
+            ? "I"
+            : "we",
+      }),
+    );
+  }
+
+  return rows;
+}
+
+function makeAuthoritativeShapeRows({
+  populateReservedInvite = null,
+} = {}) {
+  const rows =
+    makeBaselineRows();
+
+  for (
+    let inviteNumber =
+      RESERVED_INVITE_NUMBER_MIN;
+    inviteNumber <=
+      RESERVED_INVITE_NUMBER_MAX;
+    inviteNumber += 1
+  ) {
+    if (
+      inviteNumber ===
+      populateReservedInvite
+    ) {
+      rows.push(
+        makeRow({
+          "Invite #":
+            String(inviteNumber),
+          "Guest ID":
+            `P${String(
+              inviteNumber,
+            ).padStart(
+              5,
+              "0",
+            )}`,
+          "First Name(s)":
+            "Future",
+          "Last Name(s)":
+            "Guest",
+          "Attendee Names Clarification":
+            "",
+          Plus1: "",
+          "Total Potential Attendees (Including Plus1 and Kids)":
+            1,
+          "I/We wording":
+            "I",
+        }),
+      );
+      continue;
+    }
+
+    rows.push(
+      makeReservedRow(
+        inviteNumber,
+        {
+          "Guest ID":
+            `P${String(
+              inviteNumber,
+            ).padStart(
+              5,
+              "0",
+            )}`,
+        },
+      ),
+    );
+  }
+
+  rows.push(
+    makeTestRow({
+      "Guest ID": "P00068",
+    }),
+  );
+
+  rows.push({
+    "Invite #": "Notes",
+    "Guest ID":
+      "Bottom-row note text",
+    "I/We wording":
+      "Note: display wording guidance",
+  });
+
+  return rows;
+}
+
+function assertTargetSubset(
+  summary,
+) {
+  for (
+    const [
+      key,
+      expectedValue,
+    ] of Object.entries(
+      PRODUCTION_AUDIT_TARGETS,
+    )
+  ) {
+    assert.equal(
+      summary[key],
+      expectedValue,
+      key,
+    );
+  }
+}
+
 test(
-  "production row transformation uses clarification, canonical code, explicit wording, named invitees, and production classification",
+  "production row transformation uses clarification, canonical code, explicit wording, named invitees, and assigned production classification",
   () => {
     const transformed =
       transformProductionInvitationRow(
@@ -46,7 +315,8 @@ test(
             " abc-123 ",
           "Attendee Names Clarification":
             "The Reviewed Example Party",
-          "I/We wording": "we",
+          "I/We wording":
+            "we",
         }),
         {
           rowNumber: 2,
@@ -82,6 +352,8 @@ test(
         ],
         additionalGuestAllocations:
           [],
+        recordRole: "assigned",
+        guestListEligible: true,
         active: true,
         environment: "production",
       },
@@ -106,6 +378,83 @@ test(
         transformed.namedInvitees[0],
       ),
       true,
+    );
+  },
+);
+
+test(
+  "test-role transformation remains fully functional while being excluded from guest-list eligibility",
+  () => {
+    const transformed =
+      transformProductionInvitationRow(
+        makeTestRow(),
+        {
+          rowNumber: 69,
+          recordRole: "test",
+        },
+      );
+
+    assert.equal(
+      transformed.recordRole,
+      "test",
+    );
+    assert.equal(
+      transformed.guestListEligible,
+      false,
+    );
+    assert.equal(
+      transformed.active,
+      true,
+    );
+    assert.equal(
+      transformed.environment,
+      "production",
+    );
+    assert.equal(
+      transformed.maximumAttendance,
+      2,
+    );
+    assert.deepEqual(
+      transformed.namedInvitees.map(
+        (invitee) =>
+          invitee.displayName,
+      ),
+      ["Test Sample"],
+    );
+    assert.equal(
+      transformed
+        .additionalGuestAllocations
+        .length,
+      1,
+    );
+    assert.equal(
+      transformed
+        .additionalGuestAllocations[0]
+        .kind,
+      "plus1",
+    );
+    assert.equal(
+      transformed
+        .additionalGuestAllocations[0]
+        .prompt,
+      "Will Test Sample be accompanied by a +1?",
+    );
+  },
+);
+
+test(
+  "production row transformation rejects unsupported record roles",
+  () => {
+    assert.throws(
+      () =>
+        transformProductionInvitationRow(
+          makeRow(),
+          {
+            recordRole:
+              "reserved",
+          },
+        ),
+      /unsupported record role/,
     );
   },
 );
@@ -346,13 +695,6 @@ test(
         }),
       );
 
-    assert.equal(
-      transformed
-        .additionalGuestAllocations
-        .length,
-      2,
-    );
-
     assert.deepEqual(
       transformed
         .additionalGuestAllocations,
@@ -400,7 +742,6 @@ test(
         allocationCapacity,
       transformed.maximumAttendance,
     );
-
     assert.equal(
       allocationCapacity,
       4,
@@ -519,7 +860,6 @@ test(
       ),
       /^party-[a-f0-9]{16}$/,
     );
-
     assert.match(
       deriveInviteeId(
         "ABC123",
@@ -527,7 +867,6 @@ test(
       ),
       /^invitee-[a-f0-9]{16}$/,
     );
-
     assert.match(
       deriveAllocationId(
         "ABC123",
@@ -535,7 +874,6 @@ test(
       ),
       /^plus1-[a-f0-9]{16}$/,
     );
-
     assert.match(
       deriveChildrenAllocationId(
         "ABC123",
@@ -596,7 +934,6 @@ test(
       ),
       0,
     );
-
     assert.equal(
       parseUnnamedChildrenCount(
         "N/A",
@@ -604,7 +941,6 @@ test(
       ),
       0,
     );
-
     assert.equal(
       parseUnnamedChildrenCount(
         "Kids(3)",
@@ -612,7 +948,6 @@ test(
       ),
       3,
     );
-
     assert.equal(
       parseUnnamedChildrenCount(
         "Plus1, kids(2)",
@@ -781,6 +1116,90 @@ test(
 );
 
 test(
+  "reserved placeholder recognition is limited to invites 58 through 67 and requires the complete placeholder shape",
+  () => {
+    assert.equal(
+      isReservedPlaceholderSourceRow(
+        makeReservedRow(58),
+        58,
+        59,
+      ),
+      true,
+    );
+
+    assert.equal(
+      isReservedPlaceholderSourceRow(
+        makeReservedRow(67),
+        67,
+        68,
+      ),
+      true,
+    );
+
+    assert.equal(
+      isReservedPlaceholderSourceRow(
+        makeReservedRow(57),
+        57,
+        58,
+      ),
+      false,
+    );
+
+    assert.equal(
+      isReservedPlaceholderSourceRow(
+        makeReservedRow(68),
+        68,
+        69,
+      ),
+      false,
+    );
+
+    assert.equal(
+      isReservedPlaceholderSourceRow(
+        makeRow({
+          "Invite #": "58",
+        }),
+        58,
+        59,
+      ),
+      false,
+    );
+
+    assert.throws(
+      () =>
+        isReservedPlaceholderSourceRow(
+          makeReservedRow(
+            58,
+            {
+              "Last Name(s)":
+                "Guest",
+            },
+          ),
+          58,
+          59,
+        ),
+      /partially populated reserved placeholder/,
+    );
+
+    assert.throws(
+      () =>
+        isReservedPlaceholderSourceRow(
+          makeReservedRow(
+            58,
+            {
+              "Total Potential Attendees (Including Plus1 and Kids)":
+                1,
+            },
+          ),
+          58,
+          59,
+        ),
+      /partially populated reserved placeholder/,
+    );
+  },
+);
+
+test(
   "registry transformation ignores non-invitation bottom-row notes and rejects canonical code collisions",
   () => {
     const transformed =
@@ -788,8 +1207,11 @@ test(
         [
           makeRow(),
           {
-            Notes:
-              "Bottom-row RSVP display notes",
+            "Invite #": "Notes",
+            "Guest ID":
+              "Bottom-row note text",
+            "I/We wording":
+              "Note only",
           },
         ],
       );
@@ -821,154 +1243,38 @@ test(
   },
 );
 
-function namedSource(
-  index,
-  count,
-) {
-  const firstNames =
-    Array.from(
-      {
-        length: count,
-      },
-      (_, offset) =>
-        `Guest${index}${String.fromCharCode(
-          65 + offset,
-        )}`,
+test(
+  "reserved codes participate in collision detection even though they do not create active configurations",
+  () => {
+    const rows =
+      makeAuthoritativeShapeRows();
+
+    rows[
+      RESERVED_INVITE_NUMBER_MIN -
+        1
+    ]["Guest ID"] =
+      rows[0]["Guest ID"];
+
+    assert.throws(
+      () =>
+        transformProductionInvitationRows(
+          rows,
+        ),
+      /canonical invitation-code collision/,
     );
-
-  const lastNames =
-    Array.from(
-      {
-        length: count,
-      },
-      () => "Example",
-    );
-
-  return {
-    firstNames:
-      firstNames.join(", "),
-    lastNames:
-      lastNames.join(", "),
-    displayNames:
-      firstNames.map(
-        (firstName) =>
-          `${firstName} Example`,
-      ),
-  };
-}
-
-function makeAuthoritativeShapeRows() {
-  const rows = [];
-
-  for (
-    let index = 1;
-    index <= 57;
-    index += 1
-  ) {
-    const code =
-      `P${String(index).padStart(
-        5,
-        "0",
-      )}`;
-
-    let namedCount = 1;
-
-    if (index === 2) {
-      namedCount = 4;
-    } else if (
-      index === 4 ||
-      (
-        index >= 5 &&
-        index <= 27
-      )
-    ) {
-      namedCount = 2;
-    }
-
-    const names =
-      namedSource(
-        index,
-        namedCount,
-      );
-
-    let plus1 = "";
-    let plus1Count = 0;
-    let childCapacity = 0;
-
-    if (index === 1) {
-      plus1 = "Plus1, Kids(3)";
-      plus1Count = 1;
-      childCapacity = 3;
-    } else if (
-      index === 2
-    ) {
-      plus1 =
-        `Plus1 (${names.displayNames[0]}), Plus1 (${names.displayNames[1]}), Plus1 (${names.displayNames[2]})`;
-      plus1Count = 3;
-    } else if (
-      index === 3
-    ) {
-      plus1 = "Plus1, kids(2)";
-      plus1Count = 1;
-      childCapacity = 2;
-    } else if (
-      index === 4
-    ) {
-      plus1 =
-        `Plus1 (${names.displayNames[0]}), Plus1 (${names.displayNames[1]})`;
-      plus1Count = 2;
-    } else if (
-      index <= 23
-    ) {
-      plus1 =
-        `Plus1 (${names.displayNames[0]})`;
-      plus1Count = 1;
-    }
-
-    rows.push(
-      makeRow({
-        "Invite #":
-          String(index),
-        "Guest ID": code,
-        "First Name(s)":
-          names.firstNames,
-        "Last Name(s)":
-          names.lastNames,
-        Plus1: plus1,
-        "Total Potential Attendees (Including Plus1 and Kids)":
-          namedCount +
-          plus1Count +
-          childCapacity,
-        "I/We wording":
-          index <= 35
-            ? "I"
-            : "we",
-      }),
-    );
-  }
-
-  rows.push({
-    "Invite #": "Notes",
-    "Guest ID":
-      "Bottom-row note text",
-    "I/We wording":
-      "Note: display wording guidance",
-  });
-
-  return rows;
-}
+  },
+);
 
 test(
-  "synthetic authoritative-shape source reproduces every governing production audit target",
+  "current 68-row authoritative shape preserves the 1-57 baseline, reserves ten future codes, and creates one non-counting functional test invitation",
   () => {
     const transformed =
       transformProductionInvitationRows(
         makeAuthoritativeShapeRows(),
       );
 
-    assert.deepEqual(
+    assertTargetSubset(
       transformed.summary,
-      PRODUCTION_AUDIT_TARGETS,
     );
 
     assert.equal(
@@ -980,29 +1286,96 @@ test(
 
     assert.equal(
       transformed.summary
-        .namedInviteeCount +
-        transformed.summary
-          .additionalGuestCapacity,
+        .numberedSourceRowCount,
+      68,
+    );
+    assert.equal(
+      transformed.summary
+        .uniqueSourceCodeCount,
+      68,
+    );
+    assert.equal(
+      transformed.summary
+        .sourceInviteNumberSequenceValid,
+      true,
+    );
+    assert.equal(
+      transformed.summary
+        .reservedPlaceholderCount,
+      10,
+    );
+
+    assert.equal(
+      transformed.summary
+        .functionalInvitationCount,
+      58,
+    );
+    assert.equal(
+      transformed.summary
+        .guestListInvitationCount,
+      57,
+    );
+    assert.equal(
+      transformed.summary
+        .testInvitationCount,
+      1,
+    );
+
+    assert.equal(
       transformed.summary
         .combinedMaximumAttendance,
+      115,
+    );
+    assert.equal(
+      transformed.summary
+        .baselineCombinedMaximumAttendance,
+      115,
+    );
+    assert.equal(
+      transformed.summary
+        .testCombinedMaximumAttendance,
+      2,
+    );
+    assert.equal(
+      transformed.summary
+        .functionalCombinedMaximumAttendance,
+      117,
     );
 
     assert.equal(
-      transformed.summary
-        .allocationCount,
-      28,
+      transformed
+        .configurations.length,
+      58,
     );
 
+    const testInvitation =
+      transformed.configurations.find(
+        (configuration) =>
+          configuration.recordRole ===
+          "test",
+      );
+
+    assert.ok(
+      testInvitation,
+    );
     assert.equal(
-      transformed.summary
-        .additionalGuestCapacity,
-      31,
+      testInvitation
+        .guestListEligible,
+      false,
+    );
+    assert.equal(
+      testInvitation.active,
+      true,
+    );
+    assert.equal(
+      testInvitation.maximumAttendance,
+      2,
     );
   },
 );
 
 test(
-  "synthetic production audit includes 26 Plus1 objects, two grouped-child objects, and five grouped-child person-capacity slots",
+  "the established grouped-child and Plus1 figures remain guest-list-only audit values",
   () => {
     const transformed =
       transformProductionInvitationRows(
@@ -1014,28 +1387,47 @@ test(
         .plus1AllocationCount,
       26,
     );
-
     assert.equal(
       transformed.summary
         .groupedChildAllocationCount,
       2,
     );
-
     assert.equal(
       transformed.summary
         .groupedChildCapacity,
       5,
     );
-
+    assert.equal(
+      transformed.summary
+        .allocationCount,
+      28,
+    );
+    assert.equal(
+      transformed.summary
+        .additionalGuestCapacity,
+      31,
+    );
     assert.equal(
       transformed.summary
         .multiAllocationInvitationCount,
       4,
     );
 
+    assert.equal(
+      transformed.summary
+        .testPlus1AllocationCount,
+      1,
+    );
+
     const grouped =
       transformed
         .configurations
+        .filter(
+          (configuration) =>
+            configuration
+              .guestListEligible ===
+            true,
+        )
         .flatMap(
           (configuration) =>
             configuration
@@ -1058,7 +1450,94 @@ test(
 );
 
 test(
-  "summary counts allocation objects separately from additional-person capacity",
+  "populating a reserved invitation automatically increases guest-list count and capacity without changing the 1-57 baseline target",
+  () => {
+    const transformed =
+      transformProductionInvitationRows(
+        makeAuthoritativeShapeRows({
+          populateReservedInvite: 58,
+        }),
+      );
+
+    assert.equal(
+      transformed.summary
+        .numberedSourceRowCount,
+      68,
+    );
+    assert.equal(
+      transformed.summary
+        .reservedPlaceholderCount,
+      9,
+    );
+    assert.equal(
+      transformed.summary
+        .functionalInvitationCount,
+      59,
+    );
+    assert.equal(
+      transformed.summary
+        .guestListInvitationCount,
+      58,
+    );
+    assert.equal(
+      transformed.summary
+        .testInvitationCount,
+      1,
+    );
+
+    assert.equal(
+      transformed.summary
+        .baselineInvitationCount,
+      57,
+    );
+    assert.equal(
+      transformed.summary
+        .baselineCombinedMaximumAttendance,
+      115,
+    );
+
+    assert.equal(
+      transformed.summary
+        .combinedMaximumAttendance,
+      116,
+    );
+    assert.equal(
+      transformed.summary
+        .functionalCombinedMaximumAttendance,
+      118,
+    );
+
+    assert.equal(
+      assertProductionAuditTargets(
+        transformed.summary,
+      ),
+      true,
+    );
+
+    const newlyAssigned =
+      transformed.configurations.find(
+        (configuration) =>
+          configuration.inviteCode ===
+          "P00058",
+      );
+
+    assert.ok(
+      newlyAssigned,
+    );
+    assert.equal(
+      newlyAssigned.recordRole,
+      "assigned",
+    );
+    assert.equal(
+      newlyAssigned
+        .guestListEligible,
+      true,
+    );
+  },
+);
+
+test(
+  "summary counts allocation objects separately from additional-person capacity and excludes test-role capacity from guest-list aggregates",
   () => {
     const configurations = [
       transformProductionInvitationRow(
@@ -1079,6 +1558,15 @@ test(
             1,
         }),
       ),
+      transformProductionInvitationRow(
+        makeTestRow({
+          "Guest ID":
+            "TST999",
+        }),
+        {
+          recordRole: "test",
+        },
+      ),
     ];
 
     const summary =
@@ -1090,20 +1578,43 @@ test(
       summary.allocationCount,
       2,
     );
-
     assert.equal(
       summary.additionalGuestCapacity,
       4,
     );
-
     assert.equal(
       summary.namedInviteeCount,
       2,
     );
-
     assert.equal(
       summary.combinedMaximumAttendance,
       6,
+    );
+
+    assert.equal(
+      summary.guestListInvitationCount,
+      2,
+    );
+    assert.equal(
+      summary.testInvitationCount,
+      1,
+    );
+    assert.equal(
+      summary.testNamedInviteeCount,
+      1,
+    );
+    assert.equal(
+      summary.testPlus1AllocationCount,
+      1,
+    );
+    assert.equal(
+      summary.testCombinedMaximumAttendance,
+      2,
+    );
+    assert.equal(
+      summary
+        .functionalCombinedMaximumAttendance,
+      8,
     );
   },
 );
@@ -1131,19 +1642,16 @@ test(
     assert.ok(
       error instanceof Error,
     );
-
     assert.match(
       error.message,
       /audit failed/,
     );
-
     assert.equal(
       error.message.includes(
         "ABC123",
       ),
       false,
     );
-
     assert.equal(
       error.message.includes(
         "Example Guest",
@@ -1210,6 +1718,66 @@ test(
           ],
         ),
       /duplicates an invitation number/,
+    );
+  },
+);
+
+test(
+  "missing numbered rows make the 1-through-68 source sequence invalid and fail the governing audit",
+  () => {
+    const rows =
+      makeAuthoritativeShapeRows()
+        .filter(
+          (row) =>
+            row["Invite #"] !==
+            "67",
+        );
+
+    const transformed =
+      transformProductionInvitationRows(
+        rows,
+      );
+
+    assert.equal(
+      transformed.summary
+        .sourceInviteNumberSequenceValid,
+      false,
+    );
+
+    assert.throws(
+      () =>
+        assertProductionAuditTargets(
+          transformed.summary,
+        ),
+      /audit failed/,
+    );
+  },
+);
+
+test(
+  "partially populated reserved source rows fail closed rather than being guessed as assigned or reserved",
+  () => {
+    const rows =
+      makeAuthoritativeShapeRows();
+
+    const reservedIndex =
+      RESERVED_INVITE_NUMBER_MIN -
+      1;
+
+    rows[reservedIndex] = {
+      ...rows[reservedIndex],
+      "First Name(s)":
+        "Future",
+      "Last Name(s)":
+        "?",
+    };
+
+    assert.throws(
+      () =>
+        transformProductionInvitationRows(
+          rows,
+        ),
+      /partially populated reserved placeholder/,
     );
   },
 );

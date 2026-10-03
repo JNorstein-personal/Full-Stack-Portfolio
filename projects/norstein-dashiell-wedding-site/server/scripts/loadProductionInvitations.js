@@ -9,24 +9,28 @@ const {
 } = require(
   "../src/rsvp/productionInvitationTransform"
 );
+
 const {
   loadProductionSourceFile,
 } = require(
   "../src/rsvp/productionSourceFile"
 );
+
 const {
   createGoogleSheetsConnection,
 } = require(
   "../src/services/storage/googleSheetsConnection"
 );
+
 const {
   replaceInvitationConfigurations,
   verifyGoogleSheetsStoreSchema,
 } = require(
   "../src/services/storage/googleSheetsStoreSetup"
 );
+
 const {
-  assertOperationalSectionsEmpty,
+  assertOperationalInvitationCompatibility,
   assertOperationalSectionsUnchanged,
   assertProductionInvitationsMatchExpected,
   readGoogleSheetsStoreSnapshot,
@@ -47,6 +51,28 @@ function defaultBackupDirectory() {
     "private-working-materials",
     "rsvp-backups",
   );
+}
+
+function formatLoadSummary({
+  transformed,
+  compatibility,
+  verification,
+}) {
+  const summary =
+    transformed.summary;
+
+  return [
+    `${verification.invitationCount} functional production invitations`,
+    `${summary.guestListInvitationCount} guest-list eligible`,
+    `${summary.testInvitationCount} permanent test`,
+    `${summary.reservedPlaceholderCount} reserved source codes`,
+    `${summary.combinedMaximumAttendance} current guest-list maximum attendance`,
+    `${compatibility.referencedPartyCount} operationally referenced invitations preserved`,
+    `${compatibility.newInvitationCount} new invitation configurations`,
+    `${compatibility.changedUnreferencedInvitationCount} corrected unreferenced invitation configurations`,
+    `${compatibility.removedUnreferencedInvitationCount} removed unreferenced invitation configurations`,
+    "pre-load private snapshot created",
+  ].join("; ");
 }
 
 async function main() {
@@ -76,7 +102,8 @@ async function main() {
   if (
     typeof spreadsheetId !==
       "string" ||
-    spreadsheetId.trim() === ""
+    spreadsheetId.trim() ===
+      ""
   ) {
     throw new Error(
       "Production invitation loading requires GOOGLE_SPREADSHEET_ID.",
@@ -120,9 +147,21 @@ async function main() {
       spreadsheetId,
     });
 
-  assertOperationalSectionsEmpty(
-    before,
-  );
+  /*
+   * Production invitation synchronization is allowed after RSVP activity
+   * begins, but only when every invitation already referenced by operational
+   * RSVP data remains exactly compatible with its stored configuration.
+   *
+   * This check occurs before the private backup and before any invitation
+   * write. Newly assigned invitations may therefore be added later from the
+   * reserved source-code range without requiring operational RSVP tables to
+   * be empty.
+   */
+  const compatibility =
+    assertOperationalInvitationCompatibility(
+      before,
+      transformed.configurations,
+    );
 
   const backupDirectory =
     process.env
@@ -162,7 +201,11 @@ async function main() {
       );
 
     console.log(
-      `Production invitation configuration load: PASS (${verification.invitationCount} records; pre-load private snapshot created)`,
+      `Production invitation configuration load: PASS (${formatLoadSummary({
+        transformed,
+        compatibility,
+        verification,
+      })})`,
     );
   } catch {
     try {
