@@ -608,21 +608,16 @@ function RsvpConfirmationPage() {
                   printed on your invitation.
                 </li>
                 <li>
-                  Choose the revision option. The authorized form opens blank
-                  and does not display your stored answers.
+                  Choose the option to revise your RSVP. The form will open blank for your privacy, so your previous answers will not be displayed.
                 </li>
                 <li>
-                  Re-enter your confirmation method and its destination.
+                  Re-enter your confirmation method and contact information.
                 </li>
                 <li>
-                  Complete only the RSVP fields you deliberately intend to
-                  change or explicitly replace. Unanswered revision fields
-                  ordinarily remain unchanged; composition-sensitive changes
-                  may require the complete related attendee information.
+                  Update the parts of your RSVP you want to change. You can leave anything else blank, and we’ll keep your previous answers. If you change who will be attending, you may need to provide the related guest information again.
                 </li>
                 <li>
-                  After a successful revision, the next confirmation shows the
-                  complete merged current RSVP, not only the fields you changed.
+                  Submit your changes. Your new confirmation will show your complete, updated RSVP.
                 </li>
               </ol>
             </>

@@ -20,13 +20,8 @@ function HomePage() {
         <div className="prose-width">
           <p>
             Welcome to our wedding website. We’re looking
-            forward to celebrating with you and have gathered
-            the information you’ll need to plan for the day
-            here.
-          </p>
-
-          <p>
-            {siteContent.wedding.generalLocation}
+            forward to celebrating with you and have gathered all
+            the information you’ll need to celebrate with us this coming May Day in {siteContent.wedding.generalLocation}!
           </p>
 
           <Link

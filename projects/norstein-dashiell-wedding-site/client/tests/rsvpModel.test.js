@@ -853,7 +853,7 @@ test(
 );
 
 test(
-  "revision sends only explicitly answered named and mixed additional-guest response entries",
+  "composition-sensitive revision rejects partial person-level responses",
   () => {
     const draft =
       createBlankDraft(lookup);
@@ -890,51 +890,142 @@ test(
 
     assert.equal(
       result.ok,
-      true,
+      false,
     );
 
-    assert.deepEqual(
-      result.request.changes
+    assert.match(
+      result.errors
         .namedInviteeResponses,
-      {
-        operation:
-          "replace",
-
-        value: {
-          "invitee-b":
-            "yes",
-        },
-      },
+      /complete intended attending party/i,
     );
 
-    assert.deepEqual(
-      result.request.changes
+    assert.match(
+      result.errors
         .additionalGuestResponses,
-      {
-        operation:
-          "replace",
+      /answer every authorized additional-guest question/i,
+    );
 
-        value: {
-          "children-a":
-            {
-              attending:
-                "yes",
+    assert.ok(
+      result.errors
+        .attendeeDetails,
+    );
+  },
+);
 
-              count: 1,
-            },
-        },
+test(
+  "complete composition revision may leave event attendance unchanged while replacing attendee details",
+  () => {
+    const draft =
+      createBlankDraft(lookup);
+
+    draft.completionMode =
+      "revision";
+
+    draft.confirmation.email =
+      "guest@example.com";
+
+    draft.namedInviteeResponses = {
+      "invitee-a": "yes",
+      "invitee-b": "no",
+    };
+
+    draft.additionalGuestResponses = {
+      "plus1-a": "yes",
+      "children-a": {
+        attending: "yes",
+        count: "1",
       },
+    };
+
+    draft.attendeeDetails = [
+      {
+        attendeeName:
+          "Example Guest One",
+        dietaryPreferences:
+          "",
+      },
+      {
+        attendeeName:
+          "Example Companion",
+        dietaryPreferences:
+          "",
+      },
+      {
+        attendeeName:
+          "Example Child One",
+        dietaryPreferences:
+          "",
+      },
+    ];
+
+    const result =
+      buildSubmissionRequest({
+        inviteCode:
+          "DEV-002",
+
+        lookup,
+
+        draft,
+
+        clientSubmissionId:
+          "00000000-0000-4000-8000-000000000010",
+      });
+
+    assert.equal(
+      result.ok,
+      true,
     );
 
     assert.equal(
       Object.prototype
         .hasOwnProperty.call(
-          result.request.changes
-            .additionalGuestResponses
-            .value,
-          "plus1-a",
+          result.request.changes,
+          "eventAttendance",
         ),
       false,
+    );
+
+    assert.deepEqual(
+      result.request.changes
+        .namedInviteeResponses
+        .value,
+      {
+        "invitee-a": "yes",
+        "invitee-b": "no",
+      },
+    );
+
+    assert.deepEqual(
+      result.request.changes
+        .additionalGuestResponses
+        .value,
+      {
+        "plus1-a": "yes",
+        "children-a": {
+          attending: "yes",
+          count: 1,
+        },
+      },
+    );
+
+    assert.deepEqual(
+      result.request.changes
+        .attendeeDetails
+        .value,
+      [
+        {
+          attendeeName:
+            "Example Guest One",
+        },
+        {
+          attendeeName:
+            "Example Companion",
+        },
+        {
+          attendeeName:
+            "Example Child One",
+        },
+      ],
     );
   },
 );

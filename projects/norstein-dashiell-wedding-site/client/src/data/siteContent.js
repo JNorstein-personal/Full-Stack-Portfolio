@@ -61,7 +61,7 @@ export const siteContent = {
       display: "May 1, 2027",
       fullDisplay: "Saturday, May 1, 2027",
     },
-    generalLocation: "Roselle, New Jersey",
+    generalLocation: "Union County, New Jersey",
   },
 
   rsvp: {

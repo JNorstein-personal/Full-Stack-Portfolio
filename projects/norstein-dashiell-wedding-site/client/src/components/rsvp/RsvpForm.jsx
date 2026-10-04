@@ -203,7 +203,10 @@ function RsvpForm({
   );
 
   useEffect(() => {
-    if (validationErrors.length > 0) {
+    const hasValidationErrors =
+      Object.values(errors ?? {}).some(Boolean);
+
+    if (hasValidationErrors) {
       validationSummaryRef.current?.focus();
     }
   }, [errors]);
@@ -321,16 +324,13 @@ function RsvpForm({
     overAssigned,
   ]);
 
-  const revisionDetailsContextKnown =
-    draft.completionMode !== "revision" || draft.attendance.touched;
-
-  const detailTargetCount = !revisionDetailsContextKnown
-    ? null
-    : derivedAttendanceKnown
-      ? derivedAttendance
-      : draft.completionMode === "revision" && completeTotals
-        ? total
-        : null;
+  const detailTargetCount = derivedAttendanceKnown
+    ? derivedAttendance
+    : draft.completionMode === "revision" &&
+        draft.attendance.touched &&
+        completeTotals
+      ? total
+      : null;
 
   function resizeDetailsForDraft(next) {
     if (next.attendance.decline) {
@@ -338,10 +338,6 @@ function RsvpForm({
         ...next,
         attendeeDetails: [],
       };
-    }
-
-    if (next.completionMode === "revision" && !next.attendance.touched) {
-      return next;
     }
 
     const responsesComplete = personResponsesAreComplete(invitation, next);
@@ -353,6 +349,10 @@ function RsvpForm({
         ...next,
         attendeeDetails: resizeAttendeeDetails(next.attendeeDetails, count),
       };
+    }
+
+    if (next.completionMode === "revision" && !next.attendance.touched) {
+      return next;
     }
 
     if (
@@ -1188,13 +1188,26 @@ function RsvpForm({
             selected.
           </p>
 
+          {draft.completionMode === "revision" &&
+            !draft.attendance.touched &&
+            derivedAttendanceKnown && (
+              <p className="form-help">
+                Event attendance is being left unchanged. Because this blank
+                revision does not reveal the stored event selection, only
+                attendee names are available here. If Reception remains part
+                of the RSVP and you need dietary or allergy information
+                included in this replacement, restate the complete intended
+                Attendance selection above and re-enter that information.
+              </p>
+            )}
+
           {detailTargetCount === null ? (
             <StatusMessage
               type="information"
               title="Complete the information needed to replace attendee details"
             >
               {draft.completionMode === "revision"
-                ? "Leave this region untouched when the stored attendee list does not need to change. To replace Attendee Details, first select the complete intended Attendance state above, then provide the revised attendance decisions and age totals needed to establish the replacement list."
+                ? "Leave this region untouched when the stored attendee list does not need to change. To replace Attendee Details because who is attending changed, answer every named-invitee and additional-guest question so the complete intended party can be derived. Restate Attendance only when the event selection itself is changing."
                 : "Complete the attendance decisions above so the form can create one Attendee Details row for every person attending."}
             </StatusMessage>
           ) : detailTargetCount < 1 ? (
