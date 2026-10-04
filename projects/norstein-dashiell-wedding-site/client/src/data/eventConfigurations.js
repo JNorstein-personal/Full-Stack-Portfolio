@@ -1,5 +1,26 @@
 import { siteContent } from "./siteContent.js";
 
+function buildDirections(destination) {
+  const encodedDestination = encodeURIComponent(destination);
+
+  return {
+    googleMaps:
+      `https://www.google.com/maps/dir/?api=1&destination=${encodedDestination}`,
+    waze:
+      `https://waze.com/ul?q=${encodedDestination}&navigate=yes`,
+    appleMaps:
+      `https://maps.apple.com/directions?destination=${encodedDestination}`,
+  };
+}
+
+const WARINANCO_DIRECTIONS = buildDirections(
+  "Linden Ave Entrance, Warinanco Park Loop Drive, Elizabeth, NJ",
+);
+
+const SPHINX_DIRECTIONS = buildDirections(
+  "Sphinx Banquet and Catering Center, 121 E 2nd Avenue, Roselle, NJ 07203",
+);
+
 export const eventConfigurations = {
   A: {
     id: "A",
@@ -8,10 +29,11 @@ export const eventConfigurations = {
     date: siteContent.wedding.date,
 
     ceremony: {
-      venueName: "Warinanco Park",
-      location: "Roselle, NJ 07036",
-      startTime: "10:30 a.m.",
-      endTime: "12:00 p.m.",
+      id: "ceremony",
+    label: "Ceremony",
+    time: "10:30 a.m.–12:00 p.m.",
+    venueName: "Warinanco Park (via Linden Avenue entrance)",
+    directions: WARINANCO_DIRECTIONS,
     },
 
     reception: {
@@ -19,6 +41,7 @@ export const eventConfigurations = {
       address: "121 E 2nd Avenue, Roselle, NJ 07203",
       startTime: "12:30 p.m.",
       endTime: "4:30 p.m.",
+      directions: SPHINX_DIRECTIONS,
     },
 
     schedule: [
@@ -26,13 +49,15 @@ export const eventConfigurations = {
         id: "ceremony",
         label: "Ceremony",
         time: "10:30 a.m.–12:00 p.m.",
-        venueName: "Warinanco Park",
+        venueName: "Warinanco Park (via Linden Avenue entrance)",
+        directions: WARINANCO_DIRECTIONS,
       },
       {
         id: "reception",
         label: "Reception",
         time: "12:30 p.m.–4:30 p.m.",
         venueName: "Sphinx Banquet and Catering Center",
+        directions: SPHINX_DIRECTIONS,
       },
     ],
 
@@ -53,11 +78,13 @@ export const eventConfigurations = {
     ceremony: {
       venueName: "Sphinx Banquet and Catering Center",
       address: "121 E 2nd Avenue, Roselle, NJ 07203",
+      directions: SPHINX_DIRECTIONS,
     },
 
     reception: {
       venueName: "Sphinx Banquet and Catering Center",
       address: "121 E 2nd Avenue, Roselle, NJ 07203",
+      directions: SPHINX_DIRECTIONS,
     },
 
     schedule: [
@@ -66,6 +93,7 @@ export const eventConfigurations = {
         label: "Ceremony and reception",
         time: "11:30 a.m.–4:30 p.m.",
         venueName: "Sphinx Banquet and Catering Center",
+        directions: SPHINX_DIRECTIONS,
       },
     ],
 

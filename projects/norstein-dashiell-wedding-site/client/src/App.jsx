@@ -1,7 +1,4 @@
-import {
-  lazy,
-  Suspense,
-} from "react";
+import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 
 import WeddingLayout from "./components/layout/WeddingLayout";
@@ -9,6 +6,7 @@ import WeddingLayout from "./components/layout/WeddingLayout";
 import HomePage from "./pages/HomePage";
 import NotFoundPage from "./pages/NotFoundPage";
 import PlaceholderPage from "./pages/PlaceholderPage";
+import ThemePage from "./pages/ThemePage";
 import PrivacyPage from "./pages/PrivacyPage";
 import RsvpConfirmationPage from "./pages/RsvpConfirmationPage";
 import RsvpPage from "./pages/RsvpPage";
@@ -22,35 +20,15 @@ function App() {
   return (
     <Routes>
       <Route element={<WeddingLayout />}>
-        <Route
-          index
-          element={<HomePage />}
-        />
+        <Route index element={<HomePage />} />
 
-        <Route
-          path="rsvp"
-          element={<RsvpPage />}
-        />
+        <Route path="rsvp" element={<RsvpPage />} />
 
-        <Route
-          path="rsvp/confirmation"
-          element={<RsvpConfirmationPage />}
-        />
+        <Route path="rsvp/confirmation" element={<RsvpConfirmationPage />} />
 
-        <Route
-          path="theme"
-          element={
-            <PlaceholderPage
-              title="Theme and Attire"
-              message="Theme and attire guidance is being prepared."
-            />
-          }
-        />
+        <Route path="theme" element={<ThemePage />} />
 
-        <Route
-          path="story"
-          element={<StoryPage />}
-        />
+        <Route path="story" element={<StoryPage />} />
 
         <Route
           path="read-listen-watch"
@@ -112,10 +90,7 @@ function App() {
           }
         />
 
-        <Route
-          path="privacy"
-          element={<PrivacyPage />}
-        />
+        <Route path="privacy" element={<PrivacyPage />} />
 
         {import.meta.env.DEV && DesignSystemPage && (
           <Route
@@ -128,15 +103,9 @@ function App() {
           />
         )}
 
-        <Route
-          path="not-found"
-          element={<NotFoundPage />}
-        />
+        <Route path="not-found" element={<NotFoundPage />} />
 
-        <Route
-          path="*"
-          element={<NotFoundPage />}
-        />
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
   );

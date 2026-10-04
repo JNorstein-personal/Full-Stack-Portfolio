@@ -13,8 +13,7 @@ function StoryPage() {
 
         <div className="prose-width">
           <p>
-            We’re still putting our story into our own words.
-            This page will share more about us, the life
+            Read on to find out more about us, the life
             we’ve built together, and the path that brought
             us to our wedding day.
           </p>
@@ -23,7 +22,7 @@ function StoryPage() {
 
       <ContentSection labelledBy="relationship-heading">
         <h2 id="relationship-heading">
-          Our Story
+          A Hair-Raising Happily-Ever-After
         </h2>
 
         <div className="prose-width">

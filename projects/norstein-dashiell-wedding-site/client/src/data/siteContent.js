@@ -18,7 +18,7 @@ const navigation = [
     to: "/story",
   },
   {
-    label: "Read, Listen, and Watch",
+    label: "Read, Listen & Watch",
     to: "/read-listen-watch",
   },
   {

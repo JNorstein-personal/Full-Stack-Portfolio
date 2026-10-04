@@ -131,7 +131,7 @@ Public
 Yes
 
 **Notes:**
-Use “Roselle, New Jersey” as the general location. Both possible event formats take place in Roselle.
+Use “Union County, New Jersey” as the general location. Both possible event formats take place in Union County.
 
 ---
 

@@ -70,10 +70,6 @@ function RsvpPage() {
   ] = useState(null);
   const submissionInFlightRef =
     useRef(false);
-  const stateFocusRef =
-    useRef(null);
-  const previousDisplayStateRef =
-    useRef(null);
   const [
     lastOperation,
     setLastOperation,
@@ -98,58 +94,6 @@ function RsvpPage() {
         .SUBMISSION_UNCERTAIN
       ? RSVP_STATES.CLOSED
       : state;
-
-  useEffect(() => {
-    const previousState =
-      previousDisplayStateRef.current;
-
-    previousDisplayStateRef.current =
-      displayState;
-
-    if (
-      previousState === null ||
-      previousState === displayState
-    ) {
-      return;
-    }
-
-    const shouldMoveFocus = [
-      RSVP_STATES.INVALID_INVITATION,
-      RSVP_STATES.SERVICE_UNAVAILABLE,
-      RSVP_STATES.VALIDATED_FORM,
-      RSVP_STATES.SUBMISSION_UNCERTAIN,
-      RSVP_STATES.CLOSED,
-    ].includes(displayState);
-
-    if (!shouldMoveFocus) {
-      return;
-    }
-
-    const frameId =
-      window.requestAnimationFrame(
-        () => {
-          const target =
-            stateFocusRef.current;
-
-          if (!target) {
-            return;
-          }
-
-          target.focus({
-            preventScroll: true,
-          });
-
-          target.scrollIntoView({
-            block: "start",
-          });
-        },
-      );
-
-    return () =>
-      window.cancelAnimationFrame(
-        frameId,
-      );
-  }, [displayState]);
 
   useEffect(() => {
     const priorTitle =
@@ -585,11 +529,7 @@ function RsvpPage() {
       RSVP_STATES.CLOSED
     ) {
       return (
-        <div
-          className="rsvp-state-focus-target"
-          ref={stateFocusRef}
-          tabIndex="-1"
-        >
+        <>
           <StatusMessage
             type="closed"
             title="Online RSVP Is Closed"
@@ -625,7 +565,7 @@ function RsvpPage() {
               Return Home
             </Link>
           </div>
-        </div>
+        </>
       );
     }
 
@@ -635,11 +575,7 @@ function RsvpPage() {
         .INVALID_INVITATION
     ) {
       return (
-        <div
-          className="rsvp-state-focus-target"
-          ref={stateFocusRef}
-          tabIndex="-1"
-        >
+        <>
           <StatusMessage
             type="error"
             title="Invitation Code Not Recognized"
@@ -651,7 +587,7 @@ function RsvpPage() {
             invitation and try again.
           </StatusMessage>
           {renderEntry()}
-        </div>
+        </>
       );
     }
 
@@ -661,11 +597,7 @@ function RsvpPage() {
         .SERVICE_UNAVAILABLE
     ) {
       return (
-        <div
-          className="rsvp-state-focus-target"
-          ref={stateFocusRef}
-          tabIndex="-1"
-        >
+        <>
           <StatusMessage
             type="error"
             title="RSVP Service Temporarily Unavailable"
@@ -697,7 +629,7 @@ function RsvpPage() {
               Contact for Help
             </a>
           </div>
-        </div>
+        </>
       );
     }
 
@@ -707,15 +639,10 @@ function RsvpPage() {
         .SUBMISSION_UNCERTAIN
     ) {
       return (
-        <div
-          className="rsvp-state-focus-target"
-          ref={stateFocusRef}
-          tabIndex="-1"
-        >
+        <>
           <StatusMessage
             type="uncertainty"
             title="We Could Not Confirm the Submission Result"
-            aria-atomic="true"
           >
             We could not confirm
             whether this RSVP request
@@ -755,7 +682,7 @@ function RsvpPage() {
               Contact for Help
             </a>
           </div>
-        </div>
+        </>
       );
     }
 
@@ -767,7 +694,6 @@ function RsvpPage() {
         <StatusMessage
           type="information"
           title="Submitting Your RSVP"
-          aria-atomic="true"
         >
           Please do not submit again.
           This submission is being
@@ -793,11 +719,7 @@ function RsvpPage() {
     ) {
       return (
         <>
-          <section
-            className="rsvp-personalized-intro rsvp-state-focus-target"
-            ref={stateFocusRef}
-            tabIndex="-1"
-          >
+          <section className="rsvp-personalized-intro">
             <p className="rsvp-kicker">
               RSVP for
             </p>
@@ -850,7 +772,19 @@ function RsvpPage() {
                 displaying previously
                 stored answers.
               </p>
+            </section>
+          </section>
 
+          <RsvpForm
+            lookup={lookup}
+            draft={draft}
+            setDraft={setDraft}
+            errors={errors}
+            onSubmit={
+              handleSubmission
+            }
+          />
+                      <section className="rsvp-personalized-support">
               <h3>
                 Printed RSVP Option
               </h3>
@@ -915,17 +849,6 @@ function RsvpPage() {
                 .
               </p>
             </section>
-          </section>
-
-          <RsvpForm
-            lookup={lookup}
-            draft={draft}
-            setDraft={setDraft}
-            errors={errors}
-            onSubmit={
-              handleSubmission
-            }
-          />
         </>
       );
     }
@@ -938,7 +861,6 @@ function RsvpPage() {
           <StatusMessage
             type="information"
             title="Checking Invitation Code"
-            aria-atomic="true"
           >
             Please wait while we check
             the code printed on your
