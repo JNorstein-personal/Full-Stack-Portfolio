@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useRef,
   useState,
 } from "react";
 import {
@@ -26,6 +27,28 @@ import {
 import {
   setTransientConfirmation,
 } from "../services/rsvpConfirmationMemory.js";
+import {
+  formatRsvpCountdown,
+  getRsvpTiming,
+  getRsvpTimingRefreshDelay,
+} from "../services/rsvpTiming.js";
+
+const RSVP_TIMING_CONFIG = Object.freeze({
+  countdownStartIso:
+    siteContent.rsvp.deadline
+      .countdownStartIso,
+  deadlineIso:
+    siteContent.rsvp.deadline.iso,
+});
+
+function readRsvpTiming(
+  now = new Date(),
+) {
+  return getRsvpTiming({
+    now,
+    ...RSVP_TIMING_CONFIG,
+  });
+}
 
 function RsvpPage() {
   const navigate = useNavigate();
@@ -45,6 +68,12 @@ function RsvpPage() {
     pendingRequest,
     setPendingRequest,
   ] = useState(null);
+  const submissionInFlightRef =
+    useRef(false);
+  const stateFocusRef =
+    useRef(null);
+  const previousDisplayStateRef =
+    useRef(null);
   const [
     lastOperation,
     setLastOperation,
@@ -53,6 +82,74 @@ function RsvpPage() {
     serviceMessage,
     setServiceMessage,
   ] = useState("");
+  const [
+    rsvpTiming,
+    setRsvpTiming,
+  ] = useState(() =>
+    readRsvpTiming(),
+  );
+
+  const displayState =
+    rsvpTiming.isClosed &&
+    state !==
+      RSVP_STATES.SUBMITTING &&
+    state !==
+      RSVP_STATES
+        .SUBMISSION_UNCERTAIN
+      ? RSVP_STATES.CLOSED
+      : state;
+
+  useEffect(() => {
+    const previousState =
+      previousDisplayStateRef.current;
+
+    previousDisplayStateRef.current =
+      displayState;
+
+    if (
+      previousState === null ||
+      previousState === displayState
+    ) {
+      return;
+    }
+
+    const shouldMoveFocus = [
+      RSVP_STATES.INVALID_INVITATION,
+      RSVP_STATES.SERVICE_UNAVAILABLE,
+      RSVP_STATES.VALIDATED_FORM,
+      RSVP_STATES.SUBMISSION_UNCERTAIN,
+      RSVP_STATES.CLOSED,
+    ].includes(displayState);
+
+    if (!shouldMoveFocus) {
+      return;
+    }
+
+    const frameId =
+      window.requestAnimationFrame(
+        () => {
+          const target =
+            stateFocusRef.current;
+
+          if (!target) {
+            return;
+          }
+
+          target.focus({
+            preventScroll: true,
+          });
+
+          target.scrollIntoView({
+            block: "start",
+          });
+        },
+      );
+
+    return () =>
+      window.cancelAnimationFrame(
+        frameId,
+      );
+  }, [displayState]);
 
   useEffect(() => {
     const priorTitle =
@@ -91,6 +188,42 @@ function RsvpPage() {
       } else {
         robots.content =
           priorRobots;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    let timeoutId = null;
+
+    function refreshTiming() {
+      const now = new Date();
+
+      setRsvpTiming(
+        readRsvpTiming(now),
+      );
+
+      const delay =
+        getRsvpTimingRefreshDelay({
+          now,
+          ...RSVP_TIMING_CONFIG,
+        });
+
+      if (delay !== null) {
+        timeoutId =
+          window.setTimeout(
+            refreshTiming,
+            delay,
+          );
+      }
+    }
+
+    refreshTiming();
+
+    return () => {
+      if (timeoutId !== null) {
+        window.clearTimeout(
+          timeoutId,
+        );
       }
     };
   }, []);
@@ -152,6 +285,15 @@ function RsvpPage() {
   async function sendSubmission(
     request,
   ) {
+    if (
+      submissionInFlightRef.current
+    ) {
+      return;
+    }
+
+    submissionInFlightRef.current =
+      true;
+
     setState(
       RSVP_STATES.SUBMITTING,
     );
@@ -169,11 +311,16 @@ function RsvpPage() {
         result,
       );
       setPendingRequest(null);
+      submissionInFlightRef.current =
+        false;
 
       navigate(
         "/rsvp/confirmation",
       );
     } catch (error) {
+      submissionInFlightRef.current =
+        false;
+
       if (
         typeof error.status !==
         "number"
@@ -195,10 +342,16 @@ function RsvpPage() {
         RSVP_STATES
           .VALIDATION_FAILURE
       ) {
+        setPendingRequest(null);
         setErrors({
           form:
             "The RSVP could not be accepted as entered. Review the visible fields and try again. Previously stored answers have not been revealed or changed by this message.",
         });
+      } else if (
+        nextState ===
+        RSVP_STATES.CLOSED
+      ) {
+        setPendingRequest(null);
       } else if (
         nextState ===
         RSVP_STATES
@@ -220,6 +373,12 @@ function RsvpPage() {
   ) {
     event.preventDefault();
 
+    if (
+      submissionInFlightRef.current
+    ) {
+      return;
+    }
+
     const clientSubmissionId =
       crypto.randomUUID();
 
@@ -232,6 +391,7 @@ function RsvpPage() {
       });
 
     if (!built.ok) {
+      setPendingRequest(null);
       setErrors(built.errors);
       setState(
         RSVP_STATES
@@ -263,12 +423,65 @@ function RsvpPage() {
     performLookup(inviteCode);
   }
 
+  function selectedConfirmationChannel() {
+    if (
+      pendingRequest?.confirmation
+        ?.method === "email"
+    ) {
+      return "the email inbox you entered";
+    }
+
+    if (
+      pendingRequest?.confirmation
+        ?.method === "textMessage"
+    ) {
+      return "the mobile number you entered";
+    }
+
+    return "your selected confirmation channel";
+  }
+
   function retryUncertainSubmission() {
-    if (pendingRequest) {
+    if (
+      pendingRequest &&
+      !submissionInFlightRef.current
+    ) {
       sendSubmission(
         pendingRequest,
       );
     }
+  }
+
+  function renderDeadlineTiming() {
+    return (
+      <>
+        <p>
+          Online submissions and
+          revisions are accepted
+          until{" "}
+          <strong>
+            {
+              siteContent.rsvp
+                .deadline.display
+            }
+          </strong>
+          .
+        </p>
+
+        {rsvpTiming.showCountdown && (
+          <p className="rsvp-countdown">
+            Time remaining before
+            online RSVP closes:{" "}
+            <strong>
+              {formatRsvpCountdown(
+                rsvpTiming.remaining,
+              )}
+            </strong>
+            .
+          </p>
+        )}
+      </>
+    );
   }
 
   function renderEntry() {
@@ -281,6 +494,33 @@ function RsvpPage() {
           information on your
           invitation.
         </p>
+
+        <section className="rsvp-entry-guidance">
+          <h2>
+            Where to Find Your Code
+          </h2>
+          <p>
+            Use the six-character
+            invitation code printed
+            with the RSVP information
+            on your invitation.
+            Example:{" "}
+            <strong>XXX-XXX</strong>.
+          </p>
+
+          <h2>
+            Using the QR Code
+          </h2>
+          <p>
+            The QR code printed on
+            your invitation opens the
+            general wedding website.
+            The invitation code must
+            still be entered manually
+            here to open your RSVP
+            form.
+          </p>
+        </section>
 
         <form
           className="form-stack"
@@ -298,7 +538,7 @@ function RsvpPage() {
               maxLength="20"
               value={inviteCode}
               disabled={
-                state ===
+                displayState ===
                 RSVP_STATES
                   .LOOKING_UP
               }
@@ -314,9 +554,10 @@ function RsvpPage() {
               className="form-help"
               id="rsvp-code-help"
             >
-              Enter the code manually
-              from your invitation. It
-              is never placed in the
+              Format: XXX-XXX. Enter
+              the code manually from
+              your invitation. It is
+              never placed in the
               website address.
             </p>
           </div>
@@ -324,7 +565,7 @@ function RsvpPage() {
           <Button
             type="submit"
             disabled={
-              state ===
+              displayState ===
                 RSVP_STATES
                   .LOOKING_UP ||
               inviteCode.trim() ===
@@ -340,57 +581,30 @@ function RsvpPage() {
 
   function renderState() {
     if (
-      state ===
+      displayState ===
       RSVP_STATES.CLOSED
     ) {
       return (
-        <StatusMessage
-          type="closed"
-          title="Online RSVP Is Closed"
+        <div
+          className="rsvp-state-focus-target"
+          ref={stateFocusRef}
+          tabIndex="-1"
         >
-          Ordinary online submissions
-          and revisions closed at{" "}
-          <strong>
-            {
-              siteContent.rsvp
-                .deadline.display
-            }
-          </strong>
-          . For an exceptional late
-          correction, contact{" "}
-          <a
-            href={
-              "mailto:" +
-              siteContent.rsvp
-                .assistanceEmail
-            }
-          >
-            {
-              siteContent.rsvp
-                .assistanceEmail
-            }
-          </a>
-          .
-        </StatusMessage>
-      );
-    }
-
-    if (
-      state ===
-      RSVP_STATES
-        .INVALID_INVITATION
-    ) {
-      return (
-        <>
           <StatusMessage
-            type="error"
-            title="Invitation Code Not Recognized"
+            type="closed"
+            title="Online RSVP Is Closed"
           >
-            We could not open an RSVP
-            form from that entry.
-            Check the code printed on
-            your invitation and try
-            again. For help, contact{" "}
+            Online submissions and
+            revisions closed{" "}
+            <strong>
+              {
+                siteContent.rsvp
+                  .deadline.display
+              }
+            </strong>
+            . For a late correction or
+            special circumstance,
+            contact{" "}
             <a
               href={
                 "mailto:" +
@@ -405,18 +619,53 @@ function RsvpPage() {
             </a>
             .
           </StatusMessage>
-          {renderEntry()}
-        </>
+
+          <div className="rsvp-action-row">
+            <Link to="/">
+              Return Home
+            </Link>
+          </div>
+        </div>
       );
     }
 
     if (
-      state ===
+      displayState ===
+      RSVP_STATES
+        .INVALID_INVITATION
+    ) {
+      return (
+        <div
+          className="rsvp-state-focus-target"
+          ref={stateFocusRef}
+          tabIndex="-1"
+        >
+          <StatusMessage
+            type="error"
+            title="Invitation Code Not Recognized"
+          >
+            We could not locate an
+            invitation associated with
+            that code. Please check the
+            code as printed on your
+            invitation and try again.
+          </StatusMessage>
+          {renderEntry()}
+        </div>
+      );
+    }
+
+    if (
+      displayState ===
       RSVP_STATES
         .SERVICE_UNAVAILABLE
     ) {
       return (
-        <>
+        <div
+          className="rsvp-state-focus-target"
+          ref={stateFocusRef}
+          tabIndex="-1"
+        >
           <StatusMessage
             type="error"
             title="RSVP Service Temporarily Unavailable"
@@ -434,6 +683,10 @@ function RsvpPage() {
               Try Again
             </Button>
 
+            <Link to="/">
+              Return Home
+            </Link>
+
             <a
               href={
                 "mailto:" +
@@ -444,29 +697,39 @@ function RsvpPage() {
               Contact for Help
             </a>
           </div>
-        </>
+        </div>
       );
     }
 
     if (
-      state ===
+      displayState ===
       RSVP_STATES
         .SUBMISSION_UNCERTAIN
     ) {
       return (
-        <>
+        <div
+          className="rsvp-state-focus-target"
+          ref={stateFocusRef}
+          tabIndex="-1"
+        >
           <StatusMessage
             type="uncertainty"
             title="We Could Not Confirm the Submission Result"
+            aria-atomic="true"
           >
-            Your RSVP may have been
-            recorded. Check the
-            selected confirmation
-            channel before retrying.
-            A safe retry below uses
-            the same logical request
-            and does not create a new
-            submission identifier.
+            We could not confirm
+            whether this RSVP request
+            was recorded. Check{" "}
+            {selectedConfirmationChannel()}
+            {" "}for an RSVP
+            confirmation before
+            deciding whether to retry.
+            The safe retry below sends
+            the exact same logical
+            request with the same
+            submission identifier; it
+            does not rebuild the
+            request from form fields.
           </StatusMessage>
 
           <div className="rsvp-action-row">
@@ -492,23 +755,26 @@ function RsvpPage() {
               Contact for Help
             </a>
           </div>
-        </>
+        </div>
       );
     }
 
     if (
-      state ===
+      displayState ===
       RSVP_STATES.SUBMITTING
     ) {
       return (
         <StatusMessage
           type="information"
           title="Submitting Your RSVP"
+          aria-atomic="true"
         >
           Please do not submit again.
-          Your current logical
-          submission is being
-          processed.
+          This submission is being
+          processed using one logical
+          request identifier. The
+          submit action is protected
+          while the result is pending.
         </StatusMessage>
       );
     }
@@ -517,17 +783,21 @@ function RsvpPage() {
       lookup &&
       draft &&
       (
-        state ===
+        displayState ===
           RSVP_STATES
             .VALIDATED_FORM ||
-        state ===
+        displayState ===
           RSVP_STATES
             .VALIDATION_FAILURE
       )
     ) {
       return (
         <>
-          <section className="rsvp-personalized-intro">
+          <section
+            className="rsvp-personalized-intro rsvp-state-focus-target"
+            ref={stateFocusRef}
+            tabIndex="-1"
+          >
             <p className="rsvp-kicker">
               RSVP for
             </p>
@@ -538,18 +808,7 @@ function RsvpPage() {
                   .partyDisplayName}
             </h2>
 
-            <p>
-              Online submissions and
-              revisions are accepted
-              until{" "}
-              <strong>
-                {
-                  siteContent.rsvp
-                    .deadline.display
-                }
-              </strong>
-              .
-            </p>
+            {renderDeadlineTiming()}
 
             <StatusMessage
               type="information"
@@ -567,21 +826,96 @@ function RsvpPage() {
               destination, then
               provide only the RSVP
               changes you intend to
-              make.
+              make. RSVP fields you
+              leave untouched normally
+              remain unchanged unless
+              another submitted change
+              makes them inapplicable
+              or requires complete
+              replacement.
             </StatusMessage>
-          </section>
 
-          {state ===
-            RSVP_STATES
-              .VALIDATION_FAILURE && (
-            <StatusMessage
-              type="error"
-              title="Please Review Your RSVP"
-            >
-              {errors.form ??
-                "Correct the highlighted information and submit again. Your current page-entered values have been preserved."}
-            </StatusMessage>
-          )}
+            <section className="rsvp-personalized-support">
+              <h3>
+                Revisions
+              </h3>
+              <p>
+                You may return to this
+                RSVP page and re-enter
+                your invitation code to
+                submit revisions until
+                the online deadline.
+                Each validated form
+                opens blank rather than
+                displaying previously
+                stored answers.
+              </p>
+
+              <h3>
+                Printed RSVP Option
+              </h3>
+              <p>
+                You may return the
+                printed RSVP slip
+                included with your
+                invitation instead of
+                using the online form.
+              </p>
+
+              <h3>
+                Need Help?
+              </h3>
+              <p>
+                If you would like to
+                use the online RSVP but
+                have difficulty,
+                contact{" "}
+                <a
+                  href={
+                    "mailto:" +
+                    siteContent.rsvp
+                      .assistanceEmail
+                  }
+                >
+                  {
+                    siteContent.rsvp
+                      .assistanceEmail
+                  }
+                </a>
+                .
+              </p>
+
+              <h3>
+                Privacy
+              </h3>
+              <p>
+                Your invitation code is
+                used to open the RSVP
+                form configured for
+                your invitation. RSVP
+                and confirmation-contact
+                information is
+                processed and stored
+                for wedding
+                administration. This
+                form opens blank and
+                does not display
+                previously stored
+                answers or confirmation
+                destinations. Complete
+                RSVP confirmations are
+                sent to the couple and
+                to you through the
+                confirmation method you
+                select.{" "}
+                <Link to="/privacy">
+                  Read the full RSVP
+                  Privacy Notice
+                </Link>
+                .
+              </p>
+            </section>
+          </section>
 
           <RsvpForm
             lookup={lookup}
@@ -598,15 +932,17 @@ function RsvpPage() {
 
     return (
       <>
-        {state ===
+        {displayState ===
           RSVP_STATES
             .LOOKING_UP && (
           <StatusMessage
             type="information"
-            title="Looking Up Invitation"
+            title="Checking Invitation Code"
+            aria-atomic="true"
           >
-            Please wait while we
-            validate your invitation.
+            Please wait while we check
+            the code printed on your
+            invitation.
           </StatusMessage>
         )}
 
@@ -622,34 +958,27 @@ function RsvpPage() {
 
         {renderState()}
 
-        {state !==
+        {displayState !==
           RSVP_STATES.CLOSED &&
-          state !==
+          displayState !==
             RSVP_STATES
               .VALIDATED_FORM &&
-          state !==
+          displayState !==
             RSVP_STATES
               .VALIDATION_FAILURE &&
-          state !==
+          displayState !==
             RSVP_STATES
               .SUBMITTING &&
-          state !==
+          displayState !==
             RSVP_STATES
               .SUBMISSION_UNCERTAIN && (
           <>
             <h2>
               Deadline and Revisions
             </h2>
+            {renderDeadlineTiming()}
             <p>
-              The online RSVP
-              deadline is{" "}
-              <strong>
-                {
-                  siteContent.rsvp
-                    .deadline.display
-                }
-              </strong>
-              . Before the deadline,
+              Before the deadline,
               you may return and
               re-enter your code to
               submit a deliberate
@@ -669,15 +998,47 @@ function RsvpPage() {
 
             <h2>Privacy</h2>
             <p>
-              RSVP forms load blank
-              and do not display
-              previously stored
+              Your invitation code is
+              used to open the RSVP
+              form configured for your
+              invitation. RSVP and
+              confirmation-contact
+              information is processed
+              and stored for wedding
+              administration. Forms
+              open blank and do not
+              display previously stored
               answers or confirmation
-              destinations.{" "}
+              destinations. Complete
+              RSVP confirmations are
+              sent to the couple and to
+              you through the
+              confirmation method you
+              select.{" "}
               <Link to="/privacy">
                 Read the full RSVP
                 Privacy Notice
               </Link>
+              .
+            </p>
+
+            <h2>Need Help?</h2>
+            <p>
+              If you would like to use
+              the online RSVP but have
+              difficulty, contact{" "}
+              <a
+                href={
+                  "mailto:" +
+                  siteContent.rsvp
+                    .assistanceEmail
+                }
+              >
+                {
+                  siteContent.rsvp
+                    .assistanceEmail
+                }
+              </a>
               .
             </p>
           </>

@@ -1,11 +1,13 @@
 import {
   useEffect,
+  useRef,
   useState,
 } from "react";
 import { Link } from "react-router-dom";
 
 import StatusMessage from "../components/common/StatusMessage";
 import PageContainer from "../components/layout/PageContainer";
+import { siteContent } from "../data/siteContent.js";
 import {
   ATTENDANCE_TOTAL_FIELDS,
   ATTENDANCE_TOTAL_LABELS,
@@ -17,16 +19,70 @@ import {
   getTransientConfirmation,
 } from "../services/rsvpConfirmationMemory.js";
 
-function statusLabel(status) {
+function deliveryStatusLabel(status) {
   if (status === "sent") {
     return "Sent";
   }
 
-  if (status === "failed") {
-    return "Failed";
+  if (status === "accepted") {
+    return "Accepted for delivery";
   }
 
-  return "Status uncertain";
+  if (status === "failed") {
+    return "Delivery failed";
+  }
+
+  return "Delivery status uncertain";
+}
+
+function deliveryWarningText(delivery) {
+  const guestNeedsAttention =
+    delivery.guestDeliveryStatus !== "sent" &&
+    delivery.guestDeliveryStatus !== "accepted";
+
+  const administrativeNeedsAttention =
+    delivery.administrativeDeliveryStatus !== "sent" &&
+    delivery.administrativeDeliveryStatus !== "accepted";
+
+  if (
+    guestNeedsAttention &&
+    administrativeNeedsAttention
+  ) {
+    return "Your RSVP is recorded. Delivery of your selected guest confirmation and the administrative confirmation could not both be confirmed. Do not resubmit solely because of these delivery results.";
+  }
+
+  if (guestNeedsAttention) {
+    return "Your RSVP is recorded. Delivery of your selected guest confirmation could not be confirmed. Do not resubmit solely because of this delivery result.";
+  }
+
+  return "Your RSVP is recorded. The administrative confirmation could not be confirmed. Do not resubmit solely because of this delivery result.";
+}
+
+function attendanceTotalEntries(totals) {
+  if (
+    !totals ||
+    typeof totals !== "object" ||
+    Array.isArray(totals)
+  ) {
+    return [];
+  }
+
+  return ATTENDANCE_TOTAL_FIELDS.filter((field) =>
+    Object.prototype.hasOwnProperty.call(
+      totals,
+      field,
+    ),
+  ).map((field) => [
+    field,
+    totals[field],
+  ]);
+}
+
+function hasDietaryField(detail) {
+  return Object.prototype.hasOwnProperty.call(
+    detail,
+    "dietaryPreferences",
+  );
 }
 
 function methodLabel(method) {
@@ -59,6 +115,9 @@ function RsvpConfirmationPage() {
     confirmationState(
       confirmation,
     );
+
+  const stateFocusRef =
+    useRef(null);
 
   useEffect(() => {
     const priorTitle =
@@ -103,6 +162,33 @@ function RsvpConfirmationPage() {
     };
   }, []);
 
+  useEffect(() => {
+    const frameId =
+      window.requestAnimationFrame(
+        () => {
+          const target =
+            stateFocusRef.current;
+
+          if (!target) {
+            return;
+          }
+
+          target.focus({
+            preventScroll: true,
+          });
+
+          target.scrollIntoView({
+            block: "start",
+          });
+        },
+      );
+
+    return () =>
+      window.cancelAnimationFrame(
+        frameId,
+      );
+  }, [state]);
+
   if (
     state ===
     RSVP_STATES
@@ -110,38 +196,54 @@ function RsvpConfirmationPage() {
   ) {
     return (
       <PageContainer>
-        <div className="form-width rsvp-confirmation-page">
+        <div
+          className="form-width rsvp-confirmation-page rsvp-state-focus-target"
+          ref={stateFocusRef}
+          tabIndex="-1"
+        >
           <h1>
             Confirmation Summary No Longer Available
           </h1>
 
           <StatusMessage
             type="uncertainty"
-            title="Your on-screen summary is unavailable"
+            title="Your on-screen confirmation summary is no longer available"
+            aria-atomic="true"
           >
-            The temporary confirmation summary is no longer available. An RSVP
-            may already have been recorded. Check the email or text confirmation
-            you selected before submitting again.
+            This page uses temporary in-browser confirmation state, so the
+            detailed summary is not available after that temporary state is
+            gone. An RSVP may already have been recorded. Check the email inbox
+            or mobile number you selected for a confirmation before submitting
+            anything again.
           </StatusMessage>
 
           <p>
-            If you need to make a deliberate revision, return to RSVP and enter
-            your invitation code manually.
+            Do not submit another RSVP solely because this on-screen summary disappeared.
+            This page cannot determine whether the earlier request was stored, and it
+            does not automatically look up or replay an RSVP.
           </p>
 
           <p>
+            If you need to make a deliberate revision, return to RSVP, re-enter
+            the invitation code printed on your invitation, and complete the
+            blank revision form.
+          </p>
+
+          <div className="rsvp-action-row">
             <Link to="/rsvp/">
               Return to RSVP
             </Link>
-          </p>
 
-          <p>
-            For assistance, email{" "}
-            <a href="mailto:RSVPhelp@loreweavercreations.com">
-              RSVPhelp@loreweavercreations.com
+            <Link to="/">
+              Return to Wedding Website
+            </Link>
+
+            <a
+              href={`mailto:${siteContent.rsvp.assistanceEmail}`}
+            >
+              Contact for Help
             </a>
-            .
-          </p>
+          </div>
         </div>
       </PageContainer>
     );
@@ -194,9 +296,38 @@ function RsvpConfirmationPage() {
       ? rsvp.attendeeDetails
       : [];
 
+  const totalEntries =
+    attendanceTotalEntries(
+      rsvp.attendanceTotals,
+    );
+
+  const hasOverallAttendance =
+    Number.isInteger(
+      rsvp.overallAttendance,
+    );
+
+  const hasPartyTotals =
+    totalEntries.length > 0 ||
+    hasOverallAttendance;
+
+  const deadlineDisplay =
+    siteContent.rsvp.deadline.display;
+
+  const assistanceEmail =
+    siteContent.rsvp.assistanceEmail;
+
+  const deliveryWarning =
+    state ===
+    RSVP_STATES
+      .DELIVERY_WARNING;
+
   return (
     <PageContainer>
-      <div className="form-width rsvp-confirmation-page">
+      <div
+        className="form-width rsvp-confirmation-page rsvp-state-focus-target"
+        ref={stateFocusRef}
+        tabIndex="-1"
+      >
         <h1>
           {isRevision
             ? "RSVP Updated"
@@ -205,35 +336,38 @@ function RsvpConfirmationPage() {
 
         <StatusMessage
           type={
-            state ===
-            RSVP_STATES
-              .DELIVERY_WARNING
+            deliveryWarning
               ? "warning"
               : "success"
           }
           title={
-            state ===
-            RSVP_STATES
-              .DELIVERY_WARNING
-              ? "Your RSVP Was Recorded"
-              : "Thank You"
+            deliveryWarning
+              ? (
+                  isRevision
+                    ? "Your RSVP Revision Was Recorded"
+                    : "Your RSVP Was Recorded"
+                )
+              : (
+                  isRevision
+                    ? "Your RSVP Revision Was Recorded"
+                    : "Your RSVP Was Recorded"
+                )
           }
+          aria-atomic="true"
         >
           {isRevision
-            ? "Your revision was recorded. The summary below is the complete current RSVP after the revision was merged."
-            : "Your initial RSVP was recorded successfully."}
+            ? "Your revision was stored successfully. The summary below is the complete current RSVP after the revision was merged."
+            : "Your initial RSVP was stored successfully. The summary below is the complete current RSVP."}
         </StatusMessage>
 
-        {state ===
-          RSVP_STATES
-            .DELIVERY_WARNING && (
+        {deliveryWarning && (
           <StatusMessage
             type="warning"
             title="Confirmation Delivery Needs Attention"
+            role="group"
+            aria-live="off"
           >
-            Your RSVP remains recorded. One or more confirmation delivery
-            attempts failed or have an uncertain status. Do not resubmit solely
-            because of this delivery warning.
+            {deliveryWarningText(delivery)}
           </StatusMessage>
         )}
 
@@ -338,30 +472,32 @@ function RsvpConfirmationPage() {
             )}
 
           {!isDecline &&
-            rsvp.attendanceTotals && (
+            hasPartyTotals && (
               <>
                 <h3>Party Totals</h3>
 
                 <dl className="rsvp-summary-list">
-                  {ATTENDANCE_TOTAL_FIELDS.map((field) => (
-                    <div key={field}>
+                  {totalEntries.map(
+                    ([field, value]) => (
+                      <div key={field}>
+                        <dt>
+                          {ATTENDANCE_TOTAL_LABELS[field]}
+                        </dt>
+                        <dd>{value}</dd>
+                      </div>
+                    ),
+                  )}
+
+                  {hasOverallAttendance && (
+                    <div>
                       <dt>
-                        {ATTENDANCE_TOTAL_LABELS[field]}
+                        Overall attendance
                       </dt>
                       <dd>
-                        {rsvp.attendanceTotals[field]}
+                        {rsvp.overallAttendance}
                       </dd>
                     </div>
-                  ))}
-
-                  <div>
-                    <dt>
-                      Overall attendance
-                    </dt>
-                    <dd>
-                      {rsvp.overallAttendance}
-                    </dd>
-                  </div>
+                  )}
                 </dl>
               </>
             )}
@@ -380,13 +516,14 @@ function RsvpConfirmationPage() {
                         {detail.attendeeName}
                       </strong>
 
-                      {receptionSelected && (
-                        <span>
-                          Dietary or allergy information:{" "}
-                          {detail.dietaryPreferences ||
-                            "None provided"}
-                        </span>
-                      )}
+                      {receptionSelected &&
+                        hasDietaryField(detail) && (
+                          <span>
+                            Dietary or allergy information:{" "}
+                            {detail.dietaryPreferences ||
+                              "None provided"}
+                          </span>
+                        )}
                     </li>
                   ))}
                 </ol>
@@ -433,10 +570,10 @@ function RsvpConfirmationPage() {
 
             <div>
               <dt>
-                Guest delivery
+                Guest confirmation delivery
               </dt>
               <dd>
-                {statusLabel(
+                {deliveryStatusLabel(
                   delivery.guestDeliveryStatus,
                 )}
               </dd>
@@ -444,10 +581,10 @@ function RsvpConfirmationPage() {
 
             <div>
               <dt>
-                Administrative attempt
+                Administrative confirmation
               </dt>
               <dd>
-                {statusLabel(
+                {deliveryStatusLabel(
                   delivery.administrativeDeliveryStatus,
                 )}
               </dd>
@@ -458,20 +595,45 @@ function RsvpConfirmationPage() {
         <section className="rsvp-summary-section">
           <h2>Need to Revise?</h2>
 
-          <p>
-            {revisionPolicy.mayRevise
-              ? "Before the deadline, return to RSVP, enter your invitation code again, and submit only the deliberate changes you intend to make."
-              : "Online revisions are no longer available."}
-          </p>
+          {revisionPolicy.mayRevise ? (
+            <>
+              <p>
+                Online revisions are available before{" "}
+                <strong>{deadlineDisplay}</strong>.
+              </p>
 
-          <p>
-            Deadline:{" "}
-            <strong>
-              March 1, 2027, at 11:59 p.m. EST
-            </strong>
-          </p>
+              <ol>
+                <li>
+                  Return to the RSVP page and re-enter the invitation code
+                  printed on your invitation.
+                </li>
+                <li>
+                  Choose the revision option. The authorized form opens blank
+                  and does not display your stored answers.
+                </li>
+                <li>
+                  Re-enter your confirmation method and its destination.
+                </li>
+                <li>
+                  Complete only the RSVP fields you deliberately intend to
+                  change or explicitly replace. Unanswered revision fields
+                  ordinarily remain unchanged; composition-sensitive changes
+                  may require the complete related attendee information.
+                </li>
+                <li>
+                  After a successful revision, the next confirmation shows the
+                  complete merged current RSVP, not only the fields you changed.
+                </li>
+              </ol>
+            </>
+          ) : (
+            <p>
+              Online revisions are no longer available. The RSVP deadline was{" "}
+              <strong>{deadlineDisplay}</strong>.
+            </p>
+          )}
 
-          <p>
+          <div className="rsvp-action-row">
             <Link
               to="/rsvp/"
               onClick={() =>
@@ -480,20 +642,17 @@ function RsvpConfirmationPage() {
             >
               Return to RSVP
             </Link>
-          </p>
 
-          <p>
-            For assistance, email{" "}
+            <Link to="/">
+              Return to Wedding Website
+            </Link>
+
             <a
-              href={
-                "mailto:" +
-                revisionPolicy.assistanceEmail
-              }
+              href={`mailto:${assistanceEmail}`}
             >
-              {revisionPolicy.assistanceEmail}
+              Contact for Help
             </a>
-            .
-          </p>
+          </div>
         </section>
       </div>
     </PageContainer>

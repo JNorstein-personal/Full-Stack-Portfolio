@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from "react";
+
 import Button from "../common/Button";
 import StatusMessage from "../common/StatusMessage";
 
@@ -11,16 +13,50 @@ import {
   toggleAttendance,
 } from "../../services/rsvpModel.js";
 
-function FieldError({ message }) {
+function FieldError({ id, message }) {
   if (!message) {
     return null;
   }
 
   return (
-    <p className="rsvp-field-error" role="alert">
+    <p className="rsvp-field-error" id={id}>
       {message}
     </p>
   );
+}
+
+function describedBy(...ids) {
+  const value = ids.filter(Boolean).join(" ");
+  return value || undefined;
+}
+
+function errorTargetId(key) {
+  const attendeeMatch = /^(\d+)\.(attendeeName|dietaryPreferences)$/.exec(key);
+
+  if (attendeeMatch) {
+    const [, index, field] = attendeeMatch;
+
+    return field === "attendeeName"
+      ? `rsvp-attendee-${index}-name`
+      : `rsvp-attendee-${index}-dietary`;
+  }
+
+  return {
+    completionMode: "rsvp-completion-mode",
+    eventAttendance: "rsvp-event-attendance",
+    namedInviteeResponses: "rsvp-named-invitees",
+    additionalGuestResponses: "rsvp-additional-guests",
+    attendanceTotals: "rsvp-attendance-totals",
+    attendeeDetails: "rsvp-attendee-details",
+    confirmationMethod: "rsvp-confirmation-method",
+    confirmationEmail: "rsvp-confirmation-email",
+    confirmationMobile: "rsvp-confirmation-mobile",
+    smsAuthorization: "rsvp-sms-authorization",
+  }[key] ?? null;
+}
+
+function errorMessageId(key) {
+  return `rsvp-error-${String(key).replace(/[^a-zA-Z0-9_-]/g, "-")}`;
 }
 
 function isYesNo(value) {
@@ -154,10 +190,42 @@ function RsvpForm({
   disabled = false,
   onSubmit,
 }) {
+  const validationSummaryRef = useRef(null);
+  const previousDerivedAttendanceRef = useRef(null);
+
   const invitation = lookup.invitation;
   const namedInvitees = invitation.namedInvitees ?? [];
   const allocations = invitation.additionalGuestAllocations ?? [];
   const wordingMode = invitation.wordingMode;
+
+  const validationErrors = Object.entries(errors ?? {}).filter(
+    ([, message]) => Boolean(message),
+  );
+
+  useEffect(() => {
+    if (validationErrors.length > 0) {
+      validationSummaryRef.current?.focus();
+    }
+  }, [errors]);
+
+  function focusErrorTarget(event, targetId) {
+    if (!targetId) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const target = document.getElementById(targetId);
+
+    if (!target) {
+      return;
+    }
+
+    target.focus();
+    target.scrollIntoView({
+      block: "center",
+    });
+  }
 
   const attendanceQuestion = (lookup.questions ?? []).find(
     (question) => question.id === "eventAttendance",
@@ -205,6 +273,53 @@ function RsvpForm({
       : 0;
 
   const remaining = Math.max(0, dialLimit - total);
+
+  const overAssigned = derivedAttendanceKnown
+    ? Math.max(0, total - derivedAttendance)
+    : 0;
+
+  const [
+    attendanceStatusMessage,
+    setAttendanceStatusMessage,
+  ] = useState("");
+
+  useEffect(() => {
+    if (!derivedAttendanceKnown) {
+      previousDerivedAttendanceRef.current = null;
+      return;
+    }
+
+    const previous =
+      previousDerivedAttendanceRef.current;
+
+    previousDerivedAttendanceRef.current =
+      derivedAttendance;
+
+    if (
+      previous === null ||
+      previous === derivedAttendance
+    ) {
+      return;
+    }
+
+    const remainingText =
+      remaining > 0
+        ? `${remaining} still to classify by age.`
+        : remaining === 0 && overAssigned === 0
+          ? "Age-category totals match the derived attendance."
+          : overAssigned > 0
+            ? `Age-category totals exceed the derived attendance by ${overAssigned}.`
+            : "";
+
+    setAttendanceStatusMessage(
+      `Derived attending total is now ${derivedAttendance}. ${remainingText}`.trim(),
+    );
+  }, [
+    derivedAttendanceKnown,
+    derivedAttendance,
+    remaining,
+    overAssigned,
+  ]);
 
   const revisionDetailsContextKnown =
     draft.completionMode !== "revision" || draft.attendance.touched;
@@ -373,11 +488,30 @@ function RsvpForm({
     });
   }
 
-  function adjustTotal(field, delta) {
+  function currentDialValue(field) {
     const raw = draft.attendanceTotals[field];
-    const currentValue = raw === "" ? 0 : Number(raw);
 
-    if (delta > 0 && total >= dialLimit) {
+    if (raw === "") {
+      return 0;
+    }
+
+    const parsed = Number(raw);
+
+    return Number.isInteger(parsed) && parsed >= 0 ? parsed : 0;
+  }
+
+  function maximumDialValue(field) {
+    const currentValue = currentDialValue(field);
+    const assignedElsewhere = Math.max(0, total - currentValue);
+
+    return Math.max(0, dialLimit - assignedElsewhere);
+  }
+
+  function adjustTotal(field, delta) {
+    const currentValue = currentDialValue(field);
+    const fieldMaximum = maximumDialValue(field);
+
+    if (delta > 0 && currentValue >= fieldMaximum) {
       return;
     }
 
@@ -414,10 +548,63 @@ function RsvpForm({
       onSubmit={onSubmit}
       noValidate
     >
-      <fieldset disabled={disabled}>
+      {validationErrors.length > 0 && (
+        <section
+          className="rsvp-validation-summary rsvp-focus-target"
+          ref={validationSummaryRef}
+          tabIndex="-1"
+          role="alert"
+          aria-labelledby="rsvp-validation-summary-title"
+        >
+          <h2 id="rsvp-validation-summary-title">
+            Please review your RSVP
+          </h2>
+
+          <p>
+            Correct the items below and submit again. Your other page-entered
+            values have been preserved.
+          </p>
+
+          <ul>
+            {validationErrors.map(([key, message]) => {
+              const targetId = errorTargetId(key);
+
+              return (
+                <li key={key}>
+                  {targetId ? (
+                    <a
+                      href={`#${targetId}`}
+                      onClick={(event) =>
+                        focusErrorTarget(event, targetId)
+                      }
+                    >
+                      {message}
+                    </a>
+                  ) : (
+                    message
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      <fieldset
+        id="rsvp-completion-mode"
+        className="rsvp-focus-target"
+        tabIndex="-1"
+        disabled={disabled}
+        aria-describedby={describedBy(
+          "rsvp-completion-mode-help",
+          errors.completionMode
+            ? errorMessageId("completionMode")
+            : null,
+        )}
+      >
         <legend>How are you completing this blank form?</legend>
 
-        <p className="form-help">
+        <p className="form-help" id="rsvp-completion-mode-help">
           This choice only controls what the browser asks you to complete. The
           server determines whether the stored result is an initial RSVP or a
           revision.
@@ -425,9 +612,18 @@ function RsvpForm({
 
         <label className="form-choice">
           <input
+            id="rsvp-completion-mode-first"
             type="radio"
             name="completionMode"
             value="first"
+            required
+            aria-required="true"
+            aria-describedby={describedBy(
+              "rsvp-completion-mode-help",
+              errors.completionMode
+                ? errorMessageId("completionMode")
+                : null,
+            )}
             checked={draft.completionMode === "first"}
             onChange={() =>
               updateDraft({
@@ -440,9 +636,18 @@ function RsvpForm({
 
         <label className="form-choice">
           <input
+            id="rsvp-completion-mode-revision"
             type="radio"
             name="completionMode"
             value="revision"
+            required
+            aria-required="true"
+            aria-describedby={describedBy(
+              "rsvp-completion-mode-help",
+              errors.completionMode
+                ? errorMessageId("completionMode")
+                : null,
+            )}
             checked={draft.completionMode === "revision"}
             onChange={() =>
               updateDraft({
@@ -453,23 +658,54 @@ function RsvpForm({
           <span>I am updating an earlier RSVP.</span>
         </label>
 
-        <FieldError message={errors.completionMode} />
+        <FieldError
+          id={errorMessageId("completionMode")}
+          message={errors.completionMode}
+        />
       </fieldset>
 
-      <fieldset disabled={disabled}>
+      <fieldset
+        id="rsvp-event-attendance"
+        className="rsvp-focus-target"
+        tabIndex="-1"
+        disabled={disabled}
+        aria-describedby={describedBy(
+          "rsvp-event-attendance-help",
+          errors.eventAttendance
+            ? errorMessageId("eventAttendance")
+            : null,
+        )}
+      >
         <legend>Attendance</legend>
 
-        <p className="form-help">{attendanceLabel}</p>
+        <p className="form-help" id="rsvp-event-attendance-help">
+          {attendanceLabel} For a first RSVP, choose Ceremony, Reception, both,
+          or decline. On a revision, leave this region untouched if the stored
+          attendance should remain unchanged.
+        </p>
 
         {attendanceOptions.map((option) => {
           const label =
             option.label ?? option.labelVariants?.[wordingMode] ?? option.value;
 
+          const optionDisabled =
+            option.value === "decline"
+              ? attendingEventSelected
+              : draft.attendance.decline;
+
           return (
             <label className="form-choice" key={option.value}>
               <input
+                id={`rsvp-attendance-${option.value}`}
                 type="checkbox"
                 checked={Boolean(draft.attendance[option.value])}
+                disabled={disabled || optionDisabled}
+                aria-describedby={describedBy(
+                  "rsvp-event-attendance-help",
+                  errors.eventAttendance
+                    ? errorMessageId("eventAttendance")
+                    : null,
+                )}
                 onChange={() => updateAttendance(option.value)}
               />
               <span>{label}</span>
@@ -484,16 +720,47 @@ function RsvpForm({
           </p>
         )}
 
-        <FieldError message={errors.eventAttendance} />
+        <FieldError
+          id={errorMessageId("eventAttendance")}
+          message={errors.eventAttendance}
+        />
       </fieldset>
 
       {showAttendingRegions && namedInvitees.length > 0 && (
-        <fieldset disabled={disabled}>
+        <fieldset
+          id="rsvp-named-invitees"
+          className="rsvp-focus-target"
+          tabIndex="-1"
+          disabled={disabled}
+          aria-describedby={describedBy(
+            "rsvp-named-invitees-help",
+            errors.namedInviteeResponses
+              ? errorMessageId("namedInviteeResponses")
+              : null,
+          )}
+        >
           <legend>Who Is Attending?</legend>
 
+          <p className="form-help" id="rsvp-named-invitees-help">
+            For a first RSVP, answer Yes or No for every named invitee.
+            Unanswered person-level controls on a blank revision are treated as
+            unchanged unless another revision rule requires a complete
+            replacement.
+          </p>
+
           {namedInvitees.map((invitee) => (
-            <div className="rsvp-question-group" key={invitee.id}>
-              <p>
+            <div
+              className="rsvp-question-group"
+              key={invitee.id}
+              role="group"
+              aria-labelledby={`rsvp-named-${invitee.id}-question`}
+              aria-describedby={
+                errors.namedInviteeResponses
+                  ? errorMessageId("namedInviteeResponses")
+                  : undefined
+              }
+            >
+              <p id={`rsvp-named-${invitee.id}-question`}>
                 <strong>Will {invitee.displayName} attend?</strong>
               </p>
 
@@ -507,6 +774,12 @@ function RsvpForm({
                       type="radio"
                       name={`named-${invitee.id}`}
                       value={value}
+                      required={draft.completionMode === "first"}
+                      aria-required={
+                        draft.completionMode === "first"
+                          ? "true"
+                          : undefined
+                      }
                       checked={
                         draft.namedInviteeResponses?.[invitee.id] === value
                       }
@@ -526,13 +799,33 @@ function RsvpForm({
             </p>
           )}
 
-          <FieldError message={errors.namedInviteeResponses} />
+          <FieldError
+            id={errorMessageId("namedInviteeResponses")}
+            message={errors.namedInviteeResponses}
+          />
         </fieldset>
       )}
 
       {showAttendingRegions && allocations.length > 0 && (
-        <fieldset disabled={disabled}>
+        <fieldset
+          id="rsvp-additional-guests"
+          className="rsvp-focus-target"
+          tabIndex="-1"
+          disabled={disabled}
+          aria-describedby={describedBy(
+            "rsvp-additional-guests-help",
+            errors.additionalGuestResponses
+              ? errorMessageId("additionalGuestResponses")
+              : null,
+          )}
+        >
           <legend>{allocationLegend(allocations)}</legend>
+
+          <p className="form-help" id="rsvp-additional-guests-help">
+            For a first RSVP, answer every additional-guest question shown for
+            this invitation. A grouped child Yes answer also requires a child
+            count.
+          </p>
 
           {allocations.map((allocation) => {
             if (allocation.kind === "unnamedChildren") {
@@ -543,8 +836,18 @@ function RsvpForm({
                 };
 
               return (
-                <div className="rsvp-question-group" key={allocation.id}>
-                  <p>
+                <div
+                  className="rsvp-question-group"
+                  key={allocation.id}
+                  role="group"
+                  aria-labelledby={`rsvp-allocation-${allocation.id}-question`}
+                  aria-describedby={
+                    errors.additionalGuestResponses
+                      ? errorMessageId("additionalGuestResponses")
+                      : undefined
+                  }
+                >
+                  <p id={`rsvp-allocation-${allocation.id}-question`}>
                     <strong>{allocation.prompt}</strong>
                   </p>
 
@@ -558,6 +861,12 @@ function RsvpForm({
                           type="radio"
                           name={`children-${allocation.id}`}
                           value={value}
+                          required={draft.completionMode === "first"}
+                          aria-required={
+                            draft.completionMode === "first"
+                              ? "true"
+                              : undefined
+                          }
                           checked={response.attending === value}
                           onChange={() =>
                             updateGroupedChildAttendance(allocation, value)
@@ -577,6 +886,14 @@ function RsvpForm({
                       <select
                         id={`rsvp-children-count-${allocation.id}`}
                         value={response.count ?? ""}
+                        required
+                        aria-required="true"
+                        aria-describedby={describedBy(
+                          `rsvp-children-count-${allocation.id}-help`,
+                          errors.additionalGuestResponses
+                            ? errorMessageId("additionalGuestResponses")
+                            : null,
+                        )}
                         onChange={(event) =>
                           updateGroupedChildCount(allocation, event.target.value)
                         }
@@ -591,6 +908,14 @@ function RsvpForm({
                           </option>
                         ))}
                       </select>
+
+                      <p
+                        className="form-help"
+                        id={`rsvp-children-count-${allocation.id}-help`}
+                      >
+                        Required when children are attending. Choose from 1
+                        through {allocation.maximumCount}.
+                      </p>
                     </div>
                   )}
                 </div>
@@ -600,8 +925,18 @@ function RsvpForm({
             const response = draft.additionalGuestResponses?.[allocation.id];
 
             return (
-              <div className="rsvp-question-group" key={allocation.id}>
-                <p>
+              <div
+                className="rsvp-question-group"
+                key={allocation.id}
+                role="group"
+                aria-labelledby={`rsvp-allocation-${allocation.id}-question`}
+                aria-describedby={
+                  errors.additionalGuestResponses
+                    ? errorMessageId("additionalGuestResponses")
+                    : undefined
+                }
+              >
+                <p id={`rsvp-allocation-${allocation.id}-question`}>
                   <strong>{allocation.prompt}</strong>
                 </p>
 
@@ -615,6 +950,12 @@ function RsvpForm({
                         type="radio"
                         name={`allocation-${allocation.id}`}
                         value={value}
+                        required={draft.completionMode === "first"}
+                        aria-required={
+                          draft.completionMode === "first"
+                            ? "true"
+                            : undefined
+                        }
                         checked={response === value}
                         onChange={() => updatePlus1(allocation, value)}
                       />
@@ -635,13 +976,33 @@ function RsvpForm({
             </p>
           )}
 
-          <FieldError message={errors.additionalGuestResponses} />
+          <FieldError
+            id={errorMessageId("additionalGuestResponses")}
+            message={errors.additionalGuestResponses}
+          />
         </fieldset>
       )}
 
       {showAttendingRegions && (
-        <fieldset disabled={disabled}>
+        <fieldset
+          id="rsvp-attendance-totals"
+          className="rsvp-focus-target"
+          tabIndex="-1"
+          disabled={disabled}
+          aria-describedby={describedBy(
+            "rsvp-attendance-totals-help",
+            errors.attendanceTotals
+              ? errorMessageId("attendanceTotals")
+              : null,
+          )}
+        >
           <legend>Total Attending Party</legend>
+
+          <p className="form-help" id="rsvp-attendance-totals-help">
+            Classify the complete attending party across all four age
+            categories. The four values must equal the derived attending
+            headcount.
+          </p>
 
           {draft.completionMode === "first" && !completePersonResponses ? (
             <StatusMessage
@@ -651,6 +1012,15 @@ function RsvpForm({
               Answer the named-invitee and additional-guest attendance
               questions above. The attending headcount is derived from those
               responses before the age categories are assigned.
+            </StatusMessage>
+          ) : derivedAttendanceKnown && derivedAttendance < 1 ? (
+            <StatusMessage
+              type="information"
+              title="No attendees are currently marked Yes"
+            >
+              At least one authorized attendee must be marked Yes when
+              Ceremony or Reception is selected. Once someone is marked as
+              attending, classify the complete attending party by age below.
             </StatusMessage>
           ) : (
             <>
@@ -671,12 +1041,39 @@ function RsvpForm({
                   Assigned by age: <strong>{total}</strong>
                 </span>
 
-                {derivedAttendanceKnown && (
+                {derivedAttendanceKnown && overAssigned > 0 && (
                   <span>
-                    Remaining to assign: <strong>{remaining}</strong>
+                    Age categories currently exceed the derived attendance by{" "}
+                    <strong>{overAssigned}</strong>. Reduce the age totals
+                    before submitting.
                   </span>
                 )}
+
+                {derivedAttendanceKnown &&
+                  overAssigned === 0 &&
+                  remaining > 0 && (
+                    <span>
+                      Still to assign by age: <strong>{remaining}</strong>
+                    </span>
+                  )}
+
+                {derivedAttendanceKnown &&
+                  overAssigned === 0 &&
+                  remaining === 0 && (
+                    <span>
+                      The age-category totals match the derived attendance.
+                    </span>
+                  )}
               </div>
+
+              <p
+                className="rsvp-status-announcement"
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                {attendanceStatusMessage}
+              </p>
 
               {!derivedAttendanceKnown &&
                 draft.completionMode === "revision" && (
@@ -690,53 +1087,67 @@ function RsvpForm({
                 )}
 
               <div className="rsvp-dial-list">
-                {ATTENDANCE_TOTAL_FIELDS.map((field) => (
-                  <div className="rsvp-dial" key={field}>
-                    <label htmlFor={`rsvp-total-${field}`}>
-                      {ATTENDANCE_TOTAL_LABELS[field]}
-                    </label>
+                {ATTENDANCE_TOTAL_FIELDS.map((field) => {
+                  const currentValue = currentDialValue(field);
+                  const fieldMaximum = maximumDialValue(field);
 
-                    <div className="rsvp-dial__controls">
-                      <Button
-                        variant="secondary"
-                        className="rsvp-dial__button"
-                        type="button"
-                        aria-label={`Decrease ${ATTENDANCE_TOTAL_LABELS[field]}`}
-                        onClick={() => adjustTotal(field, -1)}
-                      >
-                        −
-                      </Button>
+                  return (
+                    <div className="rsvp-dial" key={field}>
+                      <label htmlFor={`rsvp-total-${field}`}>
+                        {ATTENDANCE_TOTAL_LABELS[field]}
+                      </label>
 
-                      <input
-                        id={`rsvp-total-${field}`}
-                        type="number"
-                        min="0"
-                        max={dialLimit}
-                        step="1"
-                        inputMode="numeric"
-                        value={draft.attendanceTotals[field]}
-                        placeholder="0"
-                        onChange={(event) =>
-                          setTotal(field, event.target.value)
-                        }
-                        aria-invalid={
-                          errors.attendanceTotals ? "true" : undefined
-                        }
-                      />
+                      <div className="rsvp-dial__controls">
+                        <Button
+                          variant="secondary"
+                          className="rsvp-dial__button"
+                          type="button"
+                          aria-label={`Decrease ${ATTENDANCE_TOTAL_LABELS[field]}`}
+                          disabled={disabled || currentValue <= 0}
+                          onClick={() => adjustTotal(field, -1)}
+                        >
+                          −
+                        </Button>
 
-                      <Button
-                        variant="secondary"
-                        className="rsvp-dial__button"
-                        type="button"
-                        aria-label={`Increase ${ATTENDANCE_TOTAL_LABELS[field]}`}
-                        disabled={disabled || remaining <= 0}
-                        onClick={() => adjustTotal(field, 1)}
-                      >
-                        +
-                      </Button>
+                        <input
+                          id={`rsvp-total-${field}`}
+                          type="number"
+                          min="0"
+                          max={fieldMaximum}
+                          step="1"
+                          inputMode="numeric"
+                          value={draft.attendanceTotals[field]}
+                          placeholder="0"
+                          onChange={(event) =>
+                            setTotal(field, event.target.value)
+                          }
+                          aria-invalid={
+                            errors.attendanceTotals ? "true" : undefined
+                          }
+                          aria-describedby={describedBy(
+                            "rsvp-attendance-totals-help",
+                            errors.attendanceTotals
+                              ? errorMessageId("attendanceTotals")
+                              : null,
+                          )}
+                        />
+
+                        <Button
+                          variant="secondary"
+                          className="rsvp-dial__button"
+                          type="button"
+                          aria-label={`Increase ${ATTENDANCE_TOTAL_LABELS[field]}`}
+                          disabled={
+                            disabled || currentValue >= fieldMaximum
+                          }
+                          onClick={() => adjustTotal(field, 1)}
+                        >
+                          +
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {draft.completionMode === "revision" && (
@@ -749,13 +1160,33 @@ function RsvpForm({
             </>
           )}
 
-          <FieldError message={errors.attendanceTotals} />
+          <FieldError
+            id={errorMessageId("attendanceTotals")}
+            message={errors.attendanceTotals}
+          />
         </fieldset>
       )}
 
       {showAttendingRegions && (
-        <fieldset disabled={disabled}>
+        <fieldset
+          id="rsvp-attendee-details"
+          className="rsvp-focus-target"
+          tabIndex="-1"
+          disabled={disabled}
+          aria-describedby={describedBy(
+            "rsvp-attendee-details-help",
+            errors.attendeeDetails
+              ? errorMessageId("attendeeDetails")
+              : null,
+          )}
+        >
           <legend>Attendee Details</legend>
+
+          <p className="form-help" id="rsvp-attendee-details-help">
+            Provide one required attendee name for each person attending.
+            Dietary or allergy information appears only when Reception is
+            selected.
+          </p>
 
           {detailTargetCount === null ? (
             <StatusMessage
@@ -804,7 +1235,10 @@ function RsvpForm({
 
                       <input
                         id={`rsvp-attendee-${index}-name`}
+                        className="rsvp-focus-target"
                         type="text"
+                        required
+                        aria-required="true"
                         maxLength="100"
                         value={detail.attendeeName}
                         aria-invalid={
@@ -812,6 +1246,15 @@ function RsvpForm({
                             ? "true"
                             : undefined
                         }
+                        aria-describedby={describedBy(
+                          `rsvp-attendee-${index}-name-help`,
+                          errors[`${index}.attendeeName`]
+                            ? errorMessageId(`${index}.attendeeName`)
+                            : null,
+                          errors.attendeeDetails
+                            ? errorMessageId("attendeeDetails")
+                            : null,
+                        )}
                         onChange={(event) =>
                           updateAttendeeDetail(
                             index,
@@ -821,7 +1264,15 @@ function RsvpForm({
                         }
                       />
 
+                      <p
+                        className="form-help"
+                        id={`rsvp-attendee-${index}-name-help`}
+                      >
+                        Required. Maximum 100 characters.
+                      </p>
+
                       <FieldError
+                        id={errorMessageId(`${index}.attendeeName`)}
                         message={errors[`${index}.attendeeName`]}
                       />
                     </div>
@@ -841,6 +1292,14 @@ function RsvpForm({
                               ? "true"
                               : undefined
                           }
+                          aria-describedby={describedBy(
+                            `rsvp-attendee-${index}-dietary-help`,
+                            errors[`${index}.dietaryPreferences`]
+                              ? errorMessageId(
+                                  `${index}.dietaryPreferences`,
+                                )
+                              : null,
+                          )}
                           onChange={(event) =>
                             updateAttendeeDetail(
                               index,
@@ -850,7 +1309,17 @@ function RsvpForm({
                           }
                         />
 
+                        <p
+                          className="form-help"
+                          id={`rsvp-attendee-${index}-dietary-help`}
+                        >
+                          Optional. Maximum 1000 characters.
+                        </p>
+
                         <FieldError
+                          id={errorMessageId(
+                            `${index}.dietaryPreferences`,
+                          )}
                           message={errors[`${index}.dietaryPreferences`]}
                         />
                       </div>
@@ -861,19 +1330,47 @@ function RsvpForm({
             </>
           )}
 
-          <FieldError message={errors.attendeeDetails} />
+          <FieldError
+            id={errorMessageId("attendeeDetails")}
+            message={errors.attendeeDetails}
+          />
         </fieldset>
       )}
 
-      <fieldset disabled={disabled}>
+      <fieldset
+        id="rsvp-confirmation-method"
+        className="rsvp-focus-target"
+        tabIndex="-1"
+        disabled={disabled}
+        aria-describedby={describedBy(
+          "rsvp-confirmation-method-help",
+          errors.confirmationMethod
+            ? errorMessageId("confirmationMethod")
+            : null,
+        )}
+      >
         <legend>Confirmation Method</legend>
+
+        <p className="form-help" id="rsvp-confirmation-method-help">
+          Select an available confirmation method and enter the destination
+          again for every initial RSVP or revision.
+        </p>
 
         {lookup.confirmationOptions.email && (
           <label className="form-choice">
             <input
+              id="rsvp-confirmation-method-email"
               type="radio"
               name="confirmationMethod"
               value="email"
+              required
+              aria-required="true"
+              aria-describedby={describedBy(
+                "rsvp-confirmation-method-help",
+                errors.confirmationMethod
+                  ? errorMessageId("confirmationMethod")
+                  : null,
+              )}
               checked={draft.confirmation.method === "email"}
               onChange={() =>
                 updateConfirmation({
@@ -890,9 +1387,18 @@ function RsvpForm({
         {lookup.confirmationOptions.textMessage && (
           <label className="form-choice">
             <input
+              id="rsvp-confirmation-method-text"
               type="radio"
               name="confirmationMethod"
               value="textMessage"
+              required
+              aria-required="true"
+              aria-describedby={describedBy(
+                "rsvp-confirmation-method-help",
+                errors.confirmationMethod
+                  ? errorMessageId("confirmationMethod")
+                  : null,
+              )}
               checked={draft.confirmation.method === "textMessage"}
               onChange={() =>
                 updateConfirmation({
@@ -905,7 +1411,10 @@ function RsvpForm({
           </label>
         )}
 
-        <FieldError message={errors.confirmationMethod} />
+        <FieldError
+          id={errorMessageId("confirmationMethod")}
+          message={errors.confirmationMethod}
+        />
 
         {draft.confirmation.method === "email" && (
           <div className="form-field rsvp-confirmation-destination">
@@ -917,12 +1426,20 @@ function RsvpForm({
               id="rsvp-confirmation-email"
               type="email"
               autoComplete="email"
+              required
+              aria-required="true"
               value={draft.confirmation.email}
               aria-invalid={
                 errors.confirmationEmail
                   ? "true"
                   : undefined
               }
+              aria-describedby={describedBy(
+                "rsvp-confirmation-email-help",
+                errors.confirmationEmail
+                  ? errorMessageId("confirmationEmail")
+                  : null,
+              )}
               onChange={(event) =>
                 updateConfirmation({
                   email: event.target.value,
@@ -930,7 +1447,15 @@ function RsvpForm({
               }
             />
 
-            <FieldError message={errors.confirmationEmail} />
+            <p className="form-help" id="rsvp-confirmation-email-help">
+              Required. Enter the email address where you want this RSVP
+              confirmation sent.
+            </p>
+
+            <FieldError
+              id={errorMessageId("confirmationEmail")}
+              message={errors.confirmationEmail}
+            />
           </div>
         )}
 
@@ -945,12 +1470,20 @@ function RsvpForm({
                 id="rsvp-confirmation-mobile"
                 type="tel"
                 autoComplete="tel"
+                required
+                aria-required="true"
                 value={draft.confirmation.mobile}
                 aria-invalid={
                   errors.confirmationMobile
                     ? "true"
                     : undefined
                 }
+                aria-describedby={describedBy(
+                  "rsvp-confirmation-mobile-help",
+                  errors.confirmationMobile
+                    ? errorMessageId("confirmationMobile")
+                    : null,
+                )}
                 onChange={(event) =>
                   updateConfirmation({
                     mobile: event.target.value,
@@ -958,13 +1491,29 @@ function RsvpForm({
                 }
               />
 
-              <FieldError message={errors.confirmationMobile} />
+              <p className="form-help" id="rsvp-confirmation-mobile-help">
+                Required. Enter the mobile number where you want this RSVP
+                confirmation sent.
+              </p>
+
+              <FieldError
+                id={errorMessageId("confirmationMobile")}
+                message={errors.confirmationMobile}
+              />
             </div>
 
             {lookup.confirmationOptions.smsAuthorizationRequired && (
               <label className="form-choice">
                 <input
+                  id="rsvp-sms-authorization"
                   type="checkbox"
+                  required
+                  aria-required="true"
+                  aria-describedby={
+                    errors.smsAuthorization
+                      ? errorMessageId("smsAuthorization")
+                      : undefined
+                  }
                   checked={draft.confirmation.smsAuthorization}
                   onChange={(event) =>
                     updateConfirmation({
@@ -980,7 +1529,10 @@ function RsvpForm({
               </label>
             )}
 
-            <FieldError message={errors.smsAuthorization} />
+            <FieldError
+              id={errorMessageId("smsAuthorization")}
+              message={errors.smsAuthorization}
+            />
           </>
         )}
       </fieldset>

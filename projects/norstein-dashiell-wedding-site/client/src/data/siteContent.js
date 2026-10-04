@@ -66,6 +66,7 @@ export const siteContent = {
 
   rsvp: {
     deadline: {
+      countdownStartIso: "2027-02-01T00:00:00-05:00",
       iso: "2027-03-01T23:59:00-05:00",
       display: "Monday, March 1, 2027, at 11:59 p.m. EST",
       timeZone: "America/New_York",

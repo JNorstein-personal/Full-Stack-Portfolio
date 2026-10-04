@@ -262,6 +262,8 @@ textarea:disabled {
     max-width: 100%;
   }
 }
+
+
 /* =========================================================
    RSVP
    ========================================================= */
@@ -270,6 +272,23 @@ textarea:disabled {
 .rsvp-confirmation-page {
   display: grid;
   gap: var(--space-6);
+  min-width: 0;
+}
+
+.rsvp-page > *,
+.rsvp-confirmation-page > *,
+.rsvp-form > *,
+.rsvp-summary-section > * {
+  min-width: 0;
+}
+
+.rsvp-page,
+.rsvp-confirmation-page,
+.rsvp-form,
+.rsvp-summary-section,
+.status-message,
+.rsvp-validation-summary {
+  overflow-wrap: anywhere;
 }
 
 .rsvp-personalized-intro,
@@ -308,10 +327,83 @@ textarea:disabled {
   gap: var(--space-4);
 }
 
+.rsvp-inline-choices .form-choice {
+  min-width: 0;
+}
+
+.rsvp-inline-choices label,
+.form-choice label {
+  overflow-wrap: anywhere;
+}
+
 .rsvp-field-error {
   margin: 0;
   color: var(--color-error);
   font-weight: 700;
+}
+
+.rsvp-validation-summary {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+
+  border: 2px solid var(--color-error);
+  border-radius: var(--radius-control);
+
+  background:
+    color-mix(
+      in srgb,
+      var(--color-error) 7%,
+      var(--color-surface)
+    );
+}
+
+.rsvp-validation-summary h2,
+.rsvp-validation-summary p,
+.rsvp-validation-summary ul {
+  margin: 0;
+}
+
+.rsvp-validation-summary ul {
+  display: grid;
+  gap: var(--space-2);
+  padding-inline-start: 1.5rem;
+}
+
+.rsvp-state-focus-target,
+.rsvp-focus-target,
+.rsvp-validation-summary {
+  scroll-margin-top:
+    calc(var(--header-height) + var(--space-4));
+}
+
+.rsvp-state-focus-target:focus,
+.rsvp-focus-target:focus,
+.rsvp-validation-summary:focus {
+  outline:
+    var(--focus-ring-width)
+    solid
+    var(--color-focus);
+
+  outline-offset: var(--focus-ring-offset);
+}
+
+.rsvp-status-announcement {
+  position: absolute;
+
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+
+  overflow: hidden;
+
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+
+  border: 0;
+
+  white-space: nowrap;
 }
 
 .rsvp-dial-list {
@@ -330,9 +422,10 @@ textarea:disabled {
 
 .rsvp-dial__controls {
   display: grid;
-  grid-template-columns: auto minmax(5rem, 8rem) auto;
+  grid-template-columns: auto minmax(4.5rem, 8rem) auto;
   align-items: center;
   gap: var(--space-2);
+  min-width: 0;
 }
 
 .rsvp-dial__controls input {
@@ -383,6 +476,11 @@ textarea:disabled {
   gap: var(--space-4);
 }
 
+.rsvp-action-row > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .rsvp-summary-list {
   display: grid;
   gap: var(--space-2);
@@ -404,8 +502,10 @@ textarea:disabled {
 }
 
 .rsvp-summary-list dd {
+  min-width: 0;
   margin: 0;
   text-align: end;
+  overflow-wrap: anywhere;
 }
 
 .rsvp-attendee-summary {
@@ -422,11 +522,51 @@ textarea:disabled {
 }
 
 @media (max-width: 40rem) {
+  .status-message,
+  .rsvp-validation-summary,
+  .rsvp-form fieldset,
+  .rsvp-attendee-card {
+    padding-inline: var(--space-4);
+  }
+
+  .rsvp-inline-choices {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+
+  .rsvp-inline-choices .form-choice {
+    width: 100%;
+  }
+
   .rsvp-dial__controls {
     grid-template-columns:
       2.75rem
       minmax(0, 1fr)
       2.75rem;
+  }
+
+  .rsvp-dial__button {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+
+  .rsvp-action-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: stretch;
+    gap: var(--space-3);
+  }
+
+  .rsvp-action-row .button,
+  .rsvp-action-row a {
+    width: 100%;
+  }
+
+  .rsvp-action-row a {
+    min-height: 2.75rem;
+    display: inline-flex;
+    align-items: center;
   }
 
   .rsvp-summary-list > div {
@@ -436,5 +576,28 @@ textarea:disabled {
 
   .rsvp-summary-list dd {
     text-align: start;
+  }
+}
+
+@media (max-width: 28rem) {
+  .status-message,
+  .rsvp-validation-summary,
+  .rsvp-form fieldset,
+  .rsvp-attendee-card {
+    padding-inline: var(--space-3);
+  }
+
+  .rsvp-total-summary {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+
+  .rsvp-dial__controls {
+    grid-template-columns:
+      2.75rem
+      minmax(0, 1fr)
+      2.75rem;
+    gap: var(--space-1);
   }
 }
