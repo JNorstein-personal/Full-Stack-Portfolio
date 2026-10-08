@@ -68,7 +68,7 @@ const PRODUCTION_AUDIT_TARGETS =
     testInvitationCount: 1,
     testNamedInviteeCount: 1,
     testPlus1AllocationCount: 1,
-    testCombinedMaximumAttendance: 2,
+    testCombinedMaximumAttendance: 4,
   });
 
 function cleanString(value) {

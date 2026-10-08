@@ -70,8 +70,8 @@ function makeTestRow(
     "Guest ID": "TST068",
     "First Name(s)": "Test",
     "Last Name(s)": "Sample",
-    Plus1: "Plus1",
-    "Total Potential Attendees (Including Plus1 and Kids)": 2,
+    Plus1: "Plus1, kids(2)",
+    "Total Potential Attendees (Including Plus1 and Kids)": 4,
     "I/We wording": "I",
     ...overrides,
   });
@@ -412,7 +412,7 @@ test(
     );
     assert.equal(
       transformed.maximumAttendance,
-      2,
+      4,
     );
     assert.deepEqual(
       transformed.namedInvitees.map(
@@ -425,7 +425,7 @@ test(
       transformed
         .additionalGuestAllocations
         .length,
-      1,
+      2,
     );
     assert.equal(
       transformed
@@ -438,6 +438,18 @@ test(
         .additionalGuestAllocations[0]
         .prompt,
       "Will Test Sample be accompanied by a +1?",
+    );
+    assert.equal(
+      transformed.additionalGuestAllocations[1].kind,
+      "unnamedChildren",
+    );
+    assert.equal(
+      transformed.additionalGuestAllocations[1].maximumCount,
+      2,
+    );
+    assert.equal(
+      transformed.additionalGuestAllocations[1].prompt,
+      GROUPED_CHILD_PROMPT,
     );
   },
 );
@@ -1334,12 +1346,12 @@ test(
     assert.equal(
       transformed.summary
         .testCombinedMaximumAttendance,
-      2,
+      4,
     );
     assert.equal(
       transformed.summary
         .functionalCombinedMaximumAttendance,
-      117,
+      119,
     );
 
     assert.equal(
@@ -1369,7 +1381,7 @@ test(
     );
     assert.equal(
       testInvitation.maximumAttendance,
-      2,
+      4,
     );
   },
 );
@@ -1504,7 +1516,7 @@ test(
     assert.equal(
       transformed.summary
         .functionalCombinedMaximumAttendance,
-      118,
+      120,
     );
 
     assert.equal(
@@ -1609,12 +1621,12 @@ test(
     );
     assert.equal(
       summary.testCombinedMaximumAttendance,
-      2,
+      4,
     );
     assert.equal(
       summary
         .functionalCombinedMaximumAttendance,
-      8,
+      10,
     );
   },
 );
