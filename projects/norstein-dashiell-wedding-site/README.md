@@ -18,11 +18,11 @@ with its backend API available beneath:
 
 ## Project Status
 
-**Active development — Workstream 2 RSVP architecture reconciled; production invitation source/synchronization model updated; integrated regression and production-gate verification remain**
+**Active development — Workstream 2 complete and verified; Workstream 3 and production backend deployment in progress. The confirmed wedding arrangement is Sphinx-only (Configuration B).**
 
 Workstream 1 is complete. It established the client/server structure, shared application shell, canonical routing, centralized wedding and event configuration, reusable design-system foundations, relative client/API boundary, initial launch-oriented content, and an Ubuntu deployment proof.
 
-Workstream 2 has implemented the RSVP system across private invitation lookup, blank-form construction, server-side validation, initial submission and revision handling, persistence, version history, idempotent retry behavior, confirmation delivery, production invitation transformation, activation/readiness tooling, and guest-facing React integration.
+Workstream 2 is complete and verified across private invitation lookup, blank-form construction, server-side validation, initial submission and revision handling, persistence, version history, idempotent retry behavior, confirmation delivery, production invitation transformation, and production activation/readiness tooling. Workstream 3 continues the guest-facing React interaction, accessibility, responsive behavior, and first-round content lock.
 
 During September 2026, the RSVP architecture was resynchronized around explicit person-level attendance and the clarified treatment of unnamed children. The governing documentation, fictional development fixtures, backend lookup and submission boundaries, confirmation output, private production transformation, production activation coverage, client state model, RSVP form, and confirmation page now use the same corrected contract.
 
@@ -44,7 +44,19 @@ The current RSVP model uses:
 * Composition-sensitive attendee-detail replacement.
 * Email confirmation as the production baseline.
 
-The September RSVP reconciliation set is complete at the source/documentation level. The subsequent production-source extension has updated the transformation, activation safety, readiness, post-activation verification, production audit, and permanent-test smoke path. Before the implementation is treated as launch-ready, the complete repository test suites, client lint/build checks, and production activation/readiness/runtime gates must be rerun together against the fully updated working tree.
+The corrected RSVP contract and production invitation synchronization have been verified. At the October 8 handoff, the validated project checkpoint had **320 passing server tests**, **29 passing client tests**, successful client linting and production build, and successful protected production-source/runtime checks. The October 8 media rename was verified byte-for-byte, but a post-rename frontend asset-reference/build check is still required before release.
+
+### Ubuntu production backend checkpoint (October 10, 2026)
+
+* The dedicated non-login `wedding-rsvp` Linux service identity is established; the installed backend source is root-controlled and separate from the existing Loreweaver website runtime.
+* The installed production backend in `/opt/loreweaver/wedding-rsvp` uses the verified **290db6c** source revision. Production Node.js dependencies were installed and validated in **Checkpoint D3** (110 packages).
+* Keycloak authentication, Google Workload Identity Federation, Google token acquisition and renewal, and read-only production workbook metadata access passed their isolated preflight tests.
+* The later **a56e646** Git checkpoint renamed 13 unchanged media assets; it did not replace the deployed backend installation.
+* **Checkpoint D4A is next:** securely create and validate `/etc/loreweaver/wedding-rsvp/production-base.env`. Protected secrets, bounded proxy trust, systemd startup, live API routing, and production delivery checks remain pending.
+* **The backend is not running as a production service.** No systemd unit or public `/wedding/api/` reverse-proxy route has been activated by this deployment sequence.
+* Production invitation records and existing RSVP history must not be reloaded, printed, exported, or modified merely to verify deployment.
+
+Workstream 3 still requires an audit and completion of remaining deadline, accessibility, responsive, browser-journey, and Content Lock Round 1 checks. The authoritative RSVP behavior and protected production data model remain unchanged.
 
 ## Core Technology
 
@@ -235,19 +247,11 @@ Centralized application data includes information such as:
 * Gift-policy content
 * Venue and schedule configuration
 
-The application supports two planned event configurations:
+**Confirmed arrangement — Configuration B (Sphinx-only).** The ceremony and reception take place at Sphinx Banquet and Catering Center on May 1, 2027, from **11:30 a.m. to 4:30 p.m.** The public website must select Configuration B.
 
-### Configuration A
+Historical Configuration A (Warinanco Park ceremony followed by Sphinx reception) is **discontinued as of October 10, 2026** and retained only as a reference to the earlier contingency. No further Warinanco-specific planning, implementation, or launch verification is required.
 
-Ceremony at Warinanco Park with reception at Sphinx.
-
-### Configuration B
-
-Ceremony and reception at Sphinx.
-
-Only one configuration will be active for guest-facing presentation at a time.
-
-Pages that depend upon venue or schedule configuration consume the same centralized configuration so that changing the active event arrangement does not require manually editing multiple pages.
+Venue and schedule components continue to consume the centralized event configuration so that the confirmed arrangement is presented consistently across public pages.
 
 ## RSVP System
 
@@ -295,9 +299,11 @@ The private production source currently contains **68 numbered invitation-code r
 
 The current source model is:
 
-* **Invites 1–57** — established assigned guest-list invitations.
-* **Invites 58–67** — reserved invitation-code placeholders that are not currently functional RSVP identities.
+* **Invites 1–63** — assigned real guest-list invitations.
+* **Invites 64–67** — four reserved invitation-code placeholders, not functional RSVP identities.
 * **Invite 68** — the permanent production **Test Sample** identity used for safe production verification.
+
+Invites 1–57 remain the independently audited historical baseline; invites 58–63 are now assigned, rather than reserved.
 
 Real invitation codes, guest identities, and source-to-party mappings remain outside the public client and public repository documentation.
 
@@ -381,13 +387,13 @@ The current private-source transformation audit reconciles to these source-level
 * 68 numbered source rows.
 * 68 unique source invitation codes.
 * Valid numbered sequence through Invite 68.
-* 10 reserved placeholders.
-* 58 functional production invitation configurations:
-  * 57 guest-list-eligible assigned invitations.
+* 4 reserved placeholders (Invites 64–67).
+* 64 functional production invitation configurations:
+  * 63 guest-list-eligible assigned invitations.
   * 1 permanent Test Sample.
-* 117 functional combined maximum attendance:
-  * 115 current guest-list maximum attendance.
-  * 2 Test Sample maximum attendance.
+* 126 functional combined maximum attendance:
+  * 122 current real guest-list maximum attendance.
+  * 4 Test Sample maximum attendance.
 
 For the established assigned guest list represented by invites 1–57, the stable baseline audit remains:
 
@@ -402,7 +408,7 @@ For the established assigned guest list represented by invites 1–57, the stabl
 * 5 grouped unnamed-child capacity slots.
 * 115 combined maximum attendance.
 
-The **115-person figure is a baseline for invites 1–57, not a permanent guest-list ceiling**. If one or more of reserved invites 58–67 is later populated as a real assigned invitation, the transformation includes that invitation as `guestListEligible: true`, the reserved-placeholder count decreases, and the current guest-list invitation/capacity totals increase accordingly. The invites 1–57 baseline remains independently auditable at 57 invitations and 115 maximum attendance.
+The **115-person figure is the historical baseline for invites 1–57**, not the current guest-list total. Invites 58–63 were subsequently assigned, bringing current real guest-list capacity to **122**. If any reserved invite 64–67 is later assigned, the transformation and protected synchronization procedure can increase the current totals without changing the original 1–57 baseline audit.
 
 Production transformation and activation code validate the corrected person-capacity model rather than the superseded one-allocation-equals-one-person assumption.
 
@@ -925,13 +931,11 @@ Completed foundation work includes:
 
 The application foundation has been exercised as a navigable application, its production client build has been validated, and its intended `/wedding/` and `/wedding/api/` deployment architecture has been proven on the Ubuntu deployment environment.
 
-## Current RSVP Backend Workstream
+## Completed RSVP Backend Workstream
 
-Workstream 2 builds the RSVP backend, private data layer, confirmation pipeline, production activation tooling, and guest-facing RSVP interface on top of the completed application foundation.
+Workstream 2 completed the RSVP backend, private data layer, confirmation pipeline, and guarded production invitation activation tooling on top of the application foundation. The corrected September attendance contract and October production-source extension are verified. Guest-facing interface completion is managed in Workstream 3.
 
-The corrected September RSVP architecture has been propagated through the approved reconciliation set in dependency order. The October production-source extension now adds reserved-code capacity, a permanent Test Sample, and safe repeat synchronization after RSVP activity begins.
-
-Current corrected checkpoint:
+Verified source and behavior include:
 
 * Centralized environment parsing and validation remain implemented.
 * Development/production configuration separation remains established.
@@ -950,12 +954,11 @@ Current corrected checkpoint:
 * RSVP submission success responses preserve safe allocation metadata and structured grouped-child response data.
 * Guest and administrative confirmation emails render grouped-child Yes/No and child count safely.
 * The production transformation parses `Kids(n)` as one grouped `unnamedChildren` allocation while preserving specifically named children as ordinary named invitees.
-* The production source model recognizes 68 numbered rows: 57 established assigned invitations, 10 reserved placeholders, and one permanent Test Sample.
-* The current functional registry contains 58 invitations: 57 guest-list eligible and one permanent test identity.
-* The established invites 1–57 baseline reconciles 84 named potential attendees plus 31 additional-person capacity slots to 115 maximum attendees.
-* The Test Sample has maximum attendance 2 and does not contribute to guest-list counts.
-* Current functional maximum attendance is therefore 117, while current guest-list maximum attendance remains 115.
-* Future population of reserved invites 58–67 increases current guest-list invitation/capacity totals dynamically without changing the 1–57 baseline audit.
+* The current production source has 68 numbered rows: 63 assigned guest-list invitations, 4 reserved placeholders, and one permanent Test Sample.
+* The functional registry contains 64 invitations: 63 guest-list-eligible identities and one permanent test identity.
+* The original invites 1–57 baseline remains independently auditable: 84 named potential attendees plus 31 additional-person slots, totaling 115 maximum attendees.
+* Current real guest-list maximum attendance is 122; the Test Sample maximum is 4, yielding combined functional capacity 126.
+* Future population of reserved invites 64–67 must follow the guarded, history-compatible invitation synchronization procedure.
 * Production activation compatibility protects any invitation already referenced by Current RSVPs, RSVP Versions, Submission Records, Delivery Records, or Resend Records.
 * Operational RSVP tables no longer need to remain empty for later invitation synchronization.
 * The production loader creates a private pre-write snapshot, replaces only invitation configurations, proves operational data is unchanged, verifies an exact source-to-workbook match, and attempts invitation rollback on post-backup failure.
@@ -969,9 +972,9 @@ Current corrected checkpoint:
 * The confirmation page renders named invitees, Plus 1 responses, grouped-child response/count, party totals, and all-attendance attendee details.
 * Public/private source-control boundaries continue to protect production invitation data and credentials.
 
-The source/documentation reconciliation does **not** by itself constitute final production verification. Focused syntax checks and targeted tests are performed during the update sequence, but the next repository-level step is to run the complete integrated regression and deployment checks against the fully reconciled tree.
+Workstream 2's protected invitation synchronization, production runtime verification, and Permanent Test Sample smoke checks were previously completed. The Ubuntu deployment is a distinct, unfinished operational task. Before public release, rerun applicable tests against the final working tree and verify the running backend without modifying real invitations.
 
-That final verification stage should include, as applicable to the repository's package scripts and protected environment:
+Remaining launch and deployment checks include:
 
 * Complete server automated test suite.
 * Complete client automated test suite.
@@ -979,12 +982,11 @@ That final verification stage should include, as applicable to the repository's 
 * Production client build.
 * Production invitation transformation audit.
 * Production readiness verification.
-* Protected production invitation synchronization/load verification.
-* Post-load production activation verification.
-* Production runtime verification.
-* Permanent Test Sample production RSVP smoke testing.
+* Read-only production runtime readiness verification.
+* Authorized Permanent Test Sample smoke testing after the Ubuntu backend is configured.
+* Reverse-proxy, systemd, startup/restart, writer-lock, and production confirmation-delivery verification.
 
-Any failure found during that integrated pass should be treated as a dependency or regression to reconcile before production activation rather than bypassed because an earlier checkpoint passed.
+Do not rerun the protected production invitation loader or change production guest records as part of routine deployment verification.
 
 The current production source remains private backend input. It is not copied into the React client, committed to public source control, or used as ordinary development test data.
 

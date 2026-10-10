@@ -249,6 +249,12 @@ Final
 Date:
 7/25/2026
 
+### October 10, 2026 event-format confirmation (superseding the contingency in Decisions 012–013)
+
+The couple confirmed that the wedding will use **Configuration B only**: the ceremony and reception at Sphinx Banquet and Catering Center, May 1, 2027, **11:30 a.m.–4:30 p.m.** Configuration A's Warinanco Park ceremony is **discontinued**, not an outstanding approval request or a future weather fallback. Existing Configuration A details may remain solely as historical reference. The published site, future venue/schedule work, and release testing must use Configuration B; no further Warinanco-specific planning work is required. The RSVP behavioral contract does not change.
+
+---
+
 ## Decision 014 — Hotel Accommodation Block
 
 Decision:

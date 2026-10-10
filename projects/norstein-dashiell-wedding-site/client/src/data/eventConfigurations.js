@@ -104,9 +104,9 @@ export const eventConfigurations = {
   },
 };
 
-// Development selection only.
-// The final production configuration has not yet been established.
-export const activeEventConfigurationId = "A";
+// Confirmed event configuration, October 10, 2026.
+// Configuration A is retained for historical reference only; Warinanco is discontinued.
+export const activeEventConfigurationId = "B";
 
 export const activeEventConfiguration =
   eventConfigurations[activeEventConfigurationId];
