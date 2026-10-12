@@ -16,7 +16,12 @@ const {
 } = require("../src/services/storage/developmentStore");
 const {
   createMutationId,
+  fingerprintRequest,
 } = require("../src/services/rsvpSubmissionService");
+
+const {
+  createEmailDeliveryService,
+} = require("../src/services/deliveryService");
 
 const OPEN_NOW = new Date(
   "2026-09-20T18:00:00Z",
@@ -755,7 +760,7 @@ test(
 );
 
 test(
-  "disabled text-message channel returns 403",
+  "text-message confirmation returns 400 without storing an RSVP",
   async () => {
     const body =
       ceremonyRequest({
@@ -769,10 +774,12 @@ test(
         "+15555550123",
     };
 
+    const rsvpStore =
+      createFixtureStore();
+
     await withTestServer(
       standardOptions({
-        rsvpStore:
-          createFixtureStore(),
+        rsvpStore,
       }),
       async (baseUrl) => {
         const result =
@@ -783,7 +790,15 @@ test(
 
         assert.equal(
           result.response.status,
-          403,
+          400,
+        );
+
+        assert.deepEqual(
+          await rsvpStore
+            .listRsvpVersions(
+              "party-dev-archetype-a",
+            ),
+          [],
         );
       },
     );
@@ -3490,5 +3505,291 @@ test(
         );
       },
     );
+  },
+);
+
+test(
+  "historical SMS lifecycles recover without duplicate versions or unauthorized delivery",
+  async () => {
+    const partyId = "party-dev-archetype-a";
+    const mobile = "+15555550123";
+
+    const scenarios = [
+      {
+        state: "prepared",
+        id: "79000000-0000-4000-8000-000000000001",
+      },
+      {
+        state: "stored",
+        id: "79000000-0000-4000-8000-000000000002",
+      },
+      {
+        state: "deliveryStarted",
+        id: "79000000-0000-4000-8000-000000000003",
+      },
+    ];
+
+    for (const scenario of scenarios) {
+      const rsvpStore = createFixtureStore();
+
+      const body = ceremonyRequest({
+        clientSubmissionId: scenario.id,
+      });
+
+      body.confirmation = {
+        method: "textMessage",
+        mobile,
+        smsAuthorization: true,
+      };
+
+      const submissionKey =
+        `${partyId}:${body.clientSubmissionId}`;
+
+      const mutationId =
+        createMutationId(submissionKey);
+
+      const storedRsvp = {
+        eventAttendance: ["ceremony"],
+        namedInviteeResponses: {
+          "invitee-dev001-a": "yes",
+        },
+        attendanceTotals: {
+          adults21Plus: 1,
+          youngAdults18To20: 0,
+          children3To17: 0,
+          childrenUnder3: 0,
+        },
+        overallAttendance: 1,
+        attendeeDetails: [
+          {
+            attendeeName: "Example Guest",
+          },
+        ],
+        confirmation: {
+          ...body.confirmation,
+        },
+        recordedAt: OPEN_NOW.toISOString(),
+        deadline:
+          "2027-03-01T23:59:00-05:00",
+        timeZone: "America/New_York",
+        version: 1,
+      };
+
+      if (scenario.state !== "prepared") {
+        await rsvpStore.commitRsvpMutation(
+          partyId,
+          {
+            expectedCurrentVersion: 0,
+            mutationId,
+            currentRsvp: storedRsvp,
+            versionRecord: {
+              action: "initial",
+              mutationId,
+              ...storedRsvp,
+            },
+          },
+        );
+      }
+
+      await rsvpStore.setSubmissionRecord(
+        submissionKey,
+        {
+          fingerprint:
+            fingerprintRequest(body),
+          partyId,
+          state: scenario.state,
+          mutationId,
+          action: "initial",
+          recordedAt:
+            OPEN_NOW.toISOString(),
+          expectedCurrentVersion: 0,
+          storedRsvp,
+        },
+      );
+
+      const emailCalls = [];
+
+      const deliveryService =
+        createEmailDeliveryService({
+          emailTransport: {
+            async sendEmail(message) {
+              emailCalls.push(message);
+              return { status: "sent" };
+            },
+          },
+          administrativeEmail:
+            "admin@example.com",
+          fromName: "Example Wedding",
+          fromEmail: "rsvp@example.com",
+          replyToEmail: "help@example.com",
+        });
+
+      await withTestServer(
+        standardOptions({
+          rsvpStore,
+          deliveryService,
+          environment: makeTestEnvironment({
+            RSVP_ADMIN_NOTIFICATION_EMAIL:
+              "admin@example.com",
+          }),
+        }),
+        async (baseUrl) => {
+          const recovered =
+            await submit(baseUrl, body);
+
+          assert.equal(
+            recovered.response.status,
+            200,
+            scenario.state,
+          );
+
+          assert.equal(
+            recovered.payload.submission
+              .idempotentRepeat,
+            true,
+          );
+
+          assert.equal(
+            recovered.payload.confirmation
+              .guestDeliveryStatus,
+            "uncertain",
+          );
+
+          assert.equal(
+            recovered.payload.confirmation
+              .administrativeDeliveryStatus,
+            scenario.state === "deliveryStarted"
+              ? "uncertain"
+              : "sent",
+          );
+
+          const expectedCalls =
+            scenario.state === "deliveryStarted"
+              ? 0
+              : 1;
+
+          assert.equal(
+            emailCalls.length,
+            expectedCalls,
+          );
+
+          assert.equal(
+            emailCalls.every(
+              (call) =>
+                call.to === "admin@example.com",
+            ),
+            true,
+          );
+
+          assert.deepEqual(
+            await rsvpStore.getCurrentRsvp(
+              partyId,
+            ),
+            storedRsvp,
+          );
+
+          assert.equal(
+            (
+              await rsvpStore.listRsvpVersions(
+                partyId,
+              )
+            ).length,
+            1,
+          );
+
+          const deliveryRecords =
+            await rsvpStore.listDeliveryRecords(
+              partyId,
+            );
+
+          assert.equal(
+            deliveryRecords.length,
+            1,
+          );
+
+          assert.equal(
+            deliveryRecords[0].guest.method,
+            "textMessage",
+          );
+
+          assert.equal(
+            deliveryRecords[0].guest.destination,
+            mobile,
+          );
+
+          assert.equal(
+            deliveryRecords[0].guest.status,
+            "uncertain",
+          );
+
+          assert.equal(
+            JSON.stringify(recovered.payload)
+              .includes(mobile),
+            false,
+          );
+
+          const replay =
+            await submit(baseUrl, body);
+
+          assert.equal(
+            replay.response.status,
+            200,
+          );
+
+          assert.equal(
+            replay.payload.submission
+              .idempotentRepeat,
+            true,
+          );
+
+          assert.equal(
+            emailCalls.length,
+            expectedCalls,
+          );
+
+          assert.equal(
+            (
+              await rsvpStore.listDeliveryRecords(
+                partyId,
+              )
+            ).length,
+            1,
+          );
+
+          const newSmsRequest = {
+            ...body,
+            clientSubmissionId:
+              "79900000-0000-4000-8000-000000000001",
+          };
+
+          const rejected =
+            await submit(
+              baseUrl,
+              newSmsRequest,
+            );
+
+          assert.equal(
+            rejected.response.status,
+            400,
+          );
+
+          assert.equal(
+            (
+              await rsvpStore.listRsvpVersions(
+                partyId,
+              )
+            ).length,
+            1,
+          );
+
+          assert.deepEqual(
+            await rsvpStore.getCurrentRsvp(
+              partyId,
+            ),
+            storedRsvp,
+          );
+        },
+      );
+    }
   },
 );

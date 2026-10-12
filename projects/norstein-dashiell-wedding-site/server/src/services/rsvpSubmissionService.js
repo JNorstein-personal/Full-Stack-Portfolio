@@ -789,26 +789,11 @@ function createRsvpSubmissionService({
     const confirmation =
       parseConfirmation(
         request.confirmation,
-        {
-          email: true,
-          textMessage:
-            environment
-              .RSVP_SMS_ENABLED ===
-            true,
-          smsAuthorizationRequired:
-            environment
-              .RSVP_SMS_ENABLED ===
-            true,
-        },
       );
 
     if (!confirmation.ok) {
       return {
-        status:
-          confirmation.status ===
-          403
-            ? "forbidden"
-            : "badRequest",
+        status: "badRequest",
       };
     }
 

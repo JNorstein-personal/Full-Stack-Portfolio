@@ -223,14 +223,13 @@ const environmentSchema = z
     }
 
     if (
-      environment.RSVP_SMS_ENABLED &&
-      !environment.SMS_PROVIDER
+      environment.RSVP_SMS_ENABLED
     ) {
       context.addIssue({
         code: "custom",
-        path: ["SMS_PROVIDER"],
+        path: ["RSVP_SMS_ENABLED"],
         message:
-          "is required when RSVP_SMS_ENABLED=true",
+          "must remain false; SMS confirmation has been permanently retired",
       });
     }
 
@@ -287,15 +286,6 @@ const environmentSchema = z
         path: ["RSVP_REPLY_TO_EMAIL"],
         message:
           "must match the approved production reply-to address",
-      });
-    }
-
-    if (environment.RSVP_SMS_ENABLED) {
-      context.addIssue({
-        code: "custom",
-        path: ["RSVP_SMS_ENABLED"],
-        message:
-          "must remain false until the SMS production gate is completed",
       });
     }
 

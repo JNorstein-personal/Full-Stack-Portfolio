@@ -156,17 +156,35 @@ test(
 );
 
 test(
-  "requires an SMS provider when SMS is enabled",
+  "rejects retired SMS enablement in development and test environments",
   () => {
-    assert.throws(
-      () =>
-        parseEnvironment(
-          makeDevelopmentEnvironment({
-            RSVP_SMS_ENABLED: "true",
-          }),
-        ),
-      /SMS_PROVIDER/,
-    );
+    for (
+      const nodeEnvironment of [
+        "development",
+        "test",
+      ]
+    ) {
+      for (
+        const smsProvider of [
+          "",
+          "fictional",
+        ]
+      ) {
+        assert.throws(
+          () =>
+            parseEnvironment(
+              makeDevelopmentEnvironment({
+                NODE_ENV: nodeEnvironment,
+                RSVP_SMS_ENABLED:
+                  "true",
+                SMS_PROVIDER:
+                  smsProvider,
+              }),
+            ),
+          /RSVP_SMS_ENABLED/,
+        );
+      }
+    }
   },
 );
 
@@ -257,6 +275,40 @@ test(
     assert.equal(
       environment.RSVP_SMS_ENABLED,
       false,
+    );
+  },
+);
+
+test(
+  "production rejects retired SMS with otherwise valid configuration",
+  () => {
+    assert.throws(
+      () =>
+        parseEnvironment(
+          makeDevelopmentEnvironment({
+            NODE_ENV: "production",
+            GOOGLE_SPREADSHEET_ID:
+              "fictional-spreadsheet-id",
+            RSVP_ADMIN_NOTIFICATION_EMAIL:
+              "admin@example.com",
+            EMAIL_PROVIDER: "resend",
+            RESEND_API_KEY:
+              "re_fictional_test_key",
+            RSVP_FROM_NAME:
+              "Norstein-Dashiell Wedding",
+            RSVP_FROM_EMAIL:
+              "confirm@rsvp.loreweavercreations.com",
+            RSVP_REPLY_TO_EMAIL:
+              "RSVPhelp@loreweavercreations.com",
+            RSVP_WRITER_INSTANCE_COUNT: "1",
+            ALLOWED_ORIGIN:
+              "https://www.loreweavercreations.com",
+            TRUST_PROXY: "1",
+            RSVP_SMS_ENABLED: "true",
+            SMS_PROVIDER: "fictional",
+          }),
+        ),
+      /RSVP_SMS_ENABLED/,
     );
   },
 );

@@ -332,117 +332,58 @@ test(
 );
 
 test(
-  "email confirmation is strict and does not accept contradictory channel properties",
+  "email-only confirmation requires an exact valid email object",
   () => {
     assert.deepEqual(
-      parseConfirmation(
-        {
-          method: "email",
-          email:
-            "guest@example.com",
-        },
-        {
-          textMessage: false,
-          smsAuthorizationRequired:
-            false,
-        },
-      ),
+      parseConfirmation({
+        method: "email",
+        email: "guest@example.com",
+      }),
       {
         ok: true,
         value: {
           method: "email",
-          email:
-            "guest@example.com",
+          email: "guest@example.com",
         },
       },
     );
 
-    assert.equal(
-      parseConfirmation(
-        {
-          method: "email",
-          email: "invalid",
-        },
-        {
-          textMessage: false,
-        },
-      ).status,
-      400,
-    );
+    const invalidConfirmations = [
+      {},
+      { method: "email" },
+      { method: "email", email: "invalid" },
+      {
+        method: "email",
+        email: "guest@example.com",
+        mobile: "+15555550123",
+      },
+      {
+        method: "email",
+        email: "guest@example.com",
+        smsAuthorization: true,
+      },
+      {
+        method: "textMessage",
+        mobile: "+15555550123",
+        smsAuthorization: true,
+      },
+      {
+        method: "textMessage",
+        email: "guest@example.com",
+      },
+      {
+        method: "email",
+        email: "guest@example.com",
+        unexpected: true,
+      },
+    ];
 
-    assert.equal(
-      parseConfirmation(
-        {
-          method: "email",
-          email:
-            "guest@example.com",
-          mobile:
-            "+15555550123",
-        },
-        {
-          textMessage: false,
-        },
-      ).status,
-      400,
-    );
-  },
-);
+    for (const confirmation of invalidConfirmations) {
+      const result = parseConfirmation(confirmation);
 
-test(
-  "text-message confirmation enforces channel authorization and required transactional authorization",
-  () => {
-    assert.equal(
-      parseConfirmation(
-        {
-          method:
-            "textMessage",
-          mobile:
-            "+15555550123",
-        },
-        {
-          textMessage: false,
-          smsAuthorizationRequired:
-            false,
-        },
-      ).status,
-      403,
-    );
-
-    assert.equal(
-      parseConfirmation(
-        {
-          method:
-            "textMessage",
-          mobile:
-            "+15555550123",
-        },
-        {
-          textMessage: true,
-          smsAuthorizationRequired:
-            true,
-        },
-      ).status,
-      400,
-    );
-
-    assert.equal(
-      parseConfirmation(
-        {
-          method:
-            "textMessage",
-          mobile:
-            "+15555550123",
-          smsAuthorization:
-            true,
-        },
-        {
-          textMessage: true,
-          smsAuthorizationRequired:
-            true,
-        },
-      ).ok,
-      true,
-    );
+      assert.equal(result.ok, false);
+      assert.equal(result.status, 400);
+    }
   },
 );
 

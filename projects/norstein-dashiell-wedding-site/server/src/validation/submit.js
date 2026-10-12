@@ -24,7 +24,6 @@ const ATTENDANCE_TOTAL_KEYS = Object.freeze([
 
 const uuidSchema = z.string().uuid();
 const emailSchema = z.string().email();
-const mobileSchema = z.string().regex(/^\+[1-9]\d{7,14}$/);
 
 function isPlainObject(value) {
   return (
@@ -110,123 +109,28 @@ function parseSubmitRequest(body) {
   );
 }
 
-function parseConfirmation(
-  confirmation,
-  confirmationOptions,
-) {
+function parseConfirmation(confirmation) {
   if (
-    !isPlainObject(
-      confirmationOptions,
-    )
+    !hasExactKeys(
+      confirmation,
+      ["method", "email"],
+    ) ||
+    confirmation.method !== "email" ||
+    !emailSchema.safeParse(
+      confirmation.email,
+    ).success
   ) {
     return invalid(
       400,
-      "invalid-confirmation-options",
+      "invalid-confirmation",
     );
   }
 
-  if (
-    confirmation.method ===
-    "email"
-  ) {
-    if (
-      !hasExactKeys(
-        confirmation,
-        [
-          "method",
-          "email",
-        ],
-      ) ||
-      !emailSchema.safeParse(
-        confirmation.email,
-      ).success
-    ) {
-      return invalid(
-        400,
-        "invalid-confirmation",
-      );
-    }
-
-    return valid(
-      Object.freeze({
-        method: "email",
-        email:
-          confirmation.email,
-      }),
-    );
-  }
-
-  if (
-    confirmation.method ===
-    "textMessage"
-  ) {
-    if (
-      confirmationOptions
-        .textMessage !== true
-    ) {
-      return invalid(
-        403,
-        "confirmation-channel-not-authorized",
-      );
-    }
-
-    const authorizationRequired =
-      confirmationOptions
-        .smsAuthorizationRequired ===
-      true;
-
-    const expectedKeys =
-      authorizationRequired
-        ? [
-            "method",
-            "mobile",
-            "smsAuthorization",
-          ]
-        : [
-            "method",
-            "mobile",
-          ];
-
-    if (
-      !hasExactKeys(
-        confirmation,
-        expectedKeys,
-      ) ||
-      !mobileSchema.safeParse(
-        confirmation.mobile,
-      ).success ||
-      (
-        authorizationRequired &&
-        confirmation
-          .smsAuthorization !==
-          true
-      )
-    ) {
-      return invalid(
-        400,
-        "invalid-confirmation",
-      );
-    }
-
-    return valid(
-      Object.freeze({
-        method:
-          "textMessage",
-        mobile:
-          confirmation.mobile,
-        ...(authorizationRequired
-          ? {
-              smsAuthorization:
-                true,
-            }
-          : {}),
-      }),
-    );
-  }
-
-  return invalid(
-    400,
-    "invalid-confirmation",
+  return valid(
+    Object.freeze({
+      method: "email",
+      email: confirmation.email,
+    }),
   );
 }
 

@@ -8,6 +8,9 @@ const {
   createManualResendService,
 } = require("../src/services/manualResendService");
 const {
+  createEmailDeliveryService,
+} = require("../src/services/deliveryService");
+const {
   createDevelopmentStore,
 } = require("../src/services/storage/developmentStore");
 
@@ -81,6 +84,10 @@ async function seedCurrent(
   {
     version = 1,
     action = "initial",
+    confirmation = {
+      method: "email",
+      email: "guest@example.com",
+    },
   } = {},
 ) {
   const current = {
@@ -104,11 +111,7 @@ async function seedCurrent(
           "Example Guest",
       },
     ],
-    confirmation: {
-      method: "email",
-      email:
-        "guest@example.com",
-    },
+    confirmation,
     recordedAt:
       "2026-09-20T20:00:00.000Z",
     deadline:
@@ -462,6 +465,120 @@ test(
           )
       )[0].guest.status,
       "uncertain",
+    );
+  },
+);
+
+test(
+  "historical SMS resend records uncertainty without sending or changing RSVP history",
+  async () => {
+    const fixture = createFixture();
+
+    const mobile = "+15555550123";
+
+    const historicalConfirmation = {
+      method: "textMessage",
+      mobile,
+      smsAuthorization: true,
+    };
+
+    const original =
+      await seedCurrent(
+        fixture.store,
+        {
+          confirmation:
+            historicalConfirmation,
+        },
+      );
+
+    const originalVersions =
+      await fixture.store.listRsvpVersions(
+        "party-example",
+      );
+
+    const emailCalls = [];
+
+    const deliveryService =
+      createEmailDeliveryService({
+        emailTransport: {
+          async sendEmail(message) {
+            emailCalls.push(message);
+            return { status: "sent" };
+          },
+        },
+        administrativeEmail:
+          "admin@example.com",
+        fromName: "Example Wedding",
+        fromEmail: "rsvp@example.com",
+        replyToEmail: "help@example.com",
+      });
+
+    const service =
+      createManualResendService({
+        invitationService:
+          fixture.invitationService,
+        rsvpStore:
+          fixture.store,
+        deliveryService,
+        now: () => NOW,
+      });
+
+    const result =
+      await service.resend("ABC123");
+
+    assert.deepEqual(
+      result,
+      {
+        status: "recorded",
+        result: "uncertain",
+        version: 1,
+        recordedAt:
+          NOW.toISOString(),
+      },
+    );
+
+    assert.deepEqual(
+      emailCalls,
+      [],
+    );
+
+    assert.deepEqual(
+      await fixture.store.getCurrentRsvp(
+        "party-example",
+      ),
+      original,
+    );
+
+    assert.deepEqual(
+      await fixture.store.listRsvpVersions(
+        "party-example",
+      ),
+      originalVersions,
+    );
+
+    assert.deepEqual(
+      await fixture.store.listResendRecords(
+        "party-example",
+      ),
+      [
+        {
+          recordedAt:
+            NOW.toISOString(),
+          requestedBy:
+            "administrator",
+          version: 1,
+          guest: {
+            method: "textMessage",
+            destination: mobile,
+            status: "uncertain",
+          },
+        },
+      ],
+    );
+
+    assert.equal(
+      JSON.stringify(result).includes(mobile),
+      false,
     );
   },
 );
