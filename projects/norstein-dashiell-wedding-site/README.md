@@ -18,7 +18,7 @@ with its backend API available beneath:
 
 ## Project Status
 
-**Active development — Workstream 2 complete and verified; Workstream 3 and production backend deployment in progress. The confirmed wedding arrangement is Sphinx-only (Configuration B).**
+**Active development — Workstreams 1–2 complete; Workstream 3 in progress. The confirmed wedding arrangement is permanently Sphinx-only (Configuration B). The RSVP system has passed controlled production verification, but public RSVP release is not authorized or active.**
 
 Workstream 1 is complete. It established the client/server structure, shared application shell, canonical routing, centralized wedding and event configuration, reusable design-system foundations, relative client/API boundary, initial launch-oriented content, and an Ubuntu deployment proof.
 
@@ -42,21 +42,43 @@ The current RSVP model uses:
 * Reception-specific optional dietary/allergy information.
 * Blank-form partial revision semantics.
 * Composition-sensitive attendee-detail replacement.
-* Email confirmation as the production baseline.
+* Guest email confirmation as the sole approved target delivery channel (Decision 029); the deployed code still contains disabled legacy SMS paths awaiting separately reviewed removal.
 
-The corrected RSVP contract and production invitation synchronization have been verified. At the October 8 handoff, the validated project checkpoint had **320 passing server tests**, **29 passing client tests**, successful client linting and production build, and successful protected production-source/runtime checks. The October 8 media rename was verified byte-for-byte, but a post-rename frontend asset-reference/build check is still required before release.
+The corrected RSVP contract and private invitation synchronization have been verified. On October 12, 2026, the current development branch passed **29/29 client tests, client linting, and a production client build** after the navigation changes. A historical Workstream 2 checkpoint recorded **320 passing server tests**; this is not a claim that the server suite was rerun during the October 12 documentation commit. The frontend build does not substitute for the final integrated browser or production-release checks.
 
-### Ubuntu production backend checkpoint (October 10, 2026)
+### Protected Ubuntu backend verification checkpoint (October 11–12, 2026)
 
-* The dedicated non-login `wedding-rsvp` Linux service identity is established; the installed backend source is root-controlled and separate from the existing Loreweaver website runtime.
-* The installed production backend in `/opt/loreweaver/wedding-rsvp` uses the verified **290db6c** source revision. Production Node.js dependencies were installed and validated in **Checkpoint D3** (110 packages).
-* Keycloak authentication, Google Workload Identity Federation, Google token acquisition and renewal, and read-only production workbook metadata access passed their isolated preflight tests.
-* The later **a56e646** Git checkpoint renamed 13 unchanged media assets; it did not replace the deployed backend installation.
-* **Checkpoint D4A is next:** securely create and validate `/etc/loreweaver/wedding-rsvp/production-base.env`. Protected secrets, bounded proxy trust, systemd startup, live API routing, and production delivery checks remain pending.
-* **The backend is not running as a production service.** No systemd unit or public `/wedding/api/` reverse-proxy route has been activated by this deployment sequence.
-* Production invitation records and existing RSVP history must not be reloaded, printed, exported, or modified merely to verify deployment.
+* The dedicated `wedding-rsvp` service identity, protected installation, workload-identity authentication, and private workbook access were established during the controlled Ubuntu deployment sequence.
+* **D12** verified a controlled production RSVP submission, independent guest and protected administrative email attempts, recorded delivery, and no unintended change to unrelated invitations or RSVP data.
+* **D13** verified a controlled revision, an idempotent same-payload replay, changed-payload rejection, and an independent final read-only audit. The permanent production Test Sample was used rather than a real guest invitation.
+* After those controlled checks, the RSVP service was returned to its **inactive/disabled** state; the production listener was unbound, its writer lock absent, and public wedding/RSVP routes remained blocked. The public RSVP service has **not** been activated.
+* **D14 — public RSVP release readiness and activation planning — remains pending.** Its readiness assessment must verify implementation/contract consistency, source provenance, routing, security controls, recovery/rollback, monitoring, and separate public-access authorization. A documentation commit or a successful smoke test does not authorize release.
+* Do not rerun controlled production submissions, revisions, email transmissions, loaders, or destructive RSVP operations merely to establish a repository checkpoint. Protected evidence and credentials stay outside Git.
 
 Workstream 3 still requires an audit and completion of remaining deadline, accessibility, responsive, browser-journey, and Content Lock Round 1 checks. The authoritative RSVP behavior and protected production data model remain unchanged.
+
+## Local Setup and Verification
+
+The project uses an npm workspace root with separate `client` and `server` packages. From a checkout of this monorepo, open PowerShell in `projects/norstein-dashiell-wedding-site` and run:
+
+```powershell
+npm ci
+npm run lint:client
+npm run test:client
+npm run test:server
+npm run build:client
+```
+
+For **local development only**, copy `client/.env.example` to `client/.env` and `server/.env.example` to `server/.env`. The examples contain configuration names, not live credentials; the real backend requires independently configured Google and email dependencies for their respective features. Never commit real `.env` contents, private invitation data, production codes, or secrets. Use fictional development fixtures for ordinary tests.
+
+With the backend's local development configuration prepared, run `npm run dev:server` in one terminal and `npm run dev:client` in another. Vite serves the client beneath `/wedding/` and proxies `/wedding/api` to the local Express port `3001`. These commands are for development, **not** permission to start or expose the protected production RSVP service.
+
+## October 2026 Development Checkpoint
+
+* **Navigation:** `/wedding/venue` and `/wedding/schedule-menu` are the current browser routes; the latter is labeled **Schedule & Menu**, with buffet-menu copy deferred to public-page content work. The wedding arrangement is permanently Sphinx-only.
+* **Documentation:** Decision 029 and the core RSVP requirements, design, and API target contract have been reconciled. `docs/page-outlines.md`, `docs/route-inventory.md`, and `docs/sitemap.md` still contain some historical SMS-provider/confirmation wording. Their email-only reconciliation is the next **Workstream 3 / WS3-12C5** task; no public-release readiness is claimed.
+* **Historical configurations:** The discontinued Warinanco/Sphinx option remains in some source and documentation for historical reference only. It is not an active or optional future wedding plan; related obsolete readiness items require documentation cleanup before release.
+* **Repository and runtime are different checkpoints:** a clean GitHub commit does not imply that the currently stopped, access-restricted RSVP service has been deployed or publicly enabled.
 
 ## Core Technology
 
@@ -143,9 +165,9 @@ The canonical browser routes are beneath `/wedding/`:
 /wedding/theme
 /wedding/story
 /wedding/read-listen-watch
-/wedding/venues
+/wedding/venue
 /wedding/travel
-/wedding/schedule
+/wedding/schedule-menu
 /wedding/faq
 /wedding/gallery
 /wedding/privacy
@@ -279,7 +301,7 @@ Depending on the invitation, that safe response may include:
 * A safe `namedInvitees` roster.
 * Zero or more safe `additionalGuestAllocations`.
 * Reusable form-schema metadata.
-* Available confirmation methods.
+* Email confirmation availability (the approved target; disabled legacy runtime schema fields remain pending cleanup).
 
 Lookup does **not** return:
 
@@ -702,7 +724,7 @@ The browser does not submit an authoritative `overallAttendance` and does not se
 
 Operational confirmation information is entered again for every initial submission and revision.
 
-Email is the required baseline channel. Text Message remains disabled in production until its separate provider/disclosure/authorization/testing gate is satisfied.
+**Decision 029 (October 11, 2026): Guest confirmation is email-only, with a separate protected administrative email attempt after storage.** No text-message option, SMS authorization collection, mobile-number collection for confirmation, provider-selection gate, or future SMS activation is planned. The working implementation still has disabled legacy SMS-compatible fields and paths (`RSVP_SMS_ENABLED=false`); the approved email-only target must not be described as fully implemented until the separate code/schema/test cleanup is complete.
 
 ### Confirmation behavior
 
@@ -774,7 +796,7 @@ Server configuration is expected to include values for responsibilities such as:
 * Time zone
 * Administrative notifications
 * Email provider
-* SMS provider
+* Legacy `RSVP_SMS_ENABLED=false` setting until obsolete SMS handling is retired (not an enablement path)
 * Allowed origin
 * Reverse-proxy behavior
 
@@ -794,7 +816,7 @@ The repository is intended to exclude:
 * Private additional-guest allocation mappings, including Plus 1 and grouped-child authorization
 * Google service-account credentials
 * Email credentials
-* SMS credentials
+* Any retained legacy SMS credentials or contact/authorization records until securely retired
 * Administrative destinations
 * Local `.env` files
 * Protected server-secret files
@@ -972,7 +994,7 @@ Verified source and behavior include:
 * The confirmation page renders named invitees, Plus 1 responses, grouped-child response/count, party totals, and all-attendance attendee details.
 * Public/private source-control boundaries continue to protect production invitation data and credentials.
 
-Workstream 2's protected invitation synchronization, production runtime verification, and Permanent Test Sample smoke checks were previously completed. The Ubuntu deployment is a distinct, unfinished operational task. Before public release, rerun applicable tests against the final working tree and verify the running backend without modifying real invitations.
+Workstream 2's protected invitation synchronization and controlled D12/D13 production tests were completed. The RSVP service is intentionally inactive while D14 release-readiness planning remains pending. Before any public release, validate the email-only implementation against Decision 029, complete the final integration/security/recovery reviews, and verify the approved runtime without modifying real invitations merely to test deployment.
 
 Remaining launch and deployment checks include:
 
