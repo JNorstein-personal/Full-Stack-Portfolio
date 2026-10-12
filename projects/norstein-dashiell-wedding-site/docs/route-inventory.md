@@ -56,10 +56,10 @@ recovery.
 | `/wedding/rsvp/confirmation` | Successful-submission confirmation, delivery-warning, and refresh-fallback states | No | Yes when temporary confirmation state exists | No | Required |
 | `/wedding/theme` | Theme and Attire | Yes | No | Yes | Required |
 | `/wedding/story` | Our Story | Yes | No | Yes | Required |
-| `/wedding/read-listen-watch` | Read, Listen, and Watch | Yes | No | Yes | Required |
-| `/wedding/venues` | Active ceremony and reception information | Yes | No | Yes | Required |
+| `/wedding/read-listen-watch` | Read, Listen & Watch | Yes | No | Yes | Required |
+| `/wedding/venue` | Active ceremony and reception information | Yes | No | Yes | Required |
 | `/wedding/travel` | Hotel block, parking, maps, and transportation | Yes | No | Yes | Required |
-| `/wedding/schedule` | Active guest schedule | Yes | No | Yes | Required |
+| `/wedding/schedule-menu` | Active guest schedule | Yes | No | Yes | Required |
 | `/wedding/faq` | Frequently Asked Questions | Yes | No | Yes | Required |
 | `/wedding/gallery` | Gallery and pre-wedding Coming Soon state | Yes | No | Yes | Required |
 | `/wedding/privacy` | Full RSVP Privacy notice | Yes | No | Yes | Required |
@@ -76,10 +76,10 @@ The compact sticky primary navigation must use the following order:
 2. RSVP
 3. Theme and Attire
 4. Our Story
-5. Read, Listen, and Watch
-6. Venues
+5. Read, Listen & Watch
+6. Venue
 7. Travel
-8. Schedule
+8. Schedule & Menu
 9. FAQ
 10. Gallery
 11. Privacy
@@ -99,7 +99,7 @@ RSVP must additionally appear:
 
 - As a prominent action on the Home page.
 - In the site footer.
-- Where contextually appropriate on the Schedule and FAQ pages.
+- Where contextually appropriate on the Schedule & Menu and FAQ pages.
 
 The Privacy page must additionally be linked from:
 
@@ -120,7 +120,7 @@ Confirm that the guest has reached the correct wedding website and direct the gu
 
 - Display the couple’s names, wedding date, and general location.
 - Provide a prominent RSVP action.
-- Link to Theme and Attire, Venues or Travel, and Our Story.
+- Link to Theme and Attire, Venue or Travel, and Our Story.
 - Display only the currently active event configuration.
 - Read repeated event information from centralized content or configuration.
 - Remain publicly indexable.
@@ -451,7 +451,7 @@ Present the couple’s relationship story as a complete public page.
 - Link contextually to Home or RSVP where appropriate.
 - Remain publicly indexable.
 
-### `/wedding/read-listen-watch` — Read, Listen, and Watch
+### `/wedding/read-listen-watch` — Read, Listen & Watch
 
 **Purpose:**
 Provide lawful external resources for the thematic book, audiobook, and film.
@@ -465,7 +465,7 @@ Provide lawful external resources for the thematic book, audiobook, and film.
 - Avoid hosting or embedding complete copyrighted copies of the book, audiobook, or film.
 - Remain publicly indexable.
 
-### `/wedding/venues` — Venues
+### `/wedding/venue` — Venue
 
 **Purpose:**
 Display the ceremony and reception information for the currently active event configuration.
@@ -494,14 +494,14 @@ Provide hotel-block, parking, driving, transit, airport, and local transportatio
 - Open external hotel and map links in a new browser tab.
 - Remain publicly indexable.
 
-### `/wedding/schedule` — Schedule
+### `/wedding/schedule-menu` — Schedule & Menu
 
 **Purpose:**
 Display the guest-facing schedule for the currently active event configuration.
 
 **Required route behavior:**
 
-- Read from the same centralized active-event configuration as Home, Venues, Travel, and FAQ.
+- Read from the same centralized active-event configuration as Home, Venue, Travel, and FAQ.
 - Display either the Warinanco/Sphinx schedule or the Sphinx-only schedule, never a mixture.
 - Exclude private setup, vendor, or wedding-party-only scheduling details from the public route.
 - Remain publicly indexable.
@@ -592,7 +592,7 @@ Provide a branded wedding-site error experience instead of a generic server erro
 **Required route behavior:**
 
 - Render for `/wedding/not-found` and any unknown browser route beneath `/wedding/`.
-- Provide links to Home, RSVP, Venues, and FAQ.
+- Provide links to Home, RSVP, Venue, and FAQ.
 - Avoid revealing server paths, stack traces, framework errors, or deployment details.
 - Avoid indexing.
 
@@ -649,9 +649,9 @@ The project must not create separate public routes for:
 The following routes must read repeated event details from one centralized active-event configuration:
 
 - `/wedding/`
-- `/wedding/venues`
+- `/wedding/venue`
 - `/wedding/travel`
-- `/wedding/schedule`
+- `/wedding/schedule-menu`
 - `/wedding/faq`
 
 Only one configuration may be guest-facing at a time.
@@ -679,9 +679,9 @@ The following routes may be indexed:
 - `/wedding/theme`
 - `/wedding/story`
 - `/wedding/read-listen-watch`
-- `/wedding/venues`
+- `/wedding/venue`
 - `/wedding/travel`
-- `/wedding/schedule`
+- `/wedding/schedule-menu`
 - `/wedding/faq`
 - `/wedding/gallery`
 - `/wedding/privacy`

@@ -95,10 +95,10 @@ RSVP-history route.
 │       └── Refresh-without-temporary-state fallback
 ├── Theme and Attire
 ├── Our Story
-├── Read, Listen, and Watch
-├── Venues
+├── Read, Listen & Watch
+├── Venue
 ├── Travel
-├── Schedule
+├── Schedule & Menu
 ├── Frequently Asked Questions
 ├── Gallery
 │   ├── Invitation-launch Coming Soon state
@@ -124,10 +124,10 @@ Invitation-specific variation is limited to the reviewed form heading, explicit 
 | `/wedding/rsvp/confirmation` | Temporary successful-submission confirmation | Personalized | No | No |
 | `/wedding/theme` | Theme and Attire | Public | Yes | Yes |
 | `/wedding/story` | Our Story | Public | Yes | Yes |
-| `/wedding/read-listen-watch` | Read, Listen, and Watch | Public | Yes | Yes |
-| `/wedding/venues` | Active venue information | Public | Yes | Yes |
+| `/wedding/read-listen-watch` | Read, Listen & Watch | Public | Yes | Yes |
+| `/wedding/venue` | Active venue information | Public | Yes | Yes |
 | `/wedding/travel` | Hotel, parking, and transportation information | Public | Yes | Yes |
-| `/wedding/schedule` | Active guest schedule | Public | Yes | Yes |
+| `/wedding/schedule-menu` | Active guest schedule | Public | Yes | Yes |
 | `/wedding/faq` | Frequently Asked Questions | Public | Yes | Yes |
 | `/wedding/gallery` | Coming Soon or approved post-wedding gallery | Public | Yes | Yes |
 | `/wedding/privacy` | Full RSVP privacy notice | Public | Yes | Yes |
@@ -144,10 +144,10 @@ The compact sticky primary navigation uses this order:
 2. RSVP
 3. Theme and Attire
 4. Our Story
-5. Read, Listen, and Watch
-6. Venues
+5. Read, Listen & Watch
+6. Venue
 7. Travel
-8. Schedule
+8. Schedule & Menu
 9. FAQ
 10. Gallery
 11. Privacy
@@ -170,7 +170,7 @@ RSVP must also appear:
 
 - As a prominent action on Home.
 - In the site footer.
-- Where contextually appropriate on Schedule and FAQ.
+- Where contextually appropriate on Schedule & Menu and FAQ.
 
 Privacy must also appear:
 
@@ -703,14 +703,14 @@ security-limitation policies.
 The following pages depend on one centralized active-event configuration:
 
 - Home.
-- Venues.
+- Venue.
 - Travel.
-- Schedule, limited to the confirmed outer event blocks and approved broad reception description.
+- Schedule & Menu, limited to the confirmed outer event blocks and approved broad reception description.
 - FAQ, including the flexible reception structure and any confirmed beverage information.
 
 The centralized configuration must control both the confirmed outer event blocks and the approved reception-description policy.
 
-## Configuration A
+## Configuration A (N/A)
 
 **Warinanco Park ceremony and Sphinx reception**
 
@@ -785,7 +785,7 @@ Configuration B must be activatable promptly if:
 - Inclement weather prevents the outdoor ceremony.
 - The approved fallback otherwise becomes necessary.
 
-The public Schedule page remains one stable route under either configuration. Switching configurations changes its content state rather than creating another route.
+The public Schedule & Menu page remains one stable route under either configuration. Switching configurations changes its content state rather than creating another route.
 
 ---
 
@@ -800,10 +800,10 @@ The invitation-launch version includes:
 - RSVP confirmation.
 - Theme and Attire.
 - Our Story.
-- Read, Listen, and Watch.
-- Venues.
+- Read, Listen & Watch.
+- Venue.
 - Travel.
-- Schedule.
+- Schedule & Menu.
 - FAQ.
 - Gallery in the Coming Soon state.
 - Privacy.
@@ -1054,7 +1054,7 @@ This state applies when the RSVP was recorded but the administrative email confi
 
 - Home.
 - RSVP.
-- Venues.
+- Venue.
 - FAQ.
 
 ### Required behavior
@@ -1071,7 +1071,7 @@ This state applies when the RSVP was recorded but the administrative email confi
 
 - RSVP.
 - Theme and Attire.
-- Venues or Travel.
+- Venue or Travel.
 - Our Story.
 - Other primary-navigation destinations.
 
@@ -1099,48 +1099,48 @@ This state applies when the RSVP was recorded but the administrative email confi
 - Home.
 - RSVP.
 
-## Read, Listen, and Watch links to
+## Read, Listen & Watch links to
 
 - Verified external book sources.
 - Verified external audiobook sources.
 - Verified external film sources.
 - Home or other public pages.
 
-## Venues links to
+## Venue links to
 
 - Verified external maps.
 - Travel.
-- Schedule.
+- Schedule & Menu.
 - FAQ.
 
 ## Travel links to
 
 - Verified hotel booking resources when available.
 - Verified external maps.
-- Venues.
-- Schedule.
+- Venue.
+- Schedule & Menu.
 - FAQ.
 
-## Schedule links to
+## Schedule & Menu links to
 
-- Venues.
+- Venue.
 - Travel.
 - RSVP.
 - FAQ.
 
-The Schedule destination remains the same under both event configurations. Its content changes through the centralized active-event setting and must not branch into separate cocktail-hour, dinner, dancing, or other internal-activity pages.
+The Schedule & Menu destination remains the same under both event configurations. Its content changes through the centralized active-event setting and must not branch into separate cocktail-hour, dinner, dancing, or other internal-activity pages.
 
 ## FAQ links to
 
 - RSVP.
 - Theme and Attire.
-- Venues.
+- Venue.
 - Travel.
-- Schedule.
-- Read, Listen, and Watch.
+- Schedule & Menu.
+- Read, Listen & Watch.
 - Privacy.
 
-Reception answers must link back to the concise Schedule page rather than to a separate or more detailed internal itinerary.
+Reception answers must link back to the concise Schedule & Menu page rather than to a separate or more detailed internal itinerary.
 
 ## Gallery links to
 
@@ -1157,7 +1157,7 @@ Reception answers must link back to the concise Schedule page rather than to a s
 
 - Home.
 - RSVP.
-- Venues.
+- Venue.
 - FAQ.
 
 ---
@@ -1172,9 +1172,9 @@ The following routes may be indexed:
 - `/wedding/theme`
 - `/wedding/story`
 - `/wedding/read-listen-watch`
-- `/wedding/venues`
+- `/wedding/venue`
 - `/wedding/travel`
-- `/wedding/schedule`
+- `/wedding/schedule-menu`
 - `/wedding/faq`
 - `/wedding/gallery`
 - `/wedding/privacy`
@@ -1279,7 +1279,7 @@ This sitemap is complete when:
 - Sticky navigation order is documented.
 - Internal and external link behavior is documented.
 - Both venue configurations are prepared and only one may be active.
-- The Schedule route publishes only confirmed outer event blocks and broad reception wording.
+- The Schedule & Menu route publishes only confirmed outer event blocks and broad reception wording.
 - Configuration B does not invent an internal ceremony-to-reception transition.
 - Gallery uses one canonical route for both Coming Soon and post-wedding states.
 - RSVP states, validation, service-unavailable, uncertain-submission, delivery-warning, confirmation-refresh, and 404 behavior are accounted for.

@@ -66,10 +66,10 @@ Every public page beneath `/wedding/` must use a consistent wedding-site shell.
 2. RSVP
 3. Theme and Attire
 4. Our Story
-5. Read, Listen, and Watch
-6. Venues
+5. Read, Listen & Watch
+6. Venue
 7. Travel
-8. Schedule
+8. Schedule & Menu
 9. FAQ
 10. Gallery
 11. Privacy
@@ -108,7 +108,7 @@ The footer must provide:
 
 ### Active event configuration
 
-Home, Venues, Travel, Schedule, and FAQ must read from the same centralized active-event configuration.
+Home, Venue, Travel, Schedule & Menu, and FAQ must read from the same centralized active-event configuration.
 
 Only one configuration may be presented as current at a time:
 
@@ -179,7 +179,7 @@ If analytics are used on RSVP or confirmation routes, they must be limited to no
 6. **Theme and Attire call to action**
    - Link to `/wedding/theme`.
 7. **Venue or Travel call to action**
-   - Link to `/wedding/venues` or `/wedding/travel`.
+   - Link to `/wedding/venue` or `/wedding/travel`.
 8. **Introductory image or artwork**
    - Optional until the approved asset is selected.
    - Must not obscure essential text or the RSVP action.
@@ -1005,7 +1005,7 @@ The state-transition responsibilities remain:
 
 ---
 
-## Read, Listen, and Watch
+## Read, Listen & Watch
 
 **Route:** `/wedding/read-listen-watch`
 
@@ -1060,9 +1060,9 @@ This page must not include:
 
 ---
 
-## Venues
+## Venue
 
-**Route:** `/wedding/venues`
+**Route:** `/wedding/venue`
 
 **Visibility:** Public
 
@@ -1227,9 +1227,9 @@ External hotel booking and map links open in a new tab and are identified access
 
 ---
 
-## Schedule
+## Schedule & Menu
 
-**Route:** `/wedding/schedule`
+**Route:** `/wedding/schedule-menu`
 
 **Visibility:** Public
 
@@ -1245,9 +1245,9 @@ External hotel booking and map links open in a new tab and are identified access
 - Publish the confirmed outer ceremony and reception or combined-event time blocks.
 - Describe the flexible reception structure without creating a binding internal run-of-show.
 - Keep private setup, vendor, wedding-party, and flexible internal reception timing out of the public site.
-- Provide contextual links to Venues, Travel, and RSVP.
+- Provide contextual links to Venue, Travel, and RSVP.
 
-### Required Configuration A schedule
+### Required Configuration A schedule (N/A)
 
 1. **Ceremony**
    - Warinanco Park.
@@ -1291,7 +1291,7 @@ Equivalent wording may be used provided it:
 
 1. Guest arrival guidance when finalized.
 2. Guest-relevant transportation deadlines, but only where an actual transportation arrangement creates one.
-3. Link to Venues.
+3. Link to Venue.
 4. Link to Travel.
 5. Contextual RSVP link.
 6. Optional brief note that reception activities are intentionally flexible.
@@ -1395,7 +1395,7 @@ Link to relevant pages rather than duplicating long explanations:
 
 - RSVP
 - Theme and Attire
-- Venues
+- Venue
 - Travel
 - Schedule
 - Privacy
@@ -1544,7 +1544,7 @@ Explain what RSVP information is collected, why it is collected, how the blank-f
 2. Brief guest-friendly explanation.
 3. Link to Home.
 4. Link to RSVP.
-5. Link to Venues.
+5. Link to Venue.
 6. Link to FAQ.
 7. Assistance information where appropriate.
 
@@ -1601,10 +1601,10 @@ The following repeated values must be maintained centrally where practical:
 - **Confirmation:** success, complete summary including grouped child count where applicable, delivery warning, refresh fallback, revision wording.
 - **Theme and Attire:** aesthetic, attire, palette, examples, images, downloads, disclaimer.
 - **Our Story:** relationship narrative/approved photographs.
-- **Read, Listen, and Watch:** descriptions, verified external links, availability disclaimer.
-- **Venues:** active venue details, entrances, parking, accessibility, maps, contingency instructions, broad reception description.
+- **Read, Listen & Watch:** descriptions, verified external links, availability disclaimer.
+- **Venue:** active venue details, entrances, parking, accessibility, maps, contingency instructions, broad reception description.
 - **Travel:** hotel block, transportation, driving, travel-accessibility info, genuine guest deadlines.
-- **Schedule:** confirmed outer event blocks and flexible reception description.
+- **Schedule & Menu:** confirmed outer event blocks and flexible reception description.
 - **FAQ:** guest-facing policy answers including named-invitee, Plus1, grouped child authorization/count behavior, derived attendance, Attendee Details, Reception dietary collection, reception structure, confirmed beverage information.
 - **Gallery:** Coming Soon copy and reviewed post-wedding media.
 - **Privacy:** complete RSVP privacy explanation, including grouped child attendance/count data.

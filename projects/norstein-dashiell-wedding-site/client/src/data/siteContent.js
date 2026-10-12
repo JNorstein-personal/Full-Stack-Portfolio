@@ -22,16 +22,16 @@ const navigation = [
     to: "/read-listen-watch",
   },
   {
-    label: "Venues",
-    to: "/venues",
+    label: "Venue",
+    to: "/venue",
   },
   {
     label: "Travel",
     to: "/travel",
   },
   {
-    label: "Schedule",
-    to: "/schedule",
+    label: "Schedule & Menu",
+    to: "/schedule-menu",
   },
   {
     label: "FAQ",

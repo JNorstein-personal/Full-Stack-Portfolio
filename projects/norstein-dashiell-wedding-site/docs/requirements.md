@@ -2,6 +2,8 @@
 
 ## Project Scope
 
+**Email-only governing clarification (Decision 029, October 11, 2026):** All current requirements for guest RSVP confirmation are email-only, with a separate protected administrative email attempt. SMS/text-message delivery, mobile-number collection for confirmation, provider selection, consent, and SMS enablement are removed from the planned scope rather than deferred. This document specifies the approved target behavior; preexisting disabled SMS-capable code and API fields are not yet removed and require a separately reviewed implementation change. No production activation or release authorization is implied.
+
 The Loreweaver Creations wedding website will be a responsive,
 self-hosted web application providing invited guests with wedding
 information and access to a personalized RSVP system.
@@ -26,10 +28,9 @@ The application will consist of:
 3. A private Node.js and Express backend.
 4. A private Google Sheets workbook used for invitation configuration
    and RSVP responses.
-5. Backend email delivery and, when the finalized production SMS-provider
-   gate is satisfied, text-message delivery services that send complete
-   guest confirmations, together with protected administrative email
-   confirmations after every successful initial submission or revision.
+5. Backend email delivery that sends complete guest confirmations and
+   separate protected administrative email confirmations after every
+   successful initial submission or revision.
 6. External links to lawful sources for the thematic book, audiobook,
    and movie.
 7. Nextcloud-hosted wedding materials where guest access is appropriate.
@@ -196,9 +197,8 @@ The invitation-launch version must include:
 - Written RSVP deadline information at all times.
 - A live RSVP countdown from February 1, 2027, at 12:00 a.m. EST until
   the March 1, 2027 deadline.
-- Guest confirmation by Email, with Text Message also available only
-  when the finalized production SMS-provider disclosure and enablement
-  gate has been satisfied.
+- Guest RSVP confirmation exclusively by email; no text-message
+  delivery option or future SMS activation is planned.
 - Administrative email confirmation after every successful initial
   submission or revision.
 - Complete current RSVP information in each guest and administrative
@@ -702,8 +702,7 @@ An attending initial RSVP must include:
 - A required `attendeeName` in every attendee-detail record.
 - `Dietary or allergy information` only when Reception is selected; the
   value may be blank.
-- The required operational confirmation method, applicable destination,
-  and any required transactional SMS authorization.
+- The required operational guest confirmation email address.
 
 For an attending RSVP, the backend derives the actual attending count
 from the complete authorized attendance decisions:
@@ -733,10 +732,8 @@ For a revision, the guest must:
 
 - Return to the public RSVP entry page.
 - Re-enter the invitation code.
-- Re-enter the required operational confirmation fields, including the
-  selected confirmation method, applicable email address or, when Text
-  Message is enabled and selected, SMS-capable mobile number, and any
-  required transactional text-message authorization.
+- Re-enter the required valid guest confirmation email address. Do not
+  display or prefill the previously stored address.
 - Complete only substantive RSVP fields that need to change, except where
   a dependency requires a complete replacement structure.
 
@@ -752,8 +749,8 @@ Revision processing must use the approved replacement-and-merge model:
 - Backend dependency rules clear values that become inapplicable, such as
   attendance-dependent state after full decline or dietary values after
   Reception is removed.
-- Submitted operational confirmation fields replace the applicable stored
-  confirmation method, destination, and authorization state.
+- The newly submitted guest confirmation email address replaces the
+  previously stored guest confirmation destination.
 - The backend merges submitted changes with stored state.
 - The backend re-derives `overallAttendance` from the complete resulting
   named-invitee, Plus1, and grouped-child responses rather than preserving
@@ -778,7 +775,7 @@ The system must support clear and unambiguous revisions including:
   composition or number of attending people changes.
 - Replacing Reception-specific dietary/allergy information through the
   authorized attendee-detail structure.
-- Changing the confirmation method or destination.
+- Changing the guest confirmation email destination.
 
 Dependency processing must enforce these rules:
 
@@ -869,7 +866,7 @@ When invitation lookup or submission services are temporarily
 unavailable, the RSVP route must display a guest-safe service-unavailable
 state. That state must provide the approved assistance information and
 printed-response alternative without exposing server, spreadsheet,
-credential, email-provider, or text-message-provider details.
+credential or email-provider details.
 
 When a network interruption or other client-side failure prevents the
 browser from determining whether a submission was recorded, the RSVP
@@ -878,8 +875,8 @@ route must display a submission-uncertain state. The state must:
 - Explain that the website cannot yet confirm whether the RSVP was
   recorded.
 - Avoid claiming either success or failure without evidence.
-- Direct the guest to check the selected email or text-message
-  destination and provide the approved assistance method.
+- Direct the guest to check for the email confirmation and provide
+  the approved assistance method.
 - Avoid encouraging repeated immediate or blind resubmission.
 - Permit a safe retry using the same client submission identifier so the
   backend can return an idempotent outcome without writing a duplicate
@@ -1111,29 +1108,19 @@ other applicable confirmation attempt from being made.
 
 ### Guest Confirmation
 
-Email confirmation is an approved guest confirmation method.
+Email is the only approved guest RSVP confirmation channel under
+Decision 029. Every initial submission and revision requires a valid
+guest confirmation email address; no SMS provider, consent mechanism,
+mobile-number collection, or future text-message option is planned.
 
-Text-message confirmation is also an approved method, but it may be
-presented and accepted in production only after the finalized Phase 3
-Step 14 SMS-provider enablement gate has been satisfied.
+Previously stored guest confirmation addresses must remain hidden
+and unprefilled on revision forms. A newly submitted valid email address
+replaces the stored guest confirmation destination after validation
+and successful storage.
 
-Before Text Message is enabled in production:
-
-- The production SMS provider must be selected.
-- The provider's applicable sender-identification, consent, carrier-rate,
-  opt-out/help, and other required guest-facing wording must be verified.
-- Provider credentials and sender configuration must remain backend-only.
-- The production Text Message flow must be tested.
-
-If those conditions are not satisfied, the Text Message option must
-remain disabled rather than displaying invented provider-specific copy.
-
-The guest must provide at least one valid confirmation destination
-applicable to the selected method.
-
-An Email selection requires a valid email address. An enabled Text
-Message selection requires a valid SMS-capable mobile number and any
-applicable transactional-message authorization.
+The approved target email-only contract must not be represented as
+fully implemented until the disabled legacy SMS-capable paths and API
+fields have been removed through controlled implementation review.
 
 The guest confirmation must contain the complete current RSVP after the
 initial submission or merged revision, including every field applicable to
@@ -1160,9 +1147,6 @@ Ceremony-only response therefore includes attendee names but omits dietary
 or allergy information. A full decline omits all attendance-dependent
 attendance-composition responses, totals, and attendee details.
 
-A text-message confirmation may use multiple message segments when
-necessary to include the complete current RSVP.
-
 ### Administrative Confirmation
 
 Every successful initial submission or revision must send an
@@ -1184,7 +1168,7 @@ spreadsheet-authoritative form model, including:
   attending response.
 - The complete attendee-name list for every attending response.
 - Dietary/allergy information when Reception is selected and supplied.
-- Guest confirmation method and destination.
+- Guest confirmation method (email only) and email destination.
 - Submission version.
 - Submission or revision timestamp.
 
@@ -1239,8 +1223,8 @@ state is lost, the page must:
 
 ### Delivery Failure
 
-A guest email, guest text message, or administrative-email delivery
-failure must not:
+A guest-email or protected administrative-email delivery failure
+must not:
 
 - Undo a successfully stored RSVP.
 - Create a duplicate RSVP.
@@ -1273,12 +1257,10 @@ The concise notice must:
 - Explain that an attending RSVP collects one attendee name for every
   attending person and that Reception attendance may additionally collect
   attendee-specific dietary/allergy information.
-- Explain that complete confirmations are sent to the couple by protected
-  administrative email and to the guest by Email or, when enabled, the
-  selected Text Message method.
-- Explain that RSVP mobile numbers are used only for the approved
-  transactional RSVP-confirmation purpose and approved manual resend unless
-  another use is separately authorized by a later recorded decision.
+- Explain that complete confirmations are attempted independently by
+  guest email and protected administrative email after successful storage.
+- Explain that no mobile number or SMS authorization is collected for
+  RSVP confirmation.
 - Link to the complete Privacy page.
 - Avoid unsupported promises or guarantees.
 
@@ -1309,8 +1291,7 @@ The Privacy page must explain in plain language:
 - That RSVP information is stored in the private administrative system.
 - That complete protected administrative confirmations are sent to the
   couple by email.
-- That guest confirmations are sent by Email or, when the production SMS
-  gate has been satisfied, Text Message.
+- That guest confirmations are attempted by email only after storage.
 - That guest and administrative confirmation attempts are handled
   independently after storage.
 - Who may access the information.
@@ -1369,7 +1350,7 @@ Analytics associated with RSVP or confirmation routes must not receive:
 - Named-invitee roster or additional-guest allocation mappings.
 - Dietary or allergy information.
 - Email addresses.
-- Mobile numbers.
+- Mobile numbers, including any legacy values.
 - Confirmation destinations.
 - `clientSubmissionId` values.
 - Invitation-specific form-configuration details.
@@ -1400,12 +1381,14 @@ must not create an RSVP version or delivery attempt. When deployed behind
 a reverse proxy or tunnel, per-IP limiting must trust only the configured
 production proxy chain rather than arbitrary forwarded-address headers.
 
-Google credentials, email credentials, SMS credentials, sender
-configuration, and the protected administrative-recipient address must
-remain backend-only. Production secrets must remain separate from
-development/testing secrets. Fictional development/test invitation data
-and fixtures must remain separated from production invitation data and
-must never be authorized by the production registry.
+Google credentials, email credentials, sender configuration, and the
+protected administrative-recipient address must remain backend-only.
+Any legacy SMS provider credentials or related secrets, if present,
+must also remain backend-only until securely retired. Production
+secrets must remain separate from development/testing secrets.
+Fictional development/test invitation data and fixtures must remain
+separated from production invitation data and must never be
+authorized by the production registry.
 
 The permanent Test Sample is an intentional protected production identity,
 not a development fixture. Its private code and complete configuration are
@@ -1435,7 +1418,8 @@ No later than July 30, 2027, RSVP-operational data no longer needed for a
 concrete unresolved administrative purpose must be deleted or irreversibly
 de-identified from the active RSVP system. This includes current and
 superseded RSVP responses, attendee names, dietary/allergy text, guest
-confirmation destinations, SMS authorization records,
+confirmation email destinations, any legacy mobile numbers or SMS
+authorization records retained by the existing implementation,
 `clientSubmissionId` values, delivery-attempt history, transaction
 timestamps retained only as RSVP history, and active
 invitation-code-to-RSVP-response mappings used solely by the website.
@@ -1538,8 +1522,8 @@ An invited party may:
   information` within each attendee-detail record.
 - View the complete current guest-facing RSVP on the temporary
   confirmation screen.
-- Select Email as the guest confirmation method and, when the finalized
-  production SMS-provider gate has been satisfied, select Text Message.
+- Provide a valid guest confirmation email address for each initial
+  submission or revision; email is the sole confirmation method.
 - Receive the complete current RSVP after every successful initial
   submission or revision.
 - View the concise privacy notice and complete Privacy page.
@@ -1593,9 +1577,9 @@ The couple may:
 - Review the complete attendee-name list for every attending response.
 - Review dietary/allergy information when Reception is selected and a
   value was supplied.
-- Review guest confirmation methods and destinations.
-- Review email-delivery status and Text Message delivery status when that
-  production channel is enabled.
+- Review the guest confirmation email destination.
+- Review guest-email and protected administrative-email delivery statuses
+  independently.
 - Resend a failed guest confirmation manually without changing the RSVP.
 - Review submission versions and timestamps.
 - Correct spreadsheet records.

@@ -81,9 +81,9 @@ function HomePage() {
           <p>{activeEventConfiguration.receptionDescription}</p>
 
           <p>
-            <Link to="/venues">View venue information</Link>
+            <Link to="/venue">View venue information</Link>
             {" · "}
-            <Link to="/schedule">View the wedding schedule</Link>
+            <Link to="/schedule-menu">View the wedding schedule and menu</Link>
           </p>
         </div>
       </ContentSection>
@@ -103,7 +103,7 @@ function HomePage() {
               <Link to="/theme">Theme and Attire</Link>
             </li>
             <li>
-              <Link to="/venues">Venues</Link>
+              <Link to="/venue">Venue</Link>
             </li>
             <li>
               <Link to="/travel">Travel</Link>

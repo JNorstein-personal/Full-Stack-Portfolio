@@ -4945,3 +4945,43 @@ Date:
 
 Clarified:
 10/3/2026
+
+## Decision 029 — Email-Only RSVP Confirmation
+
+Decision:
+
+Effective October 11, 2026, the Norstein–Dashiell Wedding Website will use email exclusively for guest RSVP confirmations. A separate protected administrative email confirmation will also be attempted after each successful initial submission or revision.
+
+The approved requirements are:
+
+* Every online initial RSVP submission and revision requires a valid guest confirmation email address.
+* Previously stored confirmation contact information must not be displayed or prefilled when a guest returns to revise an RSVP.
+* A successfully validated revision replaces the stored guest confirmation email destination with the newly submitted address.
+* Guest and protected administrative email confirmations are separate, independent post-storage delivery attempts.
+* Both confirmations must accurately represent the complete current RSVP.
+* Failure or uncertainty affecting either email attempt must not reverse a successfully stored RSVP, create a duplicate submission, or prevent the other attempt.
+* The existing protected manual guest-confirmation resend procedure remains email-based.
+
+SMS and text-message confirmations are removed permanently from the project scope. They are not deferred, optional, or planned for future activation.
+
+The project will not require or implement SMS provider selection, text-message sender configuration, mobile-number collection for confirmation delivery, transactional SMS authorization, SMS confirmation templates, or SMS-specific guest-facing disclosures.
+
+Implementation Transition:
+
+Existing SMS-capable application paths remain present behind disabled configuration. The production setting `RSVP_SMS_ENABLED` must remain `false` until those obsolete paths are removed through a separately reviewed, tested, and authorized implementation change.
+
+This decision does not authorize changes to production configuration, production data, live RSVP services, or public-release status.
+
+Any necessary API, persistence, validation, privacy, or test changes must be coordinated so that the implemented application and its documented contract remain consistent.
+
+Decision Precedence:
+
+This decision supersedes all earlier provisions permitting, deferring, or planning guest text-message confirmations, including conflicting portions of Decisions 010, 015, 016, 017, 021, and 024 and their associated requirements.
+
+Existing decision and requirement identifiers must be retained for historical traceability. Governing documentation must be reconciled with this decision before the email-only contract is declared fully implemented.
+
+Status:
+Final
+
+Date:
+10/11/2026

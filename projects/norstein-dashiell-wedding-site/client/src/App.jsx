@@ -34,17 +34,17 @@ function App() {
           path="read-listen-watch"
           element={
             <PlaceholderPage
-              title="Read, Listen, and Watch"
+              title="Read, Listen & Watch"
               message="Themed reading, listening, and viewing resources are being prepared."
             />
           }
         />
 
         <Route
-          path="venues"
+          path="venue"
           element={
             <PlaceholderPage
-              title="Venues"
+              title="Venue"
               message="Venue information is being prepared."
             />
           }
@@ -61,11 +61,11 @@ function App() {
         />
 
         <Route
-          path="schedule"
+          path="schedule-menu"
           element={
             <PlaceholderPage
-              title="Schedule"
-              message="Wedding schedule information is being prepared."
+              title="Schedule & Menu"
+              message="Wedding schedule and menu information is being prepared."
             />
           }
         />
