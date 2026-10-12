@@ -23,6 +23,9 @@ server/secrets/*
 assets-staging/
 private-working-materials/
 
+# Generated local tree inventory; may contain absolute machine-specific paths
+project-file-list.txt
+
 # Production wedding data
 Invitees List.xlsx
 *Invitees*List*.xlsx
