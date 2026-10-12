@@ -95,18 +95,9 @@ function buildGuestInvitation(
   };
 }
 
-function buildConfirmationOptions(
-  environment,
-) {
-  const textMessage =
-    environment.RSVP_SMS_ENABLED ===
-    true;
-
+function buildConfirmationOptions() {
   return {
     email: true,
-    textMessage,
-    smsAuthorizationRequired:
-      textMessage,
   };
 }
 
@@ -184,9 +175,7 @@ function createRsvpRouter({
               ),
             questions,
             confirmationOptions:
-              buildConfirmationOptions(
-                environment,
-              ),
+              buildConfirmationOptions(),
           });
       } catch {
         return res

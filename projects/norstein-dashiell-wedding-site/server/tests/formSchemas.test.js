@@ -89,11 +89,24 @@ test(
         "additionalGuestResponses",
         "attendanceTotals",
         "attendeeDetails",
-        "confirmationMethod",
         "confirmationEmail",
-        "confirmationMobile",
-        "smsAuthorization",
       ],
+    );
+
+    const emailQuestion = questions.find(
+      (question) => question.id === "confirmationEmail",
+    );
+
+    assert.equal(
+      emailQuestion.requiredOnInitial,
+      true,
+    );
+
+    assert.deepEqual(
+      emailQuestion.displayCondition,
+      {
+        always: true,
+      },
     );
 
     assert.equal(
@@ -779,9 +792,9 @@ test(
 
     malformed
       .formSchemas[0]
-      .questions[8]
+      .questions[5]
       .id =
-      "confirmationMobile";
+      "attendeeDetails";
 
     withTemporaryJson(
       malformed,

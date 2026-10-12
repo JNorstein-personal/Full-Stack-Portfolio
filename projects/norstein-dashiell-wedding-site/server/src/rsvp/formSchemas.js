@@ -14,10 +14,7 @@ const EXPECTED_QUESTION_IDS =
     "additionalGuestResponses",
     "attendanceTotals",
     "attendeeDetails",
-    "confirmationMethod",
     "confirmationEmail",
-    "confirmationMobile",
-    "smsAuthorization",
   ]);
 
 function deepFreeze(value) {

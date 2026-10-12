@@ -1,6 +1,6 @@
 {
   "documentPurpose": "Development-only reusable RSVP form-schema example synchronized with the approved spreadsheet-authoritative attendance model through the September 27, 2026 grouped Kids(n) clarification. The schema defines one reusable form whose conditional regions are driven by the validated invitation configuration, explicit named-invitee decisions, typed additional-guest allocations, the guest's current event-attendance selections, and backend-derived overall attendance. Plus1 allocations remain one-person Yes/No controls. An applicable Kids(n) source row produces one grouped unnamedChildren allocation whose Yes response reveals a required child-count selector from 1 through allocation.maximumCount. It contains no production invitation codes, real guest identities, stored RSVP answers, provider credentials, or protected administrative destinations.",
-  "schemaVersion": "spreadsheet-authoritative-grouped-children-2026-09-27",
+  "schemaVersion": "spreadsheet-authoritative-grouped-children-email-only-2026-10-11",
   "permanentQuestionIds": {
     "substantive": [
       "eventAttendance",
@@ -9,11 +9,8 @@
       "attendanceTotals",
       "attendeeDetails"
     ],
-    "operational": [
-      "confirmationMethod",
-      "confirmationEmail",
-      "confirmationMobile",
-      "smsAuthorization"
+  "operational": [
+      "confirmationEmail"
     ]
   },
   "documentationNotes": {
@@ -54,8 +51,8 @@
     "dietaryFieldLabel": "Dietary or allergy information",
     "dietaryFieldApplicability": "dietaryPreferences is available within each attendeeDetails row only when Reception is selected. It is optional when applicable and is absent or cleared when Reception is not selected.",
     "blankLookupInvariant": "Lookup returns schema and the validated invitation's limited safe configuration only; it never includes stored RSVP answers or stored confirmation destinations.",
-    "operationalConfirmationCopyStatus": "Provider-gated. Email is available. Production Text Message remains disabled until the selected provider's disclosure, authorization, backend-secret, sender-configuration, and production-flow requirements are satisfied.",
-    "transactionalMobileNumberUse": "A confirmation mobile number is operational RSVP contact data used only for the requested transactional RSVP confirmation and approved manual resend unless a later recorded decision separately authorizes another use.",
+    "operationalConfirmationCopyStatus": "Decision 029: Guest RSVP confirmation is email-only. A newly entered valid email address is required for every initial submission and revision. The method is fixed to email and is not a guest-facing question.",
+    "historicalSmsDataProtection": "Any historical SMS contact or authorization records remain private and protected until controlled retirement. No new mobile-number or SMS authorization information is collected for RSVP confirmation.",
     "allocationPublicFields": [
       "id",
       "kind",
@@ -69,7 +66,6 @@
     "attendanceExcludes": "String event value that must not be present in the current eventAttendance selection.",
     "invitationArrayNotEmpty": "Invitation-property path whose authorized array must contain at least one item.",
     "derivedValueGreaterThan": "Two-item array [derivedValueId, comparisonNumber]; true when the current derived value is greater than the comparison number.",
-    "confirmationOptionEnabled": "confirmationOptions property that must be true before the related operational option is rendered.",
     "fieldEquals": "Two-item array [questionId, expectedValue]; true when the current page-entered value equals expectedValue.",
     "fieldNotEquals": "Two-item array [questionId, disallowedValue]; true when the current page-entered value does not equal disallowedValue.",
     "all": "Array of conditions; every nested condition must be true.",
@@ -107,18 +103,12 @@
     "groupedChildrenCountSelectorRange": "For kind=unnamedChildren and attending=yes, the browser selector contains exactly the consecutive whole numbers 1 through allocation.maximumCount. The backend independently validates the same range."
   },
   "productionEnablementRules": {
-    "textMessageConfirmation": {
-      "productionDefaultUntilGateSatisfied": "disabled",
-      "permanentAuthorizationQuestionId": "smsAuthorization",
-      "requirementsBeforeEnablement": [
-        "Select the production SMS provider.",
-        "Verify the provider's then-current required sender-identification, consent, carrier-rate, opt-out/help, and other applicable guest-facing language.",
-        "Store provider credentials and sender configuration only through the protected backend secret boundary.",
-        "Update the guest-facing smsAuthorization copy to the verified production wording.",
-        "Test the completed production Text Message confirmation flow."
-      ],
-      "whenGateIsNotSatisfied": "Production confirmationOptions.textMessage must be false; do not render the Text Message choice or invent provider-specific disclosure language.",
-      "schemaShapeInvariant": "The permanent confirmationMethod value textMessage and smsAuthorization question ID remain part of the reusable schema vocabulary even while the production channel is disabled."
+    "emailOnlyConfirmation": {
+      "method": "email",
+      "operationalQuestionId": "confirmationEmail",
+      "newEmailRequiredOnInitialAndRevision": true,
+      "guestMethodSelector": false,
+      "legacySmsProtection": "Historical SMS contact and authorization records remain protected until controlled retirement. SMS provider enablement is not planned."
     },
     "privacySecurityBoundary": {
       "developmentExamplesContainProductionInvitationData": false,
@@ -252,12 +242,7 @@
     {
       "id": "email-confirmation-dependency",
       "scope": "operational",
-      "rule": "confirmationMethod=email requires a newly entered valid confirmationEmail and makes confirmationMobile and smsAuthorization inapplicable for that submission."
-    },
-    {
-      "id": "text-confirmation-dependency",
-      "scope": "operational",
-      "rule": "confirmationMethod=textMessage is accepted only when confirmationOptions.textMessage is enabled. It requires a newly entered valid confirmationMobile and requires smsAuthorization=true when confirmationOptions.smsAuthorizationRequired is true."
+      "rule": "Every initial submission and revision requires a newly entered valid confirmationEmail. The submission method is fixed to email. New confirmation mobile-number fields and SMS authorization fields are not permitted."
     },
     {
       "id": "backend-authority-over-visibility",
@@ -722,59 +707,14 @@
           "helpText": "Provide one Attendee name for every person who will attend, including every Plus1 and each child represented by a grouped unnamed-child count. When Reception is selected, each attendee row also shows optional Dietary or allergy information. Ceremony-only attendance still requires attendee names."
         },
         {
-          "id": "confirmationMethod",
-          "scope": "operational",
-          "type": "radio",
-          "label": "Confirmation method",
-          "requiredOnInitial": true,
-          "requiredWhenVisible": true,
-          "options": [
-            {
-              "value": "email",
-              "label": "Email"
-            },
-            {
-              "value": "textMessage",
-              "label": "Text message"
-            }
-          ],
-          "displayCondition": {
-            "always": true
-          },
-          "validation": {
-            "allowedValuesFromConfirmationOptions": true,
-            "emailAlwaysAvailable": true,
-            "textMessageRequires": "confirmationOptions.textMessage == true"
-          },
-          "patchBehavior": {
-            "omittedOnRevision": "invalidWhenRequired",
-            "replaceOperation": "replace"
-          },
-          "clearBehavior": {
-            "bySelectedValue": {
-              "email": [
-                "confirmationMobile",
-                "smsAuthorization"
-              ],
-              "textMessage": [
-                "confirmationEmail"
-              ]
-            }
-          },
-          "helpText": "Required for every initial submission and revision. Newly entered operational values replace their stored counterparts. Text Message is rendered and accepted only when centralized configuration enables it."
-        },
-        {
           "id": "confirmationEmail",
           "scope": "operational",
           "type": "email",
           "label": "Email address",
-          "requiredOnInitial": false,
+          "requiredOnInitial": true,
           "requiredWhenVisible": true,
           "displayCondition": {
-            "fieldEquals": [
-              "confirmationMethod",
-              "email"
-            ]
+            "always": true
           },
           "validation": {
             "format": "email"
@@ -783,98 +723,7 @@
             "omittedOnRevision": "invalidWhenRequired",
             "replaceOperation": "replace"
           },
-          "clearBehavior": {
-            "when": {
-              "fieldNotEquals": [
-                "confirmationMethod",
-                "email"
-              ]
-            },
-            "action": "clear"
-          },
-          "helpText": "Required when Email is selected. The complete current RSVP will be sent to the newly entered address."
-        },
-        {
-          "id": "confirmationMobile",
-          "scope": "operational",
-          "type": "tel",
-          "label": "SMS-capable mobile number",
-          "requiredOnInitial": false,
-          "requiredWhenVisible": true,
-          "displayCondition": {
-            "all": [
-              {
-                "confirmationOptionEnabled": "textMessage"
-              },
-              {
-                "fieldEquals": [
-                  "confirmationMethod",
-                  "textMessage"
-                ]
-              }
-            ]
-          },
-          "validation": {
-            "format": "sms-capable-mobile-number"
-          },
-          "patchBehavior": {
-            "omittedOnRevision": "invalidWhenRequired",
-            "replaceOperation": "replace"
-          },
-          "clearBehavior": {
-            "when": {
-              "fieldNotEquals": [
-                "confirmationMethod",
-                "textMessage"
-              ]
-            },
-            "action": "clear"
-          },
-          "helpText": "Required only when Text Message confirmation is enabled and selected."
-        },
-        {
-          "id": "smsAuthorization",
-          "scope": "operational",
-          "type": "checkbox",
-          "label": "Transactional text-message authorization",
-          "requiredOnInitial": false,
-          "requiredWhenVisible": true,
-          "displayCondition": {
-            "all": [
-              {
-                "confirmationOptionEnabled": "textMessage"
-              },
-              {
-                "fieldEquals": [
-                  "confirmationMethod",
-                  "textMessage"
-                ]
-              },
-              {
-                "fieldEquals": [
-                  "confirmationOptions.smsAuthorizationRequired",
-                  true
-                ]
-              }
-            ]
-          },
-          "validation": {
-            "requiredValue": true
-          },
-          "patchBehavior": {
-            "omittedOnRevision": "invalidWhenRequired",
-            "replaceOperation": "replace"
-          },
-          "clearBehavior": {
-            "when": {
-              "fieldNotEquals": [
-                "confirmationMethod",
-                "textMessage"
-              ]
-            },
-            "action": "clear"
-          },
-          "helpText": "Provider-specific production authorization language must be supplied only after the SMS production-enablement gate is satisfied."
+          "helpText": "Required for every initial RSVP submission and revision. Enter the email address where you want your complete current RSVP confirmation sent."
         }
       ],
       "formValidationRules": [
@@ -932,7 +781,7 @@
         },
         {
           "id": "operational-confirmation-required",
-          "rule": "Every initial submission and revision requires confirmationMethod plus the applicable newly entered destination and any required SMS authorization."
+          "rule": "Every initial RSVP submission and revision requires a newly entered valid confirmationEmail. The submitted confirmation method is fixed to email, and SMS/mobile confirmation fields are not permitted."
         },
         {
           "id": "backend-authority",
@@ -973,7 +822,6 @@
         "full-decline-clears-dependent-substantive-data",
         "revision-omission-means-unchanged",
         "email-confirmation-dependency",
-        "text-confirmation-dependency",
         "backend-authority-over-visibility",
         "grouped-children-control",
         "grouped-children-response-validation"

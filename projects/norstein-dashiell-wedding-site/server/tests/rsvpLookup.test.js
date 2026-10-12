@@ -142,19 +142,13 @@ test(
             "additionalGuestResponses",
             "attendanceTotals",
             "attendeeDetails",
-            "confirmationMethod",
             "confirmationEmail",
-            "confirmationMobile",
-            "smsAuthorization",
           ],
         );
         assert.deepEqual(
           payload.confirmationOptions,
           {
             email: true,
-            textMessage: false,
-            smsAuthorizationRequired:
-              false,
           },
         );
       },
