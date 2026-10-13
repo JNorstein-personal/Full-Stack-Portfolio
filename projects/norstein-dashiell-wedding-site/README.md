@@ -76,9 +76,9 @@ With the backend's local development configuration prepared, run `npm run dev:se
 ## October 2026 Development Checkpoint
 
 * **Navigation:** `/wedding/venue` and `/wedding/schedule-menu` are the current browser routes; the latter is labeled **Schedule & Menu**, with buffet-menu copy deferred to public-page content work. The wedding arrangement is permanently Sphinx-only.
-* **Documentation:** The governing Decision 029 and the page outlines, route inventory, sitemap, core design, and API-contract documents contain the fixed email-only requirements. The WS3-12 read-only audit identified residual obsolete SMS-acceptance scenarios in `docs/rsvp-test-cases.md`, SMS-option diagrams in `docs/wireframes.md`, minor selected-channel wording in `docs/requirements.md` and `docs/content-inventory.md`, and this outdated README checkpoint. WS3-12F provides separately reviewed full-file documentation replacements; those replacements must be applied and reviewed in Git before their repository reconciliation is considered complete. Historical decision entries remain for traceability.
+* **Documentation:** WS3-12F completed the Decision 029 email-only reconciliation across `docs/rsvp-test-cases.md`, `docs/wireframes.md`, `docs/requirements.md`, `docs/content-inventory.md`, and this README. All five reviewed documentation replacements were committed and pushed together as `7a3f8bc4033046624118f4d2fa6cdda416ff8378` (October 12, 2026). Core RSVP design, API-contract, page-outline, route-inventory, and sitemap documentation also record the email-only requirements. Historical decisions remain intact for traceability; final integrated browser checks and content approvals are still pending.
 * **Historical configurations:** The discontinued Warinanco/Sphinx option remains in some source and documentation for historical reference only. It is not an active or optional future wedding plan; related obsolete readiness items require documentation cleanup before release.
-* **Repository and runtime are different checkpoints:** the verified GitHub `main` source commit is `59fc5420b69d0f2d0ab6c5a722cf92597ed8d400`; the currently stopped, access-restricted RSVP service has not been shown to be running that version. Git commits, local documentation replacements, and passing development tests do not authorize production deployment or public access.
+* **Repository and runtime are different checkpoints:** the WS3-12E3 source checkpoint `59fc5420b69d0f2d0ab6c5a722cf92597ed8d400` and subsequent WS3-12F documentation checkpoint `7a3f8bc4033046624118f4d2fa6cdda416ff8378` are preserved in GitHub history. The intentionally stopped, access-restricted Ubuntu RSVP service has not been verified against these newer revisions. Source-control synchronization and development tests are not production deployment or public-release authorization.
 
 ## Core Technology
 
@@ -962,7 +962,7 @@ Verified source and behavior include:
 * Centralized environment parsing and validation remain implemented.
 * Development/production configuration separation remains established.
 * Invitation-code normalization and display formatting remain implemented.
-* Governing RSVP documentation describes the grouped-child/person-level attendance model and extended production-source classifications; remaining WS3-12F supporting-document corrections are tracked separately from completed backend code.
+* Governing RSVP documentation describes the grouped-child/person-level attendance model and extended production-source classifications. The five-file WS3-12F email-only supporting-document reconciliation is complete in source control; outstanding browser, accessibility, privacy, and Content Lock verification belongs to Workstream 3 exit testing.
 * Fictional development invitation configuration uses safe `namedInvitees` and typed `additionalGuestAllocations`.
 * Development fixtures validate allocation `kind`, `maximumCount`, opaque identifiers, uniqueness, development-only boundaries, and exact person-capacity reconciliation.
 * Lookup exposes only safe allocation fields: `id`, `kind`, `prompt`, and `maximumCount`.
