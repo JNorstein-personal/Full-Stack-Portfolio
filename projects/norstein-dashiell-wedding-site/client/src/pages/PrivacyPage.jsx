@@ -82,19 +82,15 @@ function PrivacyPage() {
               attending.
             </li>
             <li>
-              When Reception is selected, one attendee name
-              for each attending party member and that
-              attendee’s optional food-allergy or dietary
-              preference information.
+              When any event attendance is selected, one attendee
+              name for each person attending. Optional food-allergy
+              or dietary preference information is collected only
+              when Reception is selected.
             </li>
             <li>
-              A confirmation method and the associated email
-              address or SMS-capable mobile number.
-            </li>
-            <li>
-              Transactional text-message authorization when
-              that confirmation option is available and
-              requires it.
+              A newly entered email address for attempted delivery
+              of the guest RSVP confirmation, required for every
+              initial online RSVP and revision.
             </li>
             <li>
               Submission and revision records needed to
@@ -163,11 +159,13 @@ function PrivacyPage() {
           </p>
 
           <p>
-            Confirmation method and destination information
-            entered for a revision replaces the applicable
-            previously stored confirmation information. A
-            successful revision confirmation contains the
-            complete current RSVP rather than only the fields
+            The email address entered for a successful RSVP
+            revision becomes the new guest-confirmation
+            destination, replacing the previously stored
+            confirmation destination.
+            The form does not display the prior address. A successful revision confirmation contains
+            the complete current RSVP,
+            rather than only the fields
             changed by that revision.
           </p>
         </div>
@@ -175,36 +173,51 @@ function PrivacyPage() {
 
       <ContentSection labelledBy="confirmation-heading">
         <h2 id="confirmation-heading">
-          Confirmations and Mobile Numbers
+          Email Confirmations and Historical Contact Data
         </h2>
 
         <div className="prose-width">
           <p>
-            When online RSVP is enabled and a response is
-            successfully stored, the system is designed to
-            attempt a complete confirmation for the invited
-            party and a separate protected administrative
-            confirmation for the couple. These delivery
-            attempts are handled independently, and their
-            results are recorded separately.
+            When an online RSVP is
+            successfully recorded, the system
+            attempts to send a complete guest
+            confirmation by email
+            to the address entered with that
+            submission. A separate
+            protected administrative
+            confirmation is attempted for
+            the couple. These delivery
+            attempts are handled
+            independently, and their results
+            are recorded separately.
           </p>
 
           <p>
-            Email is an approved guest confirmation method.
-            Text Message confirmation will be offered only
-            if the production messaging provider, required
-            disclosure language, authorization wording, and
-            production testing have been completed.
+            Email is the only
+            guest-confirmation method available
+            for new online RSVPs and
+            revisions. The form does not
+            offer text-message confirmation or
+            request a mobile number or SMS
+            authorization.
           </p>
 
           <p>
-            If Text Message confirmation is enabled, a mobile
-            number supplied for RSVP confirmation will be
-            used only for the guest-requested transactional
-            RSVP confirmation and an approved manual resend
-            unless another use is separately authorized in
-            the future. A complete RSVP may require more than
-            one message segment.
+            Historical RSVP records may
+            contain mobile numbers,
+            earlier SMS authorization
+            information, or associated
+            delivery records. These details
+            remain protected administrative
+            information. They are not used
+            to send new text messages,
+            automatically redirected to an
+            email destination, or reused
+            for unrelated communications.
+            They remain subject to the same
+            privacy, access, retention, and
+            data-retirement safeguards as
+            other protected RSVP records.
           </p>
         </div>
       </ContentSection>
@@ -216,53 +229,68 @@ function PrivacyPage() {
 
         <div className="prose-width">
           <p>
-            The production design keeps invitation
-            configuration and RSVP records within the private
+            The production design keeps
+            invitation configuration and
+            RSVP records within the private
             administrative system. The private
-            administrative workbook is limited to the couple,
-            explicitly authorized administrators, and the
-            backend service account used to operate the RSVP
-            system.
+            administrative workbook is limited
+            to the couple, explicitly
+            authorized administrators, and the
+            backend service account used to
+            operate the RSVP system.
           </p>
 
           <p>
-            The public React application does not directly
-            access the private administrative workbook.
-            Protected administrative confirmations are
-            private correspondence sent only through the
-            approved administrative process.
+            The public React application does
+            not directly access the private
+            administrative workbook.
+            Protected administrative
+            confirmations are private
+            correspondence sent only
+            through the approved
+            administrative process.
           </p>
         </div>
       </ContentSection>
 
       <ContentSection labelledBy="attendee-details-heading">
         <h2 id="attendee-details-heading">
-          Reception Attendee Details and Dietary Information
+          Attendee Names and Dietary Information
         </h2>
 
         <div className="prose-width">
           <p>
-            When Reception is selected, the RSVP system
-            collects one attendee-detail record for each
-            person attending. Each record contains the
-            attendee’s name and may contain that attendee’s
-            food-allergy or dietary preference information.
+            When Ceremony, Reception, or both
+            are selected, the RSVP system
+            collects one attendee-detail
+            record for each person attending.
+            Each record contains the
+            attendee's name. When Reception
+            is selected, the record may also
+            contain optional food-allergy or
+            dietary preference information.
           </p>
 
           <p>
-            Attendee names are limited to 100 characters per
-            attendee, and dietary or allergy responses are
-            limited to 1000 characters per attendee.
+            Attendee names are limited to 100
+            characters per attendee, and
+            dietary or allergy responses are
+            limited to 1000 characters per
+            attendee.
           </p>
 
           <p>
-            Reception attendee names and dietary or allergy
-            information are treated as private RSVP
-            information. They may appear in the submitting
-            party’s own confirmation, the protected
-            administrative confirmation, and authorized
-            private administrative records when those
-            records contain the complete current RSVP.
+            Attendee names and, when
+            applicable, dietary or allergy
+            information are treated as private
+            RSVP information.
+            They may appear in the submitting
+            party’s own confirmation, the
+            protected administrative
+            confirmation, and authorized
+            private administrative records
+            when those records contain the
+            complete current RSVP.
           </p>
 
           <p>
@@ -318,12 +346,12 @@ function PrivacyPage() {
             deleted or irreversibly de-identified from the
             active RSVP system. This includes current and
             superseded RSVP responses, Plus 1 responses,
-            attendance totals, Reception attendee names,
+            attendance totals, attendee names,
             dietary or allergy information, confirmation
-            destinations, SMS authorization records,
-            submission identifiers, delivery-attempt
-            history, and RSVP transaction history that is no
-            longer operationally needed.
+            destinations, any historical SMS authorization
+            records, submission identifiers,
+            delivery-attempt history, and RSVP transaction
+            history that is no longer operationally needed.
           </p>
 
           <p>

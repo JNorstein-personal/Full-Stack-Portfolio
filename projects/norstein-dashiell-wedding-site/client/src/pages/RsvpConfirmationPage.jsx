@@ -48,11 +48,11 @@ function deliveryWarningText(delivery) {
     guestNeedsAttention &&
     administrativeNeedsAttention
   ) {
-    return "Your RSVP is recorded. Delivery of your selected guest confirmation and the administrative confirmation could not both be confirmed. Do not resubmit solely because of these delivery results.";
+    return "Your RSVP is recorded. Delivery of your guest confirmation and the administrative confirmation could not both be confirmed. Do not resubmit solely because of these delivery results.";
   }
 
   if (guestNeedsAttention) {
-    return "Your RSVP is recorded. Delivery of your selected guest confirmation could not be confirmed. Do not resubmit solely because of this delivery result.";
+    return "Your RSVP is recorded. Delivery of your guest confirmation could not be confirmed. Do not resubmit solely because of this delivery result.";
   }
 
   return "Your RSVP is recorded. The administrative confirmation could not be confirmed. Do not resubmit solely because of this delivery result.";
@@ -212,9 +212,9 @@ function RsvpConfirmationPage() {
           >
             This page uses temporary in-browser confirmation state, so the
             detailed summary is not available after that temporary state is
-            gone. An RSVP may already have been recorded. Check the email inbox
-            or mobile number you selected for a confirmation before submitting
-            anything again.
+            gone. An RSVP may already have been recorded. If you entered
+            an email address, check that inbox for a confirmation before
+            submitting anything again.
           </StatusMessage>
 
           <p>
@@ -611,7 +611,8 @@ function RsvpConfirmationPage() {
                   Choose the option to revise your RSVP. The form will open blank for your privacy, so your previous answers will not be displayed.
                 </li>
                 <li>
-                  Re-enter your confirmation method and contact information.
+                  Enter the email address where you want your updated
+                  RSVP confirmation sent.
                 </li>
                 <li>
                   Update the parts of your RSVP you want to change. You can leave anything else blank, and we’ll keep your previous answers. If you change who will be attending, you may need to provide the related guest information again.

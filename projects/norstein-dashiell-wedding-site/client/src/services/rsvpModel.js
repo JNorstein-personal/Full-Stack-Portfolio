@@ -69,10 +69,8 @@ export function createBlankDraft(lookup) {
     attendeeDetails: [],
 
     confirmation: {
-      method: lookup?.confirmationOptions?.email ? "email" : "",
+      method: "email",
       email: "",
-      mobile: "",
-      smsAuthorization: false,
     },
   };
 }
@@ -168,60 +166,30 @@ export function resizeAttendeeDetails(current, count) {
 function buildConfirmation(draft, lookup, errors) {
   const options = lookup.confirmationOptions ?? {};
 
-  if (draft.confirmation.method === "email") {
-    if (!options.email) {
-      errors.confirmationMethod = "Email confirmation is not available.";
-      return null;
-    }
-
-    const email = draft.confirmation.email.trim();
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      errors.confirmationEmail = "Enter a valid email address.";
-      return null;
-    }
-
-    return {
-      method: "email",
-      email,
-    };
+  if (
+    options.email !== true ||
+    draft.confirmation?.method !== "email"
+  ) {
+    errors.confirmationEmail =
+      "Email confirmation is required.";
+    return null;
   }
 
-  if (draft.confirmation.method === "textMessage") {
-    if (!options.textMessage) {
-      errors.confirmationMethod = "Text Message confirmation is not available.";
-      return null;
-    }
+  const email =
+    typeof draft.confirmation.email === "string"
+      ? draft.confirmation.email.trim()
+      : "";
 
-    const mobile = draft.confirmation.mobile.trim();
-
-    if (!/^\+?[0-9() .-]{7,25}$/.test(mobile)) {
-      errors.confirmationMobile = "Enter a valid mobile number.";
-      return null;
-    }
-
-    if (
-      options.smsAuthorizationRequired &&
-      !draft.confirmation.smsAuthorization
-    ) {
-      errors.smsAuthorization =
-        "Authorization is required for text confirmation.";
-      return null;
-    }
-
-    return {
-      method: "textMessage",
-      mobile,
-      ...(options.smsAuthorizationRequired
-        ? {
-            smsAuthorization: true,
-          }
-        : {}),
-    };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errors.confirmationEmail =
+      "Enter a valid email address.";
+    return null;
   }
 
-  errors.confirmationMethod = "Select a confirmation method.";
-  return null;
+  return {
+    method: "email",
+    email,
+  };
 }
 
 function normalizeNamedInviteeResponses(draft, invitation, errors) {

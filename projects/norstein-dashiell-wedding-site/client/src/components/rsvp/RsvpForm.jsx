@@ -48,10 +48,7 @@ function errorTargetId(key) {
     additionalGuestResponses: "rsvp-additional-guests",
     attendanceTotals: "rsvp-attendance-totals",
     attendeeDetails: "rsvp-attendee-details",
-    confirmationMethod: "rsvp-confirmation-method",
     confirmationEmail: "rsvp-confirmation-email",
-    confirmationMobile: "rsvp-confirmation-mobile",
-    smsAuthorization: "rsvp-sms-authorization",
   }[key] ?? null;
 }
 
@@ -1351,203 +1348,69 @@ function RsvpForm({
       )}
 
       <fieldset
-        id="rsvp-confirmation-method"
+        id="rsvp-confirmation-email-section"
         className="rsvp-focus-target"
         tabIndex="-1"
         disabled={disabled}
-        aria-describedby={describedBy(
-          "rsvp-confirmation-method-help",
-          errors.confirmationMethod
-            ? errorMessageId("confirmationMethod")
-            : null,
-        )}
+        aria-describedby="rsvp-confirmation-email-section-help"
       >
-        <legend>Confirmation Method</legend>
+        <legend>Email Confirmation</legend>
 
-        <p className="form-help" id="rsvp-confirmation-method-help">
-          Select an available confirmation method and enter the destination
-          again for every initial RSVP or revision.
+        <p
+          className="form-help"
+          id="rsvp-confirmation-email-section-help"
+        >
+          Enter an email address for every initial RSVP or revision.
+          We will attempt to send your complete RSVP confirmation
+          to this address, along with a separate administrative
+          confirmation to the couple. For your privacy, the field
+          always opens blank.
         </p>
 
-        {lookup.confirmationOptions.email && (
-          <label className="form-choice">
-            <input
-              id="rsvp-confirmation-method-email"
-              type="radio"
-              name="confirmationMethod"
-              value="email"
-              required
-              aria-required="true"
-              aria-describedby={describedBy(
-                "rsvp-confirmation-method-help",
-                errors.confirmationMethod
-                  ? errorMessageId("confirmationMethod")
-                  : null,
-              )}
-              checked={draft.confirmation.method === "email"}
-              onChange={() =>
-                updateConfirmation({
-                  method: "email",
-                  mobile: "",
-                  smsAuthorization: false,
-                })
-              }
-            />
-            <span>Email</span>
+        <div className="form-field rsvp-confirmation-destination">
+          <label htmlFor="rsvp-confirmation-email">
+            Confirmation email address
           </label>
-        )}
 
-        {lookup.confirmationOptions.textMessage && (
-          <label className="form-choice">
-            <input
-              id="rsvp-confirmation-method-text"
-              type="radio"
-              name="confirmationMethod"
-              value="textMessage"
-              required
-              aria-required="true"
-              aria-describedby={describedBy(
-                "rsvp-confirmation-method-help",
-                errors.confirmationMethod
-                  ? errorMessageId("confirmationMethod")
-                  : null,
-              )}
-              checked={draft.confirmation.method === "textMessage"}
-              onChange={() =>
-                updateConfirmation({
-                  method: "textMessage",
-                  email: "",
-                })
-              }
-            />
-            <span>Text Message</span>
-          </label>
-        )}
-
-        <FieldError
-          id={errorMessageId("confirmationMethod")}
-          message={errors.confirmationMethod}
-        />
-
-        {draft.confirmation.method === "email" && (
-          <div className="form-field rsvp-confirmation-destination">
-            <label htmlFor="rsvp-confirmation-email">
-              Email address
-            </label>
-
-            <input
-              id="rsvp-confirmation-email"
-              type="email"
-              autoComplete="email"
-              required
-              aria-required="true"
-              value={draft.confirmation.email}
-              aria-invalid={
-                errors.confirmationEmail
-                  ? "true"
-                  : undefined
-              }
-              aria-describedby={describedBy(
-                "rsvp-confirmation-email-help",
-                errors.confirmationEmail
-                  ? errorMessageId("confirmationEmail")
-                  : null,
-              )}
-              onChange={(event) =>
-                updateConfirmation({
-                  email: event.target.value,
-                })
-              }
-            />
-
-            <p className="form-help" id="rsvp-confirmation-email-help">
-              Required. Enter the email address where you want this RSVP
-              confirmation sent.
-            </p>
-
-            <FieldError
-              id={errorMessageId("confirmationEmail")}
-              message={errors.confirmationEmail}
-            />
-          </div>
-        )}
-
-        {draft.confirmation.method === "textMessage" && (
-          <>
-            <div className="form-field rsvp-confirmation-destination">
-              <label htmlFor="rsvp-confirmation-mobile">
-                Mobile number
-              </label>
-
-              <input
-                id="rsvp-confirmation-mobile"
-                type="tel"
-                autoComplete="tel"
-                required
-                aria-required="true"
-                value={draft.confirmation.mobile}
-                aria-invalid={
-                  errors.confirmationMobile
-                    ? "true"
-                    : undefined
-                }
-                aria-describedby={describedBy(
-                  "rsvp-confirmation-mobile-help",
-                  errors.confirmationMobile
-                    ? errorMessageId("confirmationMobile")
-                    : null,
-                )}
-                onChange={(event) =>
-                  updateConfirmation({
-                    mobile: event.target.value,
-                  })
-                }
-              />
-
-              <p className="form-help" id="rsvp-confirmation-mobile-help">
-                Required. Enter the mobile number where you want this RSVP
-                confirmation sent.
-              </p>
-
-              <FieldError
-                id={errorMessageId("confirmationMobile")}
-                message={errors.confirmationMobile}
-              />
-            </div>
-
-            {lookup.confirmationOptions.smsAuthorizationRequired && (
-              <label className="form-choice">
-                <input
-                  id="rsvp-sms-authorization"
-                  type="checkbox"
-                  required
-                  aria-required="true"
-                  aria-describedby={
-                    errors.smsAuthorization
-                      ? errorMessageId("smsAuthorization")
-                      : undefined
-                  }
-                  checked={draft.confirmation.smsAuthorization}
-                  onChange={(event) =>
-                    updateConfirmation({
-                      smsAuthorization: event.target.checked,
-                    })
-                  }
-                />
-
-                <span>
-                  I authorize this transactional RSVP confirmation by text
-                  message.
-                </span>
-              </label>
+          <input
+            id="rsvp-confirmation-email"
+            type="email"
+            autoComplete="email"
+            required
+            aria-required="true"
+            value={draft.confirmation.email}
+            aria-invalid={
+              errors.confirmationEmail
+                ? "true"
+                : undefined
+            }
+            aria-describedby={describedBy(
+              "rsvp-confirmation-email-help",
+              errors.confirmationEmail
+                ? errorMessageId("confirmationEmail")
+                : null,
             )}
+            onChange={(event) =>
+              updateConfirmation({
+                email: event.target.value,
+              })
+            }
+          />
 
-            <FieldError
-              id={errorMessageId("smsAuthorization")}
-              message={errors.smsAuthorization}
-            />
-          </>
-        )}
+          <p
+            className="form-help"
+            id="rsvp-confirmation-email-help"
+          >
+            Required. This is where we will attempt to send your
+            RSVP confirmation. If you are revising your RSVP,
+            enter the address you want us to use going forward.
+          </p>
+
+          <FieldError
+            id={errorMessageId("confirmationEmail")}
+            message={errors.confirmationEmail}
+          />
+        </div>
       </fieldset>
 
       <Button

@@ -51,8 +51,6 @@ const lookup = Object.freeze({
   questions: [],
   confirmationOptions: {
     email: true,
-    textMessage: false,
-    smsAuthorizationRequired: false,
   },
 });
 
@@ -181,6 +179,56 @@ test(
     assert.equal(
       draft.confirmation.email,
       "",
+    );
+  },
+);
+
+test(
+  "email-only draft contains no retired SMS fields",
+  () => {
+    const draft = createBlankDraft(lookup);
+
+    assert.deepEqual(
+      draft.confirmation,
+      {
+        method: "email",
+        email: "",
+      },
+    );
+  },
+);
+
+test(
+  "legacy SMS confirmation cannot produce a new submission request",
+  () => {
+    const draft = completeFirstDraft();
+
+    draft.confirmation = {
+      method: "textMessage",
+      mobile: "+15555550123",
+      smsAuthorization: true,
+    };
+
+    const result = buildSubmissionRequest({
+      inviteCode: "DEV-002",
+      lookup: {
+        ...lookup,
+        confirmationOptions: {
+          email: true,
+          textMessage: true,
+          smsAuthorizationRequired: true,
+        },
+      },
+      draft,
+      clientSubmissionId:
+        "90000000-0000-4000-8000-000000000001",
+    });
+
+    assert.equal(result.ok, false);
+
+    assert.match(
+      result.errors.confirmationEmail,
+      /email/i,
     );
   },
 );

@@ -423,24 +423,6 @@ function RsvpPage() {
     performLookup(inviteCode);
   }
 
-  function selectedConfirmationChannel() {
-    if (
-      pendingRequest?.confirmation
-        ?.method === "email"
-    ) {
-      return "the email inbox you entered";
-    }
-
-    if (
-      pendingRequest?.confirmation
-        ?.method === "textMessage"
-    ) {
-      return "the mobile number you entered";
-    }
-
-    return "your selected confirmation channel";
-  }
-
   function retryUncertainSubmission() {
     if (
       pendingRequest &&
@@ -717,19 +699,12 @@ function RsvpPage() {
             title="We Could Not Confirm the Submission Result"
             aria-atomic="true"
           >
-            We could not confirm
-            whether this RSVP request
-            was recorded. Check{" "}
-            {selectedConfirmationChannel()}
-            {" "}for an RSVP
-            confirmation before
-            deciding whether to retry.
-            The safe retry below sends
-            the exact same logical
-            request with the same
-            submission identifier; it
-            does not rebuild the
-            request from form fields.
+            We could not confirm whether this RSVP request was recorded.
+            Check the email inbox you entered for an RSVP confirmation
+            before deciding whether to retry. The safe retry below
+            sends the exact same logical request with the same
+            submission identifier; it does not rebuild the request
+            from form fields.
           </StatusMessage>
 
           <div className="rsvp-action-row">
@@ -821,9 +796,10 @@ function RsvpPage() {
               first RSVP, complete
               every required
               applicable field. For a
-              revision, re-enter your
-              confirmation method and
-              destination, then
+              revision, re-enter the
+              email address where you
+              want your updated RSVP
+              confirmation sent, then
               provide only the RSVP
               changes you intend to
               make. RSVP fields you
@@ -906,20 +882,21 @@ function RsvpPage() {
                 form configured for
                 your invitation. RSVP
                 and confirmation-contact
-                information is
-                processed and stored
-                for wedding
-                administration. This
-                form opens blank and
-                does not display
-                previously stored
+                information is processed
+                and stored for wedding
+                administration. This form
+                opens blank and does not
+                display previously stored
                 answers or confirmation
-                destinations. Complete
-                RSVP confirmations are
-                sent to the couple and
-                to you through the
-                confirmation method you
-                select.{" "}
+                destinations. After a
+                successful online
+                submission, we attempt to
+                email a complete RSVP
+                confirmation to the
+                address you entered and a
+                separate administrative
+                confirmation to the
+                couple.{" "}
                 <Link to="/privacy">
                   Read the full RSVP
                   Privacy Notice
@@ -1010,12 +987,8 @@ function RsvpPage() {
               open blank and do not
               display previously stored
               answers or confirmation
-              destinations. Complete
-              RSVP confirmations are
-              sent to the couple and to
-              you through the
-              confirmation method you
-              select.{" "}
+              destinations. After a successful online submission, we attempt to email a complete RSVP confirmation to the address you entered and a separate administrative
+              confirmation to the couple.{" "}
               <Link to="/privacy">
                 Read the full RSVP
                 Privacy Notice
