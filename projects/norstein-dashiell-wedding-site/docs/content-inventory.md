@@ -33,15 +33,16 @@ When a governing requirement, decision, route responsibility, interface state, R
 
 ---
 
-## October 11, 2026 — Content Lock Round 1 Reconciliation
+## October 12, 2026 — Content Lock Round 1 and Decision 029 Reconciliation
 
-This checkpoint reconciles inventory status with implemented guest-facing content; it does not rewrite approved website copy or authorize public release. **Ready** is used for previously approved homepage wording and the implemented primary RSVP submit label. **Pending confirmation** means wording/templates are already implemented but require final couple approval, a specific policy review, or an external release condition; it does not mean the feature is absent.
+This checkpoint reconciles inventory status with implemented guest-facing content and the subsequently verified email-only RSVP changes. It does not itself approve outstanding copy or authorize public release. **Ready** is used for previously approved homepage wording and the implemented primary RSVP submit label. **Pending confirmation** means wording/templates already exist or are substantially defined but still require final couple approval, a specific policy review, or an external release condition; it does not mean the feature is absent.
 
 * Implemented references: `client/src/pages/HomePage.jsx`, `client/src/pages/RsvpPage.jsx`, `client/src/components/rsvp/RsvpForm.jsx`, `client/src/pages/RsvpConfirmationPage.jsx`, `client/src/pages/PrivacyPage.jsx`, and `server/src/services/confirmationEmail.js`.
-* **Decision update — email-only:** The project will use guest email confirmation and separate protected administrative email confirmation exclusively. SMS/text-message confirmations, mobile-number capture for delivery, consent copy, provider selection, and future SMS activation are removed from the planned scope. Retired inventory IDs `CI-RSVP-034`, `CI-CONFIRM-012`, and `CI-ADMIN-014` are **Not applicable**, not deferred. This is a planning decision; existing SMS-capable application paths are still present but disabled and require a separate controlled implementation cleanup before an email-only production contract can be claimed.
-* RSVP, confirmation and privacy items left at **Pending confirmation** must receive actual wording/policy approval before being marked **Ready**; their implemented existence and previous functional QA are not a substitute for approval.
-* The current production invitation-source aggregate is 63 assigned, four reserved, one permanent Test Sample, 64 functional invitations, capacity 122 for real guest invitations and 126 combined. The 57/115 historical baseline remains separately documented.
-* Workstream 3 Step 11 browser/accessibility checks have been reported PASS. Workstream 3 Steps 13–16 and the separate D14 public-release gate remain outstanding.
+* **Decision 029 — email-only:** Guest RSVP confirmation is fixed to email, with a newly entered valid email address required on every online initial submission and revision. After an RSVP is stored, guest and protected administrative emails are **attempted independently**; successful delivery is not guaranteed. The reviewed backend and frontend code on GitHub `main` now implement this new-submission contract; the WS3-12E3 checkpoint is commit `59fc5420b69d0f2d0ab6c5a722cf92597ed8d400`. No guest confirmation-method selector, mobile-number field, SMS authorization request, or future SMS enablement is part of the approved experience.
+* **Historical-data boundary:** Earlier mobile-number, SMS authorization, confirmation-method, and delivery records, if present, remain private, protected, and subject to controlled retention/retirement. Existing historical SMS-compatible handling is not permission to send new text messages or to redirect an old mobile destination to email. Any residual obsolete implementation paths require separate reviewed retirement; this document does not claim the stopped Ubuntu production service has been updated or activated. Retired content IDs `CI-RSVP-034`, `CI-CONFIRM-012`, and `CI-ADMIN-014` remain **Not applicable** for traceability.
+* RSVP, confirmation, and privacy items still marked **Pending confirmation** require actual wording/policy approval before being marked **Ready**; passing tests or completing implementation does not grant that approval.
+* The verified private invitation-source aggregate is 63 assigned invitations, four reserved placeholders, one permanent Test Sample, 64 functional invitations, capacity 122 for real guest invitations and 126 combined. The 57-invitation/115-person starting baseline remains historical.
+* Workstream 3 Step 11 browser/accessibility checks have previously been reported PASS. The October 12 local code checkpoint passed **31/31 client tests**, **322/322 server tests**, client lint, and client production build. A fresh integrated post-E3 browser journey, Content Lock Round 1 approvals, privacy/bundle audit, final reproducibility checks, and the separate D14 public-release gate remain outstanding. A pushed Git commit is not a deployment or public-release authorization.
 
 ---
 ## Status Definitions
@@ -740,7 +741,7 @@ The age-category dials separately classify every attending person, including the
 
 The optional `Dietary or allergy information` field appears in each applicable attendee row only when Reception is selected.
 
-## CI-RSVP-016 — Confirmation Method and Destination Wording
+## CI-RSVP-016 — Fixed Email Confirmation and Destination Wording
 
 **Content Item:**
 The labels, help text, and instructions for providing the required guest confirmation email address.
@@ -763,10 +764,10 @@ Yes
 * A confirmation-email field that is displayed and required on every submission or revision.
 * No mobile-number field is required or offered for RSVP confirmation.
 * No text-message authorization is collected.
-* An explanation that the guest will receive the complete current RSVP by email.
+* An explanation that the system attempts to email the complete current RSVP after successful storage, without guaranteeing inbox delivery.
 
 **Notes:**
-These are operational contact and delivery fields rather than substantive RSVP questions. They do not appear on the alternative mail-in RSVP form.
+The newly entered guest email address is an operational contact/delivery field rather than a substantive RSVP question. The email method is fixed, not selected. These online operational fields do not appear on the alternative mail-in RSVP form.
 
 The form must not display or prefill a previously stored email address or confirmation information.
 
@@ -1184,7 +1185,7 @@ Yes
 * Four coordinated age-category numerical dials whose complete sum equals derived `overallAttendance` exactly.
 * Repeating `Attendee Details` rows whose count equals derived `overallAttendance`, with required attendee name for every attendee.
 * An optional field labeled `Dietary or allergy information` within each attendee row only when Reception is selected.
-* Separate operational confirmation fields required by the enabled delivery channel.
+* One required, newly entered valid guest confirmation email address for each online initial submission and revision; the method is fixed to email with no channel selector.
 
 **Notes:**
 Every functional production invitation uses this one reusable substantive form model. That currently includes 63 guest-list-eligible assigned invitations and the permanent Test Sample. Reserved source rows 64–67 produce no functional RSVP form until they are deliberately populated as assigned invitations.
@@ -1294,7 +1295,7 @@ Personalized
 Yes
 
 **Notes:**
-Make clear that the guest will receive the complete current RSVP by email after every successful initial submission or revision.
+Make clear that after every successfully stored online initial submission or revision, the system independently attempts to email the complete current RSVP to the newly entered guest confirmation address. Email delivery cannot be guaranteed.
 
 Every initial submission and revision requires the guest to enter a valid confirmation email address. Email is the sole approved guest confirmation channel.
 
@@ -1439,7 +1440,7 @@ Yes
 ## CI-CONFIRM-004 — Guest Confirmation-Delivery Notice
 
 **Content Item:**
-The notice explaining the selected guest confirmation channel and whether delivery succeeded.
+The notice identifying email as the fixed guest confirmation method and reporting the guest-email delivery-attempt outcome without promising delivery.
 
 **Status:**
 Pending confirmation
@@ -1581,7 +1582,7 @@ Yes
 * Derived `overallAttendance` and all four age-category totals for an attending response.
 * The complete attendee-name list for an attending response.
 * When Reception is selected, dietary/allergy responses where supplied.
-* Guest confirmation method and destination.
+* Fixed guest confirmation method (email) and newly submitted email destination.
 * Submission version.
 * Timestamp.
 
@@ -1620,7 +1621,7 @@ Yes
 * Current derived `overallAttendance` and complete age-category totals for an attending response.
 * Complete current attendee-name list for an attending response.
 * When Reception is selected, current dietary/allergy responses where supplied.
-* Guest confirmation method and destination supplied for the revision.
+* Fixed guest confirmation method (email) and newly entered destination supplied for the revision.
 * New submission version.
 * Timestamp.
 
@@ -1673,7 +1674,7 @@ Private
 Yes
 
 **Notes:**
-The resend reproduces the complete current RSVP through the stored approved guest confirmation channel without modifying the stored response, creating a duplicate, or incrementing the RSVP version.
+For an active email-confirmation RSVP, the protected resend procedure attempts to email the complete current RSVP to the stored guest confirmation destination without modifying the stored response, creating a duplicate submission, or incrementing the RSVP version. Historical SMS-only records are not automatically converted into email delivery; their protected handling remains subject to the controlled legacy policy.
 
 The production maintenance command is:
 
@@ -1768,14 +1769,14 @@ Yes
 
 * Clear confirmation that the RSVP was recorded.
 * The complete current guest-facing RSVP summary.
-* The guest confirmation method and guest-delivery attempt status.
+* The fixed guest confirmation method (email) and guest-email delivery-attempt status.
 * A limited administrative-email attempt status without exposing the private administrative address.
-* The failed or uncertain delivery channel where it can be identified safely.
+* Whether the guest email attempt, protected administrative email attempt, or both failed or remain uncertain, as far as this can be disclosed safely.
 * Assistance and resend instructions.
 * A warning not to repeat the submission solely because delivery failed.
 
 **Notes:**
-Guest and administrative confirmation attempts remain independent after storage. A failure in one channel does not convert the other channel’s success into a failure and does not prevent the other attempt.
+Guest and administrative confirmation attempts remain independent after storage. Failure or uncertainty affecting one email attempt does not convert the other attempt’s success into a failure and does not prevent the other attempt.
 
 ---
 
@@ -3598,7 +3599,7 @@ Public
 Yes
 
 **Notes:**
-Explain that online guests provide a valid email address and receive the complete current RSVP by email after each successful initial submission or revision.
+Explain that online guests provide a newly entered valid email address on every initial submission and revision and that, after successful storage, the system attempts to email the complete current RSVP. An email attempt does not guarantee delivery.
 
 Clarify that delivery failure does not erase an RSVP that was already stored and that assistance is available for a resend.
 
@@ -4293,7 +4294,7 @@ Public
 Yes
 
 **Notes:**
-Explain that, after successful storage, the couple receives the complete current RSVP by protected administrative email and the guest receives it by email. The two email attempts are independent; a failure in either attempt does not prevent the other attempt and does not undo the stored RSVP.
+Explain that, after successful storage, the system attempts to send the complete current RSVP to the newly entered guest email destination and separately attempts a protected administrative confirmation to the couple. The two email attempts are independent; delivery of either message is not guaranteed, and failure or uncertainty affecting either attempt neither prevents the other attempt nor reverses the stored RSVP.
 
 State that no mobile number is requested for RSVP confirmations because guest confirmation uses email only.
 
@@ -4490,7 +4491,7 @@ Fictional development/test fixtures remain separate from production records and 
 ## CI-ADMIN-004 — Administrative Recipient Email Address
 
 **Content Item:**
-The protected private email address that receives complete RSVP confirmations after every initial submission and revision.
+The protected private administrative email address to which complete RSVP confirmations are attempted after every successfully stored initial submission and revision.
 
 **Status:**
 Final
@@ -4717,7 +4718,7 @@ Private
 Yes
 
 **Notes:**
-Confirm that the active event configuration, public pages, manual-entry RSVP flow, blank forms, partial-revision merge behavior, enabled confirmation channels, protected administrative email, countdown states, sticky navigation, link behavior, privacy notices, and production invitation registry are ready before mailing.
+Confirm that the active event configuration, public pages, manual-entry RSVP flow, blank forms, partial-revision merge behavior, fixed guest email confirmation and a separate protected administrative email attempt, countdown states, sticky navigation, link behavior, privacy notices, and production invitation registry are ready before mailing.
 
 The checkpoint must also confirm that:
 
@@ -4829,7 +4830,7 @@ Yes
 **Notes:**
 These fields must be protected as private RSVP contact information and must not be returned to the browser on later blank-form loads.
 
-Every initial submission and revision requires a valid guest confirmation email address. On a successful revision, the newly entered email address replaces the stored confirmation destination. Historical SMS fields in the implementation are not part of the approved guest-facing contract and require separate controlled cleanup.
+Every online initial submission and revision requires a newly entered valid guest confirmation email address, with email as the only accepted new confirmation method. After a successful revision, the newly entered email address replaces the stored guest confirmation destination. Previously stored mobile numbers, SMS authorizations, confirmation methods, and delivery records, where present, remain protected administrative history and may not be used to send new text messages or to redirect an older SMS destination automatically. Residual obsolete SMS-compatible implementation paths require separately reviewed retirement; they are not a future activation option.
 
 ---
 
@@ -5062,7 +5063,7 @@ Yes
 * Production environment validation must fail closed unless the Google Sheets workbook, protected administrative recipient, Resend provider/key, approved sender name/address, approved Reply-To address, canonical public origin, bounded trusted-proxy setting, and explicit single-writer instance count are present.
 * The canonical browser origin is `https://www.loreweavercreations.com`.
 * The approved production email identity remains the Decision 025 Resend identity.
-* Guest confirmation must be email-only. `RSVP_SMS_ENABLED` must remain `false` while the obsolete SMS-capable implementation paths await controlled cleanup; there is no future SMS enablement gate.
+* Guest confirmation for all new initial submissions and revisions must be email-only. `RSVP_SMS_ENABLED=true` is invalid; the setting must remain `false` wherever the retired legacy configuration key exists. Historical records remain protected while any obsolete SMS-compatible paths undergo separately reviewed retirement. There is no future SMS enablement gate.
 * `RSVP_WRITER_INSTANCE_COUNT` must equal `1` while Google Sheets remains the persistence adapter.
 * Production startup must acquire an exclusive same-host writer lock before listening. The local lock supplements rather than replaces the global one-writer deployment requirement.
 * The active Cloudflare Tunnel-to-Express topology uses a bounded loopback trust configuration. A topology change that inserts another proxy requires revalidation before production use.
@@ -5359,7 +5360,7 @@ Before the invitation-launch version is published and printed invitations are ma
 * Guests access RSVP through `/wedding/rsvp/` and manually enter their code; no code-bearing personalized URL is implemented.
 * Every validated RSVP form loads blank and displays no stored answers or confirmation destinations.
 * Initial submissions require every field needed for a complete valid result.
-* Revisions re-enter confirmation information and submit only RSVP replacements required by the intended change and dependency rules.
+* Every online revision re-enters a newly valid guest confirmation email address; the email method is fixed. Guests submit only intended substantive RSVP changes and any dependent required replacements.
 * Omitted RSVP fields remain unchanged; explicit numeric zero is preserved where valid; backend dependency rules clear data made inapplicable. No generic client substantive `clear` operation is required.
 * Every named invitee receives one authorized Yes/No control.
 * Every Plus1 allocation receives one authorized Yes/No control and has `maximumCount: 1`.
@@ -5378,7 +5379,7 @@ Before the invitation-launch version is published and printed invitations are ma
 * Any grouped child response/count change requires complete attendee-detail replacement.
 * Same-count attendee identity swaps require complete attendee-detail replacement.
 * The RSVP asks no unauthorized named-person controls, standalone Plus1/child name during allocation authorization, accessibility details, lodging plans, transportation needs, message-to-couple field, entrée selections, separate child substantive region, or other unapproved substantive question.
-* The online form collects the guest confirmation email address and does not collect a mobile number or SMS authorization.
+* The online form requires a newly entered valid guest confirmation email address for every initial submission and revision. The guest method is fixed to email and the form does not collect a confirmation mobile number or SMS authorization.
 * Every successful response is stored before guest/admin confirmation delivery.
 * Guest/admin confirmation attempts remain independent.
 * Guest confirmations contain the complete current guest-facing RSVP, including named responses, Plus1 responses, grouped child Yes/No and attending count where applicable, derived attendance, age totals, attendee names, and Reception-specific dietary/allergy information.

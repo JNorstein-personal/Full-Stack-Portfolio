@@ -2,7 +2,7 @@
 
 ## Project Scope
 
-**Email-only governing clarification (Decision 029, October 11, 2026):** All current requirements for guest RSVP confirmation are email-only, with a separate protected administrative email attempt. SMS/text-message delivery, mobile-number collection for confirmation, provider selection, consent, and SMS enablement are removed from the planned scope rather than deferred. This document specifies the approved target behavior; preexisting disabled SMS-capable code and API fields are not yet removed and require a separately reviewed implementation change. No production activation or release authorization is implied.
+**Email-only governing clarification (Decision 029, October 11, 2026):** All current requirements for guest RSVP confirmation are email-only, with a separate protected administrative email attempt after successful storage. SMS/text-message confirmation, new mobile-number collection for confirmation, provider selection, consent, and any future SMS enablement are permanently outside the approved scope. The source-controlled WS3-12E2/E3 implementation now advertises only email at lookup, requires a newly entered valid confirmation email for every initial submission and revision, and rejects SMS-enabled production configuration. Historical SMS-related contact, authorization, and delivery records, where present, retain their protected record-handling and retirement safeguards; they are not a current guest delivery method. These verified repository changes are not evidence of deployment to the intentionally inactive production RSVP service. D14 public-release readiness and explicit activation approval remain separate requirements.
 
 The Loreweaver Creations wedding website will be a responsive,
 self-hosted web application providing invited guests with wedding
@@ -28,9 +28,10 @@ The application will consist of:
 3. A private Node.js and Express backend.
 4. A private Google Sheets workbook used for invitation configuration
    and RSVP responses.
-5. Backend email delivery that sends complete guest confirmations and
-   separate protected administrative email confirmations after every
-   successful initial submission or revision.
+5. Backend email delivery that independently attempts complete guest
+   confirmations and separate protected administrative email confirmations
+   after every successfully stored initial submission or revision, with
+   independently recorded delivery outcomes.
 6. External links to lawful sources for the thematic book, audiobook,
    and movie.
 7. Nextcloud-hosted wedding materials where guest access is appropriate.
@@ -199,8 +200,8 @@ The invitation-launch version must include:
   the March 1, 2027 deadline.
 - Guest RSVP confirmation exclusively by email; no text-message
   delivery option or future SMS activation is planned.
-- Administrative email confirmation after every successful initial
-  submission or revision.
+- An independently attempted protected administrative email confirmation
+  after every successfully stored initial submission or revision.
 - Complete current RSVP information in each guest and administrative
   confirmation.
 - On-screen confirmation showing the complete current guest-facing RSVP
@@ -316,20 +317,22 @@ invitation containing `Kids(n)` produces one grouped family-level
 children authorization, not one allocation object or one Yes/No question
 per child.
 
-The current authoritative source contains **68 numbered invitation-code
-rows** with three intentional roles:
+The verified current production-source checkpoint contains **68 numbered
+invitation-code rows** with three intentional roles:
 
-- **Invites 1–57** are established assigned guest-list invitations.
-- **Invites 58–67** are reserved invitation-code placeholders and are not
-  currently functional RSVP identities.
-- **Invite 68** is the permanent production **Test Sample** identity.
+- **Invites 1–63** are currently assigned, guest-list-eligible invitations;
+  invites 1–57 remain the separately audited historical baseline.
+- **Invites 64–67** are the four currently reserved invitation-code
+  placeholders and do not produce functional RSVP identities.
+- **Invite 68** is the permanent production **Test Sample** identity, which
+  is functional but excluded from real-guest invitation and capacity totals.
 
 All 68 numbered source codes must normalize successfully and remain unique.
 A numbered source row does not automatically become a functional RSVP
 configuration.
 
-For invites 58–67, an exact reserved placeholder consists of the reserved
-invite number, its unique Guest ID, `?` in `First Name(s)`, `?` in
+For currently reserved invites 64–67, an exact reserved placeholder
+consists of the reserved invite number, its unique Guest ID, `?` in `First Name(s)`, `?` in
 `Last Name(s)`, and otherwise blank invitation-defining fields. An exact
 placeholder produces no functional invitation configuration. A partially
 populated or ambiguous reserved row must fail closed for private review.
@@ -477,13 +480,13 @@ source-audit results:
 - 68 numbered source rows.
 - 68 unique canonical source invitation-code keys.
 - A valid numbered sequence through Invite 68.
-- 10 exact reserved placeholders.
-- 58 functional production invitation configurations:
-  - 57 guest-list-eligible assigned invitations;
+- Four exact reserved placeholders (invites 64–67).
+- 64 functional production invitation configurations:
+  - 63 guest-list-eligible assigned invitations;
   - one permanent Test Sample.
-- Functional combined maximum-attendance capacity of 117:
-  - current guest-list capacity of 115;
-  - Test Sample capacity of 2.
+- Functional combined maximum-attendance capacity of 126:
+  - current guest-list capacity of 122;
+  - Test Sample capacity of 4.
 
 The established invites 1–57 guest-list baseline must independently
 continue to audit to:
@@ -504,12 +507,15 @@ continue to audit to:
   five unnamed-child slots.
 - Combined maximum-attendance capacity of 115.
 
-The permanent Test Sample must independently audit to one named invitee,
-one `Plus1` allocation, and maximum attendance 2.
+The permanent Test Sample is a functional, guest-list-ineligible
+production identity with maximum attendance 4 at the current verified
+source checkpoint. Its separately protected invitation composition must
+be validated against the authoritative private source rather than inferred
+from the historical Test Sample fixture.
 
 The **115-person value is a stable baseline for invites 1–57, not a
-permanent guest-list ceiling**. If one or more reserved invites 58–67 is
-later populated as a real assigned invitation, the reserved-placeholder
+permanent guest-list ceiling**. If one or more of the currently
+reserved invites 64–67 is later populated as a real assigned invitation, the reserved-placeholder
 count decreases and the current guest-list invitation count and maximum-
 attendance capacity increase accordingly. The established 1–57 baseline
 remains separately auditable at 57 invitations and 115 maximum attendance.
@@ -649,8 +655,8 @@ validated invitation's blank form, including as applicable:
   `unnamedChildren` allocations render the approved family-level Yes/No
   question and, after Yes, a count selector from 1 through `maximumCount`.
 - The approved spreadsheet-authoritative question structure, conditions,
-  limits, and operational confirmation options required for that
-  invitation.
+  limits, and fixed email-only confirmation availability for that
+  invitation; no selectable text-message channel or SMS authorization.
 
 The browser must not receive or display:
 
@@ -1101,10 +1107,11 @@ ordinary `Attendee Details`.
 After every successful initial submission or revision, the RSVP must be
 stored before guest or administrative confirmation delivery is attempted.
 
-After storage succeeds, the guest-confirmation attempt and the protected
-administrative-email attempt must be handled independently. Failure,
-delay, or uncertainty affecting one delivery channel must not prevent the
-other applicable confirmation attempt from being made.
+After storage succeeds, the guest email-confirmation attempt and the
+protected administrative-email attempt must be handled independently.
+Failure, delay, or uncertainty affecting either attempt must not prevent
+the other attempt from being made. Recorded delivery outcomes must not be
+presented as guaranteed guest receipt.
 
 ### Guest Confirmation
 
@@ -1118,9 +1125,17 @@ and unprefilled on revision forms. A newly submitted valid email address
 replaces the stored guest confirmation destination after validation
 and successful storage.
 
-The approved target email-only contract must not be represented as
-fully implemented until the disabled legacy SMS-capable paths and API
-fields have been removed through controlled implementation review.
+The verified source-controlled implementation now fixes guest
+confirmation to email: lookup advertises email availability alone, and
+new initial submissions and revisions require an email method and a
+valid newly entered address. Attempts to introduce SMS delivery fields
+or select text-message confirmation must be rejected. The application
+may still contain protected handling for historical SMS confirmation
+records, authorization information, and delivery history; preserving
+those records for audit, legacy replay, and controlled retirement does
+not authorize new SMS messages, automatic redirection to email, or
+unrelated reuse. Production runtime and public exposure require
+separate deployment and D14 release authorization.
 
 The guest confirmation must contain the complete current RSVP after the
 initial submission or merged revision, including every field applicable to
@@ -1149,8 +1164,11 @@ attendance-composition responses, totals, and attendee details.
 
 ### Administrative Confirmation
 
-Every successful initial submission or revision must send an
-administrative confirmation by email to the couple's configured address.
+After every successfully stored initial submission or revision, the
+backend must independently attempt a protected administrative
+confirmation by email to the couple's configured address and record its
+result. A delivery failure or uncertain outcome must not reverse RSVP
+storage or prevent the guest confirmation attempt.
 
 The administrative email must contain the complete current RSVP under the
 spreadsheet-authoritative form model, including:
@@ -1198,7 +1216,8 @@ After the response has been stored, the on-screen confirmation must:
 - Display dietary/allergy information when Reception is selected and a
   value was supplied.
 - Display the submission or revision timestamp.
-- Identify the selected guest confirmation channel.
+- Identify email as the fixed guest-confirmation method; the guest does
+  not select a confirmation channel.
 - Display the guest-confirmation delivery-attempt status.
 - Indicate whether the protected administrative-email attempt succeeded,
   failed, or remains uncertain without exposing the administrative email
@@ -1218,8 +1237,13 @@ If the confirmation route is refreshed after temporary confirmation
 state is lost, the page must:
 
 - Explain safely that the prior RSVP may already have been recorded.
-- Direct the guest back to manual RSVP entry.
-- Avoid instructing the guest to resubmit an RSVP that may already exist.
+- Direct the guest to check the email inbox supplied for confirmation and
+  use the approved assistance contact if the outcome remains uncertain.
+- Provide a route back to manual RSVP entry for a deliberate revision.
+- Avoid instructing the guest to resubmit the same RSVP merely because
+  temporary on-screen confirmation details are unavailable.
+- Perform no automatic lookup, replay, or reconstruction of protected
+  confirmation data.
 
 ### Delivery Failure
 
@@ -1277,7 +1301,12 @@ The Privacy page must explain in plain language:
   (including Plus1 decisions and any grouped unnamed-child count), age-category totals,
   attendee names for every attending response, and dietary/allergy
   information when Reception is selected and supplied.
-- What operational contact and delivery information is collected.
+- That every new initial RSVP and revision collects a newly entered
+  confirmation email address and does not collect confirmation mobile
+  numbers or SMS authorization.
+- What operational email-delivery information is collected and how any
+  historical SMS contact, authorization, or delivery data remains private,
+  unused for new text messages, and subject to controlled retirement.
 - That every form loads blank and does not display stored RSVP answers or
   stored confirmation destinations.
 - How partial revisions are merged with existing responses.
@@ -1403,8 +1432,8 @@ source-row existence, development-record existence, or private production
 classification.
 
 Attendee names may appear only in the submitting party's own temporary
-on-screen confirmation, that party's selected electronic confirmation,
-the protected administrative confirmation, and authorized private
+on-screen confirmation, that party's guest confirmation email, the
+protected administrative confirmation, and authorized private
 administrative records. Dietary/allergy information has the same privacy
 boundary but is collected and retained as an attendee response only when
 Reception is selected. Neither category may appear in analytics, public
@@ -1544,8 +1573,8 @@ The couple may:
 - Maintain the authoritative numbered production source and its source-role
   distinctions among assigned invitations, reserved placeholders, and the
   permanent Test Sample.
-- Populate a reserved invite 58–67 later as a real assigned invitation,
-  subject to the guarded synchronization requirements.
+- Populate a currently reserved invite 64–67 later as a real assigned
+  invitation, subject to the guarded synchronization requirements.
 - Maintain invitation records.
 - Maintain invitation-specific singular or plural wording.
 - Maintain the reviewed party-display heading or greeting.
@@ -1567,8 +1596,9 @@ The couple may:
 - Add a mimosa-station description only after the arrangement is confirmed
   with Sphinx Banquet and Catering Center.
 - Review party-level RSVP responses.
-- Receive an administrative email containing the complete current RSVP
-  whenever a response is submitted or revised.
+- Receive a separately attempted protected administrative email
+  containing the complete current RSVP after each successful initial
+  submission or revision, subject to actual delivery outcomes.
 - Review Ceremony/Reception or full-decline status, every applicable
   named-invitee attendance response, each Plus1 response, and any grouped
   unnamed-child Yes/No plus attending count.
@@ -1617,23 +1647,23 @@ when all of the following remain true:
 - The private `Invitees List` spreadsheet and its bottom-row notes control
   the production substantive RSVP model, subject to later approved
   clarifications recorded in governing project documents.
-- The current production source contains 68 numbered rows with 68 unique
-  source codes: 57 established assigned invitations, 10 exact reserved
-  placeholders, and one permanent production Test Sample.
-- Exact reserved rows 58–67 are not functional RSVP identities until
-  populated as valid assigned invitations; a partial or ambiguous reserved
-  row fails closed.
+- The verified current production source contains 68 numbered rows
+  with 68 unique source codes: 63 currently assigned invitations,
+  four exact reserved placeholders, and one permanent production Test Sample.
+- Exact currently reserved rows 64–67 are not functional RSVP identities
+  until populated as valid assigned invitations; a partial or ambiguous
+  reserved row fails closed.
 - The permanent Test Sample is a functional production RSVP identity with
   `recordRole: "test"` and `guestListEligible: false` and is excluded from
   real guest-list counts and capacity.
-- The current functional registry contains 58 invitation configurations:
-  57 guest-list eligible plus the permanent Test Sample.
-- The current functional combined maximum-attendance capacity is 117:
-  115 guest-list eligible plus 2 Test Sample capacity.
+- The current functional registry contains 64 invitation configurations:
+  63 guest-list eligible plus the permanent Test Sample.
+- The current functional combined maximum-attendance capacity is 126:
+  122 guest-list eligible plus 4 Test Sample capacity.
 - The established invites 1–57 baseline remains independently auditable at
   57 invitations and maximum attendance 115.
 - The 115-person baseline is not a permanent guest-list ceiling; assigning
-  a reserved invite 58–67 increases current guest-list invitation and
+  a currently reserved invite 64–67 increases current guest-list invitation and
   capacity totals dynamically while preserving the 1–57 baseline audit.
 - All functional production invitations use one reusable substantive form
   structure rather than separate production question profiles.
@@ -1654,8 +1684,9 @@ when all of the following remain true:
   allocation objects, five total unnamed-child slots, 28 total allocation
   objects, 31 total additional-guest person-capacity slots, and combined
   maximum capacity of 115.
-- The permanent Test Sample has one named invitee, one Plus1 allocation,
-  and maximum attendance 2.
+- The permanent Test Sample has maximum attendance 4 in the current
+  verified private source, remains guest-list-ineligible, and must retain
+  exact-match validation against its protected production configuration.
 - Ceremony, Reception, and singular/plural full decline remain one
   coordinated event-attendance interface.
 - Every authorized named invitee receives one Yes/No attendance decision
@@ -1683,6 +1714,11 @@ when all of the following remain true:
 - A named-invitee change, Plus1 change, or grouped child response/count
   change that alters attendance composition requires complete
   `attendeeDetails` replacement.
+- Every initial submission or revision requires a newly entered valid
+  guest confirmation email address, with email as the fixed method; neither
+  the guest UI nor the backend offers or accepts a new SMS channel.
+- Historical SMS-related records remain protected for authorized handling
+  and controlled retirement, without new text-message sending.
 - Every successful submission stores the complete resulting RSVP before
   delivery attempts begin.
 - Guest and administrative confirmations include all applicable

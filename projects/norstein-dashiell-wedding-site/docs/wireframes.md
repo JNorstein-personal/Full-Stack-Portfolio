@@ -47,6 +47,8 @@ The controlling project documents are:
 
 The RSVP states and behaviors shown here are synchronized through Phase 3 Step 14 and the September 27, 2026 grouped `Kids(n)` correction with `docs/rsvp-system-design.md`, `docs/rsvp-api-contract.md`, `docs/page-outlines.md`, and `docs/rsvp-test-cases.md`. These wireframes continue to define browser-facing information order and layout rather than backend implementation or API payload structure. The grouped-child correction changes only conditional content inside existing RSVP states: one family-level child Yes/No control may reveal one count selector from 1 through the authorized `maximumCount`. It does not create a new route, top-level state, child-specific substantive region, or independently editable headcount.
 
+**October 12, 2026 — Decision 029 reconciliation:** Email is the sole guest RSVP confirmation method for new submissions and revisions. Every online initial submission and revision requires a newly entered valid guest email address; no confirmation-method selector, text-message option, mobile-number input, or SMS authorization appears in the guest interface. Successful storage precedes independent guest-email and protected administrative-email delivery attempts. Disabled historical SMS-capable paths and sensitive records remain subject to separately reviewed retirement and privacy controls; they are not a future activation option. These wireframe updates do not authorize production deployment or public RSVP activation.
+
 ---
 
 # Wireframe Conventions
@@ -105,8 +107,9 @@ The interface must render only one top-level RSVP state at a time. A state trans
 - `/wedding/rsvp/` and `/wedding/rsvp/confirmation` are transactional, non-indexed routes and their production responses use `Cache-Control: no-store, max-age=0`.
 - Successful confirmation data is not intentionally persisted in browser storage solely so that it can be reconstructed after temporary Step 13 state is lost.
 - Any analytics associated with RSVP/confirmation layouts is non-personalized and must not contain invitation codes, guest/party identities derived from invitation records, RSVP answers, attendee names, dietary/allergy information, confirmation destinations, `clientSubmissionId`, additional-guest allocation details, versions, or provider payloads.
-- Every wireframe that shows a **Text message** confirmation choice represents a configuration-dependent variant. In production, omit that choice unless the selected SMS provider, required disclosure/authorization copy, backend-only credentials/sender configuration, and production-flow testing satisfy the finalized Step 14 enablement gate.
-- If Text Message confirmation is not enabled, the confirmation-method region presents Email without leaving a disabled or misleading provider-dependent choice.
+- Every initial online RSVP and revision uses the fixed guest confirmation method `email` and requires a newly entered valid email address. No guest-facing channel selector, Text Message option, mobile confirmation number, or transactional SMS authorization is displayed or collected.
+- The guest confirmation email attempt and the protected administrative email attempt occur independently after successful storage; guests see only appropriate delivery-attempt status, not a guarantee of inbox delivery.
+- Historical mobile numbers, SMS authorization records, and delivery history, if present, remain private until controlled retirement. No new text messages are sent, and historical SMS destinations are not automatically converted to email addresses.
 - Invitation-code, error, warning, fallback, and help layouts must not expose internal security architecture, workbook details, provider secrets, protected administrative addresses, or close-match invitation information.
 
 
@@ -607,11 +610,10 @@ Whenever `overallAttendance` is greater than zero, the page renders exactly one 
 │ First RSVP: complete every   │
 │ required applicable field.   │
 │                              │
-│ Revision: re-enter the       │
-│ confirmation method and      │
-│ destination, then provide    │
-│ only the RSVP changes you    │
-│ intend to make.              │
+│ Revision: enter a new valid  │
+│ confirmation email address,  │
+│ then provide only the RSVP   │
+│ changes you intend to make.  │
 │                              │
 │ Omitted applicable RSVP      │
 │ fields remain unchanged      │
@@ -620,9 +622,10 @@ Whenever `overallAttendance` is greater than zero, the page renders exactly one 
 │ requires complete replacement│
 │ of a dependent structure.    │
 │                              │
-│ New confirmation fields      │
-│ replace their stored         │
-│ counterparts.                │
+│ A saved revision replaces    │
+│ the previous confirmation    │
+│ destination with the newly   │
+│ entered email address.       │
 ├──────────────────────────────┤
 │ PERSONALIZED FORM            │
 │ One reusable form; named     │
@@ -928,28 +931,21 @@ Rules:
 - If composition remains unchanged and `attendeeDetails` is omitted from a revision, the stored list remains unchanged except for Reception-specific dietary clearing.
 - Removing Reception while continuing to attend preserves attendee names and removes dietary/allergy values.
 
-## 3F. Confirmation Method and Submission Region
+## 3F. Required Email Confirmation and Submission Region
 
 ```text
 ┌──────────────────────────────┐
-│ CONFIRMATION METHOD          │
+│ RSVP CONFIRMATION BY EMAIL   │
 │ Required for every initial   │
 │ submission and revision.     │
 │                              │
-│ ( ) Email                    │
-│     Email address            │
-│     [____________________]   │
+│ Email address                │
+│ [____________________]       │
 │                              │
-│ {Text Message enabled}       │
-│ ( ) Text message             │
-│     SMS-capable mobile       │
-│     [____________________]   │
-│     [ ] Required verified    │
-│         transactional SMS    │
-│         authorization copy   │
-│                              │
-│ New operational values       │
-│ replace stored counterparts. │
+│ On a saved revision, this    │
+│ new email address replaces   │
+│ the prior guest confirmation │
+│ destination.                 │
 ├──────────────────────────────┤
 │ REVISION REMINDER            │
 │ Omitted applicable RSVP      │
@@ -961,12 +957,12 @@ Rules:
 ├──────────────────────────────┤
 │ [ Submit RSVP ]              │
 │                              │
-│ Privacy / authorization      │
+│ Privacy information          │
 │ Assistance                   │
 └──────────────────────────────┘
 ```
 
-Text Message controls are omitted—not merely disabled—when the production SMS gate is not satisfied.
+The method is always `email` and is not guest-selectable. The email address is required for every initial submission and revision, is never prefilled from stored RSVP contact information, and becomes the guest confirmation destination after successful storage. There is no SMS choice, mobile-number field, or SMS authorization checkbox. The protected administrative email is attempted separately after storage; neither delivery attempt reverses a stored RSVP.
 
 ## 3G. State 6 — Validation Failure
 
@@ -1029,8 +1025,8 @@ The current logical request retains one `clientSubmissionId`; repeated activatio
 │ Your RSVP may already have   │
 │ been recorded.               │
 │                              │
-│ Check the confirmation       │
-│ channel you selected.        │
+│ Check the email inbox you    │
+│ entered for confirmation.    │
 │                              │
 │ [Retry safely]               │
 │ [Contact for Help]           │
@@ -1185,7 +1181,7 @@ For a Ceremony-only confirmation, the **Attendee Details** list remains present 
 │ submitted in this revision.  │
 ├──────────────────────────────┤
 │ Revised [timestamp]          │
-│ Confirmation: [method]       │
+│ Confirmation: Email          │
 │ Guest delivery: [status]     │
 │ Admin attempt: [status only] │
 ├──────────────────────────────┤
@@ -1210,9 +1206,9 @@ If a revision removes Reception while retaining Ceremony attendance, the summary
 │ [Applicable complete summary]│
 ├──────────────────────────────┤
 │ GUEST DELIVERY ISSUE         │
-│ The selected email/text      │
-│ confirmation could not be    │
-│ delivered or confirmed.      │
+│ The guest confirmation       │
+│ email could not be delivered │
+│ or its delivery confirmed.   │
 │                              │
 │ The administrative email     │
 │ attempt was handled          │
@@ -1275,12 +1271,10 @@ A refresh or history action does **not** force this fallback if the approved suc
 │ available. If you submitted  │
 │ an RSVP, it may already have │
 │ been recorded. Please check  │
-│ the email or text message    │
-│ you selected for             │
-│ confirmation. Do not submit  │
-│ the same response again only │
-│ because this summary is      │
-│ unavailable.                 │
+│ your email for confirmation. │
+│ Do not submit the same       │
+│ response again only because  │
+│ this summary is unavailable. │
 ├──────────────────────────────┤
 │ TO MAKE A DELIBERATE         │
 │ REVISION                     │
@@ -1303,14 +1297,14 @@ A refresh or history action does **not** force this fallback if the approved suc
 └──────────────────────────────┘
 ```
 
-The visible copy above is the finalized Phase 3 Step 13 guest-facing fallback copy. Implementation may make minor punctuation or responsive line-wrap adjustments, but it must preserve the substantive meaning.
+The visible copy above preserves the finalized Phase 3 Step 13 uncertainty-safe fallback and applies Decision 029's email-only update. Implementation may make minor punctuation or responsive line-wrap adjustments, but must preserve the substantive meaning: the submission may already be recorded, the guest should check email, and the guest must not resubmit solely because temporary confirmation state is unavailable.
 
 ### State 12 information-order rules
 
 1. Shared sticky header.
 2. Fallback heading.
 3. Primary uncertainty-safe explanation.
-4. Instruction to check the selected email or text-message confirmation.
+4. Instruction to check the guest confirmation email inbox.
 5. Explicit instruction not to submit the same response again solely because the temporary summary is unavailable.
 6. Deliberate-revision guidance.
 7. `Return to RSVP` action.
@@ -1364,7 +1358,7 @@ The initial implementation does not require a short-lived confirmation token, a 
 
 # Phase 3 RSVP Transition Rules — Step 10 Model, Finalized Through Step 14
 
-The preceding RSVP wireframes must be connected according to these browser-facing transition rules. Phase 3 Step 13 refines only the confirmation-state lifecycle and State 12 recovery behavior. Phase 3 Step 14 adds privacy/security constraints and the SMS production gate but does not add another top-level RSVP state:
+The preceding RSVP wireframes must be connected according to these browser-facing transition rules. Phase 3 Step 13 refines only the confirmation-state lifecycle and State 12 recovery behavior. Phase 3 Step 14 adds privacy/security constraints without another top-level RSVP state; Decision 029 replaces the former SMS provider gate with fixed email-only guest confirmation:
 
 1. **State 1 → State 2:** Activating Continue begins one lookup request and protects the control against repeated activation.
 2. **State 2 → State 5:** A valid active invitation renders the authorized blank form on the same `/wedding/rsvp/` route.
@@ -1865,7 +1859,8 @@ This variant is **not active** unless the arrangement is confirmed.
 │ ▸ How do I RSVP?             │
 │ ▸ Can I revise my RSVP?      │
 │ ▸ Why is the form blank?     │
-│ ▸ Email or text confirmation?│
+│ ▸ Where is my confirmation   │
+│   email?                     │
 │ ▸ What if my code fails?     │
 ├──────────────────────────────┤
 │ ATTENDANCE                   │
@@ -2089,7 +2084,7 @@ No pre-wedding images are required.
 
 **Route:** `/wedding/privacy`
 
-This public informational page was added through the approved privacy decision and is revised through Phase 3 Step 14 plus the approved authorized attendance correction to show the finalized retention, SMS-provider-gate, data-minimization, named-invitee, attendee-detail, and security-limitation information order.
+This public informational page was added through the approved privacy decision and is revised through Phase 3 Step 14, the authorized attendance correction, and Decision 029. It preserves the finalized retention, historical contact-data safeguards, data minimization, named-invitee and attendee-detail boundaries, and security-limitation information order.
 
 ```text
 ┌──────────────────────────────┐
@@ -2116,7 +2111,8 @@ This public informational page was added through the approved privacy decision a
 │ • Attendee names             │
 │ • Reception dietary/allergy  │
 │   information, if supplied   │
-│ • Confirmation destination   │
+│ • Required guest email       │
+│   confirmation destination   │
 │ • Submission/revision record │
 ├──────────────────────────────┤
 │ WHY INFORMATION IS USED      │
@@ -2136,12 +2132,19 @@ This public informational page was added through the approved privacy decision a
 │ clears or requires replacing │
 │ them.                        │
 ├──────────────────────────────┤
-│ EMAIL / TEXT CONFIRMATIONS   │
-│ Text Message shown only when │
-│ the provider/disclosure gate │
-│ is satisfied.                │
-│ Mobile numbers are           │
-│ transactional-only.          │
+│ EMAIL CONFIRMATIONS          │
+│ New RSVPs and revisions      │
+│ require a newly entered      │
+│ confirmation email address.  │
+│ Guest and protected admin    │
+│ email attempts are separate. │
+│                              │
+│ HISTORICAL CONTACT DATA      │
+│ Earlier mobile/SMS records,  │
+│ if present, remain private.  │
+│ No new SMS is sent and such  │
+│ records are retired under    │
+│ applicable safeguards.       │
 ├──────────────────────────────┤
 │ STORAGE AND ACCESS           │
 │ Private administrative       │
@@ -2199,7 +2202,8 @@ This public informational page was added through the approved privacy decision a
 - Explain that attendee names and any dietary/allergy text may appear in the submitting party's own confirmation surfaces and authorized private administrative records, but not public pages, public metadata, analytics, ordinary logs, unrelated administrative messages, or another party's response.
 - The retention region must state the finalized July 30, 2027 active-data retirement date and August 29, 2027 protected-backup retirement deadline.
 - The final prose must also explain the minimum-record exception for a concrete unresolved correction, dispute, delivery investigation, or comparable administrative need.
-- Provider-dependent SMS disclosure wording is inserted only after the provider's applicable requirements are verified; otherwise the public site must not imply that Text Message confirmation is enabled.
+- Explain that a newly entered valid email address is required for every online RSVP and revision, and that the separate guest and protected administrative email attempts follow successful storage. No selectable guest confirmation method, SMS delivery option, confirmation mobile number, or transactional SMS authorization is presented.
+- Explain that any historical mobile numbers, SMS authorization information, or delivery records remain protected administrative data pending controlled retirement; they are not used to send new text messages, automatically redirected to email, or reused for unrelated messages.
 - The page may explain practical safeguards but must not reveal secrets, detailed internal security architecture, or make an absolute-security guarantee.
 
 ---
@@ -2278,14 +2282,13 @@ Shared narrow-screen order:
 8. Derived `overallAttendance` display based on named-invitee Yes + Plus 1 Yes + grouped child selected count.
 9. Four coordinated age-category attendance dials whose sum must equal derived `overallAttendance`.
 10. **Attendee Details** rows whenever `overallAttendance > 0`, repeated exactly once per attendee; every row contains **Attendee name**, and Reception-selected rows additionally contain **Dietary or allergy information**.
-11. Confirmation method, required again for every revision.
-12. Conditional confirmation destination and any required transactional SMS authorization.
-13. Notice that newly submitted operational fields replace their stored counterparts.
-14. Privacy/authorization content.
-15. Validation summary.
-16. Submit action.
-17. Assistance.
-18. Footer.
+11. Required newly entered confirmation email address for every initial submission and revision; the guest method is fixed to email.
+12. Notice that a successful revision replaces the previous guest confirmation destination with the new email address; the stored address is never prefilled.
+13. Privacy information, including a link to the full Privacy page.
+14. Validation summary.
+15. Submit action.
+16. Assistance.
+17. Footer.
 
 Named-invitee presentation rules:
 
@@ -2334,7 +2337,7 @@ Attendee-detail presentation rules:
 7. Four age-category totals and derived `overallAttendance` when attending.
 8. Attendee names whenever attending; per-attendee dietary/allergy information only when Reception is selected.
 9. Timestamp.
-10. Selected guest confirmation method.
+10. Fixed guest confirmation method: email.
 11. Guest delivery status.
 12. Limited administrative-attempt status without the private address.
 13. Revision instructions covering omission, replacement, explicit zero where applicable, dependency clearing, exact age-total reconciliation, and complete Attendee Details replacement when attending-person composition changes, including any grouped child response/count change.
@@ -2349,7 +2352,7 @@ The confirmation omits genuinely inapplicable conditional regions. It does not i
 1. Header.
 2. “Confirmation Summary No Longer Available” heading.
 3. Primary explanation that the temporary summary is unavailable and that, if an RSVP was submitted, it may already have been recorded.
-4. Instruction to check the selected email or text-message confirmation.
+4. Instruction to check the guest confirmation email inbox.
 5. Explicit warning not to submit the same response again solely because the summary is unavailable.
 6. Deliberate-revision guidance directing the guest back to manual RSVP entry.
 7. `Return to RSVP` action.
@@ -2428,12 +2431,12 @@ The low-fidelity wireframes are complete when:
 - Every attending RSVP, including Ceremony-only attendance, produces exactly one Attendee Details row per `overallAttendance`; every row requires attendee name.
 - Reception selection adds the optional **Dietary or allergy information** field to each attendee row rather than controlling whether attendee rows exist.
 - Partial revision behavior distinguishes omission, replacement, explicit zero, attendance/decline changes, dependency clearing, exact age-total reconciliation, and complete Attendee Details replacement whenever attending-person composition changes, including same-count swaps and every grouped child response/count change.
-- Confirmation method, destination, and any required transactional SMS authorization are shown as required again for every revision.
-- Newly submitted operational confirmation fields replace their stored counterparts.
+- A newly entered valid guest confirmation email address is required for every initial submission and revision; email is fixed and no channel selector, mobile-number input, or SMS authorization is offered.
+- After a successful revision, the new email address replaces the previous guest confirmation destination without displaying or prefilling the stored address.
 - Submission-in-progress, validation-failure, submission-uncertain, service-unavailable, closed-RSVP, and refresh-without-state branches are represented.
 - Safe retry behavior preserves the client submission identifier and remains idempotent.
 - Guest and administrative confirmation attempts are represented as independent post-storage attempts.
-- Confirmation screens show initial-versus-revision status, timestamp, selected guest method, guest delivery status, and limited administrative-attempt status without exposing the private address.
+- Confirmation screens show initial-versus-revision status, timestamp, the fixed email guest method, guest delivery-attempt status, and limited administrative-attempt status without exposing the private address.
 - Confirmation summaries show the complete resulting RSVP and omit conditional regions that are genuinely inapplicable.
 - Guest-delivery and administrative-delivery warning variants are represented.
 - Final decorative styling has not been selected.
@@ -2472,7 +2475,7 @@ Phase 3 Step 13 is reflected in these wireframes when all of the following are t
 - A browser refresh or history action does not automatically force State 12 when usable successful state remains available.
 - State 12 is entered whenever the confirmation route lacks a structurally usable temporary successful response, regardless of whether the cause was refresh, direct navigation, bookmark/new-tab access, history traversal, or other temporary-state loss.
 - The finalized State 12 heading is “Confirmation Summary No Longer Available.”
-- The finalized primary explanation states that the temporary summary is unavailable, that a submitted RSVP may already have been recorded, that the guest should check the selected email or text-message confirmation, and that the same response should not be submitted again solely because the summary is unavailable.
+- The finalized primary explanation states that the temporary summary is unavailable, that a submitted RSVP may already have been recorded, that the guest should check the confirmation email inbox, and that the same response should not be submitted again solely because the summary is unavailable.
 - The fallback tells a guest making a deliberate revision to return to the RSVP page and enter the invitation code again.
 - The fallback provides `RSVPhelp@loreweavercreations.com` when the guest is uncertain or needs help.
 - `Return to RSVP` starts an ordinary manual-entry interaction at `/wedding/rsvp/`; it is not an automatic recovery replay and does not bypass the authoritative deadline.
@@ -2498,8 +2501,8 @@ Phase 3 Step 14 is reflected in these wireframes when:
 - Temporary successful confirmation data is not intentionally promoted to persistent browser storage solely for refresh recovery.
 - Wireframes never place invitation codes, RSVP summaries, confirmation destinations, `clientSubmissionId`, private versions, or provider payloads into browser URLs or recovery controls.
 - Analytics, when used, are non-personalized and do not become a dependency of the RSVP interaction.
-- Every shown Text Message choice is explicitly configuration-dependent and is omitted in production until the selected provider's Step 14 disclosure/authorization gate is satisfied.
-- Email remains available according to centralized production configuration when Text Message is disabled.
+- Guest email is the only approved confirmation method and is fixed in every initial/revision form; every submission requires a newly entered valid email destination, with no channel selector, Text Message option, mobile confirmation field, or SMS authorization.
+- Guest and protected administrative email attempts occur independently after successful storage. Historical SMS contact/authorization/delivery records remain private pending controlled retirement and do not authorize future SMS activation.
 - The Privacy wireframe includes invitation-code limits, safe named-invitee and additional-guest lookup data, authorized attendance responses, data collected and used, blank forms, partial revisions, confirmation-channel treatment, private storage/access, all-attendance attendee-name and Reception-specific dietary/allergy boundaries, data-exposure safeguards, retention, the separate private `Invitees List`, assistance, and the security limitation.
 - The Privacy wireframe identifies July 30, 2027 as the active RSVP-data retirement date and August 29, 2027 as the protected-backup retirement deadline.
 - The final Privacy-page prose may explain a minimum-record documented retention exception without turning that exception into a general indefinite-retention rule.

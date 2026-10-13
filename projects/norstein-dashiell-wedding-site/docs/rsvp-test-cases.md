@@ -6,7 +6,7 @@
 **Document:** `docs/rsvp-test-cases.md`
 **Status:** Controlling preliminary test catalog; execution occurs during implementation, integration, production-gate, and lifecycle testing
 **Phase 3 status:** Complete; RSVP data/form model and production identity lifecycle synchronized with assigned invitations, reserved codes, and the permanent Test Sample
-**Last updated:** October 3, 2026
+**Last updated:** October 12, 2026 — Decision 029 and WS3-12E2/E3 documentation consistency audit
 
 ---
 
@@ -16,7 +16,7 @@ This document is the controlling preliminary test catalog for the Loreweaver Cre
 
 It translates the current approved requirements, decisions, API contract, reusable form schema, fictional development configurations, thirteen-state browser model, temporary-confirmation/refresh-fallback behavior, and finalized privacy/security standard into testable cases.
 
-The private couple-supplied `Invitees List` spreadsheet is authoritative for production invitation configuration and substantive RSVP presentation. The latest source contains 68 numbered invitation-code rows: 57 established assigned guest-list invitations, 10 reserved placeholders, and one permanent production Test Sample. Exact reserved placeholders do not produce functional invitation configurations, so the current functional registry contains 58 identities: 57 guest-list eligible and one permanent test identity. Those aggregate results are validation targets, not hard-coded renderer assumptions.
+The private couple-supplied `Invitees List` spreadsheet is authoritative for production invitation configuration and substantive RSVP presentation. At the latest verified D13 production-source checkpoint, there are **68 numbered source-code rows: 63 assigned real-guest invitations, four unassigned reserved placeholders, and one permanent production Test Sample**. The functional registry therefore contains **64 invitations** (63 guest-list eligible plus one Test Sample). The assigned real-guest maximum-attendance capacity is **122**, and the combined functional capacity is **126**, including the Test Sample capacity of four. The 57-invitation/115-person figures below remain historical baseline audit values, not current operating totals or hard-coded limits.
 
 The current attendance model distinguishes **allocation objects** from **person capacity**:
 
@@ -32,9 +32,13 @@ The current attendance model distinguishes **allocation objects** from **person 
 
 The latest authoritative source uses `Kids(n)` only for unnamed children, so specifically named children remain ordinary `namedInvitees` records and are never duplicated into grouped child capacity.
 
-This document defines **expected behavior**. It does not treat earlier live validation as proof of the October 3 production-source/synchronization model. Tests previously validated against the September 20 or earlier September 27 configuration shapes must be rerun where the grouped-child configuration, production source roles, activation/synchronization rules, lookup boundary, submission behavior, or production smoke path changes their subject.
+This document defines **expected behavior**; a row marked **Required** is not evidence that its scenario has been executed. Controlled D12/D13 production verification established the bounded Test Sample submission, revision, replay, and storage/delivery safeguards documented elsewhere, but did **not** authorize public RSVP release. Historical live statuses in this catalog must not be mistaken for a fresh post-WS3-12E3 deployment or D14 release-readiness pass. Tests from an older configuration must be reevaluated when their conditions have materially changed, without replaying real production writes merely to refresh documentation.
 
 Tests must use fictional development/testing fixtures unless a controlled production transformation, activation, runtime, or Test Sample verification explicitly requires the protected private production source/workbook. Active real-guest invitation codes, real guest identities, the permanent Test Sample code, and private RSVP records must not be copied into ordinary automated fixtures, public documentation, or public source.
+
+**Decision 029 governing test rule (October 11, 2026):** New initial RSVP submissions and revisions accept only `{ "method": "email", "email": "valid@example.com" }`; a newly entered valid email address is required for both. Lookup `confirmationOptions` contains only `{ "email": true }`. SMS confirmation, mobile-number collection, transactional authorization, provider-selection gates, and future SMS activation are retired. Legacy `textMessage` records, if present, are protected historical information: exact idempotent replay or read-only recovery must not send a new text message, mutate RSVP data, or initiate a new delivery. The historical `RSVP_SMS_ENABLED` setting is permanently rejected when enabled. Decision 029 supersedes contradictory older requirements and test wording; existing test IDs are retained as traceable negative or historical-protection cases.
+
+**Verified development baseline:** WS3-12E2 and WS3-12E3 are committed to `main` at `59fc5420b69d0f2d0ab6c5a722cf92597ed8d400`. Local cumulative regression evidence recorded **31/31 client tests**, **322/322 server tests**, client lint and build passing. Those automated checks do not substitute for Workstream 3’s remaining integrated browser/accessibility, content-approval, privacy-bundle or D14 release gates.
 
 ## 2. Governing Project Documents
 
@@ -59,17 +63,17 @@ In particular:
 
 - The current private source contains 68 numbered rows and 68 unique normalized source invitation codes.
 - Invites 1–57 are the established assigned guest-list baseline.
-- Invites 58–67 are reserved code rows. An exact placeholder produces no functional RSVP identity; a normally populated row later becomes an assigned guest-list invitation; a partial/ambiguous placeholder fails closed.
+- Invites 58–67 are the reserve-capable source range. Six of these rows are now assigned, while four remain exact reserved placeholders. An exact placeholder produces no functional RSVP identity; a newly populated row becomes eligible only after guarded validation; a partial/ambiguous placeholder fails closed.
 - Invite 68 is the permanent production Test Sample. It is a fully functional production RSVP identity but is excluded from real wedding guest-list counts.
-- The current functional registry therefore contains 58 invitation configurations: 57 with private `recordRole: "assigned"` / `guestListEligible: true`, and one with `recordRole: "test"` / `guestListEligible: false`.
+- The current functional registry contains **64** invitation configurations: **63** with private `recordRole: "assigned"` / `guestListEligible: true`, and **one** with `recordRole: "test"` / `guestListEligible: false`; four exact placeholders remain nonfunctional.
 - The established invites 1–57 baseline contains 35 singular `I` wording records and 22 plural `we` wording records.
 - That baseline contains 84 specifically named potential attendees.
 - It contains 23 invitations with at least one additional-guest allocation, 26 total Plus1 allocation objects, and two invitations with grouped `Kids(n)` authorization.
 - The two `Kids(n)` invitations provide five total unnamed-child capacity slots represented by **two grouped `unnamedChildren` allocation objects**, not five child-allocation objects.
 - There are therefore 28 total `additionalGuestAllocations` objects and 31 total additional-guest person-capacity slots in the 1–57 baseline.
 - The stable 1–57 baseline maximum-attendance capacity is 115.
-- The permanent Test Sample has maximum attendance 2, so current functional maximum-attendance capacity is 117 while current guest-list maximum remains 115.
-- The 57-invitation / 115-person values are baseline audit targets, not permanent ceilings; assigning a reserved invite increases current guest-list counts dynamically.
+- The historical Test Sample capacity in the old 57+Test Sample snapshot was 2; in the current verified source, the permanent Test Sample has capacity **4**, real-guest maximum-attendance capacity is **122**, and combined functional maximum-attendance capacity is **126**. Do not substitute the historical figures for current exact-match checks.
+- The 57-invitation / 115-person values are **historical 1–57 baseline audit targets**, not permanent ceilings or current totals. Assigning a reserve code changes current guest-list and capacity totals dynamically without changing that baseline.
 - Production uses one reusable RSVP form schema; the former production question-profile split is retired.
 - `maximumAttendance` is potential-party capacity, not a browser-selected actual headcount.
 - Every valid configuration must satisfy:
@@ -100,7 +104,7 @@ In particular:
 - The RSVP interface continues to use the thirteen-state model.
 - `DEV999` remains the inactive guard fixture.
 - State 12 — Confirmation Refresh Fallback does not retrieve a saved RSVP or replay submission automatically.
-- The finalized privacy/security standard continues to require no-store responses, analytics/logging minimization, exact initial rate limits, trusted-proxy handling, backend-only credentials, environment separation, guest-safe errors, SMS-provider gating, HTTPS, and RSVP-data retirement.
+- The finalized privacy/security standard continues to require no-store responses, analytics/logging minimization, exact rate limits, trusted-proxy handling, backend-only credentials, environment separation, guest-safe errors, permanent rejection of SMS enablement, protected legacy contact records, HTTPS, and RSVP-data retirement.
 - Invitation codes are limited access tokens rather than passwords; no public guest directory, code-recovery search, fuzzy suggestion, public saved-RSVP endpoint, or code-bearing personalized route is permitted.
 - Lookup remains limited to 10 requests per 15-minute rolling window per client IP.
 - Submission remains limited to 6 requests per 15-minute rolling window per client IP and 6 per normalized invitation code.
@@ -122,7 +126,7 @@ In particular:
 | `DIET` | Attendee-detail and Reception-specific dietary/allergy behavior |
 | `INIT` | Initial-submission behavior |
 | `REV` | Revision and merge behavior |
-| `CHAN` | Guest confirmation-channel behavior |
+| `CHAN` | Fixed email-confirmation contract; retired SMS rejection and legacy-record safeguards |
 | `ERR` | API error and authorization semantics |
 | `STORE` | Storage, version history, concurrency, and idempotency |
 | `DELIV` | Guest/admin delivery behavior |
@@ -144,7 +148,7 @@ In particular:
 - **Live validated** — the exact currently applicable behavior has been validated against a live controlled environment.
 - **Historical live validation; rerun required** — the case passed under an earlier production configuration/activation/runtime contract, but the current grouped-child or October 3 production-source/synchronization model materially changes what must be validated before the result can count for the current contract.
 
-A test whose execution depends on production provider selection, deployment, or a future lifecycle date remains **Required**; execution timing does not make the requirement provisional.
+A test whose execution depends on a separately authorized production deployment, protected historical-data check, or future lifecycle date remains **Required**; execution timing does not turn a retired SMS-provider activation path into an approved feature.
 
 ### 3.3 General execution rule
 
@@ -236,11 +240,11 @@ Use a separately reserved synthetic unknown code such as `UNK-404` only in a tes
 | `APIH-001` | Backend healthy | `GET /wedding/api/health`. | Returns `200 OK` and `{ "status": "ok" }`. | Required |
 | `APIH-002` | Health endpoint | Inspect response. | Contains no invitation record, guest identity, RSVP answer, confirmation destination, attendee-detail value, delivery record, spreadsheet row, or administrative information. | Required |
 | `APIH-003` | Health endpoint | Simulate unavailable Google Sheets while the application process itself can still answer health. | Health is not required by the current contract to prove Google Sheets reachability. | Required |
-| `APIH-004` | Health endpoint | Simulate unavailable email/SMS providers while application process remains healthy. | Health is not required to prove delivery-provider availability. | Required |
+| `APIH-004` | Health endpoint | Simulate unavailable email transport while the application process remains healthy. | Health is not required to prove email-provider delivery availability. | Required |
 | `APIH-005` | Route boundary | Verify public RSVP browser route vs API route. | Browser interaction remains under `/wedding/rsvp/`; backend operations remain under `/wedding/api/`. | Required |
 | `APIH-006` | React fallback | Request `/wedding/api/health`, lookup, or submit through production routing. | React browser-route fallback does not intercept valid API endpoints. | Required |
 | `APIH-007` | API inventory | Enumerate public RSVP endpoints. | Only documented health, lookup, and submit endpoints are required; no public saved-RSVP, directory, recovery, or admin endpoint is introduced. | Required |
-| `APIH-008` | Dynamic records | Change the number of development invitation records in a controlled fixture registry. | Endpoint and renderer logic continue to work without assuming that the production count is permanently 57. | Required |
+| `APIH-008` | Dynamic records | Change development fixture registry size in a controlled test. | Endpoints/renderers do not hard-code either the historical 57 or the current 63 assigned invitation count. | Required |
 
 ---
 
@@ -295,8 +299,8 @@ Use a separately reserved synthetic unknown code such as `UNK-404` only in a tes
 | `BLANK-006` | `DEV008` | Inspect lookup response for prior `namedInviteeResponses` or `additionalGuestResponses`. | Neither stored response map is returned. | Required |
 | `BLANK-007` | `DEV008` | Inspect lookup response for prior `attendanceTotals` or derived `overallAttendance`. | Not returned. | Required |
 | `BLANK-008` | `DEV008` | Inspect lookup response for prior `attendeeDetails`, attendee-entered names, or dietary/allergy text. | Not returned. | Required |
-| `BLANK-009` | `DEV008` | Inspect lookup response for prior confirmation method. | Not returned. | Required |
-| `BLANK-010` | `DEV008` | Inspect lookup response for prior email/mobile/SMS authorization. | Not returned. | Required |
+| `BLANK-009` | `DEV008` | Inspect lookup response for the previously saved confirmation method. | No stored method is disclosed; current lookup capability is fixed `{ "email": true }`, not a history disclosure. | Required |
+| `BLANK-010` | `DEV008` | Inspect lookup response for prior confirmation email or any protected legacy mobile/SMS authorization. | Neither current nor historical contact/authorization information is returned. | Required |
 | `BLANK-011` | `DEV008` | Inspect lookup response for delivery history. | Not returned. | Required |
 | `BLANK-012` | Valid fixture | Inspect lookup response for `partyId`, workbook row, private notes, `active`, `environment`, credentials, or raw source-column values. | None is returned. | Required |
 | `BLANK-013` | Valid fixture | Inspect lookup response top level. | Contains only `invitation`, `questions`, and `confirmationOptions`. | Required |
@@ -455,7 +459,7 @@ Use a separately reserved synthetic unknown code such as `UNK-404` only in a tes
 | `INIT-013` | Any fixture | Use unsupported generic `clear` operation on active substantive regions. | Rejected; current substantive model uses dependency clearing and replacement rather than a generic client clear operation. | Required |
 | `INIT-014` | Any fixture | Successfully store response. | Storage completes before guest/admin delivery attempts begin. | Required |
 | `INIT-015` | Any fixture | Inspect success response top level. | Exactly `submission`, `invitation`, `rsvp`, `confirmation`, and `revisionPolicy`. | Required |
-| `INIT-016` | Any fixture | Inspect success response privacy boundary. | Does not echo invite code, `clientSubmissionId`, email/mobile destination, SMS authorization, private version, `partyId`, workbook row, admin address, or provider internals. | Required |
+| `INIT-016` | Any fixture | Inspect success response privacy boundary. | No invitation code, `clientSubmissionId`, guest email destination, protected legacy mobile/SMS authorization value, private version, `partyId`, workbook row, admin address, or provider internals are echoed. | Required |
 | `INIT-017` | Any attending initial response | Omit one or more authorized `namedInviteeResponses`. | `400 Bad Request`; no storage. | Required |
 | `INIT-018` | Any attending initial response | Omit `attendeeDetails` or provide cardinality different from derived `overallAttendance`. | `400 Bad Request`; no storage. | Required |
 | `INIT-019` | Any attending initial response | Add client-writable `overallAttendance`. | Rejected; backend derives the value from authorized attendance responses/counts. | Required |
@@ -485,8 +489,8 @@ Use `DEV008` and a fictional stored response for revision-heavy cases unless ano
 | `REV-013` | Submit a partial nested attendance-total replacement while continuing to attend and attendance composition is unchanged. | Omitted nested categories remain unchanged; complete merged totals must still equal derived `overallAttendance`. | Required |
 | `REV-014` | Submit revision whose merged age totals do not equal the derived headcount. | Rejected; current stored RSVP remains unchanged. | Required |
 | `REV-015` | Submit revision producing an invalid event selection such as `decline` plus `reception`. | Rejected; no new version. | Required |
-| `REV-016` | Change confirmation method from email to text message after the SMS gate is enabled. | Newly entered text-message operational values replace email-channel operational values; email destination is no longer active. | Required |
-| `REV-017` | Change confirmation method from text message to email. | Newly entered email replaces mobile/SMS operational values; mobile/SMS values are no longer active. | Required |
+| `REV-016` | Retired text-message channel — Attempt a new revision that changes the fixed email confirmation method to `textMessage`, with or without a mobile/authorization payload. | `400 Bad Request`; no new revision, destination change, guest/admin delivery, or SMS transmission. | Required |
+| `REV-017` | Protected historical SMS record — Submit an otherwise valid new revision with a freshly entered email address against a fixture representing a prior legacy SMS confirmation. | New revision uses email only, replaces the active guest-confirmation destination after successful storage, and does not send SMS; any superseded historical record remains protected and subject to retirement. | Required |
 | `REV-018` | Perform revision from a second browser/device with a new `clientSubmissionId`. | Backend merges against authoritative current response at processing time; no `409` merely because another version exists. | Required |
 | `REV-019` | Perform two distinct valid revisions before deadline, each with a new identifier. | Two new versions are created in order; latest successful version becomes current. | Required |
 | `REV-020` | Inspect confirmation after partial revision. | Displays complete merged current RSVP, not merely changed fields. | Required |
@@ -510,30 +514,30 @@ Use `DEV008` and a fictional stored response for revision-heavy cases unless ano
 
 | ID | Context | Test | Expected result | Status |
 |---|---|---|---|---|
-| `CHAN-001` | Email | Submit valid email confirmation object. | Accepted. | Required |
+| `CHAN-001` | Email only | Submit `{ "method": "email", "email": "guest@example.com" }`. | Accepted when the rest of the RSVP is valid; the backend attempts guest and administrative emails independently after storage. | Required |
 | `CHAN-002` | Email | Omit email address. | `400 Bad Request`. | Required |
 | `CHAN-003` | Email | Supply invalid email format. | `400 Bad Request`. | Required |
-| `CHAN-004` | Email | Include `mobile`. | Rejected as contradictory/unauthorized channel data. | Required |
-| `CHAN-005` | Email | Include `smsAuthorization`. | Rejected as contradictory/unauthorized channel data. | Required |
-| `CHAN-006` | Text | Submit valid SMS-capable number when authorization required, with `smsAuthorization: true`. | Accepted only when Text Message is enabled by centralized configuration. | Required |
-| `CHAN-007` | Text | Omit mobile number. | `400 Bad Request`. | Required |
-| `CHAN-008` | Text | Supply invalid mobile format. | `400 Bad Request`. | Required |
-| `CHAN-009` | Text | Authorization-required configuration with missing `smsAuthorization`. | `400 Bad Request`. | Required |
-| `CHAN-010` | Text | Authorization-required configuration with `smsAuthorization: false`. | Rejected; required value is `true`. | Required |
-| `CHAN-011` | Text | Include email in text confirmation object. | Rejected as contradictory/unauthorized channel data. | Required |
-| `CHAN-012` | Text | Configuration does not require SMS authorization. | `smsAuthorization` is omitted rather than treated as a second choice. | Required |
-| `CHAN-013` | Any revision | Omit operational confirmation object because a prior one exists. | Rejected; every revision requires newly entered operational confirmation. | Required |
-| `CHAN-014` | Any revision | Submit new valid destination. | New operational destination replaces prior stored destination after successful storage. | Required |
+| `CHAN-004` | Email only | Add a `mobile` field to a new email confirmation object. | `400 Bad Request`; retired mobile-number input is not accepted. | Required |
+| `CHAN-005` | Email only | Add `smsAuthorization` to a new email confirmation object. | `400 Bad Request`; retired SMS authorization is not collected. | Required |
+| `CHAN-006` | Retired `textMessage` method | Submit a valid-looking legacy `{ "method": "textMessage", "mobile": "...", "smsAuthorization": true }` confirmation in a new request. | `400 Bad Request` in every environment, even if historical records or disabled SMS code remain; no write or outbound SMS. | Required |
+| `CHAN-007` | Retired `textMessage` method | Submit a text-message confirmation object without `mobile`. | `400 Bad Request` because the method itself is forbidden; no mobile-number validation workflow is offered. | Required |
+| `CHAN-008` | Retired mobile field | Supply a malformed mobile number in an otherwise email-only request. | `400 Bad Request`; mobile is not an accepted confirmation property regardless of its format. | Required |
+| `CHAN-009` | Retired SMS consent | Submit a new `textMessage` confirmation without `smsAuthorization`. | `400 Bad Request` because text confirmation is permanently retired, not because consent could later be supplied. | Required |
+| `CHAN-010` | Retired SMS consent | Submit a new `textMessage` confirmation with `smsAuthorization: false`. | `400 Bad Request`; no consent toggle or SMS enablement path exists. | Required |
+| `CHAN-011` | Retired `textMessage` method | Include a valid email field alongside `method: "textMessage"`. | `400 Bad Request`; a supplied email address does not make the retired method valid. | Required |
+| `CHAN-012` | Retired `textMessage` method | Submit a text-message confirmation with SMS authorization omitted under any environment configuration. | `400 Bad Request`; the new request contract accepts only method `email` and its required email address. | Required |
+| `CHAN-013` | Any revision | Omit the confirmation object on the theory that the previous email can be reused. | `400 Bad Request`; every revision requires a newly entered valid email confirmation object. | Required |
+| `CHAN-014` | Email revision | Submit a valid newly entered email destination on an otherwise valid revision. | After successful storage, this address becomes the active email-confirmation destination without revealing/prepopulating the old one. | Required |
 | `CHAN-015` | Guest confirmation | Inspect content for an initial RSVP. | Contains the complete current spreadsheet-authoritative guest-facing RSVP. | Required |
 | `CHAN-016` | Guest confirmation | Inspect content for a revision. | Contains the complete merged current RSVP, not only changed fields. | Required |
-| `CHAN-017` | SMS confirmation | Complete current RSVP requires multiple SMS segments. | Multiple segments are permitted; content still represents the complete current guest-facing RSVP. | Required |
+| `CHAN-017` | Historical SMS delivery metadata | Load a protected historical SMS-format confirmation or multi-segment delivery record in a controlled regression fixture. | Read-only history and exact idempotent recovery remain possible without dispatching SMS, splitting new segments, repeating guest/admin delivery, or mutating a prior version. | Required |
 | `CHAN-018` | Guest confirmation | Inspect conditionally inapplicable structures. | They are omitted rather than shown as zero, disabled, blank, or `N/A`. | Required |
-| `CHAN-019` | Production before SMS provider gate is satisfied | Inspect lookup `confirmationOptions`. | `textMessage` is not advertised as available; the application does not invent provider-specific authorization language. | Required |
-| `CHAN-020` | Production after SMS provider gate is satisfied | Enable Text Message only after provider selection, verified required disclosure/authorization language, backend-only credentials/sender configuration, and production-flow testing. | `textMessage` may be advertised only after all gate conditions are satisfied. | Required |
-| `CHAN-021` | SMS authorization schema | Compare provider-specific approved copy with the form schema. | Permanent operational question ID remains `smsAuthorization`; only verified guest-facing copy/configuration changes as required. | Required |
-| `CHAN-022` | Production Text Message disabled | Inspect alternative confirmation channel. | Email remains available; disabling Text Message does not remove the approved email path. | Required |
-| `CHAN-023` | Submitted RSVP mobile number | Trace permitted use after successful submission/revision. | Number is used only for requested transactional RSVP confirmation and approved manual resend unless a future recorded decision authorizes another purpose. | Required |
-| `CHAN-024` | Submitted RSVP mobile number | Attempt marketing, promotional, unrelated wedding messaging, or list-building use. | Prohibited; RSVP mobile number is not repurposed. | Required |
+| `CHAN-019` | Current lookup in development/test/production | Inspect lookup `confirmationOptions` for a valid invitation. | Exactly `{ "email": true }`; no `textMessage` or `smsAuthorizationRequired` and no guest-selectable method. | Required |
+| `CHAN-020` | Permanently retired SMS enablement | Attempt `RSVP_SMS_ENABLED=true` in development, test, and structurally valid fictional production configurations. | Configuration validation rejects enabled SMS in every environment; there is no provider-selection or disclosure gate that can enable it. | Required |
+| `CHAN-021` | Reusable operational-question schema | Inspect active and example form schemas and guest form controls. | Only required `confirmationEmail` is exposed for new RSVP contact input; no SMS authorization question, mobile number, or channel-selector control. | Required |
+| `CHAN-022` | Guest-facing email-only presentation | Render lookup/form when historical SMS code/data exists but SMS is disabled. | Email input remains available and required; no disabled or selectable Text Message option, mobile field, or consent control is displayed. | Required |
+| `CHAN-023` | Protected legacy mobile values | Inspect legacy mobile numbers and SMS authorization in private history and administrative storage only. | Legacy values remain private, non-guest-facing, non-logging/non-analytics, and subject to the approved retirement timetable; they are not reused for a new confirmation or resend. | Required |
+| `CHAN-024` | Legacy-contact misuse prevention | Attempt marketing, promotional, SMS resend, email fallback to a historical mobile, or other unrelated reuse of historical SMS contact information. | Prohibited; no new SMS delivery or repurposing of historical contact/authorization values is permitted. | Required |
 
 ---
 
@@ -603,7 +607,7 @@ Use `DEV008` and a fictional stored response for revision-heavy cases unless ano
 |---|---|---|---|
 | `DELIV-001` | Storage succeeds; guest delivery and admin email succeed. | Successful RSVP status; both delivery statuses `sent`; no delivery warning. | Required |
 | `DELIV-002` | Storage succeeds; guest email fails; admin succeeds. | RSVP remains stored; guest status `failed`; admin `sent`; `deliveryWarning: true`. | Required |
-| `DELIV-003` | Storage succeeds; guest SMS fails; admin succeeds. | RSVP remains stored; warning shown; no resubmission instruction. | Required |
+| `DELIV-003` | Historical SMS-format replay — Replay an exactly matching already-stored legacy SMS-format logical submission in a controlled regression fixture. | Prior idempotent result is recovered without new RSVP version, guest SMS/email send, administrative resend, or new delivery record; historical details remain protected. | Required |
 | `DELIV-004` | Storage succeeds; admin email fails; guest succeeds. | RSVP remains stored; limited admin status `failed`; warning shown without exposing admin address. | Required |
 | `DELIV-005` | Storage succeeds; both delivery attempts fail. | RSVP remains stored; both statuses represented safely; `deliveryWarning: true`. | Required |
 | `DELIV-006` | Storage succeeds; one delivery is uncertain. | RSVP remains stored; applicable status `uncertain`; warning shown. | Required |
@@ -614,7 +618,7 @@ Use `DEV008` and a fictional stored response for revision-heavy cases unless ano
 | `DELIV-011` | Manual guest-confirmation resend. | Sends complete current RSVP; RSVP content/version unchanged. | Required |
 | `DELIV-012` | Idempotent HTTP replay after successful storage. | Does not create duplicate delivery attempts merely because request was replayed. | Required |
 | `DELIV-013` | Inspect delivery records. | Guest and administrative delivery results are recorded separately by attempt/channel. | Required |
-| `DELIV-014` | Inspect guest-facing delivery status. | Guest may see selected channel status and limited admin-attempt status, but not protected admin address/provider internals. | Required |
+| `DELIV-014` | Guest-facing delivery status — Inspect stored email-confirmation and administrative-attempt status. | Guest sees email delivery-attempt status and only limited protected administrative-email attempt status, never admin address, guest email destination, or provider internals. | Required |
 | `DELIV-015` | Simulate delivery failure after successful storage. | API still returns `201` for stored initial or `200` for stored revision/replay, not a generic `503` storage failure. | Required |
 
 ---
@@ -642,7 +646,7 @@ The interface must render one top-level RSVP state at a time. Countdown, invitat
 | `STATE-012` | 7 — Submitting | Begin logical submission. | Submit action protected/disabled; progress announced; logical request and ID retained. | Required |
 | `STATE-013` | 7 — Submitting | Double-click or repeat activation. | UI prevents duplicate action where possible; backend idempotency remains authoritative. | Required |
 | `STATE-014` | 8 — Submission Uncertain | Lose definitive client response. | State explicitly says outcome cannot be confirmed; does not claim success/failure. | Required |
-| `STATE-015` | 8 — Submission Uncertain | Inspect recovery guidance. | Discourages blind resubmission, advises selected confirmation channel/assistance, and preserves same ID for a safe retry. | Required |
+| `STATE-015` | 8 — Submission Uncertain | Inspect recovery guidance. | Discourages blind resubmission; asks guest to check the newly entered email inbox or use assistance; explicit safe retry reuses the original logical request/identifier. | Required |
 | `STATE-016` | 9 — Confirmed Initial Submission | Successful stored initial with no warning. | Success heading, complete current RSVP, initial designation, timestamp/delivery status, revision guidance. | Required |
 | `STATE-017` | 10 — Confirmed Revision | Successful stored revision with no warning. | Success identifies revision and shows complete merged RSVP, not only changed fields. | Required |
 | `STATE-018` | 11 — Stored with Delivery Warning | Storage succeeds but a delivery fails/uncertain. | Storage success remains explicit; complete RSVP shown; warning does not request resubmission. | Required |
@@ -678,7 +682,7 @@ Phase 3 Step 13 finalizes this section. The ordinary source of a successful on-s
 | `PAGE-014` | Successful response has either action and `confirmation.deliveryWarning: true`. | Render State 11 — Stored with Delivery Warning while preserving the underlying initial/revision designation. | Required |
 | `PAGE-015` | Idempotent successful replay returns HTTP `200` but preserves `submission.action: "initial"`. | Render State 9 (or State 11 if a delivery warning is present), not State 10 merely because the HTTP status is `200`. | Required |
 | `PAGE-016` | Inspect State 12 heading. | Heading is `Confirmation Summary No Longer Available`. | Required |
-| `PAGE-017` | Inspect State 12 primary explanation. | It explains that the temporary on-screen RSVP summary is unavailable, that an RSVP may already have been recorded, directs the guest to check the selected email/text confirmation, and warns not to submit the same response again solely because the summary disappeared. | Required |
+| `PAGE-017` | Inspect State 12 primary explanation. | It explains that the temporary on-screen RSVP summary is unavailable, that an RSVP may already have been recorded, directs the guest to check the newly entered confirmation email inbox, and warns not to resubmit solely because the summary disappeared. | Required |
 | `PAGE-018` | Inspect State 12 revision guidance. | Tells the guest that a deliberate revision begins by returning to the RSVP page and entering the invitation code again. | Required |
 | `PAGE-019` | Inspect State 12 assistance content. | Provides `RSVPhelp@loreweavercreations.com` and a `Contact for Help` action. | Required |
 | `PAGE-020` | Activate `Return to RSVP`. | Navigates to `/wedding/rsvp/` as a deliberate ordinary manual-entry interaction; it does not replay the lost submission. | Required |
@@ -755,7 +759,7 @@ These cases reflect the current requirements and Step 10 browser-state model. Ex
 
 Phase 3 Step 14 finalizes this section. These cases verify the privacy/security requirements approved in `decisions.md` and synchronized into `rsvp-system-design.md` and `rsvp-api-contract.md`.
 
-The test catalog defines expected behavior. Some production-gate and lifecycle tests can be executed only after provider selection, production deployment, or the applicable retirement date; they remain **Required**.
+The test catalog defines expected behavior, not a claim that every case has been executed. Controlled production and lifecycle tests may be run only within separately authorized deployment/verification windows or at the applicable retirement date; they remain **Required**. SMS provider selection or activation is not an authorized test precondition.
 
 | ID | Test | Expected result | Status |
 |---|---|---|---|
@@ -763,7 +767,7 @@ The test catalog defines expected behavior. Some production-gate and lifecycle t
 | `PRIV-002` | Inspect page titles, descriptions, canonical URLs, structured data, and social-preview metadata. | No invitation code, guest identity, RSVP response, confirmation destination, profile assignment, allowance, or other personalized RSVP value appears. | Required |
 | `PRIV-003` | Inspect analytics events on RSVP/confirmation routes. | No invitation code, party identity derived from invitation data, RSVP answer, dietary information, email/mobile, confirmation destination, `clientSubmissionId`, profile assignment, allowance, version, or provider payload is sent. | Required |
 | `PRIV-004` | Inspect lookup response. | No stored answers, stored destinations, stored-response existence indicator, private IDs, administrative data, another party's information, or credentials are exposed. | Required |
-| `PRIV-005` | Inspect successful submission response. | No invitation code, `clientSubmissionId`, guest email/mobile destination, SMS authorization content, private RSVP version, protected administrative address, provider credential, or unrelated party data is exposed. | Required |
+| `PRIV-005` | Inspect successful submission response. | No invitation code, `clientSubmissionId`, guest confirmation email destination, protected legacy SMS/mobile/authorization data, private RSVP version, administrative recipient, provider credential, or unrelated party data is exposed. | Required |
 | `PRIV-006` | Inspect confirmation route. | No sensitive summary data is encoded into the URL; Step 13 temporary-state behavior remains controlling. | Required |
 | `PRIV-007` | Inspect public RSVP and confirmation indexing treatment. | `/wedding/rsvp/` and `/wedding/rsvp/confirmation`, including all transactional states, are excluded from public indexing through appropriate page/server behavior. | Required |
 | `PRIV-008` | Inspect health endpoint. | No invitation, RSVP, confirmation destination, dietary, delivery, workbook-row, or private administrative data is exposed. | Required |
@@ -773,7 +777,7 @@ The test catalog defines expected behavior. Some production-gate and lifecycle t
 | `PRIV-012` | Access `/wedding/privacy` without an invitation code. | Full Privacy page is publicly reachable and remains indexable. | Required |
 | `PRIV-013` | Inspect guest-facing administrative-delivery status. | Protected administrative email address is never exposed. | Required |
 | `PRIV-014` | Force backend/provider/storage errors. | Guest-facing result contains no stack trace, framework output, workbook/worksheet name, server path, credential, private admin address, provider payload, record ID, or close-match information. | Required |
-| `PRIV-015` | Trace RSVP mobile-number use. | Number is used only for approved transactional RSVP confirmation and approved manual resend unless a later recorded decision separately authorizes another purpose. | Required |
+| `PRIV-015` | Inspect private historical mobile-number and SMS authorization records. | No new mobile number or SMS consent is collected; legacy values are protected from public/UI/log/analytics access and not reused for guest delivery, marketing, or unrelated contact. | Required |
 | `PRIV-016` | Review guest-facing invitation-code description. | Code is described as an invitation/access code or limited access token, not as a password or password-equivalent authentication mechanism. | Required |
 | `PRIV-017` | Search public functionality for guest directory/code recovery. | No public guest directory, invitation directory, code-recovery search, valid-code list, public saved-RSVP endpoint, or RSVP-history endpoint exists. | Required |
 | `PRIV-018` | Submit a one-character near match and visual-ambiguity variants. | No fuzzy matching, “Did you mean?” response, close-match disclosure, or automatic character substitution occurs. | Required |
@@ -805,7 +809,7 @@ The test catalog defines expected behavior. Some production-gate and lifecycle t
 | `PRIV-044` | Trusted production proxy-chain test. | Per-IP limiter uses the intended client address supplied through the configured trusted proxy/tunnel chain. | Required |
 | `PRIV-045` | Spoof arbitrary forwarded-address headers from an untrusted client. | Express does not blindly trust the spoofed value for rate-limiting identity. | Required |
 | `PRIV-046` | Search frontend/browser artifacts for Google credentials. | No service-account file, private key, access token, spreadsheet authentication secret, or Google credential is present. | Required |
-| `PRIV-047` | Search frontend/browser artifacts for email/SMS secrets. | No SMTP password, SMS API key, provider auth secret, sender secret/configuration, or protected administrative recipient address is present. | Required |
+| `PRIV-047` | Search browser/public artifacts for email or retained legacy SMS secrets. | No SMTP credential, Resend API key, legacy SMS API key/provider token, backend sender secret, protected admin recipient address, or equivalent secret is present. | Required |
 | `PRIV-048` | Inspect source-control/public documentation/public shares. | No backend credential, provider secret, production invitation data, or protected administrative configuration is present. | Required |
 | `PRIV-049` | Inspect administrative workbook permissions. | Workbook is not public and is accessible only to the couple, explicitly authorized administrators, and backend service account. | Required |
 | `PRIV-050` | Inspect browser network behavior. | React never authenticates directly to or reads directly from the private Google Sheets workbook. | Required |
@@ -813,15 +817,15 @@ The test catalog defines expected behavior. Some production-gate and lifecycle t
 | `PRIV-052` | Present a syntactically valid development fixture to production. | Neutral unavailable/invalid behavior is returned without disclosing that the record exists in another environment. | Required |
 | `PRIV-053` | Inspect guest-safe error response body across `400`, `403`, `404`, `410`, `429`, and `503`. | No infrastructure, filesystem, workbook, provider, credential, private-recipient, record-ID, close-match, or environment-enumeration detail is exposed. | Required |
 | `PRIV-054` | Inspect submitting party's temporary on-screen confirmation. | Attendee names and applicable per-attendee dietary/allergy information may appear as part of that party's complete current RSVP. | Required |
-| `PRIV-055` | Inspect submitting party's selected email/text confirmation. | Attendee names and applicable dietary/allergy responses may appear as part of that party's complete current RSVP. | Required |
+| `PRIV-055` | Inspect the submitting party's guest email confirmation. | Within guest delivery, attendee names and applicable dietary/allergy values appear in the submitting party's complete guest confirmation email only; protected administrative confirmation is tested separately in `PRIV-056`. | Required |
 | `PRIV-056` | Inspect protected administrative confirmation. | Attendee names and applicable per-attendee dietary/allergy information may appear because the protected administrative message contains the complete current RSVP. | Required |
 | `PRIV-057` | Inspect analytics, public pages/metadata, ordinary logs, unrelated admin output, and another invited party's data. | Attendee-entered names and dietary/allergy text are absent from all prohibited surfaces. | Required |
-| `PRIV-058` | Production SMS gate not yet satisfied. | Text Message confirmation remains disabled; no invented provider-specific disclosure is shown. | Required |
-| `PRIV-059` | Production SMS gate satisfied. | Provider is selected; required sender/consent/carrier-rate/opt-out/help/other applicable wording is verified; credentials remain backend-only; production flow is tested before Text Message is enabled. | Required |
+| `PRIV-058` | Attempt SMS enablement through configuration or browser controls. | `RSVP_SMS_ENABLED=true` is rejected in all environments; the frontend offers email only and no SMS provider/disclosure/authorization choice. | Required |
+| `PRIV-059` | Audit permanently retired SMS activation instructions and historical record protection. | No production SMS enablement gate or test assumes SMS may be enabled later. Historical mobile/SMS authorization and delivery records remain access-restricted pending controlled retirement under the governing policy. | Required |
 | `PRIV-060` | Inspect public security/privacy copy. | No claim of “completely secure,” “100% secure,” “unhackable,” “risk-free,” or equivalent absolute guarantee appears. | Required |
 | `PRIV-061` | Production traffic test. | RSVP entry, lookup, submission, and confirmation use HTTPS. | Required |
 | `PRIV-062` | Attempt ordinary HTTP navigation in production. | Redirects to HTTPS before RSVP information can be submitted. | Required |
-| `PRIV-063` | Real-guest RSVP-data lifecycle review by July 30, 2027. | Real-guest current responses, superseded versions, authorized attendance responses, attendee-entered names, dietary/allergy text, guest confirmation destinations, SMS authorization, `clientSubmissionId`, delivery-attempt history, transaction timestamps retained only as history, and real-guest code-to-response mappings are deleted or irreversibly de-identified unless a documented exception applies. | Required |
+| `PRIV-063` | Real-guest RSVP-data lifecycle review by July 30, 2027. | Real-guest current responses, superseded versions, authorized attendance responses, attendee-entered names, dietary/allergy text, guest confirmation destinations, historical SMS authorization records (if any), `clientSubmissionId`, delivery-attempt history, transaction timestamps retained only as history, and real-guest code-to-response mappings are deleted or irreversibly de-identified unless a documented exception applies. | Required |
 | `PRIV-064` | Retention exception review after July 30, 2027. | Only the minimum record needed for a concrete unresolved correction, dispute, delivery investigation, or other documented administrative need remains; access is restricted and the record is deleted when the need ends. | Required |
 | `PRIV-065` | Protected backup lifecycle review by August 29, 2027. | Backups containing retired RSVP-operational data have expired through protected backup rotation. | Required |
 | `PRIV-066` | Create backups after active-data retirement. | New backups do not unnecessarily reintroduce RSVP-operational data already deleted or irreversibly de-identified from the active system. | Required |
@@ -870,15 +874,15 @@ The test catalog defines expected behavior. Some production-gate and lifecycle t
 | `DOC-012` | Search for required confirmation recovery endpoint/token. | None. |
 | `DOC-013` | Search for automatic lookup/submission replay from State 12. | None. |
 | `DOC-014` | Search for assumption every refresh forces State 12. | None. |
-| `DOC-015` | Compare privacy/security tests. | Cache/logging/analytics/limits/credentials/provider gate/retention/HTTPS match. |
+| `DOC-015` | Compare privacy/security tests. | Cache/logging/analytics/limits/credentials/permanent SMS-rejection/legacy-record protection/retention/HTTPS match Decision 029. |
 | `DOC-016` | Compare trusted proxy, retirement, environment separation, and permanent Test Sample lifecycle. | Match system design; real-guest operational retirement does not disable Invite 68. |
-| `DOC-017` | Compare cache/rate/error/SMS/endpoints. | Match API contract. |
+| `DOC-017` | Compare cache/rate/error/email-only confirmation/retired SMS-rejection/endpoints. | Match current API contract and validated runtime. |
 | `DOC-018` | Search for remaining deferred privacy requirement. | None. |
-| `DOC-019` | Search for provider-specific SMS copy before provider selection. | None. |
+| `DOC-019` | Search active requirements/tests for future SMS provider selection, mobile collection or enablement gate. | None; historical records and prohibitions may still mention retired SMS. |
 | `DOC-020` | Search for retention inconsistency with July 30 / Aug 29 2027. | None. |
 | `DOC-021` | Search for operative `questionProfile`, `additionalGuestAllowance`, aggregate `additionalGuestAttendance`, reduced-profile logic. | None. |
 | `DOC-022` | Search for party-level dietary assumption. | None. |
-| `DOC-023` | Verify production audit targets. | 68 numbered source rows/codes; 10 reserved placeholders; 58 functional configurations; 57 guest-list eligible; 1 permanent test; guest-list max 115; functional max 117; established 1–57 baseline remains 35 singular, 22 plural, 84 named, 26 Plus1 objects, 2 grouped child objects, 5 grouped-child capacity slots, 28 allocation objects, 31 additional capacity, max 115. |
+| `DOC-023` | Verify production audit targets. | 68 numbered source rows/codes; 63 assigned, four reserved; 64 functional configurations, 63 guest-list eligible, one permanent Test Sample; real-guest maximum 122, functional maximum 126; established 1–57 historical baseline remains 35 singular, 22 plural, 84 named, 26 Plus1 objects, 2 grouped child objects, 5 grouped-child capacity slots, 28 allocation objects, 31 additional capacity, max 115. |
 | `DOC-024` | Search for Reception-only attendee-name assumptions. | None. |
 | `DOC-025` | Search for age-total-derived headcount assumptions. | None; overall attendance derives from named Yes + Plus1 Yes + grouped child count. |
 | `DOC-026` | Search for maximum-bounded-but-not-equal age totals. | None; exact equality required. |
@@ -900,7 +904,7 @@ The test catalog defines expected behavior. Some production-gate and lifecycle t
 | Lookup rate limit | `CODE-025`, `PRIV-038`–`PRIV-039` |
 | Submission rate limits | `ERR-013`, `PRIV-040`–`PRIV-042` |
 | `Retry-After` handling | `PRIV-043` |
-| Provider-specific SMS disclosure gate | `CHAN-019`–`CHAN-024`, `PRIV-058`–`PRIV-059` |
+| Email-only contract, retired SMS rejection and legacy protections | `CHAN-001`–`CHAN-024`, `PRIV-015`, `PRIV-058`–`PRIV-059` |
 | RSVP-data retention | `PRIV-063`–`PRIV-068` |
 | Credential/deployment boundaries | `PRIV-044`–`PRIV-052`, `PRIV-061`–`PRIV-062` |
 | Browser/cache behavior | `PRIV-021`–`PRIV-030` |
@@ -971,7 +975,7 @@ The confirmation-refresh portion is complete when all of the following remain tr
 - Missing or unusable successful state renders State 12 — Confirmation Refresh Fallback.
 - State 12 heading remains `Confirmation Summary No Longer Available`.
 - State 12 states that the temporary on-screen summary is unavailable and that an RSVP may already have been recorded without asserting success or failure.
-- State 12 directs the guest to the selected email/text confirmation and discourages resubmitting solely because the on-screen summary disappeared.
+- State 12 directs the guest to check the email address newly entered for confirmation and discourages resubmitting solely because the on-screen summary disappeared.
 - Deliberate revision begins through `Return to RSVP` and manual code entry; assistance remains available through `RSVPhelp@loreweavercreations.com`.
 - State 12 performs no automatic lookup, submission replay, new identifier generation, silent identifier reuse, saved-RSVP retrieval, or confirmation-recovery API call.
 - State 12 remains distinct from State 8 — Submission Uncertain, where an explicit safe idempotent retry may reuse the original identifier.
@@ -999,13 +1003,13 @@ The privacy/security portion is complete when all of the following are true:
 - Submission is limited to 6 requests per 15-minute rolling window per client IP and 6 per normalized invitation code.
 - Rate-limited submissions create no RSVP version and no confirmation delivery attempt.
 - Trusted-proxy handling and spoofed forwarded-address rejection are tested.
-- Google, email, SMS, sender, and protected administrative-recipient credentials remain backend-only.
+- Google, email, sender, protected administrative-recipient, and any retained legacy SMS credentials remain backend-only.
 - The private administrative workbook is not browser-accessible and is permission restricted.
 - Real production invitation data, fictional development fixtures, the permanent production Test Sample, and environment credentials remain separated according to their distinct roles; the Test Sample is production data rather than a development fixture.
 - Guest-safe errors reveal no infrastructure, provider, credential, workbook, close-match, roster/allocation, or environment-enumeration detail.
 - Attendee-entered names and per-attendee dietary/allergy information appear only on the submitting party's authorized confirmation surfaces, protected administrative confirmation, and authorized private records; they are absent from analytics, public metadata, ordinary logs, unrelated output, and other parties' data.
-- RSVP mobile numbers remain transactional-only.
-- Text Message confirmation remains disabled until provider selection, applicable disclosure/authorization review, backend-only credential/sender configuration, and production-flow testing satisfy the gate.
+- No new confirmation mobile number or SMS authorization is collected; any legacy mobile/consent and delivery records remain protected under the approved retention policy.
+- Text-message confirmation is permanently retired. Enabling `RSVP_SMS_ENABLED` is rejected in every environment, and no provider-selection or future SMS-activation gate is permitted.
 - Production RSVP traffic uses HTTPS and ordinary HTTP redirects before private data can be submitted.
 - Real-guest RSVP-operational data, including authorized attendance responses and attendee-entered names, is retired by July 30, 2027 subject only to a minimal documented exception, and protected backups containing retired data expire by August 29, 2027.
 - Historical permanent-Test-Sample operational records may also be cleared/de-identified, but the Test Sample invitation configuration remains functional for controlled post-wedding portfolio/production verification.
@@ -1082,21 +1086,21 @@ The September 20, 2026 controlled activation remains historical evidence for the
 | `PROD-ACT-003` | Run loader without exact destructive-write acknowledgement. | Refuses modification. | Implemented |
 | `PROD-ACT-004` | Run guarded synchronization after readiness. | Compatibility is proven before any invitation write; a protected private pre-load snapshot is then created before replacement. | Implemented |
 | `PROD-ACT-005` | Replace invitation configuration using the current transformer. | Only the Invitations registry is rewritten; current expected set contains every functional assigned/test configuration and excludes exact reserved placeholders. | Implemented |
-| `PROD-ACT-006` | Verify loaded invitations against the current transformed source. | Exact 58-record functional match: 57 guest-list eligible + 1 permanent test; current guest-list max 115, functional max 117; each configuration passes capacity and private-classification rules. | Implemented |
+| `PROD-ACT-006` | Verify loaded invitations against the current transformed source. | Exact 64-record functional match: 63 guest-list eligible + 1 permanent test; real-guest capacity 122, functional capacity 126; each configuration passes source-derived capacity and private-classification rules. | Implemented |
 | `PROD-ACT-007` | Compare Current RSVPs, RSVP Versions, Submission Records, Delivery Records, and Resend Records before/after synchronization. | Every operational section is unchanged. | Implemented |
 | `PROD-ACT-008` | A post-backup activation/verification step fails. | Restoration of the prior Invitations registry is attempted from the private snapshot; original failure remains reported. | Implemented |
 | `PROD-ACT-009` | Run independent post-load activation verifier with existing valid RSVP history. | Stored Invitations registry exactly matches the source-derived functional set and every operationally referenced invitation remains compatible. | Implemented |
 | `PROD-ACT-010` | Inspect output/source control. | No real codes, identities, Test Sample code, workbook id, source mapping, snapshot contents, or credentials are exposed. | Required |
-| `PROD-ACT-011` | Audit latest source. | Reports 68 numbered rows/codes, valid sequence, 10 reserved placeholders, 58 functional configs, 57 guest-list eligible, 1 permanent test, guest-list max 115, functional max 117, plus the stable 1–57 baseline metrics. | Required |
+| `PROD-ACT-011` | Audit latest source. | Reports 68 numbered source rows/codes, 63 assigned, four exact reserved placeholders, 64 functional configs (63 eligible plus 1 permanent Test Sample), real-guest max 122, combined max 126; separately reports the preserved 1–57 historical baseline metrics. | Required |
 | `PROD-ACT-012` | Transform latest `Kids(n)` rows. | Exactly one `unnamedChildren` allocation is created per applicable invitation; its `maximumCount` equals source `n`; no one-allocation-per-child expansion occurs. | Required |
 | `PROD-ACT-013` | Positive child residual lacks Kids authorization, differs from current source `Kids(n)`, or residual is negative. | Transformation fails before activation for private review. | Required |
 | `PROD-ACT-014` | Inspect guest-facing projection of an assigned or Test Sample invitation. | Only safe invitation/form fields are returned; private `recordRole`, `guestListEligible`, raw `Kids(n)`, and source-only metadata are absent. | Required |
-| `PROD-ACT-015` | Inspect source rows 58–67 in their exact reserved-placeholder shape. | Each retains a unique source code but produces no functional invitation configuration. | Implemented |
+| `PROD-ACT-015` | Inspect the currently reserved placeholders among source rows 58–67. | Exactly four present-day placeholders retain distinct private codes and produce no functional invitation; six previously reserved rows are now assigned and eligible. | Required |
 | `PROD-ACT-016` | Partially populate a reserved row without producing an unambiguous valid invitation. | Transformation fails closed; the row is not silently treated as either a placeholder or functional invitation. | Implemented |
 | `PROD-ACT-017` | Break numbered-row sequence, duplicate a source code, or create a canonical-code collision. | Source audit/transformation fails before activation. | Implemented |
 | `PROD-ACT-018` | Transform Invite 68. | Exactly one functional production Test Sample is created with private `recordRole: "test"`, `guestListEligible: false`, `active: true`, and `environment: "production"`. | Implemented |
-| `PROD-ACT-019` | Inspect Test Sample audit contribution. | Test Sample metrics are reported separately; it contributes maximum attendance 2 to functional capacity and nothing to guest-list counts. | Implemented |
-| `PROD-ACT-020` | Convert reserved Invite 58 into a valid assigned invitation in a controlled transformed-source test. | Reserved count falls to 9; functional count becomes 59; guest-list count becomes 58; guest-list capacity increases according to the new invitation; the 1–57 baseline remains 57/115. | Implemented |
+| `PROD-ACT-019` | Inspect Test Sample audit contribution. | Test Sample metrics are reported separately; the current Test Sample contributes maximum attendance 4 to combined functional capacity and nothing to real-guest counts. | Required |
+| `PROD-ACT-020` | Populate one of the four presently reserved placeholder rows in a controlled *fictional transformed-source* test. | Reserved count becomes 3, functional count 65 and real-guest eligible count 64; capacity increases by that new invitation while existing referenced configurations and historical 1–57 baseline remain unchanged. | Required |
 | `PROD-ACT-021` | Change any field of an invitation already referenced by operational RSVP history. | Compatibility check rejects synchronization before the write. | Implemented |
 | `PROD-ACT-022` | Remove an invitation already referenced by operational RSVP history. | Compatibility check rejects synchronization before the write. | Implemented |
 | `PROD-ACT-023` | Add a newly assigned reserved invitation while unrelated valid RSVP history already exists. | Compatibility check accepts the additive synchronization when all referenced invitation configurations remain unchanged. | Implemented |
@@ -1105,25 +1109,25 @@ The September 20, 2026 controlled activation remains historical evidence for the
 | `PROD-ACT-026` | Operational data references a party absent from the stored invitation registry or proposed expected registry. | Compatibility check fails closed as orphaned operational data. | Implemented |
 | `PROD-ACT-027` | Submission-record key party and private record JSON party disagree. | Compatibility check fails closed rather than trusting one representation. | Implemented |
 
-The historical September 20 activation occurred with 57 configurations and empty operational tables. Those facts remain historical evidence, not current prerequisites. Final readiness requires executing the current 68-row transformation, guarded synchronization/readiness, and exact post-load verification against the protected production environment.
+The historical September 20 activation occurred with 57 configurations and empty operational tables. Those facts remain historical evidence, not current prerequisites. Controlled D12/D13 checks supplied later protected production Test Sample evidence; D14 still requires separately authorized readiness verification against the current 68-row private source (64 functional invitations and four reserved placeholders), compatible operational history, and the deployed revision. Do not rerun live writes or contact guests merely to update this catalog.
 
 # 34. Production Runtime and Deployment Readiness Tests
 
-The general runtime architecture remains unchanged, but production readiness and smoke verification now operate against the October 3 functional-registry model and permanent Test Sample.
+The general runtime architecture remains unchanged, but production readiness and any separately approved smoke verification operate against the current guarded functional registry and permanent Test Sample, not the October 3 snapshot counts.
 
 | ID | Scenario | Expected result | Status |
 |---|---|---|---|
-| `PROD-RUN-001` | Parse complete production runtime config. | Canonical origin, approved Resend identity, disabled SMS, bounded proxy trust, writer count one accepted. | Implemented |
+| `PROD-RUN-001` | Parse complete production runtime config. | Canonical origin, approved Resend identity, permanently disabled legacy SMS flag, bounded proxy trust, and writer count one accepted. | Implemented |
 | `PROD-RUN-002` | Different production browser origin. | Validation fails closed. | Implemented |
 | `PROD-RUN-003` | Missing/zero/>1 mutation writer. | Validation fails closed. | Implemented |
-| `PROD-RUN-004` | Unapproved sender or premature SMS enablement. | Validation fails closed. | Implemented |
+| `PROD-RUN-004` | Unapproved sender or any attempted SMS enablement. | Validation fails closed in all environments; no later provider gate is available. | Implemented |
 | `PROD-RUN-005` | Canonical explicit Origin. | Request permitted to continue. | Implemented |
 | `PROD-RUN-006` | Mismatched Origin. | No-store 403 before RSVP route work. | Implemented |
 | `PROD-RUN-007` | Controlled originless server-side request. | Not rejected solely due to absent Origin. | Implemented |
 | `PROD-RUN-008` | Competing same-host writer lock. | Second acquisition fails until first releases. | Implemented |
 | `PROD-RUN-009` | Run real production runtime readiness after current invitation synchronization. | Environment, current Google invitation data, Resend construction, and writer-lock acquisition/release pass against the current functional registry. | Historical live validation; rerun required |
 | `PROD-RUN-010` | Run loopback smoke with exact acknowledgement and the permanent Test Sample invitation code. | Script proves the supplied code canonicalizes to the authoritative Test Sample, loopback health returns 200, and production lookup returns 200. | Implemented; live rerun required |
-| `PROD-RUN-011` | Inspect permanent-Test-Sample smoke lookup response. | Top-level boundary remains `invitation`, `questions`, `confirmationOptions`; returned invitation capacity/named roster/allocations match the authoritative Test Sample safe projection; private role/eligibility/source data are absent. | Implemented; live rerun required |
+| `PROD-RUN-011` | Inspect permanent-Test-Sample smoke lookup response. | Top-level boundary remains `invitation`, `questions`, `confirmationOptions`, with `confirmationOptions` exactly `{ "email": true }`; safe invitation data match current Test Sample configuration (capacity four); private role/eligibility/source metadata are absent. | Implemented; live rerun required |
 | `PROD-RUN-012` | Compare operational workbook sections before/after smoke. | No RSVP mutation/version/submission/delivery/resend record is created or changed. | Implemented; live rerun required |
 | `PROD-RUN-013` | Inspect smoke procedure/repository/output. | Test Sample code/identity, real guest data, protected recipient, API key, workbook id, and private source mapping are not committed or printed. | Required |
 | `PROD-RUN-014` | Reverse-proxy topology changes. | `TRUST_PROXY` is revalidated. | Required |
