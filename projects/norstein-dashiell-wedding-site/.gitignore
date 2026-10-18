@@ -53,3 +53,6 @@ Thumbs.db
 
 # Local source/master video; hosted externally for web delivery
 client/src/assets/videos/ProposalieFIN.mp4
+
+# Local session handoff / AI continuity record
+latest-handoff.md
