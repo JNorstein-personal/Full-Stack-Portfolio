@@ -469,14 +469,6 @@ function RsvpPage() {
   function renderEntry() {
     return (
       <>
-        <p>
-          To RSVP online, enter the
-          six-character invitation
-          code printed with the RSVP
-          information on your
-          invitation.
-        </p>
-
         <section className="rsvp-entry-guidance">
           <h2>
             Where to Find Your Code
@@ -536,11 +528,7 @@ function RsvpPage() {
               className="form-help"
               id="rsvp-code-help"
             >
-              Format: XXX-XXX. Enter
-              the code manually from
-              your invitation. It is
-              never placed in the
-              website address.
+              Format: XXX-XXX.
             </p>
           </div>
 
@@ -789,26 +777,10 @@ function RsvpPage() {
               type="information"
               title="This Form Always Opens Blank"
             >
-              Previously submitted
-              answers and confirmation
-              contact details are not
-              displayed here. For a
-              first RSVP, complete
-              every required
-              applicable field. For a
-              revision, re-enter the
-              email address where you
-              want your updated RSVP
-              confirmation sent, then
-              provide only the RSVP
-              changes you intend to
-              make. RSVP fields you
-              leave untouched normally
-              remain unchanged unless
-              another submitted change
-              makes them inapplicable
-              or requires complete
-              replacement.
+              Previously submitted answers are not displayed here. If this is
+              your first RSVP, complete all required questions. If you’re
+              updating an RSVP, change only the answers that need to be
+              updated. Answers you leave blank will normally remain unchanged.
             </StatusMessage>
 
             <section className="rsvp-personalized-support">
@@ -816,15 +788,10 @@ function RsvpPage() {
                 Revisions
               </h3>
               <p>
-                You may return to this
-                RSVP page and re-enter
-                your invitation code to
-                submit revisions until
-                the online deadline.
-                Each validated form
-                opens blank rather than
-                displaying previously
-                stored answers.
+                To make changes later,
+                return to this page and
+                re-enter your invitation
+                code.
               </p>
             </section>
           </section>
@@ -932,7 +899,7 @@ function RsvpPage() {
   return (
     <PageContainer>
       <div className="form-width rsvp-page">
-        <h1>RSVP</h1>
+        <h1>RSVP Online:</h1>
 
         {renderState()}
 
@@ -988,7 +955,7 @@ function RsvpPage() {
               display previously stored
               answers or confirmation
               destinations. After a successful online submission, we attempt to email a complete RSVP confirmation to the address you entered and a separate administrative
-              confirmation to the couple.{" "}
+              confirmation to Joshua and Taylor.{" "}
               <Link to="/privacy">
                 Read the full RSVP
                 Privacy Notice
