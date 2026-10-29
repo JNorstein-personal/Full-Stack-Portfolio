@@ -28,6 +28,34 @@ export const ATTENDANCE_TOTAL_LABELS = Object.freeze({
   childrenUnder3: "Children under 3",
 });
 
+export function isSinglePersonInvitation(invitation) {
+  const namedInvitees =
+    invitation?.namedInvitees ?? [];
+
+  const allocations =
+    invitation?.additionalGuestAllocations ?? [];
+
+  return (
+    namedInvitees.length === 1 &&
+    allocations.length === 0
+  );
+}
+
+export function shouldInferSingleInviteeAttendance(
+  invitation,
+  attendance,
+) {
+  return Boolean(
+    isSinglePersonInvitation(invitation) &&
+      attendance &&
+      attendance.decline !== true &&
+      (
+        attendance.ceremony === true ||
+        attendance.reception === true
+      ),
+  );
+}
+
 function blankAdditionalGuestResponse(allocation) {
   return allocation.kind === "unnamedChildren"
     ? {
@@ -194,7 +222,20 @@ function buildConfirmation(draft, lookup, errors) {
 
 function normalizeNamedInviteeResponses(draft, invitation, errors) {
   const invitees = invitation.namedInvitees ?? [];
-  const source = draft.namedInviteeResponses ?? {};
+
+  const source = {
+    ...(draft.namedInviteeResponses ?? {}),
+  };
+
+  if (
+    shouldInferSingleInviteeAttendance(
+      invitation,
+      draft.attendance,
+    ) &&
+    invitees[0]
+  ) {
+    source[invitees[0].id] = "yes";
+  }
   const selected = {};
   const authorizedIds = new Set(invitees.map((invitee) => invitee.id));
 
@@ -729,7 +770,7 @@ export function buildSubmissionRequest({
     if (initialRequiresComplete) {
       if (!completeTotals) {
         errors.attendanceTotals =
-          "Enter all four attendance totals, including explicit zeroes.";
+          "Enter values for all four attendance totals. Enter 0 if a category has no attendees.";
       } else if (
         Number.isInteger(derivedAttendance) &&
         derivedAttendance < 1

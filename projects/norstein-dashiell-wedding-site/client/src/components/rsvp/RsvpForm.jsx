@@ -8,7 +8,9 @@ import {
   ATTENDANCE_TOTAL_LABELS,
   derivedOverallAttendance,
   enteredAttendanceTotal,
+  isSinglePersonInvitation,
   resizeAttendeeDetails,
+  shouldInferSingleInviteeAttendance,
   totalsAreComplete,
   toggleAttendance,
 } from "../../services/rsvpModel.js";
@@ -104,9 +106,16 @@ function personResponsesAreComplete(invitation, draft) {
   const namedInvitees = invitation.namedInvitees ?? [];
   const allocations = invitation.additionalGuestAllocations ?? [];
 
-  const namedComplete = namedInvitees.every((invitee) =>
-    isYesNo(draft.namedInviteeResponses?.[invitee.id]),
-  );
+  const namedComplete =
+    shouldInferSingleInviteeAttendance(
+      invitation,
+      draft.attendance,
+    ) ||
+    namedInvitees.every((invitee) =>
+      isYesNo(
+        draft.namedInviteeResponses?.[invitee.id],
+      ),
+    );
 
   const allocationsComplete = allocations.every((allocation) =>
     allocationResponseIsComplete(
@@ -146,13 +155,26 @@ function additionalResponsesForDerivation(invitation, draft) {
 }
 
 function derivedAttendanceForDraft(invitation, draft) {
+  const namedInviteeResponses =
+    shouldInferSingleInviteeAttendance(
+      invitation,
+      draft.attendance,
+    )
+      ? {
+          ...(draft.namedInviteeResponses ?? {}),
+          [invitation.namedInvitees[0].id]:
+            "yes",
+        }
+      : draft.namedInviteeResponses ?? {};
+
   return derivedOverallAttendance({
     invitation,
-    namedInviteeResponses: draft.namedInviteeResponses ?? {},
-    additionalGuestResponses: additionalResponsesForDerivation(
-      invitation,
-      draft,
-    ),
+    namedInviteeResponses,
+    additionalGuestResponses:
+      additionalResponsesForDerivation(
+        invitation,
+        draft,
+      ),
   });
 }
 
@@ -193,6 +215,8 @@ function RsvpForm({
   const invitation = lookup.invitation;
   const namedInvitees = invitation.namedInvitees ?? [];
   const allocations = invitation.additionalGuestAllocations ?? [];
+  const singlePersonInvitation =
+    isSinglePersonInvitation(invitation);
   const wordingMode = invitation.wordingMode;
 
   const validationErrors = Object.entries(errors ?? {}).filter(
@@ -711,7 +735,9 @@ setAttendanceStatusMessage(
         />
       </fieldset>
 
-      {showAttendingRegions && namedInvitees.length > 0 && (
+      {showAttendingRegions &&
+        namedInvitees.length > 0 &&
+        !singlePersonInvitation && (
         <fieldset
           id="rsvp-named-invitees"
           className="rsvp-focus-target"

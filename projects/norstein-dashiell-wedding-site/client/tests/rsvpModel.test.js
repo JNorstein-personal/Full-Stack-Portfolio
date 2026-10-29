@@ -1330,3 +1330,225 @@ test(
     );
   },
 );
+
+const singlePersonLookup = Object.freeze({
+  invitation: {
+    partyDisplayName: "Example Guest",
+    greeting: "Welcome, Example Guest!",
+    wordingMode: "singular",
+    maximumAttendance: 1,
+    namedInvitees: [
+      {
+        id: "invitee-single",
+        displayName: "Example Guest",
+      },
+    ],
+    additionalGuestAllocations: [],
+  },
+  questions: [],
+  confirmationOptions: {
+    email: true,
+  },
+});
+
+test(
+  "single-person attending RSVP infers the sole named invitee as attending",
+  () => {
+    const draft =
+      createBlankDraft(singlePersonLookup);
+
+    draft.completionMode = "first";
+
+    draft.attendance = {
+      ceremony: true,
+      reception: false,
+      decline: false,
+      touched: true,
+    };
+
+    draft.attendanceTotals = {
+      adults21Plus: "1",
+      youngAdults18To20: "0",
+      children3To17: "0",
+      childrenUnder3: "0",
+    };
+
+    draft.attendeeDetails = [
+      {
+        attendeeName:
+          "Example Guest",
+      },
+    ];
+
+    draft.confirmation.email =
+      "guest@example.com";
+
+    const result =
+      buildSubmissionRequest({
+        inviteCode:
+          "DEV-001",
+        lookup:
+          singlePersonLookup,
+        draft,
+        clientSubmissionId:
+          "10000000-0000-4000-8000-000000000001",
+      });
+
+    assert.equal(
+      result.ok,
+      true,
+    );
+
+    assert.deepEqual(
+      result.request.changes
+        .namedInviteeResponses,
+      {
+        operation:
+          "replace",
+        value: {
+          "invitee-single":
+            "yes",
+        },
+      },
+    );
+
+    assert.equal(
+      Object.prototype
+        .hasOwnProperty.call(
+          result.request.changes,
+          "additionalGuestResponses",
+        ),
+      false,
+    );
+
+    assert.equal(
+      result.request.changes
+        .attendeeDetails
+        .value.length,
+      1,
+    );
+  },
+);
+
+test(
+  "single-person decline does not infer a redundant named-invitee response",
+  () => {
+    const draft =
+      createBlankDraft(singlePersonLookup);
+
+    draft.completionMode =
+      "first";
+
+    draft.attendance = {
+      ceremony: false,
+      reception: false,
+      decline: true,
+      touched: true,
+    };
+
+    draft.confirmation.email =
+      "guest@example.com";
+
+    const result =
+      buildSubmissionRequest({
+        inviteCode:
+          "DEV-001",
+        lookup:
+          singlePersonLookup,
+        draft,
+        clientSubmissionId:
+          "10000000-0000-4000-8000-000000000002",
+      });
+
+    assert.equal(
+      result.ok,
+      true,
+    );
+
+    assert.deepEqual(
+      result.request.changes,
+      {
+        eventAttendance: {
+          operation:
+            "replace",
+          value: [
+            "decline",
+          ],
+        },
+      },
+    );
+  },
+);
+
+test(
+  "one named invitee with an additional guest allocation still requires explicit person-level responses",
+  () => {
+    const lookupWithPlus1 = {
+      ...singlePersonLookup,
+      invitation: {
+        ...singlePersonLookup.invitation,
+        maximumAttendance: 2,
+        additionalGuestAllocations: [
+          {
+            id: "plus1-single",
+            kind: "plus1",
+            prompt:
+              "Will Example Guest be accompanied by a +1?",
+            maximumCount: 1,
+          },
+        ],
+      },
+    };
+
+    const draft =
+      createBlankDraft(
+        lookupWithPlus1,
+      );
+
+    draft.completionMode =
+      "first";
+
+    draft.attendance = {
+      ceremony: true,
+      reception: false,
+      decline: false,
+      touched: true,
+    };
+
+    draft.attendanceTotals = {
+      adults21Plus: "1",
+      youngAdults18To20: "0",
+      children3To17: "0",
+      childrenUnder3: "0",
+    };
+
+    draft.confirmation.email =
+      "guest@example.com";
+
+    const result =
+      buildSubmissionRequest({
+        inviteCode:
+          "DEV-003",
+        lookup:
+          lookupWithPlus1,
+        draft,
+        clientSubmissionId:
+          "10000000-0000-4000-8000-000000000003",
+      });
+
+    assert.equal(
+      result.ok,
+      false,
+    );
+
+    assert.ok(
+      result.errors
+        .namedInviteeResponses,
+    );
+
+    assert.ok(
+      result.errors
+        .additionalGuestResponses,
+    );
+  },
+);

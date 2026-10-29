@@ -48,14 +48,14 @@ function deliveryWarningText(delivery) {
     guestNeedsAttention &&
     administrativeNeedsAttention
   ) {
-    return "Your RSVP is recorded. Delivery of your guest confirmation and the administrative confirmation could not both be confirmed. Do not resubmit solely because of these delivery results.";
+    return "We have received your RSVP, but there may have been a problem sending the confirmation messages. Your response was saved successfully, but since there's a chance we may not have been notified, please contact us directly to make sure we are aware of your RSVP or update. There is no need to submit it again.";
   }
 
   if (guestNeedsAttention) {
-    return "Your RSVP is recorded. Delivery of your guest confirmation could not be confirmed. Do not resubmit solely because of this delivery result.";
+    return "We have received your RSVP, but your confirmation message may not have reached you. Please check your email, including your spam or junk folder. Your response is saved, so there is no need to submit it again.";
   }
 
-  return "Your RSVP is recorded. The administrative confirmation could not be confirmed. Do not resubmit solely because of this delivery result.";
+  return "We have received your RSVP, but there may have been a problem sending a copy to the wedding hosts. Your response was saved successfully, but since there's a chance we may not have been notified, please contact us directly to make sure we are aware of your RSVP or update. There is no need to submit it again.";
 }
 
 function attendanceTotalEntries(totals) {
@@ -202,31 +202,30 @@ function RsvpConfirmationPage() {
           tabIndex="-1"
         >
           <h1>
-            Confirmation Summary No Longer Available
+            RSVP Summary Not Available
           </h1>
 
           <StatusMessage
             type="uncertainty"
-            title="Your on-screen confirmation summary is no longer available"
+            title="We Can No Longer Show Your RSVP Summary"
             aria-atomic="true"
           >
-            This page uses temporary in-browser confirmation state, so the
-            detailed summary is not available after that temporary state is
-            gone. An RSVP may already have been recorded. If you entered
-            an email address, check that inbox for a confirmation before
-            submitting anything again.
+            Your RSVP details are no longer displayed here. This can happen
+            if you refresh the page or return to it later. Your RSVP may
+            still have been received. If you provided an email address,
+            please check your inbox, including your spam or junk folder,
+            for a confirmation.
           </StatusMessage>
 
           <p>
-            Do not submit another RSVP solely because this on-screen summary disappeared.
-            This page cannot determine whether the earlier request was stored, and it
-            does not automatically look up or replay an RSVP.
+            If you are unsure whether your RSVP was received, please contact
+            us for help before submitting another response.
           </p>
 
           <p>
-            If you need to make a deliberate revision, return to RSVP, re-enter
-            the invitation code printed on your invitation, and complete the
-            blank revision form.
+            If you would like to change your RSVP, return to the RSVP page,
+            enter the invitation code printed on your invitation, and fill
+            out the form to update your answers.
           </p>
 
           <div className="rsvp-action-row">
@@ -356,14 +355,14 @@ function RsvpConfirmationPage() {
           aria-atomic="true"
         >
           {isRevision
-            ? "Your revision was stored successfully. The summary below is the complete current RSVP after the revision was merged."
-            : "Your initial RSVP was stored successfully. The summary below is the complete current RSVP."}
+            ? "Your changes have been saved. Below is your complete, updated RSVP, including any answers you did not change."
+            : "Thank you for responding! Your RSVP has been saved. You can review your answers below."}
         </StatusMessage>
 
         {deliveryWarning && (
           <StatusMessage
             type="warning"
-            title="Confirmation Delivery Needs Attention"
+            title="A Note About Your Confirmation"
             role="group"
             aria-live="off"
           >

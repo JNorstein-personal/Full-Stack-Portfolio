@@ -478,21 +478,6 @@ function RsvpPage() {
             invitation code printed
             with the RSVP information
             on your invitation.
-            Example:{" "}
-            <strong>XXX-XXX</strong>.
-          </p>
-
-          <h2>
-            Using the QR Code
-          </h2>
-          <p>
-            The QR code printed on
-            your invitation opens the
-            general wedding website.
-            The invitation code must
-            still be entered manually
-            here to open your RSVP
-            form.
           </p>
         </section>
 
@@ -761,16 +746,13 @@ function RsvpPage() {
             ref={stateFocusRef}
             tabIndex="-1"
           >
-            <p className="rsvp-kicker">
-              RSVP for
+           <p className="rsvp-kicker">
+              Welcome,
             </p>
             <h2>
               {lookup.invitation
-                .greeting ||
-                lookup.invitation
                   .partyDisplayName}
             </h2>
-
             {renderDeadlineTiming()}
 
             <StatusMessage
@@ -785,10 +767,10 @@ function RsvpPage() {
 
             <section className="rsvp-personalized-support">
               <h3>
-                Revisions
+                Need to Make Changes Later?
               </h3>
               <p>
-                To make changes later,
+                To update your RSVP details after your initial submission,
                 return to this page and
                 re-enter your invitation
                 code.
@@ -810,12 +792,14 @@ function RsvpPage() {
                 Printed RSVP Option
               </h3>
               <p>
-                You may return the
-                printed RSVP slip
-                included with your
-                invitation instead of
-                using the online form.
+                If you prefer to use a printed RSVP instead of the online form, return the
+                printed slip included with your invitation to:
               </p>
+              <address>
+                Norstein-Dashiell Wedding HQ<br />
+                519 Beverly Avenue<br />
+                Scotch Plains, NJ 07076
+              </address>
 
               <h3>
                 Need Help?
@@ -934,12 +918,16 @@ function RsvpPage() {
               Printed RSVP Option
             </h2>
             <p>
-              You may return the
-              printed RSVP slip
+              If you prefer to use a printed RSVP instead of the online form, return the
+              printed slip
               included with your
-              invitation instead of
-              using the online form.
+              invitation to:
             </p>
+            <address>
+              Norstein-Dashiell Wedding HQ<br />
+              519 Beverly Avenue<br />
+              Scotch Plains, NJ 07076
+            </address>
 
             <h2>Privacy</h2>
             <p>
@@ -965,9 +953,7 @@ function RsvpPage() {
 
             <h2>Need Help?</h2>
             <p>
-              If you would like to use
-              the online RSVP but have
-              difficulty, contact{" "}
+              If you have any questions or need assistance with the online RSVP, contact{" "}
               <a
                 href={
                   "mailto:" +
