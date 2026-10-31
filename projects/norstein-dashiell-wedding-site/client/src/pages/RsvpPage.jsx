@@ -669,15 +669,12 @@ function RsvpPage() {
         >
           <StatusMessage
             type="uncertainty"
-            title="We Could Not Confirm the Submission Result"
+            title="We Could Not Confirm Your RSVP"
             aria-atomic="true"
           >
-            We could not confirm whether this RSVP request was recorded.
-            Check the email inbox you entered for an RSVP confirmation
-            before deciding whether to retry. The safe retry below
-            sends the exact same logical request with the same
-            submission identifier; it does not rebuild the request
-            from form fields.
+            We couldn’t confirm whether your RSVP was received. Check the email
+            address you entered for a confirmation first. If no confirmation arrives,
+            you can safely try the same submission again below.
           </StatusMessage>
 
           <div className="rsvp-action-row">
@@ -717,12 +714,7 @@ function RsvpPage() {
           title="Submitting Your RSVP"
           aria-atomic="true"
         >
-          Please do not submit again.
-          This submission is being
-          processed using one logical
-          request identifier. The
-          submit action is protected
-          while the result is pending.
+          Please wait while we submit your RSVP. There’s no need to submit it again while this is in progress.
         </StatusMessage>
       );
     }

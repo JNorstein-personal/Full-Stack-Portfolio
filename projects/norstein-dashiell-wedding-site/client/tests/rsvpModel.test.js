@@ -1431,6 +1431,69 @@ test(
 );
 
 test(
+  "first RSVP treats untouched age categories as zero and submits explicit totals",
+  () => {
+    const draft =
+      createBlankDraft(singlePersonLookup);
+
+    draft.completionMode =
+      "first";
+
+    draft.attendance = {
+      ceremony: true,
+      reception: false,
+      decline: false,
+      touched: true,
+    };
+
+    draft.attendanceTotals
+      .adults21Plus =
+      "1";
+
+    draft.attendeeDetails = [
+      {
+        attendeeName:
+          "Example Guest",
+      },
+    ];
+
+    draft.confirmation.email =
+      "guest@example.com";
+
+    const result =
+      buildSubmissionRequest({
+        inviteCode:
+          "DEV-001",
+        lookup:
+          singlePersonLookup,
+        draft,
+        clientSubmissionId:
+          "10000000-0000-4000-8000-000000000004",
+      });
+
+    assert.equal(
+      result.ok,
+      true,
+    );
+
+    assert.deepEqual(
+      result.request.changes
+        .attendanceTotals,
+      {
+        operation:
+          "replace",
+        value: {
+          adults21Plus: 1,
+          youngAdults18To20: 0,
+          children3To17: 0,
+          childrenUnder3: 0,
+        },
+      },
+    );
+  },
+);
+
+test(
   "single-person decline does not infer a redundant named-invitee response",
   () => {
     const draft =
@@ -1480,29 +1543,29 @@ test(
   },
 );
 
-test(
-  "one named invitee with an additional guest allocation still requires explicit person-level responses",
-  () => {
-    const lookupWithPlus1 = {
-      ...singlePersonLookup,
-      invitation: {
-        ...singlePersonLookup.invitation,
-        maximumAttendance: 2,
-        additionalGuestAllocations: [
-          {
-            id: "plus1-single",
-            kind: "plus1",
-            prompt:
-              "Will Example Guest be accompanied by a +1?",
-            maximumCount: 1,
-          },
-        ],
+const singleNamedWithPlus1Lookup = Object.freeze({
+  ...singlePersonLookup,
+  invitation: {
+    ...singlePersonLookup.invitation,
+    maximumAttendance: 2,
+    additionalGuestAllocations: [
+      {
+        id: "plus1-single",
+        kind: "plus1",
+        prompt:
+          "Will Example Guest be accompanied by a +1?",
+        maximumCount: 1,
       },
-    };
+    ],
+  },
+});
 
+test(
+  "one named invitee with a Plus 1 infers the named invitee but still requires the Plus 1 response",
+  () => {
     const draft =
       createBlankDraft(
-        lookupWithPlus1,
+        singleNamedWithPlus1Lookup,
       );
 
     draft.completionMode =
@@ -1522,6 +1585,13 @@ test(
       childrenUnder3: "0",
     };
 
+    draft.attendeeDetails = [
+      {
+        attendeeName:
+          "Example Guest",
+      },
+    ];
+
     draft.confirmation.email =
       "guest@example.com";
 
@@ -1530,7 +1600,7 @@ test(
         inviteCode:
           "DEV-003",
         lookup:
-          lookupWithPlus1,
+          singleNamedWithPlus1Lookup,
         draft,
         clientSubmissionId:
           "10000000-0000-4000-8000-000000000003",
@@ -1541,14 +1611,196 @@ test(
       false,
     );
 
-    assert.ok(
-      result.errors
-        .namedInviteeResponses,
+    assert.equal(
+      Boolean(
+        result.errors
+          .namedInviteeResponses,
+      ),
+      false,
     );
 
     assert.ok(
       result.errors
         .additionalGuestResponses,
+    );
+  },
+);
+
+test(
+  "one named invitee with an attending Plus 1 submits the inferred named response",
+  () => {
+    const draft =
+      createBlankDraft(
+        singleNamedWithPlus1Lookup,
+      );
+
+    draft.completionMode =
+      "first";
+
+    draft.attendance = {
+      ceremony: true,
+      reception: false,
+      decline: false,
+      touched: true,
+    };
+
+    draft.additionalGuestResponses[
+      "plus1-single"
+    ] = "yes";
+
+    draft.attendanceTotals = {
+      adults21Plus: "2",
+      youngAdults18To20: "0",
+      children3To17: "0",
+      childrenUnder3: "0",
+    };
+
+    draft.attendeeDetails = [
+      {
+        attendeeName:
+          "Example Guest",
+      },
+      {
+        attendeeName:
+          "Example Plus One",
+      },
+    ];
+
+    draft.confirmation.email =
+      "guest@example.com";
+
+    const result =
+      buildSubmissionRequest({
+        inviteCode:
+          "DEV-003",
+        lookup:
+          singleNamedWithPlus1Lookup,
+        draft,
+        clientSubmissionId:
+          "10000000-0000-4000-8000-000000000005",
+      });
+
+    assert.equal(
+      result.ok,
+      true,
+    );
+
+    assert.deepEqual(
+      result.request.changes
+        .namedInviteeResponses,
+      {
+        operation:
+          "replace",
+        value: {
+          "invitee-single":
+            "yes",
+        },
+      },
+    );
+
+    assert.deepEqual(
+      result.request.changes
+        .additionalGuestResponses,
+      {
+        operation:
+          "replace",
+        value: {
+          "plus1-single":
+            "yes",
+        },
+      },
+    );
+
+    assert.equal(
+      result.request.changes
+        .attendeeDetails
+        .value.length,
+      2,
+    );
+  },
+);
+
+test(
+  "one named invitee revision may change a Plus 1 response without requiring a hidden named-invitee answer",
+  () => {
+    const draft =
+      createBlankDraft(
+        singleNamedWithPlus1Lookup,
+      );
+
+    draft.completionMode =
+      "revision";
+
+    draft.additionalGuestResponses[
+      "plus1-single"
+    ] = "no";
+
+    draft.attendeeDetails = [
+      {
+        attendeeName:
+          "Example Guest",
+      },
+    ];
+
+    draft.confirmation.email =
+      "guest@example.com";
+
+    const result =
+      buildSubmissionRequest({
+        inviteCode:
+          "DEV-003",
+        lookup:
+          singleNamedWithPlus1Lookup,
+        draft,
+        clientSubmissionId:
+          "10000000-0000-4000-8000-000000000006",
+      });
+
+    assert.equal(
+      result.ok,
+      true,
+    );
+
+    assert.deepEqual(
+      result.request.changes
+        .namedInviteeResponses,
+      {
+        operation:
+          "replace",
+        value: {
+          "invitee-single":
+            "yes",
+        },
+      },
+    );
+
+    assert.deepEqual(
+      result.request.changes
+        .additionalGuestResponses,
+      {
+        operation:
+          "replace",
+        value: {
+          "plus1-single":
+            "no",
+        },
+      },
+    );
+
+    assert.equal(
+      Object.prototype
+        .hasOwnProperty.call(
+          result.request.changes,
+          "eventAttendance",
+        ),
+      false,
+    );
+
+    assert.equal(
+      result.request.changes
+        .attendeeDetails
+        .value.length,
+      1,
     );
   },
 );

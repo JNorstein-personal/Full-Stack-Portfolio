@@ -8,7 +8,6 @@ import {
   ATTENDANCE_TOTAL_LABELS,
   derivedOverallAttendance,
   enteredAttendanceTotal,
-  isSinglePersonInvitation,
   resizeAttendeeDetails,
   shouldInferSingleInviteeAttendance,
   totalsAreComplete,
@@ -56,6 +55,30 @@ function errorTargetId(key) {
 
 function errorMessageId(key) {
   return `rsvp-error-${String(key).replace(/[^a-zA-Z0-9_-]/g, "-")}`;
+}
+
+function validationErrorSortKey(key) {
+  const attendeeMatch = /^(\d+)\.(attendeeName|dietaryPreferences)$/.exec(key);
+
+  if (attendeeMatch) {
+    const [, index, field] = attendeeMatch;
+
+    return (
+      600 +
+      Number(index) * 10 +
+      (field === "dietaryPreferences" ? 1 : 0)
+    );
+  }
+
+  return {
+    completionMode: 100,
+    eventAttendance: 200,
+    namedInviteeResponses: 300,
+    additionalGuestResponses: 400,
+    attendanceTotals: 500,
+    attendeeDetails: 690,
+    confirmationEmail: 700,
+  }[key] ?? 999;
 }
 
 function isYesNo(value) {
@@ -109,7 +132,7 @@ function personResponsesAreComplete(invitation, draft) {
   const namedComplete =
     shouldInferSingleInviteeAttendance(
       invitation,
-      draft.attendance,
+      draft,
     ) ||
     namedInvitees.every((invitee) =>
       isYesNo(
@@ -158,7 +181,7 @@ function derivedAttendanceForDraft(invitation, draft) {
   const namedInviteeResponses =
     shouldInferSingleInviteeAttendance(
       invitation,
-      draft.attendance,
+      draft,
     )
       ? {
           ...(draft.namedInviteeResponses ?? {}),
@@ -215,13 +238,15 @@ function RsvpForm({
   const invitation = lookup.invitation;
   const namedInvitees = invitation.namedInvitees ?? [];
   const allocations = invitation.additionalGuestAllocations ?? [];
-  const singlePersonInvitation =
-    isSinglePersonInvitation(invitation);
   const wordingMode = invitation.wordingMode;
 
-  const validationErrors = Object.entries(errors ?? {}).filter(
-    ([, message]) => Boolean(message),
-  );
+  const validationErrors = Object.entries(errors ?? {})
+    .filter(([, message]) => Boolean(message))
+    .sort(
+      ([leftKey], [rightKey]) =>
+        validationErrorSortKey(leftKey) -
+        validationErrorSortKey(rightKey),
+    );
 
   useEffect(() => {
     const hasValidationErrors =
@@ -327,17 +352,23 @@ function RsvpForm({
     }
 
     const remainingText =
-  remaining > 0
-    ? `${total} of ${derivedAttendance} guests have been counted by age group.`
-    : remaining === 0 && overAssigned === 0
-      ? "The age-group counts match the number of guests attending."
-      : overAssigned > 0
-        ? `The age-group counts are ${overAssigned} higher than the number of guests attending.`
-        : "";
+    remaining > 0
+      ? `${remaining} ${
+          remaining === 1 ? "guest still needs" : "guests still need"
+        } an age group.`
+      : remaining === 0 && overAssigned === 0
+        ? "Everyone attending has been counted by age group."
+        : overAssigned > 0
+          ? `You’ve counted ${overAssigned} too many ${
+              overAssigned === 1 ? "guest" : "guests"
+            } by age group.`
+          : "";
 
-setAttendanceStatusMessage(
-  `Total guests attending: ${derivedAttendance}. ${remainingText}`.trim(),
-);
+  setAttendanceStatusMessage(
+    `${derivedAttendance} ${
+      derivedAttendance === 1 ? "guest is" : "guests are"
+    } attending. ${remainingText}`.trim(),
+  );
   }, [
     derivedAttendanceKnown,
     derivedAttendance,
@@ -583,7 +614,7 @@ setAttendanceStatusMessage(
           </h2>
 
           <p>
-            Please correct the items below and submit again. Everything else you entered will stay as you left it.
+            Please correct the items below and submit again. Everything else you entered has been retained and does not need to be corrected.
           </p>
 
           <ul>
@@ -698,7 +729,7 @@ setAttendanceStatusMessage(
         <legend>Attendance</legend>
 
         <p className="form-help" id="rsvp-event-attendance-help">
-          {attendanceLabel} Choose Ceremony, Reception, both, or the decline option. You can leave this section blank if you're updating your RSVP but your overall attendance plans haven't changed.
+          {attendanceLabel} Choose all that apply. If you’re updating an earlier RSVP and your plans haven’t changed, you can leave this section blank.
         </p>
 
         {attendanceOptions.map((option) => {
@@ -736,8 +767,7 @@ setAttendanceStatusMessage(
       </fieldset>
 
       {showAttendingRegions &&
-        namedInvitees.length > 0 &&
-        !singlePersonInvitation && (
+        namedInvitees.length > 1 && (
         <fieldset
           id="rsvp-named-invitees"
           className="rsvp-focus-target"
@@ -753,7 +783,7 @@ setAttendanceStatusMessage(
           <legend>Who Is Attending?</legend>
 
           <p className="form-help" id="rsvp-named-invitees-help">
-            Tell us whether each person listed below will attend. If you’re updating an RSVP, leave an answer blank if that person’s plans HAVE NOT changed.
+            Let us know who will be attending. If you’re updating an earlier RSVP, you can leave anyone whose plans haven’t changed blank.
           </p>
 
           {namedInvitees.map((invitee) => (
@@ -823,7 +853,7 @@ setAttendanceStatusMessage(
           <legend>{allocationLegend(allocations)}</legend>
 
           <p className="form-help" id="rsvp-additional-guests-help">
-            Answer the additional-guest questions below. If your children are attending, let us know how many. When updating an RSVP, leave an answer blank if it has not changed. (NOTE: If you change whether children are attending—or how many—you’ll need to re-enter the full guest list below.)
+            Let us know whether any additional guests will be attending. If your kids will be joining us, let us know how many will attend. When updating an earlier RSVP, you can leave anything that hasn’t changed blank. If you change the number of children attending, you'll need to enter the guest names again below.
           </p>
 
           {allocations.map((allocation) => {
@@ -980,13 +1010,13 @@ setAttendanceStatusMessage(
           <legend>Guest Age Groups</legend>
 
           <p className="form-help" id="rsvp-attendance-totals-help">
-            To better accommodate the seating and dietary needs of our guests, please tell us how many guests attending fall into each age group.
+            Please tell us how many guests attending fall into each age group, the better to accommodate everyone's seating and dietary needs.
           </p>
 
           {draft.completionMode === "first" && !completePersonResponses ? (
             <StatusMessage
               type="information"
-              title="Tell us who is attending first"
+              title="First, tell us who’s attending"
             >
               Answer Yes or No for each guest above. Once we know how many
               people are attending, you can enter their age groups below.
@@ -996,37 +1026,38 @@ setAttendanceStatusMessage(
               type="information"
               title="No guests are marked as attending yet"
             >
-              You selected the Ceremony and/or Reception, so mark Yes for at
-              least one guest above before entering age groups below.
+              You selected the Ceremony and/or Reception, but no guests are marked as attending yet. Mark Yes for at least one guest above to continue.
             </StatusMessage>
           ) : (
             <>
 
               {derivedAttendanceKnown && (
                 <div className="rsvp-total-summary">
+                <span>
+                  Guests attending:{" "}
+                  <strong>{derivedAttendance}</strong>
+                </span>
+
+                <span>
+                  Counted by age group:{" "}
+                  <strong>{total} of {derivedAttendance}</strong>
+                </span>
+
+                {overAssigned > 0 && (
                   <span>
-                    Total guests attending:{" "}
-                    <strong>{derivedAttendance}</strong>
+                    You’ve counted{" "}
+                    <strong>{overAssigned}</strong>{" "}
+                    {overAssigned === 1 ? "guest" : "guests"} too many. Adjust the age
+                    groups so they add up to{" "}
+                    <strong>{derivedAttendance}</strong>.
                   </span>
+                )}
 
+                {overAssigned === 0 && remaining === 0 && (
                   <span>
-                    Age groups completed for:{" "}
-                    <strong>{total} of {derivedAttendance} guests</strong>
+                    Everyone attending has been counted by age group.
                   </span>
-
-                  {overAssigned > 0 && (
-                    <span>
-                      Your age-group counts are{" "}
-                      <strong>{overAssigned}</strong> too high. Adjust them so
-                      they add up to the number of guests attending.
-                    </span>
-                  )}
-
-                  {overAssigned === 0 && remaining === 0 && (
-                    <span>
-                      Your age-group counts match the number of guests attending.
-                    </span>
-                  )}
+                )}
                 </div>
               )}
 
@@ -1070,7 +1101,7 @@ setAttendanceStatusMessage(
                           step="1"
                           inputMode="numeric"
                           value={draft.attendanceTotals[field]}
-                          placeholder="0"
+                          placeholder={draft.completionMode === "first" ? "0" : ""}
                           onChange={(event) =>
                             setTotal(field, event.target.value)
                           }
@@ -1105,10 +1136,9 @@ setAttendanceStatusMessage(
 
               {draft.completionMode === "revision" && (
                 <p className="form-help">
-                  Updating an RSVP? Leave an age group blank if its number
-                  hasn’t changed. Enter 0 if that age group should now have no
-                  guests. If you’re changing who is attending, answer all of
-                  the guest attendance questions above first.
+                  Updating your RSVP? Leave an age group blank if that number hasn’t changed.
+                  Enter 0 if no guests should remain in that age group. If you’re changing who
+                  is attending, update those answers above first.
                 </p>
               )}
             </>
@@ -1137,20 +1167,18 @@ setAttendanceStatusMessage(
           <legend>Guest Details</legend>
 
           <p className="form-help" id="rsvp-attendee-details-help">
-            Enter the name of each person attending, including any Plus 1
-            guests and children counted above. If Reception is selected, you
-            can also add dietary or allergy information for each person.
+            Enter the name of each person attending, including Plus 1 guests and
+            children. If they’re attending the Reception, you can also tell us about
+            any dietary needs or allergies.
           </p>
 
           {draft.completionMode === "revision" &&
             !draft.attendance.touched &&
             derivedAttendanceKnown && (
               <p className="form-help">
-              You’re leaving your Ceremony and Reception choices unchanged.
-              You can update guest names below. If Reception is still part of
-              your RSVP and you need to update dietary or allergy
-              information, select your current Attendance choice above so
-              those fields appear.
+              You’re leaving your Ceremony and Reception choices unchanged. You can update
+              guest names below. If you need to update dietary or allergy information for
+              the Reception, select Reception above so those fields appear.
               </p>
             )}
 
@@ -1164,16 +1192,16 @@ setAttendanceStatusMessage(
               }
             >
               {draft.completionMode === "revision"
-                ? "If your guest list hasn’t changed, leave this section blank. To change who is attending, answer all of the Yes or No guest questions above first. We’ll then show the right number of name fields."
-                : "Answer the guest attendance questions above first. We’ll then show one name field for each person attending."}
+              ? "If your guest list hasn’t changed, you can leave this section blank. If you’re changing who will attend, update the guest questions above first. We’ll then show one name field for each person attending."
+              : "Answer the guest attendance questions above first. We’ll then show one name field for each person attending."}
             </StatusMessage>
           ) : detailTargetCount < 1 ? (
             <StatusMessage
               type="information"
-              title="No guests are marked as attending yet"
+              title="Who will be attending?"
             >
-              Mark Yes for at least one guest above. If no one will attend,
-              choose the decline option under Attendance instead.
+              Mark Yes for at least one guest above. If no one will be attending, choose
+              the decline option under Attendance instead.
             </StatusMessage>
           ) : (
             <>
@@ -1225,7 +1253,7 @@ setAttendanceStatusMessage(
                         className="form-help"
                         id={`rsvp-attendee-${index}-name-help`}
                       >
-                        Required. Up to 100 characters.
+                        Required.
                       </p>
 
                       <FieldError
@@ -1270,7 +1298,7 @@ setAttendanceStatusMessage(
                           className="form-help"
                           id={`rsvp-attendee-${index}-dietary-help`}
                         >
-                          Optional. Up to 1000 characters.
+                          Optional.
                         </p>
 
                         <FieldError

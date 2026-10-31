@@ -28,30 +28,75 @@ export const ATTENDANCE_TOTAL_LABELS = Object.freeze({
   childrenUnder3: "Children under 3",
 });
 
-export function isSinglePersonInvitation(invitation) {
+export function hasSingleNamedInvitee(invitation) {
   const namedInvitees =
     invitation?.namedInvitees ?? [];
 
+  return namedInvitees.length === 1;
+}
+
+function additionalGuestResponseWasEntered(
+  invitation,
+  additionalGuestResponses,
+) {
   const allocations =
     invitation?.additionalGuestAllocations ?? [];
 
-  return (
-    namedInvitees.length === 1 &&
-    allocations.length === 0
-  );
+  const responses =
+    additionalGuestResponses ?? {};
+
+  return allocations.some((allocation) => {
+    const response =
+      responses[allocation.id];
+
+    if (
+      allocation.kind ===
+      "unnamedChildren"
+    ) {
+      return Boolean(
+        response &&
+          typeof response ===
+            "object" &&
+          !Array.isArray(response) &&
+          (
+            response.attending ===
+              "yes" ||
+            response.attending ===
+              "no"
+          ),
+      );
+    }
+
+    return (
+      response === "yes" ||
+      response === "no"
+    );
+  });
 }
 
 export function shouldInferSingleInviteeAttendance(
   invitation,
-  attendance,
+  draft,
 ) {
+  const attendance =
+    draft?.attendance;
+
   return Boolean(
-    isSinglePersonInvitation(invitation) &&
+    hasSingleNamedInvitee(
+      invitation,
+    ) &&
       attendance &&
       attendance.decline !== true &&
       (
-        attendance.ceremony === true ||
-        attendance.reception === true
+        attendance.ceremony ===
+          true ||
+        attendance.reception ===
+          true ||
+        additionalGuestResponseWasEntered(
+          invitation,
+          draft
+            ?.additionalGuestResponses,
+        )
       ),
   );
 }
@@ -230,7 +275,7 @@ function normalizeNamedInviteeResponses(draft, invitation, errors) {
   if (
     shouldInferSingleInviteeAttendance(
       invitation,
-      draft.attendance,
+      draft,
     ) &&
     invitees[0]
   ) {
@@ -516,9 +561,12 @@ function validateAttendeeDetails(
       detail?.dietaryPreferences ?? "",
     ).trim();
 
-    if (attendeeName.length < 1 || attendeeName.length > 100) {
+    if (attendeeName.length < 1) {
       errors[`${index}.attendeeName`] =
-        "Enter an attendee name of 100 characters or fewer.";
+        "Enter a guest name.";
+    } else if (attendeeName.length > 100) {
+      errors[`${index}.attendeeName`] =
+        "Guest name must be 100 characters or fewer.";
     }
 
     if (dietaryPreferences.length > 1000) {
@@ -744,12 +792,24 @@ export function buildSubmissionRequest({
         "The selected attendees exceed this invitation's maximum capacity.";
     }
 
+    const totalsForValidation =
+      initialRequiresComplete
+        ? Object.fromEntries(
+            ATTENDANCE_TOTAL_FIELDS.map((field) => [
+              field,
+              draft.attendanceTotals[field] === ""
+                ? "0"
+                : draft.attendanceTotals[field],
+            ]),
+          )
+        : draft.attendanceTotals;
+
     const parsedTotals = parsedAttendanceTotals(
-      draft.attendanceTotals,
+      totalsForValidation,
     );
 
     const completeTotals = totalsAreComplete(
-      draft.attendanceTotals,
+      totalsForValidation,
     );
 
     const enteredTotalFields =
@@ -785,7 +845,7 @@ export function buildSubmissionRequest({
           "The selected attendees exceed this invitation's maximum capacity.";
       } else if (
         Number.isInteger(derivedAttendance) &&
-        enteredAttendanceTotal(draft.attendanceTotals) !==
+        enteredAttendanceTotal(totalsForValidation) !==
           derivedAttendance
       ) {
         errors.attendanceTotals =
@@ -810,7 +870,7 @@ export function buildSubmissionRequest({
       if (
         completePersonResponses &&
         completeTotals &&
-        enteredAttendanceTotal(draft.attendanceTotals) !==
+        enteredAttendanceTotal(totalsForValidation) !==
           derivedAttendance
       ) {
         errors.attendanceTotals =
