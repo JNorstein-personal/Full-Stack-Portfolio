@@ -855,7 +855,7 @@ test(
 );
 
 test(
-  "revision may omit all substantive regions and replace confirmation only",
+  "revision with visible person-attendance controls requires a complete current attendance declaration",
   () => {
     const draft =
       createBlankDraft(lookup);
@@ -881,21 +881,19 @@ test(
 
     assert.equal(
       result.ok,
-      true,
+      false,
     );
 
-    assert.deepEqual(
-      result.request.changes,
-      {},
+    assert.match(
+      result.errors
+        .namedInviteeResponses,
+      /every named invitee/i,
     );
 
-    assert.deepEqual(
-      result.request.confirmation,
-      {
-        method: "email",
-        email:
-          "new@example.com",
-      },
+    assert.match(
+      result.errors
+        .additionalGuestResponses,
+      /every additional-guest question/i,
     );
   },
 );
@@ -944,19 +942,15 @@ test(
     assert.match(
       result.errors
         .namedInviteeResponses,
-      /complete intended attending party/i,
+      /every named invitee/i,
     );
 
     assert.match(
       result.errors
         .additionalGuestResponses,
-      /answer every authorized additional-guest question/i,
+      /every additional-guest question/i,
     );
 
-    assert.ok(
-      result.errors
-        .attendeeDetails,
-    );
   },
 );
 
@@ -1064,16 +1058,108 @@ test(
         {
           attendeeName:
             "Example Guest One",
+          dietaryPreferences:
+            "",
         },
         {
           attendeeName:
             "Example Companion",
+          dietaryPreferences:
+            "",
         },
         {
           attendeeName:
             "Example Child One",
+          dietaryPreferences:
+            "",
         },
       ],
+    );
+  },
+);
+
+test(
+  "complete revision attendance declaration may leave unchanged guest details and event attendance untouched",
+  () => {
+    const draft =
+      createBlankDraft(lookup);
+
+    draft.completionMode =
+      "revision";
+
+    draft.confirmation.email =
+      "guest@example.com";
+
+    draft.namedInviteeResponses = {
+      "invitee-a": "yes",
+      "invitee-b": "no",
+    };
+
+    draft.additionalGuestResponses = {
+      "plus1-a": "yes",
+      "children-a": {
+        attending: "yes",
+        count: "1",
+      },
+    };
+
+    const result =
+      buildSubmissionRequest({
+        inviteCode:
+          "DEV-002",
+
+        lookup,
+
+        draft,
+
+        clientSubmissionId:
+          "00000000-0000-4000-8000-000000000010",
+      });
+
+    assert.equal(
+      result.ok,
+      true,
+    );
+
+    assert.equal(
+      Object.prototype
+        .hasOwnProperty.call(
+          result.request.changes,
+          "eventAttendance",
+        ),
+      false,
+    );
+
+    assert.equal(
+      Object.prototype
+        .hasOwnProperty.call(
+          result.request.changes,
+          "attendeeDetails",
+        ),
+      false,
+    );
+
+    assert.deepEqual(
+      result.request.changes
+        .namedInviteeResponses
+        .value,
+      {
+        "invitee-a": "yes",
+        "invitee-b": "no",
+      },
+    );
+
+    assert.deepEqual(
+      result.request.changes
+        .additionalGuestResponses
+        .value,
+      {
+        "plus1-a": "yes",
+        "children-a": {
+          attending: "yes",
+          count: 1,
+        },
+      },
     );
   },
 );
@@ -1089,6 +1175,19 @@ test(
 
     draft.confirmation.email =
       "guest@example.com";
+
+    draft.namedInviteeResponses = {
+      "invitee-a": "yes",
+      "invitee-b": "no",
+    };
+
+    draft.additionalGuestResponses = {
+      "plus1-a": "no",
+      "children-a": {
+        attending: "no",
+        count: 0,
+      },
+    };
 
     draft.attendanceTotals
       .children3To17 =
@@ -1350,6 +1449,43 @@ const singlePersonLookup = Object.freeze({
     email: true,
   },
 });
+
+test(
+  "single-person revision with no person-attendance controls may remain confirmation-only",
+  () => {
+    const draft =
+      createBlankDraft(
+        singlePersonLookup,
+      );
+
+    draft.completionMode =
+      "revision";
+
+    draft.confirmation.email =
+      "new@example.com";
+
+    const result =
+      buildSubmissionRequest({
+        inviteCode:
+          "DEV-001",
+        lookup:
+          singlePersonLookup,
+        draft,
+        clientSubmissionId:
+          "10000000-0000-4000-8000-000000000007",
+      });
+
+    assert.equal(
+      result.ok,
+      true,
+    );
+
+    assert.deepEqual(
+      result.request.changes,
+      {},
+    );
+  },
+);
 
 test(
   "single-person attending RSVP infers the sole named invitee as attending",
@@ -1716,6 +1852,52 @@ test(
         .attendeeDetails
         .value.length,
       2,
+    );
+  },
+);
+
+test(
+  "one named invitee revision requires the visible Plus 1 response without surfacing a hidden named-invitee error",
+  () => {
+    const draft =
+      createBlankDraft(
+        singleNamedWithPlus1Lookup,
+      );
+
+    draft.completionMode =
+      "revision";
+
+    draft.confirmation.email =
+      "guest@example.com";
+
+    const result =
+      buildSubmissionRequest({
+        inviteCode:
+          "DEV-003",
+        lookup:
+          singleNamedWithPlus1Lookup,
+        draft,
+        clientSubmissionId:
+          "10000000-0000-4000-8000-000000000008",
+      });
+
+    assert.equal(
+      result.ok,
+      false,
+    );
+
+    assert.equal(
+      Boolean(
+        result.errors
+          .namedInviteeResponses,
+      ),
+      false,
+    );
+
+    assert.match(
+      result.errors
+        .additionalGuestResponses,
+      /every additional-guest question/i,
     );
   },
 );

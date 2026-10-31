@@ -35,6 +35,19 @@ export function hasSingleNamedInvitee(invitation) {
   return namedInvitees.length === 1;
 }
 
+function hasRevisionPersonAttendanceControls(invitation) {
+  const namedInvitees =
+    invitation?.namedInvitees ?? [];
+
+  const allocations =
+    invitation?.additionalGuestAllocations ?? [];
+
+  return (
+    namedInvitees.length > 1 ||
+    allocations.length > 0
+  );
+}
+
 function additionalGuestResponseWasEntered(
   invitation,
   additionalGuestResponses,
@@ -619,9 +632,15 @@ function addAttendingRegions({
     errors,
   );
 
-  if (requireComplete && !named.complete) {
+  if (
+    requireComplete &&
+    !named.complete &&
+    !hasSingleNamedInvitee(invitation)
+  ) {
     errors.namedInviteeResponses =
-      "Answer Yes or No for every named invitee.";
+      draft.completionMode === "revision"
+        ? "For an update, answer Yes or No for every named invitee, even if their plans have not changed."
+        : "Answer Yes or No for every named invitee.";
   }
 
   if (
@@ -630,7 +649,9 @@ function addAttendingRegions({
     !additional.complete
   ) {
     errors.additionalGuestResponses =
-      "Answer every authorized additional-guest question and, when children are attending, choose how many.";
+      draft.completionMode === "revision"
+        ? "For an update, answer every additional-guest question and, when children are attending, choose how many."
+        : "Answer every authorized additional-guest question and, when children are attending, choose how many.";
   }
 
   if (
@@ -714,6 +735,16 @@ export function buildSubmissionRequest({
     const initialRequiresComplete =
       draft.completionMode === "first";
 
+    const revisionRequiresCompletePersonResponses =
+      draft.completionMode === "revision" &&
+      hasRevisionPersonAttendanceControls(
+        lookup.invitation,
+      );
+
+    const personResponsesRequireComplete =
+      initialRequiresComplete ||
+      revisionRequiresCompletePersonResponses;
+
     const {
       named,
       additional,
@@ -722,7 +753,8 @@ export function buildSubmissionRequest({
       lookup,
       changes,
       errors,
-      requireComplete: initialRequiresComplete,
+      requireComplete:
+        personResponsesRequireComplete,
     });
 
     const namedSelectionCount =
@@ -731,36 +763,29 @@ export function buildSubmissionRequest({
     const additionalSelectionCount =
       Object.keys(additional.selected).length;
 
+    /*
+     * On revision forms with visible person-attendance controls, every
+     * current person-level answer is required because stored answers remain
+     * private and are not prefilled. For the sole-named-invitee/no-allocation
+     * case, person-level responses remain implicit unless the guest changes
+     * attendance itself.
+     *
+     * When person controls are mandatory, their presence no longer proves
+     * that the guest changed the composition. The authoritative backend
+     * compares the complete declaration with stored state and requires
+     * dependent replacements only when the resulting composition changes.
+     */
     const revisionCompositionInput =
       draft.completionMode === "revision" &&
+      !revisionRequiresCompletePersonResponses &&
       (
         namedSelectionCount > 0 ||
         additionalSelectionCount > 0
       );
 
-    /*
-     * Blank revision forms cannot compare a newly entered person-level
-     * response with the stored response. Once the guest deliberately edits
-     * who is attending, the client therefore switches to a conservative
-     * complete-composition workflow. This does not change the backend's
-     * partial-merge API contract; it only ensures the browser can construct
-     * and validate the complete Attendee Details replacement required if the
-     * stored composition actually changes.
-     */
-    if (revisionCompositionInput) {
-      if (!named.complete) {
-        errors.namedInviteeResponses =
-          "To revise who is attending, answer Yes or No for every named invitee so the complete intended attending party is clear.";
-      }
-
-      if (
-        (lookup.invitation.additionalGuestAllocations ?? []).length > 0 &&
-        !additional.complete
-      ) {
-        errors.additionalGuestResponses =
-          "To revise who is attending, answer every authorized additional-guest question and choose the grouped child count when applicable.";
-      }
-    }
+    const revisionHasPersonDeclaration =
+      revisionRequiresCompletePersonResponses ||
+      revisionCompositionInput;
 
     const completePersonResponses =
       named.complete && additional.complete;
@@ -775,7 +800,7 @@ export function buildSubmissionRequest({
         : null;
 
     if (
-      revisionCompositionInput &&
+      revisionHasPersonDeclaration &&
       Number.isInteger(derivedAttendance) &&
       derivedAttendance < 1
     ) {
@@ -784,7 +809,7 @@ export function buildSubmissionRequest({
     }
 
     if (
-      revisionCompositionInput &&
+      revisionHasPersonDeclaration &&
       Number.isInteger(derivedAttendance) &&
       derivedAttendance > lookup.invitation.maximumAttendance
     ) {
@@ -890,12 +915,9 @@ export function buildSubmissionRequest({
     const detailsEntered =
       attendeeDetailsContainInput(details);
 
-    const compositionRequiresDetails =
-      revisionCompositionInput;
-
     const requireCompleteDetails =
       initialRequiresComplete ||
-      compositionRequiresDetails;
+      revisionCompositionInput;
 
     if (requireCompleteDetails) {
       const receptionSelected =
@@ -925,9 +947,12 @@ export function buildSubmissionRequest({
       }
     } else if (detailsEntered) {
       const expectedCount =
-        completeTotals
-          ? enteredAttendanceTotal(draft.attendanceTotals)
-          : details.length;
+        completePersonResponses &&
+        Number.isInteger(derivedAttendance)
+          ? derivedAttendance
+          : completeTotals
+            ? enteredAttendanceTotal(draft.attendanceTotals)
+            : details.length;
 
       const receptionSelected =
         draft.attendance.touched
