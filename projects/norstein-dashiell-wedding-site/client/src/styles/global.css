@@ -63,7 +63,7 @@ body {
   font-family: var(--font-body);
   font-size: var(--text-body);
   line-height: 1.6;
-
+  font-weight: 700;
   color: var(--color-body);
   background: var(--color-surface);
 }
@@ -84,6 +84,9 @@ h4 {
   font-family: var(--font-display-titling);
   font-weight: normal;
   line-height: 1.2;
+    text-shadow:
+    0.04em 0.04em 0.08em
+    var(--color-heading-shadow);
 }
 
 h1 {

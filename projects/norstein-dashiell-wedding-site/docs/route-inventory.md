@@ -54,7 +54,7 @@ recovery.
 | `/wedding/` | Home | Yes | No | Yes | Required |
 | `/wedding/rsvp/` | RSVP code entry and validated blank RSVP form | Yes | Conditional after code validation | No | Required |
 | `/wedding/rsvp/confirmation` | Successful-submission confirmation, delivery-warning, and refresh-fallback states | No | Yes when temporary confirmation state exists | No | Required |
-| `/wedding/theme` | Theme and Attire | Yes | No | Yes | Required |
+| `/wedding/theme` | Theme & Attire | Yes | No | Yes | Required |
 | `/wedding/story` | Our Story | Yes | No | Yes | Required |
 | `/wedding/read-listen-watch` | Read, Listen & Watch | Yes | No | Yes | Required |
 | `/wedding/venue` | Active ceremony and reception information | Yes | No | Yes | Required |
@@ -74,7 +74,7 @@ The compact sticky primary navigation must use the following order:
 
 1. Home
 2. RSVP
-3. Theme and Attire
+3. Theme & Attire
 4. Our Story
 5. Read, Listen & Watch
 6. Venue
@@ -120,7 +120,7 @@ Confirm that the guest has reached the correct wedding website and direct the gu
 
 - Display the couple’s names, wedding date, and general location.
 - Provide a prominent RSVP action.
-- Link to Theme and Attire, Venue or Travel, and Our Story.
+- Link to Theme & Attire, Venue or Travel, and Our Story.
 - Display only the currently active event configuration.
 - Read repeated event information from centralized content or configuration.
 - Remain publicly indexable.
@@ -425,7 +425,7 @@ The fallback must not instruct the guest to resubmit solely because the on-scree
 **Search treatment:**
 This route must not be indexed and must not place personalized information in page titles, descriptions, URLs, or crawler-visible metadata.
 
-### `/wedding/theme` — Theme and Attire
+### `/wedding/theme` — Theme & Attire
 
 **Purpose:**
 Explain the wedding aesthetic and help guests select appropriate attire without requiring prior familiarity with the source inspiration.

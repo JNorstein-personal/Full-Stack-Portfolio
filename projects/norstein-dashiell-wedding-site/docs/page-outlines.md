@@ -64,7 +64,7 @@ Every public page beneath `/wedding/` must use a consistent wedding-site shell.
 
 1. Home
 2. RSVP
-3. Theme and Attire
+3. Theme & Attire
 4. Our Story
 5. Read, Listen & Watch
 6. Venue
@@ -176,7 +176,7 @@ If analytics are used on RSVP or confirmation routes, they must be limited to no
 5. **Primary RSVP call to action**
    - Link to `/wedding/rsvp/`.
    - Remain visually prominent.
-6. **Theme and Attire call to action**
+6. **Theme & Attire call to action**
    - Link to `/wedding/theme`.
 7. **Venue or Travel call to action**
    - Link to `/wedding/venue` or `/wedding/travel`.
@@ -942,7 +942,7 @@ The state-transition responsibilities remain:
 - Temporary confirmation state loss → Confirmation Refresh Fallback.
 - At the authoritative deadline, editable RSVP states yield to RSVP Closed.
 
-## Theme and Attire
+## Theme & Attire
 
 **Route:** `/wedding/theme`
 
@@ -1404,7 +1404,7 @@ A later confirmed guest-facing milestone may be added only through an updated re
 Link to relevant pages rather than duplicating long explanations:
 
 - RSVP
-- Theme and Attire
+- Theme & Attire
 - Venue
 - Travel
 - Schedule
@@ -1611,7 +1611,7 @@ The following repeated values must be maintained centrally where practical:
 - **Home:** welcome message, hero artwork, teasers/calls to action.
 - **RSVP:** entry instructions, validation messages, revision instructions, named-invitee wording, Plus1 wording, grouped child family prompt and count-selector guidance, derived-headcount/age-dial presentation, Attendee Details wording, Reception dietary wording, confirmation-field wording, privacy reassurance, closed/unavailable states.
 - **Confirmation:** success, complete summary including grouped child count where applicable, delivery warning, refresh fallback, revision wording.
-- **Theme and Attire:** aesthetic, attire, palette, examples, images, downloads, disclaimer.
+- **Theme & Attire:** aesthetic, attire, palette, examples, images, downloads, disclaimer.
 - **Our Story:** relationship narrative/approved photographs.
 - **Read, Listen & Watch:** descriptions, verified external links, availability disclaimer.
 - **Venue:** active venue details, entrances, parking, accessibility, maps, contingency instructions, broad reception description.

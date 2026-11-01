@@ -10,7 +10,7 @@ const navigation = [
     prominent: true,
   },
   {
-    label: "Theme and Attire",
+    label: "Theme & Attire",
     to: "/theme",
   },
   {

@@ -1,5 +1,6 @@
 import ContentSection from "../components/layout/ContentSection";
 import ExternalLink from "../components/common/ExternalLink";
+import BackToTop from "../components/navigation/BackToTop";
 import PageContainer from "../components/layout/PageContainer";
 
 import bookCover from "../assets/images/HowlsCastleBookCover.png";
@@ -492,6 +493,7 @@ function ReadListenWatchPage() {
           <JumpToNav />
         </div>
       </ContentSection>
+      <BackToTop />
     </PageContainer>
   );
 }

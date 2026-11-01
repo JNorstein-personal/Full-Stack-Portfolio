@@ -2,50 +2,9 @@ import { Link } from "react-router-dom";
 
 import ContentSection from "../components/layout/ContentSection";
 import PageContainer from "../components/layout/PageContainer";
-
+import BackToTop from "../components/navigation/BackToTop";
 import howlBreakfast from "../assets/images/howl_breakfast.jpg";
 import marklBreakfast from "../assets/images/Markl_breakfast.png";
-
-const bagels = [
-  "Plain",
-  "Egg",
-  "Everything",
-  "Egg Everything",
-  "Sesame",
-  "Poppy",
-  "Onion",
-  "Cinnamon Raisin",
-  "Pumpernickel Rye",
-];
-
-const glutenFreeBagels = ["Plain", "Everything", "Sesame"];
-
-const schmears = [
-  "Plain Cream Cheese",
-  "Lox Spread",
-  "Scallion",
-  "Vegetable",
-  "Everything",
-  "Cinnamon Walnut Raisin",
-];
-
-const appetizing = [
-  "Whitefish Salad",
-  "Pickled Herring in Sour Cream Sauce",
-  "Pastrami Hash",
-];
-
-const beverages = [
-  "Orange Juice",
-  "Cranberry Juice",
-  "Seltzer",
-  "Coffee",
-  "Tea",
-];
-
-function InlineMenuList({ items }) {
-  return <p>{items.join(" · ")}</p>;
-}
 
 function ScheduleMenuPage() {
   return (
@@ -184,6 +143,7 @@ function ScheduleMenuPage() {
           </p>
         </div>
       </ContentSection>
+      <BackToTop />
     </PageContainer>
   );
 }

@@ -93,7 +93,7 @@ RSVP-history route.
 │       ├── Guest-delivery-warning state
 │       ├── Administrative-delivery-warning state
 │       └── Refresh-without-temporary-state fallback
-├── Theme and Attire
+├── Theme & Attire
 ├── Our Story
 ├── Read, Listen & Watch
 ├── Venue
@@ -122,7 +122,7 @@ Invitation-specific variation is limited to the reviewed form heading, explicit 
 | `/wedding/` | Home | Public | Yes | Yes |
 | `/wedding/rsvp/` | RSVP entry and validated blank RSVP form | Public, then conditionally personalized | Yes | No |
 | `/wedding/rsvp/confirmation` | Temporary successful-submission confirmation | Personalized | No | No |
-| `/wedding/theme` | Theme and Attire | Public | Yes | Yes |
+| `/wedding/theme` | Theme & Attire | Public | Yes | Yes |
 | `/wedding/story` | Our Story | Public | Yes | Yes |
 | `/wedding/read-listen-watch` | Read, Listen & Watch | Public | Yes | Yes |
 | `/wedding/venue` | Active venue information | Public | Yes | Yes |
@@ -142,7 +142,7 @@ The compact sticky primary navigation uses this order:
 
 1. Home
 2. RSVP
-3. Theme and Attire
+3. Theme & Attire
 4. Our Story
 5. Read, Listen & Watch
 6. Venue
@@ -822,7 +822,7 @@ The invitation-launch version includes:
 - Home.
 - RSVP entry and validated blank form.
 - RSVP confirmation.
-- Theme and Attire.
+- Theme & Attire.
 - Our Story.
 - Read, Listen & Watch.
 - Venue.
@@ -1094,7 +1094,7 @@ This state applies when the RSVP was recorded but the protected administrative e
 ## Home links to
 
 - RSVP.
-- Theme and Attire.
+- Theme & Attire.
 - Venue or Travel.
 - Our Story.
 - Other primary-navigation destinations.
@@ -1112,7 +1112,7 @@ This state applies when the RSVP was recorded but the protected administrative e
 - Home or another public destination.
 - Assistance information.
 
-## Theme and Attire links to
+## Theme & Attire links to
 
 - RSVP.
 - Approved design-guide downloads.
@@ -1157,7 +1157,7 @@ The Schedule & Menu destination remains the same under both event configurations
 ## FAQ links to
 
 - RSVP.
-- Theme and Attire.
+- Theme & Attire.
 - Venue.
 - Travel.
 - Schedule & Menu.

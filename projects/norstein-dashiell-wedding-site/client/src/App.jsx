@@ -3,9 +3,10 @@ import { Route, Routes } from "react-router-dom";
 
 import WeddingLayout from "./components/layout/WeddingLayout";
 
+import FaqPage from "./pages/FaqPage";
+import GalleryPage from "./pages/GalleryPage";
 import HomePage from "./pages/HomePage";
 import NotFoundPage from "./pages/NotFoundPage";
-import PlaceholderPage from "./pages/PlaceholderPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import ReadListenWatchPage from "./pages/ReadListenWatchPage";
 import RsvpConfirmationPage from "./pages/RsvpConfirmationPage";
@@ -42,25 +43,9 @@ function App() {
 
         <Route path="schedule-menu" element={<ScheduleMenuPage />} />
 
-        <Route
-          path="faq"
-          element={
-            <PlaceholderPage
-              title="FAQ"
-              message="Frequently asked questions are being prepared."
-            />
-          }
-        />
+        <Route path="faq" element={<FaqPage />} />
 
-        <Route
-          path="gallery"
-          element={
-            <PlaceholderPage
-              title="Gallery"
-              message="The wedding gallery will be available here when appropriate."
-            />
-          }
-        />
+        <Route path="gallery" element={<GalleryPage />} />
 
         <Route path="privacy" element={<PrivacyPage />} />
 

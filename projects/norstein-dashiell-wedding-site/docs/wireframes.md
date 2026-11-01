@@ -127,12 +127,12 @@ The interface must render only one top-level RSVP state at a time. A state trans
 │ {Expanded mobile menu}       │
 │ Home                         │
 │ RSVP                         │
-│ Theme and Attire             │
+│ Theme & Attire               │
 │ Our Story                    │
-│ Read, Listen, and Watch      │
+│ Read, Listen & Watch         │
 │ Venues                       │
 │ Travel                       │
-│ Schedule                     │
+│ Schedule & Menu              │
 │ FAQ                          │
 │ Gallery                      │
 │ Privacy                      │
@@ -229,7 +229,7 @@ All event-dependent wireframes must follow the approved public-schedule model:
 │ [RSVP]                       │
 ├──────────────────────────────┤
 │ QUICK PLANNING LINKS         │
-│ [Theme and Attire]           │
+│ [Theme & Attire]           │
 │ [Venues]                     │
 │ [Travel]                     │
 ├──────────────────────────────┤
@@ -293,7 +293,7 @@ All event-dependent wireframes must follow the approved public-schedule model:
 │ [RSVP]                       │
 ├──────────────────────────────┤
 │ QUICK PLANNING LINKS         │
-│ [Theme and Attire]           │
+│ [Theme & Attire]           │
 │ [Venues]                     │
 │ [Travel]                     │
 ├──────────────────────────────┤
@@ -1379,7 +1379,7 @@ All state changes that announce progress, error, warning, uncertainty, success, 
 
 ---
 
-# 5. Theme and Attire Wireframe
+# 5. Theme & Attire Wireframe
 
 **Route:** `/wedding/theme`
 
@@ -2386,8 +2386,8 @@ The low-fidelity wireframes are complete when:
 - RSVP entry is represented.
 - Personalized RSVP is represented.
 - RSVP confirmation is represented.
-- Theme and Attire is represented.
-- Read, Listen, and Watch is represented.
+- Theme & Attire is represented.
+- Read, Listen & Watch is represented.
 - Venues is represented.
 - Travel is represented.
 - Schedule is represented.

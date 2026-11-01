@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 
 import Button from "../components/common/Button";
+import BackToTop from "../components/navigation/BackToTop";
 import StatusMessage from "../components/common/StatusMessage";
 import PageContainer from "../components/layout/PageContainer";
 import RsvpForm from "../components/rsvp/RsvpForm";
@@ -963,6 +964,7 @@ function RsvpPage() {
           </>
         )}
       </div>
+      <BackToTop />
     </PageContainer>
   );
 }

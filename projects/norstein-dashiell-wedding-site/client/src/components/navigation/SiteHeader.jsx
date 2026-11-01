@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
-import { siteContent } from "../../data/siteContent.js";
 import PrimaryNavigation from "./PrimaryNavigation";
 
 function SiteHeader() {
@@ -34,11 +33,15 @@ function SiteHeader() {
     <header className="site-header">
       <div className="site-header__inner site-width">
         <Link
-          className="site-header__identity"
+          className="site-header__logo-link site-header__logo-link--curse"
           to="/"
           onClick={closeMenu}
+          aria-label="Norstein-Dashiell wedding homepage"
         >
-          {siteContent.labels.siteIdentity}
+          <span
+            className="site-header__logo site-header__logo--curse"
+            aria-hidden="true"
+          />
         </Link>
 
         <button
@@ -61,6 +64,17 @@ function SiteHeader() {
           isOpen={menuOpen}
           onNavigate={closeMenu}
         />
+
+        <a
+          className="site-header__logo-link site-header__logo-link--loreweaver"
+          href="https://www.loreweavercreations.com/"
+          aria-label="Loreweaver Creations homepage"
+        >
+          <span
+            className="site-header__logo site-header__logo--loreweaver"
+            aria-hidden="true"
+          />
+        </a>
       </div>
     </header>
   );

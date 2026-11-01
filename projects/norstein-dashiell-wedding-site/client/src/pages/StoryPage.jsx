@@ -2,7 +2,8 @@ import { Link } from "react-router-dom";
 
 import ContentSection from "../components/layout/ContentSection";
 import PageContainer from "../components/layout/PageContainer";
-
+import BackToTop from "../components/navigation/BackToTop";
+import HowlSophieUs from "../assets/icons/HowlSophieUs.png";
 import engagementRing from "../assets/images/EngagementRing.jpg";
 import proposalAftermath from "../assets/images/ProposalAftermath.jpg";
 import proposalProof from "../assets/images/ProposalProof.jpg";
@@ -30,7 +31,13 @@ function StoryPage() {
 
       <ContentSection labelledBy="relationship-heading">
         <h2 id="relationship-heading">A Hair-Raising Happily-Ever-After</h2>
-
+       <div className="prose-width">
+                  <img
+                    className="studio-ghibli-style-caricatures"
+                    src={HowlSophieUs}
+                    alt="Studio Ghibli-style caricatures of Taylor and Joshua"
+                  />
+        </div>
         <div className="prose-width">
           <blockquote>
             <p>
@@ -286,6 +293,7 @@ function StoryPage() {
           </p>
         </div>
       </ContentSection>
+      <BackToTop />
     </PageContainer>
   );
 }

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-
+import BackToTop from "../components/navigation/BackToTop";
 import ExternalLink from "../components/common/ExternalLink";
 import Card from "../components/common/Card";
 import ContentSection from "../components/layout/ContentSection";
@@ -121,6 +121,7 @@ function TravelPage() {
           </p>
         </div>
       </ContentSection>
+      <BackToTop />
     </PageContainer>
   );
 }

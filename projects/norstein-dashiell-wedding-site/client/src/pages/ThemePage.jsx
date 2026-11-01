@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-
+import BackToTop from "../components/navigation/BackToTop";
 import ContentSection from "../components/layout/ContentSection";
 import PageContainer from "../components/layout/PageContainer";
 import guestAttireInspiration from "../assets/images/Inspirations General Guest Attire.png";
@@ -332,6 +332,7 @@ function ThemePage() {
           </p>
         </div>
       </ContentSection>
+      <BackToTop />
     </PageContainer>
   );
 }

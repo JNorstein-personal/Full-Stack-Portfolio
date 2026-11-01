@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-
+import BackToTop from "../components/navigation/BackToTop";
 import ExternalLink from "../components/common/ExternalLink";
 import ContentSection from "../components/layout/ContentSection";
 import PageContainer from "../components/layout/PageContainer";
@@ -125,7 +125,7 @@ function VenuePage() {
               look at the day&rsquo;s schedule, reception, and brunch menu.
             </li>
             <li>
-              <Link to="/theme">Theme and Attire</Link> — vintage garden
+              <Link to="/theme">Theme & Attire</Link> — vintage garden
               formal, with statement hats strongly encouraged.
             </li>
             <li>
@@ -135,6 +135,7 @@ function VenuePage() {
           </ul>
         </div>
       </ContentSection>
+      <BackToTop />
     </PageContainer>
   );
 }

@@ -1780,7 +1780,7 @@ Guest and administrative confirmation attempts remain independent after storage.
 
 ---
 
-# Theme and Attire
+# Theme & Attire
 
 ## CI-THEME-001 — General Wedding-Aesthetic Description
 
@@ -3203,7 +3203,7 @@ A concise FAQ summary of the dress code.
 Pending confirmation
 
 **Source or Owner:**
-Theme and Attire content
+Theme & Attire content
 
 **Visibility:**
 Public
@@ -3212,7 +3212,7 @@ Public
 Yes
 
 **Notes:**
-Link to the complete Theme and Attire page.
+Link to the complete Theme & Attire page.
 
 ---
 
@@ -3225,7 +3225,7 @@ A concise FAQ answer concerning statement hats.
 Pending confirmation
 
 **Source or Owner:**
-Theme and Attire content
+Theme & Attire content
 
 **Visibility:**
 Public
@@ -3244,7 +3244,7 @@ A concise FAQ answer concerning costumes and anachronistic attire.
 Pending confirmation
 
 **Source or Owner:**
-Theme and Attire content
+Theme & Attire content
 
 **Visibility:**
 Public
@@ -3918,9 +3918,9 @@ Yes
 
 * Home
 * RSVP
-* Theme and Attire
+* Theme & Attire
 * Our Story
-* Read, Listen, and Watch
+* Read, Listen & Watch
 * Venues
 * Travel
 * Schedule

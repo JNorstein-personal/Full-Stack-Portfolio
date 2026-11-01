@@ -212,7 +212,7 @@ The invitation-launch version must include:
   assigned invitations without rewriting existing RSVP operational history.
 - Permanent Test Sample production smoke verification that does not require
   use of a real guest invitation code.
-- Theme and Attire.
+- Theme & Attire.
 - Our Story.
 - Read, Listen, and Watch.
 - Venues, with both event configurations built and only the selected
@@ -1495,7 +1495,7 @@ submitted.
 Public wedding guests may view:
 
 - Home.
-- Theme and Attire.
+- Theme & Attire.
 - Our Story.
 - Read, Listen, and Watch.
 - Venues.

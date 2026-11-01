@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 
 import ContentSection from "../components/layout/ContentSection";
+import TheHappyCouple from "client/src/assets/images/TheHappyCouple.jpg";
+import BackToTop from "../components/navigation/BackToTop";
 import PageContainer from "../components/layout/PageContainer";
 import { activeEventConfiguration } from "../data/eventConfigurations.js";
 import { siteContent } from "../data/siteContent.js";
@@ -12,6 +14,13 @@ function HomePage() {
         <p className="subtitle">{siteContent.wedding.date.fullDisplay}</p>
 
         <h1 id="welcome-heading">{siteContent.labels.siteIdentity}</h1>
+        <div className="prose-width">
+                  <img
+                    className="event-feature-image"
+                    src={TheHappyCouple}
+                    alt="The Happy Couple"
+                  />
+        </div>
 
         <div className="prose-width">
           <p>
@@ -100,7 +109,7 @@ function HomePage() {
 
           <ul>
             <li>
-              <Link to="/theme">Theme and Attire</Link>
+              <Link to="/theme">Theme & Attire</Link>
             </li>
             <li>
               <Link to="/venue">Venue</Link>
@@ -142,6 +151,7 @@ function HomePage() {
           </p>
         </div>
       </ContentSection>
+      <BackToTop />
     </PageContainer>
   );
 }

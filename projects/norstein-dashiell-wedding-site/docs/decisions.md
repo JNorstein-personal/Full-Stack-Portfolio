@@ -1111,7 +1111,7 @@ Public pages must use stable, human-readable routes.
 Required
 
 **Completion Test:**
-Home, RSVP, Theme and Attire, Our Story, Read, Listen, and Watch, Venues, Travel, Schedule, FAQ, Privacy, and Gallery each have a documented route that remains stable through deployment.
+Home, RSVP, Theme & Attire, Our Story, Read, Listen, and Watch, Venues, Travel, Schedule, FAQ, Privacy, and Gallery each have a documented route that remains stable through deployment.
 
 **Status:**
 Approved
@@ -2392,10 +2392,10 @@ Approved
 
 ---
 
-### CONTENT-002 — Theme and Attire Page
+### CONTENT-002 — Theme & Attire Page
 
 **Requirement:**
-Theme and Attire must have a dedicated public page.
+Theme & Attire must have a dedicated public page.
 
 **Priority:**
 Required
