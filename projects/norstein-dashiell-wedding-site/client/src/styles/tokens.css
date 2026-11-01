@@ -57,10 +57,27 @@
      ========================================================= */
 
   /* Display typography */
-  --color-title: #c19c45;
-  --color-heading: #c69e42;
-  --color-heading-outline: #111111;
-  --color-heading-shadow: rgba(17, 17, 17, 0.38);
+  --color-title: #f6d676;
+  --color-heading: #e8c965;
+
+  --color-heading-outline: #000000;
+
+  /*
+   * Invitation-style outline:
+   * calibrated from the 0.035em reference-art match and increased only
+   * slightly so the outline overlaps cleanly with the offset depth layers.
+   */
+  --heading-outline-width: 0.04em;
+
+  /*
+   * Hard-edged depth offset. Three zero-blur layers overlap the stroked
+   * glyph closely enough to read as a continuous printed extrusion while
+   * avoiding the pixelation caused by many fractional-position copies.
+   */
+  --heading-outline-depth:
+    0.010em 0.014em 0 var(--color-heading-outline),
+    0.018em 0.025em 0 var(--color-heading-outline),
+    0.026em 0.036em 0 var(--color-heading-outline);
 
   /* Primary readable text */
   --color-body: #2F3952;
@@ -80,7 +97,18 @@
   --color-button-text: #F8F3EA;
 
   /* Decorative framing */
-  --color-border-decorative: #B89548;
+  --color-border-decorative: #ebc548;
+  --color-border-decorative-outline: #000000;
+
+  /*
+   * Decorative line calibration.
+   * Gold remains the visible face; black provides the crisp frame and
+   * slight right/down printed-depth extension.
+   */
+  --border-decorative-line-width: 2px;
+  --border-decorative-outline-width: .5px;
+  --border-decorative-depth-x: 1px;
+  --border-decorative-depth-y: 2px;
 
   /* Readable surfaces */
   --color-surface: #F8F3EA;
@@ -129,16 +157,134 @@
   --radius-card: 0.75rem;
 
   --border-control: 1px solid var(--color-body);
-  --border-card: 1px solid var(--color-border-decorative);
+  --border-card: var(--border-decorative-line-width) solid var(--color-border-decorative);
 
   --focus-ring-width: 3px;
   --focus-ring-offset: 3px;
 
+  /*
+   * Offset outline depth for display typography.
+   * No blur is used. A small number of overlapping hard offsets biases
+   * the black framing right/down while preserving smoother antialiasing.
+   */
   --shadow-display:
-    0 0.125rem 0.35rem var(--color-heading-shadow);
+    var(--heading-outline-depth);
 
+  /*
+   * Full framed-card treatment: crisp black edge plus a hard offset depth.
+   */
   --shadow-card:
-    0 0.25rem 1rem rgba(17, 17, 17, 0.12);
+    0 0 0
+      var(--border-decorative-outline-width)
+      var(--color-border-decorative-outline),
+    var(--border-decorative-depth-x)
+      var(--border-decorative-depth-y)
+      0
+      var(--border-decorative-outline-width)
+      var(--color-border-decorative-outline);
 
   --header-height: 4.5rem;
+}
+
+
+/* =========================================================
+   DISPLAY TYPOGRAPHY RENDERING
+   Applies the outline tokens to the elements that use the
+   project's display-script and display-titling typography.
+   ========================================================= */
+
+h1,
+h2,
+h3,
+h4,
+.display-title {
+  -webkit-text-stroke:
+    var(--heading-outline-width)
+    var(--color-heading-outline);
+
+  paint-order: stroke fill;
+
+  /*
+   * global.css currently declares its own h1-h4 text-shadow after
+   * tokens.css. Override it here with the three zero-blur depth layers
+   * so there is no soft shadow/glow.
+   */
+  text-shadow: var(--shadow-display) !important;
+}
+
+/* =========================================================
+   DECORATIVE FRAMING RENDERING
+   The color token is used by several top/bottom separator borders.
+   A color custom property cannot itself create an outline, so these
+   rules render the gold face plus black outline/depth on the elements
+   that actually display decorative framing.
+   ========================================================= */
+
+/* Full framed cards */
+.card {
+  box-shadow: var(--shadow-card) !important;
+}
+
+/*
+ * Top-rule decorative separators.
+ * Replace the simple border with a positioned gold rule so its black
+ * frame and right/down depth can be rendered independently.
+ */
+.content-section + .content-section,
+.read-listen-watch-jump-nav,
+.rsvp-question-group + .rsvp-question-group {
+  position: relative;
+  border-top: 0 !important;
+}
+
+.content-section + .content-section::before,
+.read-listen-watch-jump-nav::before,
+.rsvp-question-group + .rsvp-question-group::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  right: 0;
+  left: 0;
+
+  height: var(--border-decorative-line-width);
+  background: var(--color-border-decorative);
+
+  box-shadow:
+    0 -1px 0 var(--color-border-decorative-outline),
+    0 1px 0 var(--color-border-decorative-outline),
+    var(--border-decorative-depth-x)
+      var(--border-decorative-depth-y)
+      0
+      var(--color-border-decorative-outline);
+
+  pointer-events: none;
+}
+
+/* Bottom-rule decorative separators */
+.rsvp-summary-list > div {
+  position: relative;
+  border-bottom: 0 !important;
+}
+
+.rsvp-summary-list > div::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  height: var(--border-decorative-line-width);
+  background: var(--color-border-decorative);
+
+  box-shadow:
+    0 -1px 0 var(--color-border-decorative-outline),
+    0 1px 0 var(--color-border-decorative-outline),
+    var(--border-decorative-depth-x)
+      var(--border-decorative-depth-y)
+      0
+      var(--color-border-decorative-outline);
+
+  pointer-events: none;
 }

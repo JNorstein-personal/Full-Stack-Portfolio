@@ -269,7 +269,7 @@ The form presents one coordinated three-checkbox event-attendance interface:
 
 1. `Ceremony`.
 2. `Reception`.
-3. `Regretfully, I am unable to attend.` or `Regretfully, we are unable to attend.`, according to `wordingMode`.
+3. `Regrettably, I am unable to attend.` or `Regrettably, we are unable to attend.`, according to `wordingMode`.
 
 Ceremony and Reception may be selected independently or together. An attending event selection and decline are mutually exclusive. React coordinates the controls for usability; Express independently enforces the same rule.
 

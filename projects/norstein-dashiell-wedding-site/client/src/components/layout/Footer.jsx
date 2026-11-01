@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 
 import { siteContent } from "../../data/siteContent.js";
+import calciferBurning from "../../assets/images/calcifer_burning.gif";
 
 function Footer() {
   return (
@@ -34,6 +35,13 @@ function Footer() {
             © 2027 {siteContent.labels.siteIdentity}
           </p>
         </div>
+
+        <img
+          className="site-footer__calcifer"
+          src={calciferBurning}
+          alt=""
+          aria-hidden="true"
+        />
       </div>
     </footer>
   );

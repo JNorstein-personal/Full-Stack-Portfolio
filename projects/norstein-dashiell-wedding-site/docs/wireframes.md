@@ -646,13 +646,13 @@ The interface may display only the validated party greeting, approved named-invi
 │ {Singular wording}           │
 │ [ ] I will attend Ceremony   │
 │ [ ] I will attend Reception  │
-│ [ ] Regretfully, I am unable │
+│ [ ] Regrettably, I am unable │
 │     to attend.               │
 │                              │
 │ {Plural wording}             │
 │ [ ] We will attend Ceremony  │
 │ [ ] We will attend Reception │
-│ [ ] Regretfully, we are      │
+│ [ ] Regrettably, we are      │
 │     unable to attend.        │
 │                              │
 │ Ceremony + Reception may be  │

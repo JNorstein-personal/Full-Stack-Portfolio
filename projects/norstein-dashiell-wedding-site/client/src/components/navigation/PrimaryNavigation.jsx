@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 
 import { siteContent } from "../../data/siteContent.js";
+import BackgroundMusicToggle from "./BackgroundMusicToggle";
 
 function PrimaryNavigation({
   isOpen = false,
@@ -37,6 +38,17 @@ function PrimaryNavigation({
             </NavLink>
           </li>
         ))}
+
+        <li
+          className="primary-navigation__separator"
+          aria-hidden="true"
+        >
+          |
+        </li>
+
+        <li className="primary-navigation__item primary-navigation__item--music">
+          <BackgroundMusicToggle />
+        </li>
       </ul>
     </nav>
   );

@@ -365,8 +365,8 @@ The attendance region provides three coordinated choices:
 
 - Ceremony.
 - Reception.
-- `Regretfully, I am unable to attend` for singular wording; or
-- `Regretfully, we are unable to attend` for plural wording.
+- `Regrettably, I am unable to attend` for singular wording; or
+- `Regrettably, we are unable to attend` for plural wording.
 
 Ceremony and Reception may be selected together. Selecting either attending option disables the decline choice; selecting decline disables Ceremony and Reception. The backend independently enforces the same mutual-exclusion rule.
 

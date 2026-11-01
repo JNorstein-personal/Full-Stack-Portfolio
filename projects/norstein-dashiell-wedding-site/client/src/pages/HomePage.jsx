@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 
 import ContentSection from "../components/layout/ContentSection";
 import TheHappyCouple from "client/src/assets/images/TheHappyCouple.jpg";
+import HeadingInvite from "client/src/assets/images/HeadingInvite.png";
 import BackToTop from "../components/navigation/BackToTop";
 import PageContainer from "../components/layout/PageContainer";
 import { activeEventConfiguration } from "../data/eventConfigurations.js";
@@ -10,6 +11,13 @@ import { siteContent } from "../data/siteContent.js";
 function HomePage() {
   return (
     <PageContainer>
+      <ContentSection>
+        <img
+          className="event-invite-image"
+          src={HeadingInvite}
+          alt="Heading Invite"
+        />
+      </ContentSection>
       <ContentSection labelledBy="welcome-heading">
         <p className="subtitle">{siteContent.wedding.date.fullDisplay}</p>
 

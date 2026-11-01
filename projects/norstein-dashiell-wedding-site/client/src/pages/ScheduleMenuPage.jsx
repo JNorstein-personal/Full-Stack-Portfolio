@@ -4,7 +4,7 @@ import ContentSection from "../components/layout/ContentSection";
 import PageContainer from "../components/layout/PageContainer";
 import BackToTop from "../components/navigation/BackToTop";
 import howlBreakfast from "../assets/images/howl_breakfast.jpg";
-import marklBreakfast from "../assets/images/Markl_breakfast.png";
+import marklBreakfast from "../assets/images/Markl_Breakfast.jpg";
 
 function ScheduleMenuPage() {
   return (
@@ -39,7 +39,7 @@ function ScheduleMenuPage() {
             and other little moments will be announced during the reception.
           </p>
 
-          <h3>4:30 p.m. — Celebration Concludes</h3>
+          <h3>4:30 p.m. — Festivities Conclude</h3>
           <p>
             Everything takes place at the Sphinx Banquet &amp; Catering Center
             in Roselle. See the <Link to="/venue">Venue</Link> page for
@@ -49,15 +49,25 @@ function ScheduleMenuPage() {
       </ContentSection>
 
       <ContentSection labelledBy="menu-heading">
-                <img
-          className="schedule-menu-image schedule-menu-image--markl"
-          src={marklBreakfast}
-          alt="Markl enjoying breakfast in Howl's Moving Castle."
-        />
         <h2 id="menu-heading">The Menu</h2>
+        <figure className="schedule-menu-figure schedule-menu-figure--markl">
+          <img
+            className="schedule-menu-image schedule-menu-image--markl"
+            src={marklBreakfast}
+            alt="Markl enjoying breakfast in Howl's Moving Castle."
+          />
 
-        
-<div className="prose-width">
+          <figcaption className="schedule-menu-caption">
+            <em>
+              &ldquo;Which d&apos;you want? You only get one, &apos;cause the rest&apos;re dirty.&rdquo;
+              <br />
+              &mdash;Howl&apos;s Apprentice Markl,{" "}
+              <cite>Howl&apos;s Moving Castle</cite> (2004)
+            </em>
+          </figcaption>
+        </figure>
+
+        <div className="prose-width">
           <h3>Hot Brunch Buffet</h3>
 
           <p>

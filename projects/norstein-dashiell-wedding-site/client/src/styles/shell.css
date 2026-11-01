@@ -203,6 +203,127 @@
   background: color-mix(in srgb, var(--color-button-bg) 92%, transparent);
 }
 
+.primary-navigation__separator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 2.75rem;
+
+  color: var(--color-navigation-text);
+
+  font-family: var(--font-display-titling);
+  font-weight: 700;
+  line-height: 1;
+
+  user-select: none;
+}
+
+
+/* =========================================================
+   BACKGROUND MUSIC CONTROL
+   ========================================================= */
+
+.primary-navigation__item--music {
+  display: flex;
+  align-items: center;
+}
+
+.background-music-toggle {
+  position: relative;
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-3);
+
+  color: var(--color-navigation-text);
+  background: transparent;
+
+  border: 0;
+  border-radius: var(--radius-control);
+
+  font-family: var(--font-display-titling);
+  font-weight: 700;
+  line-height: 1.2;
+
+  cursor: pointer;
+}
+
+.background-music-toggle:hover:not(:disabled),
+.background-music-toggle:active:not(:disabled) {
+  color: var(--color-navigation-text);
+  background: rgb(248 243 234 / 12%);
+}
+
+.background-music-toggle:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.background-music-toggle:disabled {
+  cursor: progress;
+  opacity: 0.72;
+}
+
+.background-music-toggle__track {
+  position: relative;
+
+  display: inline-block;
+  flex: 0 0 auto;
+
+  width: 2.25rem;
+  height: 1.25rem;
+
+  border: 2px solid currentColor;
+  border-radius: 999px;
+}
+
+.background-music-toggle__thumb {
+  position: absolute;
+  top: 50%;
+  left: 0.15rem;
+
+  width: 0.75rem;
+  height: 0.75rem;
+
+  background: currentColor;
+  border-radius: 50%;
+
+  transform: translateY(-50%);
+  transition: transform 150ms ease;
+}
+
+.background-music-toggle[aria-checked="true"]
+  .background-music-toggle__thumb {
+  transform: translate(0.95rem, -50%);
+}
+
+.background-music-toggle__announcement {
+  position: absolute;
+
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+
+  white-space: nowrap;
+
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .background-music-toggle__thumb {
+    transition: none;
+  }
+}
+
 /* =========================================================
    MOBILE MENU CONTROL
    ========================================================= */
@@ -223,6 +344,129 @@
   font-weight: 700;
 
   cursor: pointer;
+}
+
+
+/* =========================================================
+   ROUTE TRANSITION / PAGE LOADING
+   ========================================================= */
+
+body.route-transition-active {
+  overflow: hidden;
+}
+
+.route-loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+
+  display: grid;
+  place-items: center;
+
+  min-width: 100%;
+  min-height: 100dvh;
+
+  padding: var(--space-6);
+
+  /*
+   * Keep the destination page visible behind the loading card.
+   * The light scrim separates the floating status container from
+   * busy page content without replacing the page itself.
+   */
+  background: rgb(17 17 17 / 12%);
+
+  pointer-events: auto;
+}
+
+.route-loading-screen__content {
+  position: relative;
+  z-index: 1;
+
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+
+  width: min(90vw, 30rem);
+  padding:
+    var(--space-6)
+    var(--space-8)
+    var(--space-8);
+
+  color: var(--color-body);
+  text-align: center;
+
+  background:
+    color-mix(
+      in srgb,
+      var(--color-surface) 94%,
+      transparent
+    );
+
+  border: var(--border-card);
+  border-radius: var(--radius-card);
+  box-shadow:
+    var(--shadow-card),
+    0 0.75rem 2rem rgb(17 17 17 / 22%);
+
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.route-loading-screen__image {
+  display: block;
+
+  width: min(100%, 16rem);
+  height: auto;
+
+  margin-inline: auto;
+
+  object-fit: contain;
+
+  pointer-events: none;
+  user-select: none;
+}
+
+.route-loading-screen__title {
+  margin: 0;
+
+  color: var(--color-heading);
+  font-family: var(--font-display-titling);
+  font-size: var(--text-h3);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.route-loading-screen__message {
+  margin: 0;
+
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: 1.5;
+}
+
+@media (max-width: 40rem) {
+  .schedule-menu-figure--markl {
+    width: min(
+      80%,
+      calc(100vw - (2 * var(--space-4)))
+    );
+  }
+
+  .route-loading-screen {
+    padding: var(--space-4);
+  }
+
+  .route-loading-screen__content {
+    width: min(94vw, 26rem);
+    padding:
+      var(--space-4)
+      var(--space-6)
+      var(--space-6);
+  }
+
+  .route-loading-screen__image {
+    width: min(100%, 13rem);
+  }
 }
 
 /* =========================================================
@@ -275,6 +519,44 @@
 }
 
 /* =========================================================
+   SCHEDULE & MENU IMAGE FIGURES
+   ========================================================= */
+
+.schedule-menu-figure {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+
+  max-width: 100%;
+
+  margin-inline: auto;
+  margin-block: 0 var(--space-6);
+}
+
+.schedule-menu-figure--markl {
+  width: min(
+    40%,
+    calc(100vw - (2 * var(--space-4)))
+  );
+}
+
+.schedule-menu-figure--markl
+  .schedule-menu-image--markl {
+  width: 100%;
+  max-width: 100%;
+
+  margin-inline: 0;
+}
+
+.schedule-menu-caption {
+  width: 100%;
+  margin-block-start: var(--space-2);
+
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* =========================================================
    FOOTER
    ========================================================= */
 
@@ -294,10 +576,13 @@
 }
 
 .site-footer__inner {
+  position: relative;
+
   display: grid;
   gap: var(--space-6);
 
   padding-block: var(--space-8);
+  padding-inline-end: clamp(7rem, 14vw, 10rem);
 }
 
 .site-footer__navigation {
@@ -321,6 +606,25 @@
 
 .site-footer__support p {
   margin: 0;
+}
+
+.site-footer__calcifer {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+
+  display: block;
+
+  width: auto;
+  height: auto;
+  max-width: clamp(12rem, 24vw, 18rem);
+  max-height: calc(100% - var(--space-2));
+
+  object-fit: contain;
+  object-position: right bottom;
+
+  pointer-events: none;
+  user-select: none;
 }
 
 /* =========================================================
@@ -369,10 +673,31 @@
     width: 100%;
     min-height: 2.75rem;
   }
+
+  .primary-navigation__separator {
+    display: none;
+  }
+
+  .primary-navigation__item--music,
+  .background-music-toggle {
+    width: 100%;
+  }
+
+  .background-music-toggle {
+    justify-content: flex-start;
+  }
 }
 
 @media (max-width: 40rem) {
   .site-header__logo {
     --header-logo-scale: 1;
+  }
+
+  .site-footer__inner {
+    padding-inline-end: 6.5rem;
+  }
+
+  .site-footer__calcifer {
+    max-width: 6rem;
   }
 }

@@ -227,7 +227,7 @@ The personalized RSVP form uses one reusable substantive structure for every val
 **Attendance and decline**
 
 - Present three coordinated checkboxes: `Ceremony`, `Reception`, and the invitation-specific decline wording.
-- Use `Regretfully, I am unable to attend.` for singular wording mode and `Regretfully, we are unable to attend.` for plural wording mode.
+- Use `Regrettably, I am unable to attend.` for singular wording mode and `Regrettably, we are unable to attend.` for plural wording mode.
 - Ceremony and Reception may both be selected.
 - Selecting Ceremony or Reception disables the decline control.
 - Selecting the decline control disables Ceremony and Reception.

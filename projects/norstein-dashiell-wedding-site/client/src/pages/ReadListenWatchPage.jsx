@@ -2,6 +2,7 @@ import ContentSection from "../components/layout/ContentSection";
 import ExternalLink from "../components/common/ExternalLink";
 import BackToTop from "../components/navigation/BackToTop";
 import PageContainer from "../components/layout/PageContainer";
+import MediaAwareYouTube from "../components/media/MediaAwareYouTube";
 
 import bookCover from "../assets/images/HowlsCastleBookCover.png";
 import moviePoster from "../assets/images/HowlCastleMoviePoster.png";
@@ -220,18 +221,10 @@ function ReadListenWatchPage() {
 
           <h3>A Glimpse Into Howl and Sophie&apos;s World</h3>
 
-          <iframe
-            src="https://www.youtube.com/embed/iwROgK94zcM"
+          <MediaAwareYouTube
+            videoId="iwROgK94zcM"
+            mediaId="howls-moving-castle-trailer"
             title="Howl's Moving Castle official trailer"
-            loading="lazy"
-            referrerPolicy="strict-origin-when-cross-origin"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-            style={{
-              width: "100%",
-              aspectRatio: "16 / 9",
-              border: 0,
-            }}
           />
 
           <p>
@@ -360,18 +353,10 @@ function ReadListenWatchPage() {
             just a little outside of time.
           </p>
 
-          <iframe
-            src="https://www.youtube.com/embed/HMGetv40FkI"
+          <MediaAwareYouTube
+            videoId="HMGetv40FkI"
+            mediaId="merry-go-round-youtube"
             title="Merry Go Round of Life from Howl's Moving Castle"
-            loading="lazy"
-            referrerPolicy="strict-origin-when-cross-origin"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-            style={{
-              width: "100%",
-              aspectRatio: "16 / 9",
-              border: 0,
-            }}
           />
 
           <p>

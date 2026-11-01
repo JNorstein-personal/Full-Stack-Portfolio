@@ -200,7 +200,7 @@ test(
       attendanceLabel([
         "decline",
       ]),
-      "Regretfully unable to attend",
+      "Regrettably unable to attend",
     );
   },
 );
@@ -452,7 +452,7 @@ test(
     );
     assert.equal(
       message.text.includes(
-        "Regretfully unable to attend",
+        "Regrettably unable to attend",
       ),
       true,
     );

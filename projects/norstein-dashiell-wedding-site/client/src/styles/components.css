@@ -812,7 +812,27 @@ textarea:disabled {
     transform: none;
   }
 }
+/* =========================================================
+   HOME PAGE INVITE IMAGE
+   ========================================================= */
 
+.event-invite-image {
+  display: block;
+  width: 55%;
+  height: auto;
+  margin-inline: auto;
+}
+
+/* =========================================================
+   HOME PAGE FEATURE IMAGE
+   ========================================================= */
+
+.studio-ghibli-style-caricatures {
+  display: block;
+  width: 30%;
+  height: auto;
+  margin-inline: auto;
+}
 /* =========================================================
    HOME PAGE FEATURE IMAGE
    ========================================================= */

@@ -1,8 +1,11 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 
 import ContentSection from "../components/layout/ContentSection";
 import PageContainer from "../components/layout/PageContainer";
 import BackToTop from "../components/navigation/BackToTop";
+import MediaAwareYouTube from "../components/media/MediaAwareYouTube";
+import { useBackgroundMusic } from "../components/media/BackgroundMusicProvider";
 import HowlSophieUs from "../assets/icons/HowlSophieUs.png";
 import engagementRing from "../assets/images/EngagementRing.jpg";
 import proposalAftermath from "../assets/images/ProposalAftermath.jpg";
@@ -15,7 +18,22 @@ import proposalProp5 from "../assets/images/ProposalProp5of5.jpg";
 import proposalSetup from "../assets/images/ProposalSetup.jpg";
 import proposalVideo from "../assets/videos/ProposalVideo.mp4";
 
+const PROPOSAL_VIDEO_MEDIA_ID = "story-proposal-video";
+
 function StoryPage() {
+  const {
+    registerForegroundPlayback,
+    unregisterForegroundPlayback,
+  } = useBackgroundMusic();
+
+  useEffect(() => {
+    return () => {
+      unregisterForegroundPlayback(
+        PROPOSAL_VIDEO_MEDIA_ID,
+      );
+    };
+  }, [unregisterForegroundPlayback]);
+
   return (
     <PageContainer>
       <ContentSection labelledBy="story-heading">
@@ -217,18 +235,10 @@ function StoryPage() {
             own words below.
           </p>
 
-          <iframe
-            src="https://www.youtube.com/embed/fThuwOTq7p8"
+          <MediaAwareYouTube
+            videoId="fThuwOTq7p8"
+            mediaId="story-proposal-youtube"
             title="The story behind Joshua and Taylor's proposal"
-            loading="lazy"
-            referrerPolicy="strict-origin-when-cross-origin"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-            style={{
-              width: "100%",
-              aspectRatio: "16 / 9",
-              border: 0,
-            }}
           />
 
           <p>
@@ -247,8 +257,27 @@ function StoryPage() {
           <video
             className="story-proposal-video"
             controls
-            loop
             preload="metadata"
+            onPlay={() => {
+              registerForegroundPlayback(
+                PROPOSAL_VIDEO_MEDIA_ID,
+              );
+            }}
+            onPause={() => {
+              unregisterForegroundPlayback(
+                PROPOSAL_VIDEO_MEDIA_ID,
+              );
+            }}
+            onEnded={() => {
+              unregisterForegroundPlayback(
+                PROPOSAL_VIDEO_MEDIA_ID,
+              );
+            }}
+            onError={() => {
+              unregisterForegroundPlayback(
+                PROPOSAL_VIDEO_MEDIA_ID,
+              );
+            }}
           >
             <source src={proposalVideo} type="video/mp4" />
             Your browser does not support embedded video.

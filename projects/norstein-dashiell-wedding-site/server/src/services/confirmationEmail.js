@@ -9,7 +9,7 @@ function attendanceLabel(
     eventAttendance[0] ===
       "decline"
   ) {
-    return "Regretfully unable to attend";
+    return "Regrettably unable to attend";
   }
 
   const labels = [];

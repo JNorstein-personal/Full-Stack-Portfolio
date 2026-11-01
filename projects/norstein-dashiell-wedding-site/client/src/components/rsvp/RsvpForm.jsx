@@ -292,8 +292,8 @@ function RsvpForm({
     {
       value: "decline",
       labelVariants: {
-        singular: "Regretfully, I am unable to attend.",
-        plural: "Regretfully, we are unable to attend.",
+        singular: "Regrettably, I am unable to attend.",
+        plural: "Regrettably, we are unable to attend.",
       },
     },
   ];

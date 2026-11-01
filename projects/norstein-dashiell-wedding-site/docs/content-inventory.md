@@ -1070,7 +1070,7 @@ Yes
 
 * `Ceremony`
 * `Reception`
-* `Regretfully, I am unable to attend` or `Regretfully, we are unable to attend`, according to the source-mapped wording mode.
+* `Regrettably, I am unable to attend` or `Regrettably, we are unable to attend`, according to the source-mapped wording mode.
 
 **Notes:**
 Ceremony and Reception may be selected independently or together.

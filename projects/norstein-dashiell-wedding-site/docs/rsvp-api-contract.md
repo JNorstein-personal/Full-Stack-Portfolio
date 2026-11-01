@@ -491,7 +491,7 @@ The visible event-attendance control uses the invitation's singular/plural wordi
 
 * Ceremony.
 * Reception.
-* Regretfully unable to attend.
+* Regrettably unable to attend.
 
 Ceremony and Reception may both be selected. Decline is mutually exclusive with both.
 
@@ -618,8 +618,8 @@ The following example is fictional and contains no production code or real guest
         {
           "value": "decline",
           "labelVariants": {
-            "singular": "Regretfully, I am unable to attend.",
-            "plural": "Regretfully, we are unable to attend."
+            "singular": "Regrettably, I am unable to attend.",
+            "plural": "Regrettably, we are unable to attend."
           }
         }
       ]

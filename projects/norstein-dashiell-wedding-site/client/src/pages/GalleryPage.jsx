@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-
+import SophieCleaning from "client/src/assets/images/sophie_cleaning.gif";
 import ContentSection from "../components/layout/ContentSection";
 import BackToTop from "../components/navigation/BackToTop";
 import PageContainer from "../components/layout/PageContainer";
@@ -9,7 +9,13 @@ function GalleryPage() {
     <PageContainer>
       <ContentSection labelledBy="gallery-heading">
         <h1 id="gallery-heading">Gallery</h1>
-
+        <img
+          className="in-progress-image"
+          src={SophieCleaning}
+          alt="Sophie Cleaning"
+        />
+      </ContentSection>
+      <ContentSection>
         <div className="prose-width">
           <h2>Coming Soon</h2>
 

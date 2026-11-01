@@ -286,7 +286,7 @@ The event-attendance interface remains one coordinated three-checkbox group:
 
 1. `Ceremony`
 2. `Reception`
-3. `Regretfully, I am unable to attend` or `Regretfully, we are unable to attend`, using the explicit `I/We wording` value from the source row.
+3. `Regrettably, I am unable to attend` or `Regrettably, we are unable to attend`, using the explicit `I/We wording` value from the source row.
 
 Ceremony and Reception may be selected independently or together. Selecting either attending event disables the decline checkbox. Selecting decline disables Ceremony and Reception.
 
@@ -2092,7 +2092,7 @@ The decline checkbox must use the explicit singular/plural wording mode from the
 Required
 
 **Completion Test:**
-Singular invitations display `Regretfully, I am unable to attend.` and plural invitations display `Regretfully, we are unable to attend.` Selecting decline prevents Ceremony/Reception selection and vice versa.
+Singular invitations display `Regrettably invitations display `Regrettably, we are unable to attend.` Selecting decline prevents Ceremony/Reception selection and vice versa.
 
 **Status:**
 Final

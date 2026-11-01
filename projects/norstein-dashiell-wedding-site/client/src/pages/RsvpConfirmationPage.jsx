@@ -385,8 +385,8 @@ function RsvpConfirmationPage() {
             <p>
               {invitation.wordingMode ===
               "plural"
-                ? "Regretfully, we are unable to attend."
-                : "Regretfully, I am unable to attend."}
+                ? "Regrettably, we are unable to attend."
+                : "Regrettably, I am unable to attend."}
             </p>
           ) : (
             <ul>
