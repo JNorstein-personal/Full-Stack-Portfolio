@@ -12,7 +12,9 @@ function GalleryPage() {
         <img
           className="in-progress-image"
           src={SophieCleaning}
-          alt="Sophie Cleaning"
+          alt="The scariest witch of all; the kind that cleans."
+
+          title="The scariest witch of all; the kind that cleans."
         />
       </ContentSection>
       <ContentSection>

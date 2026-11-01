@@ -1,17 +1,17 @@
 import {
-  createContext,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
 
+import {
+  BackgroundMusicContext,
+} from "./BackgroundMusicContext";
+
 import introMusicUrl from "../../assets/audio/Website Background Music/IntroMerry Go Round.mp3";
 import loopMusicUrl from "../../assets/audio/Website Background Music/LoopMerry Go Round.mp3";
-
-const BackgroundMusicContext = createContext(null);
 
 const BACKGROUND_MUSIC_PLAYBACK_RATE = 1.1;
 
@@ -342,18 +342,4 @@ export function BackgroundMusicProvider({ children }) {
       {children}
     </BackgroundMusicContext.Provider>
   );
-}
-
-export function useBackgroundMusic() {
-  const context = useContext(
-    BackgroundMusicContext,
-  );
-
-  if (!context) {
-    throw new Error(
-      "useBackgroundMusic must be used within BackgroundMusicProvider.",
-    );
-  }
-
-  return context;
 }

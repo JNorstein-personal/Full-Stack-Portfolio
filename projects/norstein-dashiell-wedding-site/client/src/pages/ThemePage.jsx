@@ -160,6 +160,8 @@ function ExpandableThemeImage({
           className="theme-flow-zoom__image"
           src={src}
           alt={alt}
+
+          title={alt}
         />
       </button>
     </div>

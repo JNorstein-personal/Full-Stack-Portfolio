@@ -235,25 +235,24 @@ function RouteTransitionManager() {
           );
         }
       } finally {
-        if (
-          abortController.signal.aborted ||
-          transitionIdRef.current !==
-            transitionId
-        ) {
-          return;
+        const shouldCompleteTransition =
+          !abortController.signal.aborted &&
+          transitionIdRef.current ===
+            transitionId;
+
+        if (shouldCompleteTransition) {
+          setIsLoading(false);
+
+          document.body.classList.remove(
+            "route-transition-active",
+          );
+
+          window.scrollTo({
+            top: 0,
+            left: 0,
+            behavior: "auto",
+          });
         }
-
-        setIsLoading(false);
-
-        document.body.classList.remove(
-          "route-transition-active",
-        );
-
-        window.scrollTo({
-          top: 0,
-          left: 0,
-          behavior: "auto",
-        });
       }
     }
 

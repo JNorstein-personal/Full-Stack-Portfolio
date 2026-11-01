@@ -1,4 +1,4 @@
-import { useBackgroundMusic } from "../media/BackgroundMusicProvider";
+import { useBackgroundMusic } from "../media/BackgroundMusicContext";
 
 function BackgroundMusicToggle() {
   const {

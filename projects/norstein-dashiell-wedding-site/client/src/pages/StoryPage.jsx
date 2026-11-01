@@ -5,7 +5,7 @@ import ContentSection from "../components/layout/ContentSection";
 import PageContainer from "../components/layout/PageContainer";
 import BackToTop from "../components/navigation/BackToTop";
 import MediaAwareYouTube from "../components/media/MediaAwareYouTube";
-import { useBackgroundMusic } from "../components/media/BackgroundMusicProvider";
+import { useBackgroundMusic } from "../components/media/BackgroundMusicContext";
 import HowlSophieUs from "../assets/icons/HowlSophieUs.png";
 import engagementRing from "../assets/images/EngagementRing.jpg";
 import proposalAftermath from "../assets/images/ProposalAftermath.jpg";
@@ -54,6 +54,8 @@ function StoryPage() {
                     className="studio-ghibli-style-caricatures"
                     src={HowlSophieUs}
                     alt="Studio Ghibli-style caricatures of Taylor and Joshua"
+
+                    title="Studio Ghibli-style caricatures of Taylor and Joshua"
                   />
         </div>
         <div className="prose-width">
@@ -144,6 +146,8 @@ function StoryPage() {
             className="story-photo story-photo--standard"
             src={proposalSetup}
             alt="The proposal setup at Innisfree Garden near the wishing tree"
+
+            title="The proposal setup at Innisfree Garden near the wishing tree"
             loading="lazy"
           />
 
@@ -158,34 +162,44 @@ function StoryPage() {
             className="story-photo story-photo--eighty"
             src={proposalProp1}
             alt="Tag 1 of 5. Howl said, ‘I think we ought to live happily ever after,’ and she thought he meant it…"
+
+            title="Tag 1 of 5. Howl said, ‘I think we ought to live happily ever after,’ and she thought he meant it…"
             loading="lazy"
           />
 
           <img
             className="story-photo story-photo--eighty"
             src={proposalProp2}
-            alt="Tag 2 of 5. Sophie knew that living happily ever after with Howl would be a good deal more eventful than any story made it sound, though she was determined to try…"
+            alt="Tag 2 of 5. …Sophie knew that living happily ever after with Howl would be a good deal more eventful than any story made it sound, though she was determined to try…"
+
+            title="Tag 2 of 5. …Sophie knew that living happily ever after with Howl would be a good deal more eventful than any story made it sound, though she was determined to try…"
             loading="lazy"
           />
 
           <img
             className="story-photo story-photo--eighty"
             src={proposalProp3}
-            alt="Tag 3 of 5. ‘It should be hair-raising,’ added Howl. ‘And you’ll exploit me,’ Sophie said. ‘And then you’ll cut up all my suits to teach me,’ said Howl…"
+            alt="Tag 3 of 5. …‘It should be hair-raising,’ added Howl. ‘And you’ll exploit me,’ Sophie said. ‘And then you’ll cut up all my suits to teach me,’ said Howl…"
+
+            title="Tag 3 of 5. …‘It should be hair-raising,’ added Howl. ‘And you’ll exploit me,’ Sophie said. ‘And then you’ll cut up all my suits to teach me,’ said Howl…"
             loading="lazy"
           />
 
           <img
             className="story-photo story-photo--eighty"
             src={proposalProp4}
-            alt="Tag 4 of 5. If Sophie or Howl had had any attention to spare, they might have noticed that Prince Justin, Wizard Suliman, and Mrs. Fairfax were all trying to speak to Howl…"
+            alt="Tag 4 of 5. …If Sophie or Howl had had any attention to spare, they might have noticed that Prince Justin, Wizard Suliman, and Mrs. Fairfax were all trying to speak to Howl…"
+
+            title="Tag 4 of 5. …If Sophie or Howl had had any attention to spare, they might have noticed that Prince Justin, Wizard Suliman, and Mrs. Fairfax were all trying to speak to Howl…"
             loading="lazy"
           />
 
           <img
             className="story-photo story-photo--eighty"
             src={proposalProp5}
-            alt="Tag 5 of 5. And that Fanny, Martha, and Lettie were plucking at Sophie’s sleeves, while Michael was dragging at Howl’s jacket. But Sophie and Howl were holding one another’s hands and smiling and smiling, quite unable to stop. Now would be an excellent time to turn around."
+            alt="Tag 5 of 5. …And that Fanny, Martha, and Lettie were plucking at Sophie’s sleeves, while Michael was dragging at Howl’s jacket. But Sophie and Howl were holding one another’s hands and smiling and smiling, quite unable to stop. Now would be an excellent time to turn around."
+
+            title="Tag 5 of 5. …And that Fanny, Martha, and Lettie were plucking at Sophie’s sleeves, while Michael was dragging at Howl’s jacket. But Sophie and Howl were holding one another’s hands and smiling and smiling, quite unable to stop. Now would be an excellent time to turn around."
             loading="lazy"
           />
 
@@ -197,7 +211,9 @@ function StoryPage() {
           <img
             className="story-photo story-photo--half"
             src={proposalProof}
-            alt="The proposal at Innisfree Garden"
+            alt="She said ‘Yes’!"
+
+            title="She said ‘Yes’!"
             loading="lazy"
           />
 
@@ -210,6 +226,8 @@ function StoryPage() {
             className="story-photo story-photo--eighty"
             src={engagementRing}
             alt="Taylor's engagement ring"
+
+            title="Taylor's engagement ring"
             loading="lazy"
           />
 
@@ -217,6 +235,8 @@ function StoryPage() {
             className="story-photo story-photo--standard"
             src={proposalAftermath}
             alt="Taylor and Joshua together after the proposal"
+
+            title="Taylor and Joshua together after the proposal"
             loading="lazy"
           />
 

@@ -3,7 +3,7 @@ import {
   useRef,
 } from "react";
 
-import { useBackgroundMusic } from "./BackgroundMusicProvider";
+import { useBackgroundMusic } from "./BackgroundMusicContext";
 
 let youtubeApiPromise = null;
 

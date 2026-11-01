@@ -71,6 +71,8 @@ function ReadListenWatchPage() {
             className="read-listen-watch-feature-image"
             src={bookCover}
             alt="Cover of Diana Wynne Jones' Howl's Moving Castle"
+
+            title="Cover of Diana Wynne Jones' Howl's Moving Castle"
           />
 
           <h3>A Little About the Story</h3>
@@ -217,6 +219,8 @@ function ReadListenWatchPage() {
             className="read-listen-watch-feature-image"
             src={moviePoster}
             alt="Poster for Studio Ghibli's Howl's Moving Castle"
+
+            title="Poster for Studio Ghibli's Howl's Moving Castle"
           />
 
           <h3>A Glimpse Into Howl and Sophie&apos;s World</h3>

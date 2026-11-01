@@ -55,6 +55,8 @@ function ScheduleMenuPage() {
             className="schedule-menu-image schedule-menu-image--markl"
             src={marklBreakfast}
             alt="Markl enjoying breakfast in Howl's Moving Castle."
+
+            title="Markl enjoying breakfast in Howl's Moving Castle."
           />
 
           <figcaption className="schedule-menu-caption">
@@ -146,7 +148,9 @@ function ScheduleMenuPage() {
         <img
           className="schedule-menu-image schedule-menu-image--howl"
           src={howlBreakfast}
-          alt="Breakfast scene from Howl's Moving Castle."
+          alt="Breakfast, cooked over a hot open fire demon"
+
+          title="Breakfast, cooked over a hot open fire demon"
         />
           <p>
             <Link to="/rsvp/">Go to RSVP</Link>

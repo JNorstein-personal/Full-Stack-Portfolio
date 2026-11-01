@@ -16,6 +16,8 @@ function HomePage() {
           className="event-invite-image"
           src={HeadingInvite}
           alt="Heading Invite"
+
+          title="Heading Invite"
         />
       </ContentSection>
       <ContentSection labelledBy="welcome-heading">
@@ -27,6 +29,8 @@ function HomePage() {
                     className="event-feature-image"
                     src={TheHappyCouple}
                     alt="The Happy Couple"
+
+                    title="The Happy Couple"
                   />
         </div>
 
