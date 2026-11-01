@@ -167,6 +167,10 @@ img {
   height: auto;
 }
 
+#main-content img {
+  margin-inline: auto;
+}
+
 
 /* =========================================================
    FORMS AND CONTROLS

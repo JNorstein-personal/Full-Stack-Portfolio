@@ -1,7 +1,170 @@
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 import ContentSection from "../components/layout/ContentSection";
 import PageContainer from "../components/layout/PageContainer";
+import guestAttireInspiration from "../assets/images/Inspirations General Guest Attire.png";
+import guestColorPalette from "../assets/images/Guest Color Palette.png";
+
+function clamp(value, minimum, maximum) {
+  return Math.min(maximum, Math.max(minimum, value));
+}
+
+function ExpandableThemeImage({
+  src,
+  alt,
+  scale,
+  expandLabel,
+  collapseLabel,
+}) {
+  const imageRef = useRef(null);
+
+  const [zoom, setZoom] = useState({
+    expanded: false,
+    targetWidth: null,
+    focusX: 0.5,
+    focusY: 0.5,
+    previousScrollX: 0,
+  });
+
+  function handleToggle(event) {
+    const image = imageRef.current;
+
+    if (!image) {
+      return;
+    }
+
+    if (zoom.expanded) {
+      setZoom((current) => ({
+        ...current,
+        expanded: false,
+        targetWidth: null,
+      }));
+
+      requestAnimationFrame(() => {
+        window.scrollTo({
+          left: zoom.previousScrollX,
+          behavior: "smooth",
+        });
+      });
+
+      return;
+    }
+
+    const rect = image.getBoundingClientRect();
+    const keyboardActivation = event.detail === 0;
+
+    const focusX = keyboardActivation
+      ? 0.5
+      : clamp((event.clientX - rect.left) / rect.width, 0, 1);
+
+    const focusY = keyboardActivation
+      ? 0.5
+      : clamp((event.clientY - rect.top) / rect.height, 0, 1);
+
+    setZoom({
+      expanded: true,
+      targetWidth: rect.width * scale,
+      focusX,
+      focusY,
+      previousScrollX: window.scrollX,
+    });
+  }
+
+  useEffect(() => {
+    if (!zoom.expanded) {
+      return undefined;
+    }
+
+    const frameId = requestAnimationFrame(() => {
+      const image = imageRef.current;
+
+      if (!image) {
+        return;
+      }
+
+      const rect = image.getBoundingClientRect();
+      const imageDocumentLeft = rect.left + window.scrollX;
+      const imageDocumentTop = rect.top + window.scrollY;
+
+      const focusedDocumentX =
+        imageDocumentLeft + rect.width * zoom.focusX;
+
+      const focusedDocumentY =
+        imageDocumentTop + rect.height * zoom.focusY;
+
+      const maxScrollX = Math.max(
+        0,
+        document.documentElement.scrollWidth - window.innerWidth,
+      );
+
+      const maxScrollY = Math.max(
+        0,
+        document.documentElement.scrollHeight - window.innerHeight,
+      );
+
+      const targetScrollX = clamp(
+        focusedDocumentX - window.innerWidth / 2,
+        0,
+        maxScrollX,
+      );
+
+      const targetScrollY = clamp(
+        focusedDocumentY - window.innerHeight / 2,
+        0,
+        maxScrollY,
+      );
+
+      window.scrollTo({
+        left: targetScrollX,
+        top: targetScrollY,
+        behavior: "smooth",
+      });
+    });
+
+    return () => {
+      cancelAnimationFrame(frameId);
+    };
+  }, [
+    zoom.expanded,
+    zoom.targetWidth,
+    zoom.focusX,
+    zoom.focusY,
+  ]);
+
+  return (
+    <div
+      className={[
+        "theme-flow-zoom",
+        zoom.expanded ? "theme-flow-zoom--expanded" : "prose-width",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+      style={
+        zoom.expanded
+          ? {
+              width: `${zoom.targetWidth}px`,
+            }
+          : undefined
+      }
+    >
+      <button
+        type="button"
+        className="theme-flow-zoom__button"
+        aria-pressed={zoom.expanded}
+        aria-label={zoom.expanded ? collapseLabel : expandLabel}
+        onClick={handleToggle}
+      >
+        <img
+          ref={imageRef}
+          className="theme-flow-zoom__image"
+          src={src}
+          alt={alt}
+        />
+      </button>
+    </div>
+  );
+}
 
 function ThemePage() {
   return (
@@ -25,9 +188,10 @@ function ThemePage() {
           </p>
 
           <p>
-            For more information on <cite>Howl’s Moving Castle</cite>, and for links to where you can get yourself a copy of the book, the audiobook or the movie, check out
-            our <Link to="/read-listen-watch">Read, Listen & Watch</Link>{" "}
-            page.
+            For more information on <cite>Howl’s Moving Castle</cite>, and for
+            links to where you can get yourself a copy of the book, the
+            audiobook or the movie, check out our{" "}
+            <Link to="/read-listen-watch">Read, Listen & Watch</Link> page.
           </p>
         </div>
       </ContentSection>
@@ -47,7 +211,7 @@ function ThemePage() {
           </p>
 
           <p>
-            Dresses,suits, separates, jumpsuits, waistcoats, frock coats,
+            Dresses, suits, separates, jumpsuits, waistcoats, frock coats,
             flowing skirts, tailored trousers, and other formal or semi-formal
             combinations are all welcome.
           </p>
@@ -71,6 +235,14 @@ function ThemePage() {
           </p>
         </div>
       </ContentSection>
+
+      <ExpandableThemeImage
+        src={guestAttireInspiration}
+        alt="General guest attire inspiration for the vintage garden formal dress code."
+        scale={3}
+        expandLabel="Expand guest attire inspiration image to 300 percent"
+        collapseLabel="Restore guest attire inspiration image to its original size"
+      />
 
       <ContentSection labelledBy="hats-accessories-heading">
         <h2 id="hats-accessories-heading">
@@ -103,6 +275,14 @@ function ThemePage() {
           </p>
         </div>
       </ContentSection>
+
+      <ExpandableThemeImage
+        src={guestColorPalette}
+        alt="Guest color palette inspired by spring wildflowers, garden greenery, soft neutrals, jewel tones, and weathered metals."
+        scale={2}
+        expandLabel="Expand guest color palette image to 200 percent"
+        collapseLabel="Restore guest color palette image to its original size"
+      />
 
       <ContentSection labelledBy="color-palette-heading">
         <h2 id="color-palette-heading">Color Palette</h2>
@@ -151,23 +331,6 @@ function ThemePage() {
             celebrating with us.
           </p>
         </div>
-
-        {/*
-          MULTIMEDIA PHASE
-
-          The following approved assets will eventually appear
-          at the bottom of this page:
-
-          1. Guest Color Palette.png
-             - Guest color-palette reference
-
-          2. Inspirations General Guest Attire.png
-             - General guest-attire inspiration collage
-
-          Do not add the wedding-party Character Design Guide
-          here. It contains substantially more detailed
-          character-specific guidance than general guests need.
-        */}
       </ContentSection>
     </PageContainer>
   );

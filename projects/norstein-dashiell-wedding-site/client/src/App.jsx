@@ -6,11 +6,15 @@ import WeddingLayout from "./components/layout/WeddingLayout";
 import HomePage from "./pages/HomePage";
 import NotFoundPage from "./pages/NotFoundPage";
 import PlaceholderPage from "./pages/PlaceholderPage";
-import ThemePage from "./pages/ThemePage";
 import PrivacyPage from "./pages/PrivacyPage";
+import ReadListenWatchPage from "./pages/ReadListenWatchPage";
 import RsvpConfirmationPage from "./pages/RsvpConfirmationPage";
 import RsvpPage from "./pages/RsvpPage";
+import ScheduleMenuPage from "./pages/ScheduleMenuPage";
 import StoryPage from "./pages/StoryPage";
+import ThemePage from "./pages/ThemePage";
+import TravelPage from "./pages/TravelPage";
+import VenuePage from "./pages/VenuePage";
 
 const DesignSystemPage = import.meta.env.DEV
   ? lazy(() => import("./pages/DesignSystemPage"))
@@ -30,45 +34,13 @@ function App() {
 
         <Route path="story" element={<StoryPage />} />
 
-        <Route
-          path="read-listen-watch"
-          element={
-            <PlaceholderPage
-              title="Read, Listen & Watch"
-              message="Themed reading, listening, and viewing resources are being prepared."
-            />
-          }
-        />
+        <Route path="read-listen-watch" element={<ReadListenWatchPage />} />
 
-        <Route
-          path="venue"
-          element={
-            <PlaceholderPage
-              title="Venue"
-              message="Venue information is being prepared."
-            />
-          }
-        />
+        <Route path="venue" element={<VenuePage />} />
 
-        <Route
-          path="travel"
-          element={
-            <PlaceholderPage
-              title="Travel"
-              message="Travel information is being prepared."
-            />
-          }
-        />
+        <Route path="travel" element={<TravelPage />} />
 
-        <Route
-          path="schedule-menu"
-          element={
-            <PlaceholderPage
-              title="Schedule & Menu"
-              message="Wedding schedule and menu information is being prepared."
-            />
-          }
-        />
+        <Route path="schedule-menu" element={<ScheduleMenuPage />} />
 
         <Route
           path="faq"
