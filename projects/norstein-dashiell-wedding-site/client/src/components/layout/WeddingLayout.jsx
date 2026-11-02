@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
 
+import AnonymousAnalytics from "../analytics/AnonymousAnalytics";
 import Footer from "./Footer";
 import { BackgroundMusicProvider } from "../media/BackgroundMusicProvider";
 import SiteHeader from "../navigation/SiteHeader";
@@ -9,6 +10,7 @@ import RouteTransitionManager from "../navigation/RouteTransitionManager";
 function WeddingLayout() {
   return (
     <BackgroundMusicProvider>
+      <AnonymousAnalytics />
       <SkipLink />
       <SiteHeader />
       <RouteTransitionManager />

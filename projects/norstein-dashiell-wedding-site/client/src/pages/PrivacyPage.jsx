@@ -9,19 +9,21 @@ function PrivacyPage() {
     <PageContainer>
       <ContentSection labelledBy="privacy-heading">
         <h1 id="privacy-heading">
-          RSVP Privacy
+          Wedding Website Privacy
         </h1>
 
         <div className="prose-width">
           <p>
-            This notice explains how the wedding website’s
-            RSVP system is designed to use invitation codes,
-            RSVP responses, confirmation contact
-            information, and related administrative records.
+            This notice explains how the wedding website
+            handles limited site-usage analytics and how the
+            RSVP system uses invitation codes, RSVP responses,
+            confirmation contact information, and related
+            administrative records.
           </p>
 
           <p>
-            It applies to the online RSVP process and the
+            It applies to use of the public wedding website,
+            including the online RSVP process and the
             confirmations associated with an RSVP.
           </p>
         </div>
@@ -316,6 +318,68 @@ function PrivacyPage() {
         </div>
       </ContentSection>
 
+      <ContentSection labelledBy="analytics-heading">
+        <h2 id="analytics-heading">
+          Anonymous Site Analytics
+        </h2>
+
+        <div className="prose-width">
+          <p>
+            This website uses a limited, first-party analytics
+            system to understand how often its pages are used
+            and how much time visitors spend actively viewing
+            them.
+          </p>
+
+          <p>
+            The analytics system retains only aggregate
+            information for each page: the number of page
+            views, an anonymous count of visitors, total
+            engagement time, and the average engagement time
+            derived from those totals.
+          </p>
+
+          <p>
+            The analytics system does not create or retain a
+            visitor profile or transmit a persistent visitor
+            identifier. It does not intentionally collect or
+            store names, invitation codes, RSVP responses,
+            attendee information, dietary or allergy
+            information, email addresses, confirmation
+            destinations, IP addresses, geographic location,
+            referrer information, browser or device profiles,
+            advertising identifiers, or activity outside this
+            wedding website.
+          </p>
+
+          <p>
+            A limited non-identifying browser-side marker may
+            be used only to avoid repeatedly counting the same
+            browser as a new visitor. That marker does not
+            contain a name, invitation code, account
+            identifier, or randomly assigned visitor
+            identifier and is not used to associate browsing
+            activity with an RSVP or invited party.
+          </p>
+
+          <p>
+            As with ordinary web traffic, network
+            infrastructure necessarily receives technical
+            information required to deliver an Internet
+            request. The site analytics system does not use
+            that information to identify visitors or retain
+            it as analytics data.
+          </p>
+
+          <p>
+            Analytics are not required for the RSVP system or
+            any other wedding-site function. Failure or
+            blocking of analytics does not prevent a guest
+            from viewing the website or submitting an RSVP.
+          </p>
+        </div>
+      </ContentSection>
+
       <ContentSection labelledBy="safeguards-heading">
         <h2 id="safeguards-heading">
           Data-Exposure Safeguards
@@ -330,13 +394,25 @@ function PrivacyPage() {
           </p>
 
           <p>
-            Analytics and routine logging are designed to
-            avoid intentionally sending or recording
-            personalized RSVP values such as invitation
+            The analytics endpoint is designed to accept only
+            the normalized wedding-page path and the limited
+            aggregate measurement fields needed to update
+            page views, anonymous visitor counts, and
+            engagement time. It does not accept invitation
             codes, RSVP answers, Plus 1 or grouped-child
-            responses, attendee names, dietary or allergy information, email
-            addresses, mobile numbers, and confirmation
-            destinations.
+            responses, attendee names, dietary or allergy
+            information, email addresses, mobile numbers,
+            confirmation destinations, referrer information,
+            or visitor or device identifiers.
+          </p>
+
+          <p>
+            Routine application logging is designed to avoid
+            intentionally recording personalized RSVP values
+            such as invitation codes, RSVP answers, Plus 1 or
+            grouped-child responses, attendee names, dietary
+            or allergy information, email addresses, mobile
+            numbers, and confirmation destinations.
           </p>
         </div>
       </ContentSection>
@@ -376,13 +452,14 @@ function PrivacyPage() {
           </p>
 
           <p>
-            Non-identifying aggregate wedding statistics may
-            remain after RSVP retirement when they cannot
-            reasonably be used to reconstruct an invited
-            party’s RSVP. The couple’s separate private
-            Invitees List may also remain as a personal
-            planning and address record outside the active
-            RSVP system.
+            Non-identifying aggregate wedding statistics and
+            aggregate page-usage statistics may remain after
+            RSVP retirement when they cannot reasonably be
+            used to reconstruct an invited party’s RSVP or
+            identify an individual visitor. The couple’s
+            separate private Invitees List may also remain as
+            a personal planning and address record outside the
+            active RSVP system.
           </p>
 
           <p>
@@ -427,13 +504,13 @@ function PrivacyPage() {
 
         <div className="prose-width">
           <p>
-            The RSVP system is designed with access limits,
-            data minimization, private administrative
-            storage, and other safeguards appropriate to the
-            information it handles. These safeguards reduce
-            exposure but do not constitute a guarantee
-            against every possible form of unauthorized
-            access or technical failure.
+            The wedding website and RSVP system are designed
+            with access limits, data minimization, private
+            administrative storage, and other safeguards
+            appropriate to the information they handle.
+            These safeguards reduce exposure but do not
+            constitute a guarantee against every possible
+            form of unauthorized access or technical failure.
           </p>
         </div>
       </ContentSection>

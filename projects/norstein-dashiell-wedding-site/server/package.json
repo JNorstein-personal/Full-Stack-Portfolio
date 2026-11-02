@@ -11,6 +11,7 @@
     "verify:google-sheets": "node scripts/verifyGoogleSheets.js",
     "initialize:google-sheets-store": "node scripts/initializeGoogleSheetsStore.js",
     "verify:google-sheets-store": "node scripts/verifyGoogleSheetsStore.js",
+    "initialize:site-analytics": "node scripts/initializeSiteAnalytics.js",
     "audit:production-invitations": "node scripts/auditProductionInvitations.js",
     "load:production-invitations": "node scripts/loadProductionInvitations.js",
     "verify:resend-email": "node scripts/verifyResendEmail.js",

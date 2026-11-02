@@ -18,6 +18,10 @@ const {
   createSafeRequestAudit,
 } = require("./middleware/requestAudit");
 const {
+  createAnalyticsOriginGuard,
+  createAnalyticsRouter,
+} = require("./routes/analytics");
+const {
   createRsvpRouter,
   INVALID_INVITATION_RESPONSE,
   INVALID_SUBMISSION_RESPONSE,
@@ -35,6 +39,21 @@ const {
 const {
   createInvitationService,
 } = require("./services/invitationService");
+const {
+  createDevelopmentAnalyticsStore,
+} = require(
+  "./services/analytics/developmentAnalyticsStore",
+);
+const {
+  createGoogleSheetsAnalyticsStore,
+} = require(
+  "./services/analytics/googleSheetsAnalyticsStore",
+);
+const {
+  createUnavailableAnalyticsStore,
+} = require(
+  "./services/analytics/unavailableAnalyticsStore",
+);
 const {
   createRsvpSubmissionService,
 } = require("./services/rsvpSubmissionService");
@@ -95,6 +114,47 @@ function createDefaultRsvpStore(
   return createUnavailableStore();
 }
 
+function createDefaultAnalyticsStore(
+  environment,
+) {
+  if (
+    environment.NODE_ENV ===
+      "development" ||
+    environment.NODE_ENV === "test"
+  ) {
+    return createDevelopmentAnalyticsStore();
+  }
+
+  if (
+    environment.NODE_ENV ===
+      "production" &&
+    typeof environment
+      .GOOGLE_SPREADSHEET_ID ===
+      "string" &&
+    environment
+      .GOOGLE_SPREADSHEET_ID
+      .trim() !== ""
+  ) {
+    const connection =
+      createGoogleSheetsConnection({
+        spreadsheetId:
+          environment
+            .GOOGLE_SPREADSHEET_ID,
+      });
+
+    return createGoogleSheetsAnalyticsStore({
+      sheets:
+        connection
+          .getSheetsClient(),
+      spreadsheetId:
+        connection
+          .getSpreadsheetId(),
+    });
+  }
+
+  return createUnavailableAnalyticsStore();
+}
+
 function createInvitationSourceFromStore(
   rsvpStore,
 ) {
@@ -114,6 +174,7 @@ function createApp({
   environment,
   invitationSource,
   rsvpStore,
+  analyticsStore,
   deliveryService,
   emailTransport,
   questions,
@@ -148,14 +209,30 @@ function createApp({
       : logger;
 
   if (effectiveLogger) {
+    const requestAuditOptions = {
+      logger:
+        effectiveLogger,
+      now: auditNow,
+      createCorrelationId,
+    };
+
+    /*
+     * Anonymous analytics is intentionally excluded from
+     * per-request application auditing. The analytics endpoint
+     * persists only page-level aggregate counters.
+     */
     app.use(
-      "/wedding/api",
-      createSafeRequestAudit({
-        logger:
-          effectiveLogger,
-        now: auditNow,
-        createCorrelationId,
-      }),
+      "/wedding/api/rsvp",
+      createSafeRequestAudit(
+        requestAuditOptions,
+      ),
+    );
+
+    app.use(
+      "/wedding/api/health",
+      createSafeRequestAudit(
+        requestAuditOptions,
+      ),
     );
   }
 
@@ -165,6 +242,43 @@ function createApp({
     createRsvpOriginGuard({
       environment,
     }),
+  );
+
+  app.use(
+    "/wedding/api/analytics",
+    rsvpNoStore,
+    createAnalyticsOriginGuard({
+      environment,
+    }),
+    express.json({
+      limit: "1kb",
+    }),
+  );
+
+  app.use(
+    "/wedding/api/analytics",
+    (
+      error,
+      req,
+      res,
+      next,
+    ) => {
+      if (
+        error &&
+        (
+          error.type ===
+            "entity.parse.failed" ||
+          error.type ===
+            "entity.too.large"
+        )
+      ) {
+        return res
+          .status(400)
+          .end();
+      }
+
+      return next(error);
+    },
   );
 
   app.use(express.json());
@@ -230,6 +344,12 @@ function createApp({
       environment,
     );
 
+  const effectiveAnalyticsStore =
+    analyticsStore ||
+    createDefaultAnalyticsStore(
+      environment,
+    );
+
   const effectiveInvitationSource =
     invitationSource ||
     createInvitationSourceFromStore(
@@ -266,6 +386,15 @@ function createApp({
       environment,
       now,
     });
+
+  app.use(
+    "/wedding/api/analytics",
+    createAnalyticsRouter({
+      analyticsStore:
+        effectiveAnalyticsStore,
+      now: rateLimitNow,
+    }),
+  );
 
   app.use(
     "/wedding/api/rsvp",
