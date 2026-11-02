@@ -754,8 +754,9 @@ function RsvpPage() {
             >
               Previously submitted answers are not displayed here. If this is
               your first RSVP, complete all required questions. If you’re
-              updating an RSVP, change only the answers that need to be
-              updated. Answers you leave blank will normally remain unchanged.
+              updating an RSVP, unchanged information can usually remain blank.
+              When guest-attendance questions appear, answer every one shown,
+              even if those answers have not changed.
             </StatusMessage>
 
             <section className="rsvp-personalized-support">

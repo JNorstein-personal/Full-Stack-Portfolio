@@ -1,6 +1,6 @@
 {
-  "documentPurpose": "Development-only reusable RSVP form-schema example synchronized with the approved spreadsheet-authoritative attendance model through the September 27, 2026 grouped Kids(n) clarification. The schema defines one reusable form whose conditional regions are driven by the validated invitation configuration, explicit named-invitee decisions, typed additional-guest allocations, the guest's current event-attendance selections, and backend-derived overall attendance. Plus1 allocations remain one-person Yes/No controls. An applicable Kids(n) source row produces one grouped unnamedChildren allocation whose Yes response reveals a required child-count selector from 1 through allocation.maximumCount. It contains no production invitation codes, real guest identities, stored RSVP answers, provider credentials, or protected administrative destinations.",
-  "schemaVersion": "spreadsheet-authoritative-grouped-children-email-only-2026-10-11",
+  "documentPurpose": "Development-only reusable RSVP form-schema runtime source and documentation synchronized through the November 2, 2026 blank-form revision UX clarification. The schema defines one reusable form whose conditional regions are driven by the validated invitation configuration, explicit named-invitee decisions, typed additional-guest allocations, the guest's current event-attendance selections, and backend-derived overall attendance. Plus1 allocations remain one-person Yes/No controls. An applicable Kids(n) source row produces one grouped unnamedChildren allocation whose Yes response reveals a required child-count selector from 1 through allocation.maximumCount. The server loads the formSchemas[].questions array from this document for the reusable RSVP lookup payload; explanatory metadata also documents backend patch behavior and the current browser's stricter blank-form revision presentation where applicable. It contains no production invitation codes, real guest identities, stored RSVP answers, provider credentials, or protected administrative destinations.",
+  "schemaVersion": "spreadsheet-authoritative-grouped-children-email-only-2026-11-02",
   "permanentQuestionIds": {
     "substantive": [
       "eventAttendance",
@@ -51,6 +51,7 @@
     "dietaryFieldLabel": "Dietary or allergy information",
     "dietaryFieldApplicability": "dietaryPreferences is available within each attendeeDetails row only when Reception is selected. It is optional when applicable and is absent or cleared when Reception is not selected.",
     "blankLookupInvariant": "Lookup returns schema and the validated invitation's limited safe configuration only; it never includes stored RSVP answers or stored confirmation destinations.",
+    "browserRevisionPersonAttendancePolicy": "Because stored answers are not displayed, the current browser requires a complete Yes/No declaration for every visible person-attendance control on revisions when the invitation has more than one named invitee or any additional-guest allocation. The sole-named-invitee/no-allocation case has no person-attendance controls and may remain confirmation-only when event attendance is unchanged. Backend patch semantics still permit omitted person-response keys to preserve stored values when a direct valid revision request omits them.",
     "operationalConfirmationCopyStatus": "Decision 029: Guest RSVP confirmation is email-only. A newly entered valid email address is required for every initial submission and revision. The method is fixed to email and is not a guest-facing question.",
     "historicalSmsDataProtection": "Any historical SMS contact or authorization records remain private and protected until controlled retirement. No new mobile-number or SMS authorization information is collected for RSVP confirmation.",
     "allocationPublicFields": [
@@ -142,7 +143,7 @@
     {
       "id": "named-invitee-response-required-when-newly-applicable",
       "scope": "substantive",
-      "rule": "For an initial attending RSVP or a transition from decline to attendance, each authorized named invitee requires exactly one yes/no response. On an ordinary revision that remains attending, omitted authorized named-invitee responses remain unchanged."
+      "rule": "Backend rule: for an initial attending RSVP or a transition from decline to attendance, each authorized named invitee requires exactly one yes/no response. On an ordinary revision that remains attending, omitted authorized named-invitee responses may preserve stored values under patch semantics. Browser rule: when named-invitee controls are visible on a blank revision form, every named invitee shown must be answered Yes or No because stored answers are not displayed."
     },
     {
       "id": "named-invitee-response-authorization",
@@ -157,7 +158,7 @@
     {
       "id": "additional-guest-response-required-when-newly-applicable",
       "scope": "substantive",
-      "rule": "For an initial attending RSVP or a transition from decline to attendance, each authorized additional-guest allocation requires one complete response in the shape required by its kind. On an ordinary revision that remains attending, omitted authorized allocation responses remain unchanged."
+      "rule": "Backend rule: for an initial attending RSVP or a transition from decline to attendance, each authorized additional-guest allocation requires one complete response in the shape required by its kind. On an ordinary revision that remains attending, omitted authorized allocation responses may preserve stored values under patch semantics. Browser rule: when additional-guest controls are visible on a blank revision form, every allocation shown must receive a complete response because stored answers are not displayed."
     },
     {
       "id": "additional-guest-response-authorization",
@@ -237,7 +238,7 @@
     {
       "id": "revision-omission-means-unchanged",
       "scope": "substantive",
-      "rule": "For revisions, omission means leave the stored value unchanged only where the applicable field's patch rules permit it and no controlling attendance, composition, or applicability rule makes the stored value invalid or requires complete replacement."
+      "rule": "For backend revision merging, omission means leave the stored value unchanged only where the applicable field's patch rules permit it and no controlling attendance, composition, or applicability rule makes the stored value invalid or requires complete replacement. This backend patch behavior does not mean every visible browser control may be left blank; the current client requires complete visible person-attendance declarations on applicable revisions."
     },
     {
       "id": "email-confirmation-dependency",
@@ -283,8 +284,8 @@
           "type": "checkbox-group",
           "label": "Attendance",
           "labelVariants": {
-            "singular": "I will be attending (check all that apply):",
-            "plural": "We will be attending (check all that apply):"
+            "singular": "I will be attending:",
+            "plural": "We will be attending:"
           },
           "requiredOnInitial": true,
           "requiredWhenVisible": true,
@@ -346,7 +347,7 @@
               "attendeeDetails"
             ]
           },
-          "helpText": "Choose Ceremony, Reception, or both when attending. The decline choice is mutually exclusive with both attending options."
+          "helpText": "Choose Ceremony, Reception, or both when attending. Choose decline if no one will attend. On a revision, an omitted eventAttendance selection preserves the stored event-attendance choice under backend patch semantics."
         },
         {
           "id": "namedInviteeResponses",
@@ -738,6 +739,10 @@
         {
           "id": "authorized-additional-guest-controls-only",
           "rule": "Render and accept additionalGuestResponses only for objects in invitation.additionalGuestAllocations. Each allocation exposes id, kind, prompt, maximumCount. plus1 uses scalar yes/no; unnamedChildren uses one grouped family response with conditional count. Empty allocations mean no additional-guest controls and no accepted additionalGuestResponses."
+        },
+        {
+          "id": "browser-revision-person-attendance-completeness",
+          "rule": "Because revision forms open blank, the current browser requires a complete declaration for every visible named-invitee and additional-guest attendance control on revisions when such controls are present. The sole-named-invitee/no-allocation case has no person-attendance controls and may omit person responses when event attendance is unchanged. Backend patch semantics remain independently authoritative and may preserve omitted stored person responses in otherwise valid direct revision requests."
         },
         {
           "id": "invitation-capacity-reconciliation",
