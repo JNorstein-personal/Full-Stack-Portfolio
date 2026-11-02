@@ -283,8 +283,8 @@ function RsvpForm({
   const attendanceLabel =
     attendanceQuestion?.labelVariants?.[wordingMode] ??
     (wordingMode === "plural"
-      ? "We will be attending (check all that apply):"
-      : "I will be attending (check all that apply):");
+      ? "We will be attending:"
+      : "I will be attending:");
 
   const attendanceOptions = attendanceQuestion?.options ?? [
     { value: "ceremony", label: "Ceremony" },
@@ -661,7 +661,7 @@ function RsvpForm({
         <legend>Is this your first RSVP or an update?</legend>
 
         <p className="form-help" id="rsvp-completion-mode-help">
-          Choose one below. If this is your first RSVP, complete all required questions. If you’re updating an RSVP, confirm the complete current guest attendance below even if those plans have not changed. Other sections can remain blank when unchanged unless the form asks you to re-enter related details.
+          Choose one. For an update, answer every guest-attendance question that appears, even if those answers have not changed. Other unchanged information can usually remain blank unless the form asks you to re-enter it.
         </p>
 
         <label className="form-choice">
@@ -733,7 +733,7 @@ function RsvpForm({
         <legend>Attendance</legend>
 
         <p className="form-help" id="rsvp-event-attendance-help">
-          {attendanceLabel} Choose all that apply. If you’re updating an earlier RSVP and your plans haven’t changed, you can leave this section blank.
+          {attendanceLabel} Choose all that apply. If you’re updating an earlier RSVP, leave Ceremony and Reception blank if those event choices are unchanged. If you previously declined and still cannot attend, choose the decline option again.
         </p>
 
         {attendanceOptions.map((option) => {
@@ -787,7 +787,7 @@ function RsvpForm({
           <legend>Who Is Attending?</legend>
 
           <p className="form-help" id="rsvp-named-invitees-help">
-            Let us know who will be attending. If you’re updating an earlier RSVP, answer Yes or No for every person listed, even if their plans haven’t changed.
+            Answer Yes or No for every person listed. For an update, answer each person again even if their plans have not changed.
           </p>
 
           {namedInvitees.map((invitee) => (
@@ -857,7 +857,7 @@ function RsvpForm({
           <legend>{allocationLegend(allocations)}</legend>
 
           <p className="form-help" id="rsvp-additional-guests-help">
-            Let us know whether any additional guests will be attending. If your kids will be joining us, let us know how many will attend. When updating an earlier RSVP, answer every additional-guest question even if it hasn’t changed. If the guest list has changed, re-enter the complete current guest list below.
+            Answer each question below. For an update, answer them again even if nothing has changed. If children are attending, choose how many.
           </p>
 
           {allocations.map((allocation) => {
@@ -1014,7 +1014,7 @@ function RsvpForm({
           <legend>Guest Age Groups</legend>
 
           <p className="form-help" id="rsvp-attendance-totals-help">
-            Please tell us how many guests attending fall into each age group, the better to accommodate everyone's seating and dietary needs.
+            Enter how many attending guests fall into each age group. This helps us plan seating and dietary accommodations.
           </p>
 
           {personAttendanceAnswersRequired && !completePersonResponses ? (
@@ -1027,7 +1027,7 @@ function RsvpForm({
               }
             >
               {draft.completionMode === "revision"
-                ? "For an update, answer every guest attendance question above, even if those plans have not changed. Once the current attending party is complete, you can update age groups below if needed."
+                ? "Answer every guest-attendance question above. Once the current attending party is complete, you can update age groups below if needed."
                 : "Answer Yes or No for each guest above. Once we know how many people are attending, you can enter their age groups below."}
             </StatusMessage>
           ) : derivedAttendanceKnown && derivedAttendance < 1 ? (
@@ -1177,20 +1177,9 @@ function RsvpForm({
 
           <p className="form-help" id="rsvp-attendee-details-help">
             {draft.completionMode === "revision"
-              ? "If the guest list has not changed, you can leave the guest-name fields below blank. If anyone attending has changed, re-enter the complete current guest list. If you are also updating Reception attendance, you can provide current dietary or allergy information for each person."
+              ? "If the guest list is unchanged, leave the guest-name fields blank. If it has changed, re-enter the complete current guest list. To update dietary or allergy information, select Reception above so those fields appear."
               : "Enter the name of each person attending, including Plus 1 guests and children. If they’re attending the Reception, you can also tell us about any dietary needs or allergies."}
           </p>
-
-          {draft.completionMode === "revision" &&
-            !draft.attendance.touched &&
-            derivedAttendanceKnown && (
-              <p className="form-help">
-                You’re leaving your Ceremony and Reception choices unchanged. If the people
-                attending are unchanged, leave all guest-name fields blank. If anyone attending
-                has changed, enter the complete current guest list. To update dietary or allergy
-                information for the Reception, select Reception above so those fields appear.
-              </p>
-            )}
 
           {detailTargetCount === null ? (
             <StatusMessage
@@ -1202,7 +1191,7 @@ function RsvpForm({
               }
             >
               {draft.completionMode === "revision"
-                ? "Confirm the complete current guest attendance above first. We’ll then show one name field for each person attending. If the guest list is unchanged, those name fields can remain blank."
+                ? "Confirm the complete current guest attendance above first. We’ll then show one name field for each person attending."
                 : "Answer the guest attendance questions above first. We’ll then show one name field for each person attending."}
             </StatusMessage>
           ) : detailTargetCount < 1 ? (
@@ -1268,7 +1257,7 @@ function RsvpForm({
                         id={`rsvp-attendee-${index}-name-help`}
                       >
                         {draft.completionMode === "revision"
-                          ? "Leave blank if the guest list is unchanged; otherwise required."
+                          ? "Required when re-entering the guest list."
                           : "Required."}
                       </p>
 
