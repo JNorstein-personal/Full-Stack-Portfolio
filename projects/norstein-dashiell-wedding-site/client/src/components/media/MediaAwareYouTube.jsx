@@ -188,7 +188,7 @@ function MediaAwareYouTube({
   return (
     <iframe
       ref={iframeRef}
-      src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1&playsinline=1&rel=0`}
+      src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}&playsinline=1&rel=0`}
       title={title}
       loading="lazy"
       referrerPolicy="strict-origin-when-cross-origin"
