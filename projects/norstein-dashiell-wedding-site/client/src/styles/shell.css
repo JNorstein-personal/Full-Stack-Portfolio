@@ -328,6 +328,16 @@
    MOBILE MENU CONTROL
    ========================================================= */
 
+.site-header__mobile-controls {
+  display: none;
+}
+
+.site-header__collapsed-music {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
 .site-header__menu-button {
   display: none;
 
@@ -642,13 +652,36 @@ body.route-transition-active {
     --header-logo-scale: 1.2;
   }
 
-  .site-header__menu-button {
-    display: inline-flex;
+  .site-header__mobile-controls .site-header__menu-button,
+  .site-header__collapsed-music .background-music-toggle {
+    padding-inline: var(--space-2);
+
+}
+  .site-header__mobile-controls {
+    display: flex;
     grid-column: 2;
     grid-row: 1;
     justify-self: center;
     align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+
+  .site-header__menu-button {
+    display: inline-flex;
+    align-items: center;
     gap: var(--space-2);
+    flex: 0 0 auto;
+  }
+
+  .site-header__collapsed-music {
+    flex: 0 0 auto;
+  }
+
+  .site-header__collapsed-music .background-music-toggle {
+    width: auto;
+    justify-content: center;
   }
 
   .primary-navigation {
@@ -675,15 +708,23 @@ body.route-transition-active {
   }
 
   .primary-navigation__separator {
-    display: none;
+    display: block;
+    width: 100%;
+    min-height: 0;
+    height: 0;
+    margin-block: var(--space-2);
+    overflow: hidden;
+
+    color: transparent;
+    border-top: 1px solid var(--color-navigation-text);
   }
 
   .primary-navigation__item--music,
-  .background-music-toggle {
+  .primary-navigation__item--music .background-music-toggle {
     width: 100%;
   }
 
-  .background-music-toggle {
+  .primary-navigation__item--music .background-music-toggle {
     justify-content: flex-start;
   }
 }
@@ -694,10 +735,23 @@ body.route-transition-active {
   }
 
   .site-footer__inner {
-    padding-inline-end: 6.5rem;
+    padding-inline-end: 0;
   }
 
   .site-footer__calcifer {
-    max-width: 6rem;
+    position: static;
+    right: auto;
+    bottom: auto;
+
+    justify-self: center;
+
+    width: auto;
+    height: auto;
+    max-width: 12rem;
+    max-height: none;
+
+    margin-inline: auto;
+
+    object-position: center;
   }
 }

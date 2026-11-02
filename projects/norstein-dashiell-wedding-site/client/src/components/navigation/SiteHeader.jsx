@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
 import PrimaryNavigation from "./PrimaryNavigation";
+import BackgroundMusicToggle from "./BackgroundMusicToggle";
 
 function SiteHeader() {
   const location = useLocation();
@@ -44,21 +45,29 @@ function SiteHeader() {
           />
         </Link>
 
-        <button
-          className="site-header__menu-button"
-          type="button"
-          aria-expanded={menuOpen}
-          aria-controls="primary-navigation"
-          onClick={toggleMenu}
-        >
-          <span aria-hidden="true">
-            {menuOpen ? "×" : "☰"}
-          </span>
+        <div className="site-header__mobile-controls">
+          <button
+            className="site-header__menu-button"
+            type="button"
+            aria-expanded={menuOpen}
+            aria-controls="primary-navigation"
+            onClick={toggleMenu}
+          >
+            <span aria-hidden="true">
+              {menuOpen ? "×" : "☰"}
+            </span>
 
-          <span>
-            {menuOpen ? "Close menu" : "Menu"}
-          </span>
-        </button>
+            <span>
+              {menuOpen ? "Close menu" : "Menu"}
+            </span>
+          </button>
+
+          {!menuOpen && (
+            <div className="site-header__collapsed-music">
+              <BackgroundMusicToggle />
+            </div>
+          )}
+        </div>
 
         <PrimaryNavigation
           isOpen={menuOpen}

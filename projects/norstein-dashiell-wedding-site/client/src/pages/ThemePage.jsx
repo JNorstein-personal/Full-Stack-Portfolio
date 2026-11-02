@@ -14,6 +14,7 @@ function ExpandableThemeImage({
   src,
   alt,
   scale,
+  mobileScale,
   expandLabel,
   collapseLabel,
 }) {
@@ -62,9 +63,12 @@ function ExpandableThemeImage({
       ? 0.5
       : clamp((event.clientY - rect.top) / rect.height, 0, 1);
 
+    const isMobile = window.matchMedia("(max-width: 40rem)").matches;
+    const effectiveScale = isMobile ? mobileScale : scale;
+
     setZoom({
       expanded: true,
-      targetWidth: rect.width * scale,
+      targetWidth: rect.width * effectiveScale,
       focusX,
       focusY,
       previousScrollX: window.scrollX,
@@ -172,7 +176,7 @@ function ThemePage() {
   return (
     <PageContainer>
       <ContentSection labelledBy="theme-heading">
-        <h1 id="theme-heading">Theme and Attire</h1>
+        <h1 id="theme-heading">Theme & Attire</h1>
 
         <div className="prose-width">
           <p>
@@ -242,7 +246,8 @@ function ThemePage() {
         src={guestAttireInspiration}
         alt="General guest attire inspiration for the vintage garden formal dress code."
         scale={3}
-        expandLabel="Expand guest attire inspiration image to 300 percent"
+        mobileScale={6}
+        expandLabel="Expand guest attire inspiration image"
         collapseLabel="Restore guest attire inspiration image to its original size"
       />
 
@@ -282,7 +287,8 @@ function ThemePage() {
         src={guestColorPalette}
         alt="Guest color palette inspired by spring wildflowers, garden greenery, soft neutrals, jewel tones, and weathered metals."
         scale={2}
-        expandLabel="Expand guest color palette image to 200 percent"
+        mobileScale={4}
+        expandLabel="Expand guest color palette image"
         collapseLabel="Restore guest color palette image to its original size"
       />
 

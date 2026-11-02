@@ -854,3 +854,17 @@ textarea:disabled {
   height: auto;
   margin-inline: auto;
 }
+
+@media (max-width: 40rem) {
+  .event-invite-image {
+    width: 110%;
+    max-width: none;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .studio-ghibli-style-caricatures {
+    width: 60%;
+  }
+}
