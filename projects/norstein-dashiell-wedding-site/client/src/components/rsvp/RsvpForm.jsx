@@ -733,7 +733,12 @@ function RsvpForm({
         <legend>Attendance</legend>
 
         <p className="form-help" id="rsvp-event-attendance-help">
-          {attendanceLabel} Choose all that apply. If you’re updating an earlier RSVP, leave Ceremony and Reception blank if those event choices are unchanged. If you previously declined and still cannot attend, choose the decline option again.
+          {attendanceLabel}{" "}
+          <i>
+            (Choose all that apply. If you’re updating an earlier RSVP, leave Ceremony
+            and Reception blank if those event choices are unchanged. If you previously
+            declined and still cannot attend, choose the decline option again.)
+          </i>
         </p>
 
         {attendanceOptions.map((option) => {
