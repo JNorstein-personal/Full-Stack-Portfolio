@@ -99,38 +99,38 @@ function DayOfPage() {
           <h3>Bagels &amp; Schmears</h3>
 
           <p>
-            <strong>Bagels</strong>
+            <strong>Bagels:</strong>
             <br />
             Plain · Everything · Sesame · Poppy · Onion · Cinnamon Raisin
           </p>
 
           <p>
-            <strong>Gluten-Free Bagels</strong>
+            <strong>Gluten-Free Bagels:</strong>
             <br />
             Plain · Everything · Sesame
           </p>
 
           <p>
-            <strong>Schmears</strong>
+            <strong>Schmears:</strong>
             <br />
             Plain Cream Cheese · Lox Spread · Herb and Chive · Vegetable ·
             Everything · Cinnamon Walnut Raisin
           </p>
 
           <p>
-            <strong>Appetizing</strong>
+            <strong>Appetizing:</strong>
             <br />
             Whitefish Salad
           </p>
 
           <p>
-            <strong>Etcetera</strong>
+            <strong>Etcetera:</strong>
             <br />
             Assorted Seasonal Fruit
           </p>
 
           <p>
-            <strong>Beverages</strong>
+            <strong>Beverages:</strong>
             <br />
             Coffee · Tea · Mockmosas
           </p>

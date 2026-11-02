@@ -15,9 +15,9 @@ function HomePage() {
         <img
           className="event-invite-image"
           src={HeadingInvite}
-          alt="Heading Invite"
+          alt="You Are Cordially Invited to the Wedding of Taylor Amani Dashiell & Joshua Simon Norstein, Saturday, May The 1st, 2027"
 
-          title="Heading Invite"
+          title="You Are Cordially Invited to the Wedding of Taylor Amani Dashiell & Joshua Simon Norstein, Saturday, May The 1st, 2027"
         />
       </ContentSection>
       <ContentSection labelledBy="welcome-heading">
