@@ -244,7 +244,7 @@ function ThemePage() {
 
       <ExpandableThemeImage
         src={guestAttireInspiration}
-        alt="General guest attire inspiration for the vintage garden formal dress code."
+        alt="General guest attire ideas - click to zoom in/out"
         scale={3}
         mobileScale={6}
         expandLabel="Expand guest attire inspiration image"
@@ -285,7 +285,7 @@ function ThemePage() {
 
       <ExpandableThemeImage
         src={guestColorPalette}
-        alt="Guest color palette inspired by spring wildflowers, garden greenery, soft neutrals, jewel tones, and weathered metals."
+        alt="Guest color palette - click to zoom in/out"
         scale={2}
         mobileScale={4}
         expandLabel="Expand guest color palette image"
