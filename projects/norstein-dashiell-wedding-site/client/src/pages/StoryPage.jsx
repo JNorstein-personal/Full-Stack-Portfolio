@@ -44,6 +44,21 @@ function StoryPage() {
             Read on to find out more about us, the life we&apos;ve built together,
             and the path that brought us to our wedding day.
           </p>
+
+          <p>
+            <strong>Explore this page:</strong>{" "}
+            <a href="#relationship-heading">
+              A Hair-Raising Happily-Ever-After
+            </a>
+            {" · "}
+            <a href="#planning-heading">
+              From Engagement to Wedding Day
+            </a>
+            {" · "}
+            <a href="#story-next-step-heading">
+              Join Us
+            </a>
+          </p>
         </div>
       </ContentSection>
 
@@ -118,6 +133,7 @@ function StoryPage() {
             more anyway.
           </p>
         </div>
+
       </ContentSection>
 
       <ContentSection labelledBy="planning-heading">
@@ -320,6 +336,7 @@ function StoryPage() {
             or tours of a fish market&apos;s dumpsters.
           </p>
         </div>
+
       </ContentSection>
 
       <ContentSection labelledBy="story-next-step-heading">

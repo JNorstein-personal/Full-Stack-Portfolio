@@ -12,7 +12,7 @@ It establishes:
 - The sole manual-entry RSVP path.
 - The boundary between ordinary pages and RSVP states.
 - The location of error, closed, unavailable, uncertain-submission, delivery-warning, and not-found experiences.
-- The pages controlled by the centralized active-event configuration.
+- The public pages that share the confirmed Sphinx-only event details.
 - The separation between invitation-launch and post-wedding content.
 
 This sitemap must remain consistent with:
@@ -98,7 +98,7 @@ RSVP-history route.
 ├── Read, Listen & Watch
 ├── Venue
 ├── Travel
-├── Schedule & Menu
+├── Day-Of Details
 ├── Frequently Asked Questions
 ├── Gallery
 │   ├── Invitation-launch Coming Soon state
@@ -127,7 +127,7 @@ Invitation-specific variation is limited to the reviewed form heading, explicit 
 | `/wedding/read-listen-watch` | Read, Listen & Watch | Public | Yes | Yes |
 | `/wedding/venue` | Active venue information | Public | Yes | Yes |
 | `/wedding/travel` | Hotel, parking, and transportation information | Public | Yes | Yes |
-| `/wedding/schedule-menu` | Active guest schedule | Public | Yes | Yes |
+| `/wedding/day-of` | Day-Of Details: schedule, menu, dietary information, and gift policy | Public | Yes | Yes |
 | `/wedding/faq` | Frequently Asked Questions | Public | Yes | Yes |
 | `/wedding/gallery` | Coming Soon or approved post-wedding gallery | Public | Yes | Yes |
 | `/wedding/privacy` | Full RSVP privacy notice | Public | Yes | Yes |
@@ -147,7 +147,7 @@ The compact sticky primary navigation uses this order:
 5. Read, Listen & Watch
 6. Venue
 7. Travel
-8. Schedule & Menu
+8. Day-Of Details
 9. FAQ
 10. Gallery
 11. Privacy
@@ -170,13 +170,20 @@ RSVP must also appear:
 
 - As a prominent action on Home.
 - In the site footer.
-- Where contextually appropriate on Schedule & Menu and FAQ.
+- Where contextually appropriate on Day-Of Details and FAQ.
 
 Privacy must also appear:
 
 - In the site footer.
 - In the concise privacy notice on the public RSVP entry state.
 - In the concise privacy notice on the validated RSVP form state.
+
+The site footer provides direct links to:
+
+- Home.
+- RSVP.
+- FAQ.
+- Privacy.
 
 Internal links beneath `/wedding/` open in the same tab.
 
@@ -199,9 +206,9 @@ Public content includes:
 - Theme and attire guidance.
 - Our Story.
 - Lawful book, audiobook, and film resource links.
-- The currently active venue configuration.
+- The confirmed Sphinx-only venue configuration.
 - Travel and hotel-block information approved for publication.
-- The currently active guest schedule.
+- Day-Of Details, including the confirmed schedule, current menu, dietary guidance, and gift policy.
 - Frequently Asked Questions.
 - Gift guidance.
 - The pre-wedding Gallery Coming Soon page.
@@ -722,94 +729,41 @@ data-minimization, retention, and security-limitation policies.
 
 ---
 
-# Active Event Configuration Boundary
+# Confirmed Event Configuration Boundary
 
-The following pages depend on one centralized active-event configuration:
+The wedding uses one confirmed public event configuration:
+
+- Ceremony and reception at Sphinx Banquet and Catering Center.
+- 121 E 2nd Avenue, Roselle, NJ 07203.
+- Saturday, May 1, 2027.
+- Guest-facing event window: 11:30 a.m.–4:30 p.m.
+
+The following public pages must present those event details consistently:
 
 - Home.
 - Venue.
 - Travel.
-- Schedule & Menu, limited to the confirmed outer event blocks and approved broad reception description.
-- FAQ, including the flexible reception structure and any confirmed beverage information.
+- Day-Of Details.
+- FAQ.
 
-The centralized configuration must control both the confirmed outer event blocks and the approved reception-description policy.
-
-## Configuration A (N/A)
-
-**Warinanco Park ceremony and Sphinx reception**
-
-- Ceremony:
-  - Saturday, May 1, 2027.
-  - 10:30 a.m. to 12:00 p.m.
-  - Warinanco Park, Roselle, NJ 07036.
-- Guest transition between venues:
-  - 12:00 p.m. to 12:30 p.m.
-  - This is travel or transition time, not a separately scheduled cocktail hour.
-- Reception:
-  - Saturday, May 1, 2027.
-  - 12:30 p.m. to 4:30 p.m.
-  - Sphinx Banquet and Catering Center.
-  - 121 E 2nd Avenue, Roselle, NJ 07203.
-  - Buffet-style brunch remains available throughout the reception.
-  - Dancing and other festivities may occur at various intervals during the reception.
-
-## Configuration B
-
-**Ceremony and reception entirely at Sphinx**
-
-- Saturday, May 1, 2027.
-- One combined ceremony-and-reception event block from 11:30 a.m. to 4:30 p.m.
-- Sphinx Banquet and Catering Center.
-- 121 E 2nd Avenue, Roselle, NJ 07203.
-- The public website must not invent a separate ceremony-ending or reception-starting time within this combined block.
-- Buffet-style brunch remains available throughout the reception portion of the event.
-- Dancing and other festivities may occur at various intervals during the reception.
-
-## Shared reception-description policy
+## Confirmed day-of presentation
 
 The public site may use broad wording such as:
 
-> Buffet brunch, dancing, and other festivities will take place during the reception.
+> The ceremony begins at 11:30 a.m., followed by brunch, dancing, speeches, and the rest of the celebration, with festivities concluding at 4:30 p.m.
 
-The active configuration must not create or imply:
+The confirmed public presentation must not create or imply:
 
+- A separate ceremony venue.
 - A separately scheduled formal cocktail hour.
 - A separately scheduled formal dinner service.
 - A fixed dancing period.
 - Exact public times for first dances, toasts, speeches, cake service, photographs, buffet activity, or other flexible reception activities.
 - A detailed internal reception run-of-show.
-- A confirmed self-service mimosa station before the couple and Sphinx Banquet and Catering Center finalize the arrangement.
 
-If the mimosa station is later confirmed, the active configuration may describe it broadly as available during the reception unless a later recorded decision establishes a more specific service window.
+The former Warinanco Park ceremony configuration is discontinued. It may remain only in historical project documentation or inactive historical source data and must not appear to guests as a pending venue decision, weather fallback, alternate public schedule, or future event configuration.
 
-## Publication rule
-
-Both configurations must be complete before launch.
-
-Only one may be active and guest-facing at a time.
-
-The site must not mix:
-
-- Venue names.
-- Addresses.
-- Ceremony times.
-- Reception or combined-event times.
-- Parking instructions.
-- Map links.
-- Arrival guidance.
-- Weather instructions.
-- Reception-description wording.
-- Buffet-service wording.
-- Mimosa-station confirmation status.
-- Transportation or transition guidance.
-
-Configuration B must be activatable promptly if:
-
-- Warinanco Park approval is not received.
-- Inclement weather prevents the outdoor ceremony.
-- The approved fallback otherwise becomes necessary.
-
-The public Schedule & Menu page remains one stable route under either configuration. Switching configurations changes its content state rather than creating another route.
+Day-Of Details remains one stable route at `/wedding/day-of` and contains the guest-facing schedule, menu, dietary guidance, and gift policy.
 
 ---
 
@@ -827,7 +781,7 @@ The invitation-launch version includes:
 - Read, Listen & Watch.
 - Venue.
 - Travel.
-- Schedule & Menu.
+- Day-Of Details.
 - FAQ.
 - Gallery in the Coming Soon state.
 - Privacy.
@@ -1079,6 +1033,7 @@ This state applies when the RSVP was recorded but the protected administrative e
 - Home.
 - RSVP.
 - Venue.
+- Day-Of Details.
 - FAQ.
 
 ### Required behavior
@@ -1102,6 +1057,7 @@ This state applies when the RSVP was recorded but the protected administrative e
 ## RSVP links to
 
 - Privacy.
+- Day-Of Details for the Gift Policy.
 - Home.
 - Printed-response and assistance information.
 - Confirmation after successful submission.
@@ -1122,6 +1078,7 @@ This state applies when the RSVP was recorded but the protected administrative e
 
 - Home.
 - RSVP.
+- In-page anchors for A Hair-Raising Happily-Ever-After, From Engagement to Wedding Day, and Join Us.
 
 ## Read, Listen & Watch links to
 
@@ -1134,7 +1091,7 @@ This state applies when the RSVP was recorded but the protected administrative e
 
 - Verified external maps.
 - Travel.
-- Schedule & Menu.
+- Day-Of Details.
 - FAQ.
 
 ## Travel links to
@@ -1142,17 +1099,16 @@ This state applies when the RSVP was recorded but the protected administrative e
 - Verified hotel booking resources when available.
 - Verified external maps.
 - Venue.
-- Schedule & Menu.
+- Day-Of Details.
 - FAQ.
 
-## Schedule & Menu links to
+## Day-Of Details links to
 
 - Venue.
-- Travel.
 - RSVP.
-- FAQ.
+- In-page anchors for The Schedule, The Menu, Dietary Needs, and Gift Policy.
 
-The Schedule & Menu destination remains the same under both event configurations. Its content changes through the centralized active-event setting and must not branch into separate cocktail-hour, dinner, dancing, or other internal-activity pages.
+The Day-Of Details destination is the canonical public route for schedule, menu, dietary guidance, and gift policy. It must not branch into separate cocktail-hour, dinner, dancing, gift-registry, or other internal-activity pages.
 
 ## FAQ links to
 
@@ -1160,11 +1116,10 @@ The Schedule & Menu destination remains the same under both event configurations
 - Theme & Attire.
 - Venue.
 - Travel.
-- Schedule & Menu.
-- Read, Listen & Watch.
+- Day-Of Details.
 - Privacy.
 
-Reception answers must link back to the concise Schedule & Menu page rather than to a separate or more detailed internal itinerary.
+FAQ answers must link to the corresponding in-depth guest page where one exists. Day-of and reception answers link back to Day-Of Details rather than to a separate or more detailed internal itinerary.
 
 ## Gallery links to
 
@@ -1182,6 +1137,7 @@ Reception answers must link back to the concise Schedule & Menu page rather than
 - Home.
 - RSVP.
 - Venue.
+- Day-Of Details.
 - FAQ.
 
 ---
@@ -1198,7 +1154,7 @@ The following routes may be indexed:
 - `/wedding/read-listen-watch`
 - `/wedding/venue`
 - `/wedding/travel`
-- `/wedding/schedule-menu`
+- `/wedding/day-of`
 - `/wedding/faq`
 - `/wedding/gallery`
 - `/wedding/privacy`
@@ -1257,7 +1213,7 @@ The sitemap does not include:
 - A separate formal-dinner page or schedule state.
 - A fixed dancing-schedule page or state.
 - A page or route for unconfirmed internal reception milestones.
-- An invented Configuration B ceremony-to-reception transition.
+- An invented separate ceremony-to-reception transition.
 - A guest-facing mimosa-station page or state before the arrangement is confirmed.
 
 The allocation-question name exclusions do not prevent collection of an attending Plus 1's or previously unnamed children's actual names through the ordinary `Attendee Details` structure when those people attend.
@@ -1300,11 +1256,11 @@ This sitemap is complete when:
 - Guest and administrative confirmation attempts proceed independently after storage, and only limited delivery statuses appear on the confirmation route.
 - Private administrative information remains outside the public route tree.
 - The Privacy page is included.
-- Sticky navigation order is documented.
-- Internal and external link behavior is documented.
-- Both venue configurations are prepared and only one may be active.
-- The Schedule & Menu route publishes only confirmed outer event blocks and broad reception wording.
-- Configuration B does not invent an internal ceremony-to-reception transition.
+- Sticky navigation order and the Home / RSVP / FAQ / Privacy footer links are documented.
+- Internal, external, and approved in-page jump-navigation behavior is documented.
+- The confirmed Sphinx-only event configuration is used consistently across public pages.
+- The Day-Of Details route publishes the confirmed schedule, current menu, dietary guidance, and approved gift policy.
+- The Sphinx-only presentation does not invent a separate internal ceremony-to-reception transition.
 - Gallery uses one canonical route for both Coming Soon and post-wedding states.
 - RSVP states, validation, service-unavailable, uncertain-submission, delivery-warning, confirmation-refresh, and 404 behavior are accounted for.
 - Search-indexing boundaries are documented and personalized RSVP states remain non-indexed.

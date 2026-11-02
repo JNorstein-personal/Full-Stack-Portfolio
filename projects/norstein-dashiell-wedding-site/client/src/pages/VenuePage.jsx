@@ -89,7 +89,7 @@ function VenuePage() {
 
           <p>
             For the guest-facing outline of the day, visit our{" "}
-            <Link to="/schedule-menu">Schedule &amp; Menu</Link> page.
+            <Link to="/day-of">Day-Of Details</Link> page.
           </p>
         </div>
       </ContentSection>
@@ -121,7 +121,7 @@ function VenuePage() {
               driving, and information for guests coming from near and far.
             </li>
             <li>
-              <Link to="/schedule-menu">Schedule &amp; Menu</Link> — a closer
+              <Link to="/day-of">Day-Of Details</Link> — a closer
               look at the day&rsquo;s schedule, reception, and brunch menu.
             </li>
             <li>

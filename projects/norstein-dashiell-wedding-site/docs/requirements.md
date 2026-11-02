@@ -35,132 +35,127 @@ The application will consist of:
 6. External links to lawful sources for the thematic book, audiobook,
    and movie.
 7. Nextcloud-hosted wedding materials where guest access is appropriate.
-8. Centralized venue and schedule content supporting either of the two
-   approved event configurations without requiring page components to
-   be rewritten.
+8. Centralized confirmed-event content keeping Home, Venue, Travel,
+   Day-Of Details, and FAQ consistent with the finalized Sphinx-only
+   wedding configuration.
 9. A public Privacy page explaining the wedding website's RSVP data
    practices.
+10. Approved launch media, imagery, audio, and other creative assets for
+    which the couple has verified ownership, permission, or required
+    attribution for this website.
 
 The application will not publicly host copyrighted copies of the
 thematic book, audiobook, or movie.
 
-## Event Configuration Requirements
+Publication-rights review for the media currently implemented in the
+invitation-launch build is complete: the couple has verified ownership,
+permission, or required attribution for those assets. Any later replacement
+or additional public asset must receive the same review before publication.
 
-The wedding will use one of the following two configurations.
+## Confirmed Event Configuration Requirements
 
-### Configuration A — Warinanco Park Ceremony and Sphinx Reception
-
-This configuration will be used only if approval for the outdoor
-ceremony location is received and weather permits.
-
-- Ceremony date: Saturday, May 1, 2027.
-- Ceremony time: 10:30 a.m. to 12:00 p.m.
-- Ceremony location: Warinanco Park, Roselle, NJ 07036.
-- Reception date: Saturday, May 1, 2027.
-- Reception time: 12:30 p.m. to 4:30 p.m.
-- Reception location: Sphinx Banquet and Catering Center,
-  121 E 2nd Avenue, Roselle, NJ 07203.
-
-### Configuration B — Entire Event at Sphinx
-
-This configuration will be used if approval for Warinanco Park is not
-received or if inclement weather prevents use of the outdoor ceremony
-location.
+The wedding has one confirmed public event configuration.
 
 - Event date: Saturday, May 1, 2027.
-- Ceremony and reception time: 11:30 a.m. to 4:30 p.m.
 - Ceremony and reception location: Sphinx Banquet and Catering Center,
   121 E 2nd Avenue, Roselle, NJ 07203.
+- Ceremony start: 11:30 a.m.
+- Guest-facing conclusion of festivities: 4:30 p.m.
+- Ceremony and reception occur at the same venue.
 
-Complete venue and schedule content must be prepared for both
-configurations. Only the confirmed configuration may be active and
-guest-facing when the printed invitations are mailed.
+The former Warinanco Park ceremony configuration is discontinued. It may
+remain only as historical project documentation or inactive historical
+source data. It must not appear to guests as:
 
-The public Home, Venues, Travel, Schedule, and FAQ content must not
-display conflicting configurations at the same time.
+- A pending venue decision.
+- An alternate public schedule.
+- An inclement-weather fallback.
+- A future event configuration.
 
-If Configuration A is active when the invitations are mailed but
-inclement weather later requires the Sphinx-only fallback,
-Configuration B must be capable of being activated promptly without
-rebuilding the application.
+Home, Venue, Travel, Day-Of Details, and FAQ must present the confirmed
+Sphinx-only event facts consistently.
 
-## Public Schedule and Reception-Service Requirements
+A later change to the confirmed venue or event format requires a new
+explicit recorded project decision before public content or release
+requirements are altered.
 
-The public website must distinguish the confirmed outer event time
-blocks from the flexible internal reception program.
+## Public Schedule, Menu, and Day-Of Requirements
 
-The confirmed guest-facing time blocks are:
+The public website must distinguish the confirmed guest-facing event window
+from the flexible internal reception program.
 
-### Configuration A — Warinanco Park Ceremony and Sphinx Reception
+The confirmed guest-facing schedule is:
 
-- Ceremony at Warinanco Park: 10:30 a.m. to 12:00 p.m.
-- Reception at Sphinx Banquet and Catering Center: 12:30 p.m. to
-  4:30 p.m.
-
-### Configuration B — Entire Event at Sphinx
-
-- Ceremony and reception at Sphinx Banquet and Catering Center:
-  11:30 a.m. to 4:30 p.m.
-- The website must not invent a separate ceremony-end or
-  reception-start time within this confirmed event block unless a later
-  recorded decision establishes one.
+- **11:30 a.m. — Ceremony begins at Sphinx Banquet and Catering Center.**
+- **After the ceremony — Brunch, dancing, speeches, and the rest of the
+  celebration flow directly from the ceremony without a separately
+  scheduled formal cocktail hour.**
+- **4:30 p.m. — Festivities conclude.**
 
 The reception must be described according to the following rules:
 
 - There is no separately scheduled formal cocktail hour.
 - There is no separately scheduled formal dinner service.
-- The meal is a buffet-style brunch.
-- The buffet will remain available throughout the reception portion of
-  the event.
-- Dancing may occur at various intervals during the reception rather
-  than within one fixed published dancing period.
-- Guest-facing copy may state broadly that buffet brunch, dancing, and
-  other festivities will take place during the reception.
-- The possible self-service mimosa station remains pending confirmation
-  with Sphinx Banquet and Catering Center.
-- The website must not present the mimosa station as confirmed until the
-  couple and banquet hall finalize the arrangement.
-- If the mimosa station is later confirmed, it may be described broadly
-  as available during the reception unless a later approved decision
-  establishes a more specific service window.
+- The meal is buffet-style brunch.
+- Dancing, speeches, and other festivities may occur flexibly during the
+  reception rather than within fixed published time blocks.
+- Guest-facing copy may describe the reception broadly rather than
+  publishing a binding internal run-of-show.
+- The approved current beverage presentation may include coffee, tea, and
+  non-alcoholic mockmosas.
+- The website must not imply that alcoholic mimosa service is included
+  unless a later recorded decision explicitly confirms that arrangement.
 
-Unless later finalized through a new recorded decision, the public
-website must not assign exact times to:
+Unless later finalized through a new recorded decision, the public website
+must not assign exact times to:
 
-- Buffet opening or closing beyond the confirmed reception period.
-- Cocktail or mimosa service.
+- Buffet opening or closing within the confirmed event window.
 - Dancing periods.
 - First dances.
 - Toasts or speeches.
-- Cake service.
+- Cake or dessert service.
 - Photographs.
-- Other reception activities or transitions.
+- Other flexible reception activities or transitions.
 
-Home, Venues, Travel, Schedule, and FAQ must use consistent language
-drawn from the active event configuration and this flexible reception
-model.
+`/wedding/day-of` is the canonical **Day-Of Details** route. It must provide
+the guest-facing:
 
-The public Schedule page must function as a concise guest-planning
-schedule rather than as a binding internal run-of-show.
+- Schedule.
+- Brunch menu.
+- Dietary guidance.
+- Gift Policy.
+
+Day-Of Details must function as a concise guest-planning page rather than
+as a binding internal run-of-show.
+
+Home, Venue, Travel, Day-Of Details, and FAQ must use consistent language
+drawn from the confirmed Sphinx-only event information.
 
 ## Hotel Accommodation Requirements
 
-A block of hotel accommodations will be reserved at a nearby hotel for
-guests traveling from a distance.
+Hotel recommendations, booking instructions, and any room-block details are
+not yet finalized.
 
-- Hotel: To be determined.
-- Check-in: Friday, April 30, 2027.
-- Check-out: Sunday, May 2, 2027.
+The Travel page must preserve a friendly guest-facing structure for guests
+planning to stay from Friday, April 30 through Sunday, May 2, 2027, while
+avoiding any claim that a specific hotel, negotiated rate, or room block
+exists before it is confirmed.
 
-The Travel page must support the following information once the hotel
-is selected:
+Once finalized, the Travel page may provide:
 
 - Hotel name.
 - Hotel address.
 - Reservation link or booking instructions.
-- Group-rate or room-block information.
-- Booking deadline.
-- Accessibility information.
+- Group-rate or room-block information, if applicable.
+- Booking deadline, if applicable.
+- Accessibility information that has actually been verified.
+
+Until those details are confirmed, the page must use cordial forthcoming-
+details language rather than invented hotel, rate, booking-code, deadline,
+cancellation, transportation, or accessibility information.
+
+The absence of finalized hotel information does not block publication of
+the confirmed Sphinx venue, driving, parking, or other Travel-page content.
 
 ## Delivery Scope
 
@@ -170,9 +165,9 @@ printed invitations are mailed.
 
 ### Invitation-Launch Version
 
-The invitation-launch version must be operational before the actual
-invitation mailing date. The printed invitations are intended to be
-mailed no earlier than October 1, 2026.
+The invitation-launch version must be operational before invitations are
+mailed and must complete Workstream 5 integrated QA and release-readiness
+gates before public activation.
 
 The invitation-launch version must include:
 
@@ -198,8 +193,8 @@ The invitation-launch version must include:
 - Written RSVP deadline information at all times.
 - A live RSVP countdown from February 1, 2027, at 12:00 a.m. EST until
   the March 1, 2027 deadline.
-- Guest RSVP confirmation exclusively by email; no text-message
-  delivery option or future SMS activation is planned.
+- Guest RSVP confirmation exclusively by email; no text-message delivery
+  option or future SMS activation is planned.
 - An independently attempted protected administrative email confirmation
   after every successfully stored initial submission or revision.
 - Complete current RSVP information in each guest and administrative
@@ -214,43 +209,61 @@ The invitation-launch version must include:
   use of a real guest invitation code.
 - Theme & Attire.
 - Our Story.
-- Read, Listen, and Watch.
-- Venues, with both event configurations built and only the selected
-  configuration publicly displayed.
-- Travel, including the April 30 through May 2, 2027 hotel-block dates
-  and the finalized hotel details once available.
-- Schedule, with both event configurations built, only the selected
-  configuration publicly displayed, and only the confirmed outer event
-  time blocks published.
-- Reception information identifying buffet-style brunch and flexible
-  dancing or festivities during the reception without creating a formal
-  cocktail-hour, formal-dinner, or fixed internal reception timeline.
-- FAQ, including the location contingency, weather fallback, buffet
-  format, flexible reception structure, and the pending status of any
-  unconfirmed mimosa-station plan.
-- Gift information within the FAQ.
+- Read, Listen & Watch.
+- Venue, presenting the confirmed Sphinx-only ceremony-and-reception
+  location, address, map links, and parking information.
+- Travel, presenting confirmed venue/driving/parking information and warm
+  forthcoming language for hotel details that are not yet finalized.
+- Day-Of Details at `/wedding/day-of`, containing the confirmed schedule,
+  current brunch menu, dietary guidance, and Gift Policy.
+- Reception wording that identifies buffet-style brunch and flexible
+  dancing, speeches, and festivities without creating a formal cocktail
+  hour, formal dinner, or fixed internal reception timeline.
+- FAQ with warm, guest-facing answers for venue, arrival, parking, attire,
+  day-of timing, RSVP deadline/revisions, printed RSVP, dietary needs,
+  forthcoming hotel information, Gift Policy, RSVP privacy, and RSVP help.
+- A contextual link from each FAQ answer to its corresponding in-depth page
+  whenever one exists.
+- A no-registry Gift Policy on Day-Of Details, referenced from FAQ and the
+  bottom of the RSVP page.
 - A Gallery placeholder displaying the approved Coming Soon state.
 - Public RSVP contact and assistance instructions.
 - A concise RSVP privacy notice on the RSVP entry page and personalized
   RSVP form.
-- A complete public Privacy page at `/wedding/privacy`.
+- A complete public Privacy page at `/wedding/privacy`, including
+  plain-language grouped-child handling.
 - Compact sticky public navigation on desktop and mobile layouts.
 - Same-tab navigation for internal wedding-site links.
 - New-tab behavior for external media, hotel, and map links.
+- Primary route navigation that places the guest at the top of the newly
+  selected page rather than preserving the prior page's scroll position.
+- Footer links to Home, RSVP, FAQ, and Privacy.
+- A guest-safe Not Found experience with useful routes to Home, RSVP,
+  Venue, Day-Of Details, and FAQ.
+- **Explore this page** and **Jump To** same-page navigation on Read,
+  Listen & Watch, Our Story, and Day-Of Details.
+- An opt-in background-music control in the header, separated visually
+  from the ordinary navigation and defaulting to Off.
+- Background music that plays the approved intro first, transitions into
+  the looping segment, uses the approved 1.2 playback rate, and yields to
+  foreground multimedia while that multimedia is playing.
+- A route-transition loading overlay for multimedia-heavy pages that uses
+  the approved guest-facing `Loading…` / `Please wait while we prepare this
+  page.` messaging without exposing technical implementation details.
+- Meaningful alternative text for informative images and appropriate
+  hover/title text where implemented; decorative images may use empty
+  alternative text and must not convey essential information by hover
+  alone.
+- Current launch imagery, audio, and other creative assets whose ownership,
+  permission, or required attribution has been verified by the couple.
 
-The Warinanco Park ceremony/Sphinx reception configuration and the
-Sphinx-only configuration must both be complete before the
-invitation-launch version is published. The selected configuration must
-be active when the printed invitations are mailed.
+The confirmed Sphinx-only event configuration must be used consistently
+throughout the invitation-launch version. Former Warinanco/dual-venue
+content must not appear to guests as current or pending information.
 
-For both configurations, the public schedule must publish only the
-confirmed guest-facing event blocks and must not convert tentative or
-flexible reception activities into fixed public commitments.
-
-If the Warinanco Park ceremony/Sphinx reception configuration is active
-when invitations are mailed but later weather conditions require the
-fallback, the website must remain capable of switching promptly to the
-Sphinx-only configuration without rebuilding the affected pages.
+Public day-of information must remain limited to confirmed guest-facing
+facts and must not convert flexible reception activities into fixed public
+commitments.
 
 ### Post-Wedding Version
 
@@ -271,10 +284,10 @@ Post-wedding gallery and archival work must not delay the RSVP system,
 the selected venue and schedule information, or any other essential
 guest information required for the invitation-launch version.
 
-## Navigation and Link Requirements
+## Navigation, Link, Media-Control, and Transition Requirements
 
-The public website must use compact sticky navigation on desktop and
-mobile layouts.
+The public website must use compact sticky navigation on desktop and mobile
+layouts.
 
 The sticky navigation must:
 
@@ -287,6 +300,11 @@ The sticky navigation must:
   relying on an unexplained icon alone.
 - Close the mobile menu after a destination is selected.
 - Remain operable through both touch and keyboard input.
+- Include the Music control after Privacy with a visible separator
+  distinguishing the control from ordinary route navigation.
+
+Primary navigation to another wedding-site page must place the guest at the
+top of the selected destination page.
 
 Links to pages within
 `https://www.loreweavercreations.com/wedding/` must open in the same
@@ -296,6 +314,70 @@ External media, hotel, and map links must open in a new browser tab.
 New-tab links must use appropriate security attributes and must be
 identified accessibly so guests are not moved to another tab without
 warning.
+
+The site footer must provide direct links to:
+
+- Home.
+- RSVP.
+- FAQ.
+- Privacy.
+
+The Not Found experience must provide useful guest recovery links to:
+
+- Home.
+- RSVP.
+- Venue.
+- Day-Of Details.
+- FAQ.
+
+FAQ answers must link to the corresponding in-depth guest page wherever
+one exists.
+
+Read, Listen & Watch, Our Story, and Day-Of Details must provide approved
+same-page **Explore this page** navigation near the top and **Jump To**
+navigation at the end of their major sections. Fragment navigation must
+remain keyboard- and touch-operable.
+
+### Background music
+
+The background-music control must:
+
+- Default to Off so the site does not attempt audible autoplay.
+- Begin with the approved intro segment after the guest deliberately turns
+  music on.
+- Transition from the intro into the looping segment.
+- Continue looping until the guest turns music off.
+- Use the approved 1.2 playback rate.
+- Temporarily yield when site foreground multimedia is playing and resume
+  afterward when the guest has left background music enabled.
+- Expose an accessible control name and state; visual switch position alone
+  is not sufficient.
+
+### Route-transition loading overlay
+
+Primary route transitions may use a floating loading overlay while the
+destination page and its immediate multimedia prepare.
+
+The overlay must:
+
+- Appear above the destination page rather than as permanent page content.
+- Use the approved guest-facing `Loading…` and
+  `Please wait while we prepare this page.` messages.
+- Use decorative loading imagery without requiring assistive technology to
+  interpret that image.
+- Announce loading status accessibly.
+- Avoid exposing asset names, network diagnostics, framework details,
+  server details, or other technical implementation information.
+- Clear when the route is ready or when the transition safeguard completes.
+
+### Image text and hover behavior
+
+- Informative images must have meaningful `alt` text.
+- Where the implemented launch experience supplies hover/title text, it
+  should correspond appropriately to the image description.
+- Essential content must never require hover.
+- Decorative images may use empty alternative text and be hidden from
+  assistive technology when appropriate.
 
 ## Production Invitation Configuration Requirements
 
@@ -1297,10 +1379,14 @@ The Privacy page must explain in plain language:
 - How invitation codes are used and their limits as access tokens rather
   than strong account passwords.
 - What RSVP information is collected, including individual named-invitee
-  attendance decisions, authorized additional-guest allocation responses
-  (including Plus1 decisions and any grouped unnamed-child count), age-category totals,
-  attendee names for every attending response, and dietary/allergy
-  information when Reception is selected and supplied.
+  attendance decisions, Plus1 responses where authorized, and—when an
+  invitation includes unnamed children—one family-level child-attendance
+  Yes/No response plus the number attending when Yes; the grouped child
+  question does not request those children's names.
+- That the actual names of every attending person, including attending
+  Plus1 guests and children represented by a grouped count, are collected
+  later through ordinary `Attendee Details`, with dietary/allergy
+  information collected only when Reception is selected and supplied.
 - That every new initial RSVP and revision collects a newly entered
   confirmation email address and does not collect confirmation mobile
   numbers or SMS authorization.
@@ -1498,14 +1584,14 @@ Public wedding guests may view:
 - Theme & Attire.
 - Our Story.
 - Read, Listen, and Watch.
-- Venues.
+- Venue.
 - Travel.
-- Schedule.
+- Day-Of Details.
 - FAQ.
 - Privacy.
 - Public Gallery content.
 
-Public wedding guests must see only the currently active event
+Public wedding guests must see only the confirmed Sphinx-only event
 configuration.
 
 Public guests may see the confirmed ceremony and reception time blocks
@@ -1590,11 +1676,12 @@ The couple may:
 
 - Review guest-list-eligible totals separately from functional production
   totals so the permanent Test Sample does not affect wedding counts.
-- Maintain and activate the appropriate venue and schedule configuration.
+- Maintain the confirmed Sphinx-only venue and Day-Of Details content,
+  subject to any later explicit recorded event-format decision.
 - Maintain the public reception description without assigning fixed times
-  to flexible or unconfirmed internal reception activities.
-- Add a mimosa-station description only after the arrangement is confirmed
-  with Sphinx Banquet and Catering Center.
+  to flexible internal reception activities.
+- Maintain the approved menu, dietary guidance, and Gift Policy; any later
+  vendor-specific service promise must be confirmed before publication.
 - Review party-level RSVP responses.
 - Receive a separately attempted protected administrative email
   containing the complete current RSVP after each successful initial
@@ -1635,15 +1722,37 @@ production Test Sample is the intentional exception: it remains a functional
 RSVP identity for protected portfolio demonstration and production
 verification without re-enabling retired real-guest invitation records.
 
-## Phase 3 Step 14 Requirements Synchronization Review
+## Phase 3 Step 14 and Workstream 4 Requirements Synchronization Review
 
 The requirements remain synchronized with the finalized Phase 3 privacy
 and security rules, the spreadsheet-authoritative RSVP source, the
 September 20 person-level attendance clarification, the September 27
 unnamed-child source clarification, the cleaned latest Invitees List, the
-grouped-children interaction, and the October 3 production-source extension
-when all of the following remain true:
+grouped-children interaction, the October 3 production-source extension,
+and the November 1, 2026 Workstream 4 public-content lock when all of the
+following remain true:
 
+- The public site uses the confirmed Sphinx-only event configuration; the
+  former Warinanco ceremony configuration is historical only and is not a
+  pending fallback.
+- `/wedding/day-of` is the canonical Day-Of Details route.
+- Day-Of Details contains the confirmed schedule, current brunch menu,
+  dietary guidance, and Gift Policy without inventing a minute-by-minute
+  internal reception schedule.
+- FAQ uses warm guest-facing answers and links to the corresponding
+  in-depth page where one exists.
+- Footer navigation includes Home, RSVP, FAQ, and Privacy.
+- Not Found provides useful routes to Home, RSVP, Venue, Day-Of Details,
+  and FAQ.
+- Read, Listen & Watch, Our Story, and Day-Of Details provide approved
+  Explore/Jump-To same-page navigation.
+- Background music remains opt-in and Off by default, and the approved
+  loading overlay may be used during multimedia-heavy route transitions.
+- Publication ownership, permission, or required attribution for the
+  currently implemented invitation-launch media has been verified by the
+  couple.
+- Hotel-specific booking details remain genuinely forthcoming and must not
+  be invented merely to remove pending language.
 - The private `Invitees List` spreadsheet and its bottom-row notes control
   the production substantive RSVP model, subject to later approved
   clarifications recorded in governing project documents.

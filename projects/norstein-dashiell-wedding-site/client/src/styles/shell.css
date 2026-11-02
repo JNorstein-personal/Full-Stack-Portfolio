@@ -445,7 +445,7 @@ body.route-transition-active {
 }
 
 @media (max-width: 40rem) {
-  .schedule-menu-figure--markl {
+  .day-of-figure--markl {
     width: min(
       80%,
       calc(100vw - (2 * var(--space-4)))
@@ -519,10 +519,10 @@ body.route-transition-active {
 }
 
 /* =========================================================
-   SCHEDULE & MENU IMAGE FIGURES
+   DAY-OF IMAGE FIGURES
    ========================================================= */
 
-.schedule-menu-figure {
+.day-of-figure {
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -533,22 +533,22 @@ body.route-transition-active {
   margin-block: 0 var(--space-6);
 }
 
-.schedule-menu-figure--markl {
+.day-of-figure--markl {
   width: min(
     40%,
     calc(100vw - (2 * var(--space-4)))
   );
 }
 
-.schedule-menu-figure--markl
-  .schedule-menu-image--markl {
+.day-of-figure--markl
+  .day-of-image--markl {
   width: 100%;
   max-width: 100%;
 
   margin-inline: 0;
 }
 
-.schedule-menu-caption {
+.day-of-caption {
   width: 100%;
   margin-block-start: var(--space-2);
 

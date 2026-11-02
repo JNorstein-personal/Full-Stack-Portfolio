@@ -11,7 +11,7 @@ It establishes:
 - Which routes may display personalized information.
 - Which routes may be indexed by public search engines.
 - How the manual invitation-code RSVP process operates without placing invitation codes in URLs.
-- Which pages read from the centralized active-event configuration.
+- Which pages share the confirmed Sphinx-only event details.
 - How lookup, spreadsheet-authoritative personalized-form rendering, submission, validation, uncertain-outcome, closed-RSVP, service-unavailable, confirmation-delivery-warning, confirmation-refresh, and unknown-route states are handled.
 - How invitation-specific singular/plural wording, maximum attendance, authorized named-invitee controls, typed additional-guest allocation controls, grouped unnamed-child count selection, backend-derived actual attendance, coordinated age totals, and Attendee Details for every attending person remain controlled states of one reusable RSVP route rather than separate browser destinations.
 
@@ -59,7 +59,7 @@ recovery.
 | `/wedding/read-listen-watch` | Read, Listen & Watch | Yes | No | Yes | Required |
 | `/wedding/venue` | Active ceremony and reception information | Yes | No | Yes | Required |
 | `/wedding/travel` | Hotel block, parking, maps, and transportation | Yes | No | Yes | Required |
-| `/wedding/schedule-menu` | Active guest schedule | Yes | No | Yes | Required |
+| `/wedding/day-of` | Day-Of Details: schedule, menu, dietary information, and gift policy | Yes | No | Yes | Required |
 | `/wedding/faq` | Frequently Asked Questions | Yes | No | Yes | Required |
 | `/wedding/gallery` | Gallery and pre-wedding Coming Soon state | Yes | No | Yes | Required |
 | `/wedding/privacy` | Full RSVP Privacy notice | Yes | No | Yes | Required |
@@ -79,7 +79,7 @@ The compact sticky primary navigation must use the following order:
 5. Read, Listen & Watch
 6. Venue
 7. Travel
-8. Schedule & Menu
+8. Day-Of Details
 9. FAQ
 10. Gallery
 11. Privacy
@@ -95,11 +95,18 @@ The navigation must also:
 - Close the mobile menu after a destination is selected.
 - Remain operable by touch and keyboard.
 
+The site footer must provide direct links to:
+
+- Home.
+- RSVP.
+- FAQ.
+- Privacy.
+
 RSVP must additionally appear:
 
 - As a prominent action on the Home page.
 - In the site footer.
-- Where contextually appropriate on the Schedule & Menu and FAQ pages.
+- Where contextually appropriate on the Day-Of Details and FAQ pages.
 
 The Privacy page must additionally be linked from:
 
@@ -121,8 +128,8 @@ Confirm that the guest has reached the correct wedding website and direct the gu
 - Display the couple’s names, wedding date, and general location.
 - Provide a prominent RSVP action.
 - Link to Theme & Attire, Venue or Travel, and Our Story.
-- Display only the currently active event configuration.
-- Read repeated event information from centralized content or configuration.
+- Display the confirmed Sphinx-only event configuration.
+- Read repeated event information from centralized content or configuration so public facts remain consistent.
 - Remain publicly indexable.
 
 Every assigned guest invitation uses the same static QR code to open this route. Any later printed invitation created from a reserved production code uses the same route.
@@ -418,7 +425,7 @@ The route must not expose:
 - Invitation codes in the URL.
 - Private source-row data, raw `Kids(n)` text, allocation-owner mappings beyond the guest-facing prompts required for the validated party, or other invitation configuration not needed in the confirmation.
 
-Confirmation details do not need to survive a browser refresh. If temporary confirmation state is unavailable, the route must display a safe fallback explaining that the submission may already have been processed and directing the guest to consult the email or text confirmation or return to `/wedding/rsvp/` for assistance or another revision.
+Confirmation details do not need to survive a browser refresh. If temporary confirmation state is unavailable, the route must display a safe fallback explaining that the submission may already have been processed and directing the guest to consult the email confirmation or return to `/wedding/rsvp/` for assistance or another revision.
 
 The fallback must not instruct the guest to resubmit solely because the on-screen summary is unavailable.
 
@@ -447,6 +454,7 @@ Present the couple’s relationship story as a complete public page.
 
 - Appear in the primary navigation.
 - Contain the approved relationship and wedding-planning narrative.
+- Provide in-page navigation to A Hair-Raising Happily-Ever-After, From Engagement to Wedding Day, and Join Us.
 - Link contextually to Home or RSVP where appropriate.
 - Remain publicly indexable.
 
@@ -467,15 +475,14 @@ Provide lawful external resources for the thematic book, audiobook, and film.
 ### `/wedding/venue` — Venue
 
 **Purpose:**
-Display the ceremony and reception information for the currently active event configuration.
+Display the confirmed ceremony and reception information for the Sphinx Banquet and Catering Center.
 
 **Required route behavior:**
 
-- Read from the centralized active-event configuration.
-- Display either Configuration A or Configuration B, never a mixture.
-- Support the Warinanco Park ceremony and Sphinx reception configuration.
-- Support the Sphinx-only ceremony-and-reception fallback.
-- Include appropriate accessibility, parking, arrival, map, and weather information.
+- Present the confirmed Sphinx-only ceremony-and-reception configuration.
+- State that the ceremony and reception are both at the Sphinx Banquet and Catering Center.
+- Keep repeated venue facts consistent with Home, Travel, Day-Of Details, and FAQ.
+- Include appropriate accessibility, parking, arrival, and map information.
 - Open external map links in a new browser tab.
 - Remain publicly indexable.
 
@@ -489,20 +496,25 @@ Provide hotel-block, parking, driving, transit, airport, and local transportatio
 - Include the hotel-block dates of Friday, April 30 through Sunday, May 2, 2027.
 - Add the hotel name, address, group rate, booking instructions, deadline, and accessibility information after confirmation.
 - Avoid publishing invented hotel details while those details remain pending.
-- Read any configuration-dependent venue or travel information from the centralized active-event configuration.
+- Keep venue and travel information consistent with the confirmed Sphinx-only event details.
 - Open external hotel and map links in a new browser tab.
 - Remain publicly indexable.
 
-### `/wedding/schedule-menu` — Schedule & Menu
+### `/wedding/day-of` — Day-Of Details
 
 **Purpose:**
-Display the guest-facing schedule for the currently active event configuration.
+Provide the guest-facing day-of information in one place, including the schedule, menu, dietary guidance, and gift policy.
 
 **Required route behavior:**
 
-- Read from the same centralized active-event configuration as Home, Venue, Travel, and FAQ.
-- Display either the Warinanco/Sphinx schedule or the Sphinx-only schedule, never a mixture.
-- Exclude private setup, vendor, or wedding-party-only scheduling details from the public route.
+- Present the confirmed Sphinx-only wedding-day schedule.
+- State that the ceremony begins at 11:30 a.m. and festivities conclude at 4:30 p.m.
+- Explain that the ceremony flows directly into brunch and the reception without inventing a formal cocktail hour or minute-by-minute itinerary.
+- Present the current guest-facing brunch menu and dietary guidance.
+- Present the approved gift policy without creating a separate registry page.
+- Provide contextual links to Venue and RSVP information where appropriate.
+- Provide in-page navigation to The Schedule, The Menu, Dietary Needs, and Gift Policy.
+- Exclude private setup, vendor, or wedding-party-only scheduling details.
 - Remain publicly indexable.
 
 ### `/wedding/faq` — Frequently Asked Questions
@@ -513,8 +525,10 @@ Provide concise answers to recurring guest questions.
 **Required route behavior:**
 
 - Include gift information without creating a registry page.
-- Include RSVP revision, printed-response, invalid-code, confirmation-delivery, blank-form, partial-revision, privacy, venue, weather, travel, attire, children, grouped child-count behavior, plus-one, accessibility, photography, and dietary-accommodation answers where approved.
-- Read venue, schedule, and contingency answers from the centralized active-event configuration.
+- Use warm, guest-facing wording rather than implementation or administrative language.
+- Cover the approved guest-facing questions for venue, arrival, parking, attire, day-of timing, RSVP deadline and revisions, printed RSVP, dietary needs, hotel information, gift policy, RSVP privacy, and RSVP help.
+- Link each answer to the relevant in-depth page when one exists, including Venue, Theme & Attire, Day-Of Details, RSVP, Travel, and Privacy.
+- Keep venue and schedule answers consistent with the confirmed Sphinx-only event details.
 - Link to `/wedding/privacy` for the complete privacy explanation.
 - Remain publicly indexable.
 
@@ -591,7 +605,7 @@ Provide a branded wedding-site error experience instead of a generic server erro
 **Required route behavior:**
 
 - Render for `/wedding/not-found` and any unknown browser route beneath `/wedding/`.
-- Provide links to Home, RSVP, Venue, and FAQ.
+- Provide links to Home, RSVP, Venue, Day-Of Details, and FAQ.
 - Avoid revealing server paths, stack traces, framework errors, or deployment details.
 - Avoid indexing.
 
@@ -643,30 +657,25 @@ The project must not create separate public routes for:
 
 ---
 
-## Active-Event Configuration Rules
+## Confirmed Event Configuration Rules
 
-The following routes must read repeated event details from one centralized active-event configuration:
+The wedding uses one confirmed public event configuration:
+
+- Ceremony and reception at Sphinx Banquet and Catering Center.
+- Saturday, May 1, 2027.
+- Guest-facing event window: 11:30 a.m.–4:30 p.m.
+
+The following public routes must present those event details consistently:
 
 - `/wedding/`
 - `/wedding/venue`
 - `/wedding/travel`
-- `/wedding/schedule-menu`
+- `/wedding/day-of`
 - `/wedding/faq`
 
-Only one configuration may be guest-facing at a time.
+The former Warinanco Park ceremony configuration is discontinued and may remain only as historical project documentation or inactive historical source data. It must not appear to guests as a pending venue decision, alternate public schedule, weather fallback, or future event configuration.
 
-### Configuration A
-
-- Ceremony at Warinanco Park from 10:30 a.m. to 12:00 p.m.
-- Reception at Sphinx Banquet and Catering Center from 12:30 p.m. to 4:30 p.m.
-
-### Configuration B
-
-- Ceremony and reception at Sphinx Banquet and Catering Center from 11:30 a.m. to 4:30 p.m.
-
-Configuration A may be activated only after park approval and while weather permits. Configuration B must remain available for lack of park approval or an inclement-weather fallback.
-
-Changing the active configuration must not require rewriting the affected page components or changing their routes.
+Public route content must therefore remain Sphinx-only unless a later explicit project decision supersedes the confirmed October 10, 2026 event-format decision.
 
 ---
 
@@ -680,7 +689,7 @@ The following routes may be indexed:
 - `/wedding/read-listen-watch`
 - `/wedding/venue`
 - `/wedding/travel`
-- `/wedding/schedule-menu`
+- `/wedding/day-of`
 - `/wedding/faq`
 - `/wedding/gallery`
 - `/wedding/privacy`
@@ -816,8 +825,8 @@ Phase 2 Step 1 remains complete when:
 - Email is the only approved guest confirmation method under Decision 029; historical SMS-capable implementation paths remain subject to controlled retirement.
 - Production RSVP traffic uses HTTPS.
 - The Privacy route communicates the July 30, 2027 active-data retirement date and August 29, 2027 backup-retirement deadline.
-- Active-event configuration dependencies are documented.
-- Internal and external link behavior is documented.
+- Confirmed event-configuration dependencies are documented.
+- Internal, external, footer, and approved in-page jump-navigation behavior is documented.
 - Nested-route refresh requirements are documented.
 
 ---

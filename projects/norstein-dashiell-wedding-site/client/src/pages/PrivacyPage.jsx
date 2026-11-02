@@ -59,10 +59,9 @@ function PrivacyPage() {
         <div className="prose-width">
           <p>
             The RSVP system uses one reusable form structure,
-            with limited invitation-specific configuration.
-            Depending on the response being submitted and
-            the Plus 1 options authorized for that
-            invitation, the system may collect:
+            with only the options that apply to your
+            invitation. Depending on your invitation and
+            response, the system may collect:
           </p>
 
           <ul>
@@ -74,6 +73,11 @@ function PrivacyPage() {
               A separate Yes-or-No response for each
               authorized named Plus 1 option, when the
               invitation includes one or more such options.
+            </li>
+            <li>
+              For invitations that include unnamed children,
+              whether any of those children will attend and,
+              if so, how many will be attending.
             </li>
             <li>
               Attendance totals for adults age 21 and older,
@@ -100,10 +104,20 @@ function PrivacyPage() {
           </ul>
 
           <p>
-            An invitation without an authorized Plus 1
-            option is not asked a Plus 1 question. Reception
-            attendee details are collected only when
-            Reception is selected.
+            You will only see Plus 1 or child-attendance
+            questions when those options are included with
+            your invitation. If children are represented as
+            a group, the form asks whether any will attend
+            and how many, rather than asking for their names
+            at that stage.
+          </p>
+
+          <p>
+            When anyone is attending, the Attendee Details
+            section asks for the name of each person who will
+            actually be there, including Plus 1 guests and
+            children. Dietary or allergy information is
+            requested only when Reception is selected.
           </p>
         </div>
       </ContentSection>
@@ -152,8 +166,8 @@ function PrivacyPage() {
 
           <p>
             For example, a full decline makes attendance
-            totals, Plus 1 responses, and Reception attendee
-            details inapplicable. Removing Reception makes
+            totals, Plus 1 or grouped-child responses, and
+            attendee details inapplicable. Removing Reception makes
             previously stored Reception attendee details
             inapplicable.
           </p>
@@ -319,8 +333,8 @@ function PrivacyPage() {
             Analytics and routine logging are designed to
             avoid intentionally sending or recording
             personalized RSVP values such as invitation
-            codes, RSVP answers, Plus 1 responses, attendee
-            names, dietary or allergy information, email
+            codes, RSVP answers, Plus 1 or grouped-child
+            responses, attendee names, dietary or allergy information, email
             addresses, mobile numbers, and confirmation
             destinations.
           </p>
@@ -345,8 +359,8 @@ function PrivacyPage() {
             unresolved administrative purpose will be
             deleted or irreversibly de-identified from the
             active RSVP system. This includes current and
-            superseded RSVP responses, Plus 1 responses,
-            attendance totals, attendee names,
+            superseded RSVP responses, Plus 1 and grouped-child
+            responses, attendance totals, attendee names,
             dietary or allergy information, confirmation
             destinations, any historical SMS authorization
             records, submission identifiers,

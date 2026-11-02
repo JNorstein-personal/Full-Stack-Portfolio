@@ -104,7 +104,7 @@ function HomePage() {
           <p>
             <Link to="/venue">View venue information</Link>
             {" · "}
-            <Link to="/schedule-menu">View the wedding schedule and menu</Link>
+            <Link to="/day-of">View the wedding schedule, menu and gift policy</Link>
           </p>
         </div>
       </ContentSection>

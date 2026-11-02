@@ -23,6 +23,23 @@ RSVP lookup, submission, safe-retry, explicit replace-or-clear, idempotency, sto
 
 ---
 
+## November 1, 2026 — Workstream 4 Link-and-Asset Reconciliation
+
+This checkpoint synchronizes the launch inventory with the completed public-site implementation before integrated Workstream 5 QA.
+
+- `/wedding/day-of` is the canonical Day-Of Details route; the former `/wedding/schedule-menu` route is retired before launch.
+- The confirmed public event format is Sphinx-only. Warinanco-specific map and between-venue directions are no longer launch requirements.
+- Current launch images and artwork are owned by the couple or used with the required attribution/permission for this website. Publication-rights review for the currently implemented launch assets is complete. Accessibility and technical behavior remain subject to Workstream 5 QA where noted.
+- The footer links to Home, RSVP, FAQ, and Privacy.
+- FAQ answers link to the corresponding in-depth guest page where one exists.
+- RSVP links to Day-Of Details for the Gift Policy.
+- The Not Found experience links to Home, RSVP, Venue, Day-Of Details, and FAQ.
+- Read, Listen & Watch, Our Story, and Day-Of Details use approved in-page anchor navigation.
+- Hotel-specific booking/property resources remain pending because those external details have not yet been finalized.
+- Post-wedding Gallery resources remain future work and are not invitation-launch blockers.
+
+---
+
 # Inventory Fields
 
 Every row records:
@@ -82,6 +99,15 @@ Links between canonical wedding-site routes:
 - A safe retry after an uncertain submission is an in-application submission action, not a code-bearing or payload-bearing hyperlink. It must preserve the original client submission identifier so that the backend can respond idempotently.
 - Explicit replace, zero-value, decline, and clear operations are form controls or submitted values rather than separate browser destinations. Omission remains a no-change operation and must not be represented through a link.
 
+Current launch navigation relationships additionally require:
+
+- `/wedding/day-of` as the sole canonical Day-Of Details destination.
+- Footer links to Home, RSVP, FAQ, and Privacy.
+- FAQ answers to link to their corresponding in-depth pages where one exists, including Venue, Theme & Attire, Day-Of Details, RSVP, Travel, and Privacy.
+- The RSVP page to link to Day-Of Details for the complete Gift Policy.
+- The Not Found experience to link to Home, RSVP, Venue, Day-Of Details, and FAQ.
+- Read, Listen & Watch, Our Story, and Day-Of Details to use same-page fragment links for their approved Explore this page / Jump To navigation.
+
 ## External links
 
 External media, hotel, and map links:
@@ -112,7 +138,7 @@ Local visual assets and downloadable files must:
 - Have stable production filenames or content-managed identifiers.
 - Be optimized for their intended display or download purpose.
 - Include alternative text or accessible descriptions when informational.
-- Be reviewed for publication rights.
+- Be reviewed for publication rights. The couple has verified ownership, permission, or required attribution for all currently implemented invitation-launch media; future or replacement assets require their own review.
 - Avoid embedding private metadata where practical.
 - Not contain copyrighted source media that the project is not authorized to distribute.
 
@@ -134,27 +160,27 @@ Do not add a copyrighted image, book file, audiobook file, full-length film, or 
 
 | ID | Page | Link or Asset | Type | Final URL/File Available? | Owner | Verification Needed? | Source Content Item | Launch Requirement | Notes |
 |---|---|---|---|---|---|---|---|---|---|
-| LI-HOME-001 | Home | Hero image or introductory artwork | Local asset | Partial | Couple | Rights review; accessibility review; technical review | CI-HOME-005 | Required | Select the final image or artwork, confirm publication rights, prepare responsive crops or sizing, and supply appropriate alternative text. The asset must not obscure the RSVP action. |
+| LI-HOME-001 | Home | Implemented homepage couple photograph (`TheHappyCouple.jpg`) | Local asset | Yes | Couple | Accessibility review; technical review | CI-HOME-005 | Required | Final launch asset is implemented. Ownership/publication rights are verified by the couple. Alternative/hover text is implemented; responsive behavior and final presentation remain part of Workstream 5 QA. |
 | LI-HOME-002 | Printed invitation → Home | Static QR-code destination | Cross-channel URL | Yes | Couple; application | Yes; technical review | CI-HOME-007 | Required | Final destination is `https://www.loreweavercreations.com/wedding/`. Test the actual printed QR code from multiple representative phones before mailing. Confirm HTTPS, redirect behavior, and homepage availability. |
 | LI-RSVP-001 | RSVP entry and validated form; service-unavailable, submission-uncertain, delivery-warning, and confirmation-refresh states; FAQ; footer | RSVP assistance email action | Email link | Yes | Couple; application | Yes; technical review | CI-RSVP-007; CI-SITE-004; CI-SITE-006; CI-CONFIRM-006; CI-CONFIRM-010; CI-CONFIRM-014 | Required | Use `RSVPhelp@loreweavercreations.com`. Test the visible label and `mailto:` behavior in every applicable state. Do not automatically include invitation codes, RSVP answers, confirmation destinations, submission identifiers, or other private RSVP details in the email subject, body, or URL. |
-| LI-THEME-001 | Theme & Attire | Guest color-palette web graphic | Local asset | Partial | Couple; existing palette | Accessibility review; technical review | CI-THEME-003 | Required | The palette content exists but needs final approval and a web-ready presentation. Color names and written values must remain available without relying only on the graphic. |
-| LI-THEME-002 | Theme & Attire | Outfit-example asset set | Local assets, illustrations, photographs, or external references | Partial | Couple | Rights review; accessibility review | CI-THEME-004 | Required | Final presentation method remains to be selected. Any public image or external reference must be approved and described accessibly. |
-| LI-THEME-003 | Theme & Attire | Inspiration-image set | Local assets or approved external references | No | Couple | Rights review; accessibility review | CI-THEME-008 | Required | Collect the final set only after confirming that each image may be published or linked. Do not place unreviewed fan art, concept art, or copyrighted images in public assets. |
-| LI-MEDIA-001 | Read, Listen & Watch | Paperback retailer | External link | No | Couple; authorized retailer | Yes | CI-MEDIA-003 | Required | Select and verify at least one lawful purchase source. Confirm that the link resolves to the correct title and edition. |
-| LI-MEDIA-002 | Read, Listen & Watch | Library book search or catalog | External link | No | Couple; library service | Yes | CI-MEDIA-003 | Required | Select a lawful library-discovery option. Prefer a durable search or title page rather than a temporary session URL. |
-| LI-MEDIA-003 | Read, Listen & Watch | Audiobook purchase source | External link | No | Couple; authorized audiobook retailer | Yes | CI-MEDIA-005 | Required | Verify the correct audiobook title, edition, narrator where relevant, and regional availability. |
-| LI-MEDIA-004 | Read, Listen & Watch | Audiobook subscription or listening service | External link | No | Couple; authorized service | Yes | CI-MEDIA-005 | Required | Verify that the destination is lawful and accurately describes access requirements. |
-| LI-MEDIA-005 | Read, Listen & Watch | Audiobook library source | External link | No | Couple; library service | Yes | CI-MEDIA-005 | Required | Prefer a durable catalog or search destination. Do not link to an unauthorized downloadable copy. |
-| LI-MEDIA-006 | Read, Listen & Watch | Film streaming source | External link | No | Couple; authorized streaming service | Yes | CI-MEDIA-007 | Required | Verify title, version, language options where relevant, region, and current availability immediately before launch. |
-| LI-MEDIA-007 | Read, Listen & Watch | Film rental source | External link | No | Couple; authorized rental service | Yes | CI-MEDIA-007 | Required | Verify that the film can currently be rented lawfully and that the destination opens the intended title. |
-| LI-MEDIA-008 | Read, Listen & Watch | Film purchase source | External link | No | Couple; authorized retailer | Yes | CI-MEDIA-007 | Required | Verify format and regional availability. Do not imply that the site itself sells or hosts the film. |
-| LI-MEDIA-009 | Read, Listen & Watch | Film library or lawful borrowing source | External link | No | Couple; library service | Yes | CI-MEDIA-007 | Required | Prefer a stable search or catalog destination rather than a temporary authenticated session link. |
-| LI-VENUE-001 | Venue | Warinanco Park ceremony map | External map link | No | Couple; venue; mapping service | Yes; technical review | CI-VENUE-010 | Required for Configuration A readiness | Verify the correct guest entrance, drop-off point, or parking destination rather than linking only to a broad park boundary. Prepare even if Configuration B is initially active. |
-| LI-VENUE-002 | Venue | Sphinx Banquet and Catering Center map | External map link | No | Couple; venue; mapping service | Yes; technical review | CI-VENUE-010 | Required | Verify the address, guest entrance, parking destination, and map pin for 121 E 2nd Avenue, Roselle, NJ 07203. |
+| LI-THEME-001 | Theme & Attire | Guest color-palette web graphic (`Guest Color Palette.png`) | Local asset | Yes | Couple; existing palette | Accessibility review; technical review | CI-THEME-003 | Required | Final launch graphic is implemented with accompanying written guidance. Ownership/publication rights are verified by the couple; final responsive/zoom behavior remains part of Workstream 5 QA. |
+| LI-THEME-002 | Theme & Attire | Guest-attire inspiration graphic (`Inspirations General Guest Attire.png`) | Local asset | Yes | Couple | Accessibility review; technical review | CI-THEME-004 | Required | Final launch inspiration graphic is implemented. Ownership/publication rights are verified by the couple; alternative/hover text and click-to-expand behavior are implemented and remain subject to final QA. |
+| LI-THEME-003 | Theme & Attire | Implemented inspiration-image set | Local assets | Yes | Couple | Accessibility review; technical review | CI-THEME-008 | Required | The launch inspiration imagery is implemented and publication-rights/attribution review is verified by the couple. Any later replacement or additional image requires the same review before publication. |
+| LI-MEDIA-001 | Read, Listen & Watch | Book purchase sources — Bookshop.org and Amazon | External links | Yes | Couple; authorized retailers | Yes | CI-MEDIA-003 | Required | Lawful purchase links are implemented. Recheck title/edition, HTTPS, new-tab behavior, and destination availability during Workstream 5 and immediately before launch. |
+| LI-MEDIA-002 | Read, Listen & Watch | Optional library book search or catalog | External link | No | Couple; library service | Yes | CI-MEDIA-003 | Recommended | CI-MEDIA-003 requires at least one lawful book-access option; implemented retailer links satisfy the launch requirement. A durable library-discovery link may be added later without blocking launch. |
+| LI-MEDIA-003 | Read, Listen & Watch | Audiobook listening/purchase source — Audible | External link | Yes | Couple; authorized audiobook retailer | Yes | CI-MEDIA-005 | Required | Audible destination is implemented. Recheck title, narrator/edition, regional availability, HTTPS, and new-tab behavior before launch. |
+| LI-MEDIA-004 | Read, Listen & Watch | Additional audiobook listening resource | External link | Yes | Couple; authorized service | Yes | CI-MEDIA-005 | Recommended | An additional lawful listening resource is implemented. Availability and destination behavior remain subject to launch verification. |
+| LI-MEDIA-005 | Read, Listen & Watch | Optional audiobook library source | External link | No | Couple; library service | Yes | CI-MEDIA-005 | Recommended | The implemented Audible/listening destinations satisfy the launch requirement for a lawful audiobook resource. A library source may be added later. |
+| LI-MEDIA-006 | Read, Listen & Watch | Film streaming source — HBO Max | External link | Yes | Couple; authorized streaming service | Yes | CI-MEDIA-007 | Required | Streaming destination is implemented. Recheck current availability, region, HTTPS, and new-tab behavior immediately before launch. |
+| LI-MEDIA-007 | Read, Listen & Watch | Optional film rental source | External link | No | Couple; authorized rental service | Yes | CI-MEDIA-007 | Recommended | Streaming and physical-purchase sources already satisfy the launch requirement for lawful film access. A rental source may be added later. |
+| LI-MEDIA-008 | Read, Listen & Watch | Film physical-purchase source — Amazon Blu-ray | External link | Yes | Couple; authorized retailer | Yes | CI-MEDIA-007 | Required | Physical-purchase link is implemented. Recheck title/format and destination behavior before launch. |
+| LI-MEDIA-009 | Read, Listen & Watch | Optional film library or lawful borrowing source | External link | No | Couple; library service | Yes | CI-MEDIA-007 | Recommended | Implemented streaming and purchase sources satisfy the launch requirement. A library/borrowing source may be added later. |
+| LI-VENUE-001 | Venue | Former Warinanco Park ceremony map | External map link | Not applicable | Couple; mapping service | Not applicable | CI-VENUE-010 | Not applicable | Historical configuration only. The Warinanco ceremony plan is discontinued and no Warinanco map is required for launch. |
+| LI-VENUE-002 | Venue | Sphinx Banquet and Catering Center Google Maps / Apple Maps directions | External map links | Yes | Couple; venue; mapping services | Yes; technical review | CI-VENUE-010 | Required | Sphinx-only directions are implemented for 121 E 2nd Avenue, Roselle, NJ 07203. Recheck map destinations and guest-arrival suitability during Workstream 5. |
 | LI-TRAVEL-001 | Travel | Hotel-block reservation page or approved booking instructions | External link or booking instructions | Pending | Couple; selected hotel | Contract confirmation; technical review | CI-TRAVEL-001; CI-TRAVEL-002 | Required | Add only after the hotel and room block are finalized. Verify group code, rate, dates, booking deadline, cancellation information, and accessibility details. |
 | LI-TRAVEL-002 | Travel | Selected hotel property map | External map link | Pending | Couple; selected hotel; mapping service | Contract confirmation; technical review | CI-TRAVEL-001 | Required after hotel selection | Verify the exact selected property and appropriate guest arrival destination. |
 | LI-TRAVEL-003 | Travel | Hotel accessibility information source | External link or approved hotel document | Pending | Selected hotel | Contract confirmation; accessibility review | CI-TRAVEL-001; CI-TRAVEL-002 | Required after hotel selection | Use verified property-specific information. Do not infer accessibility from a generic brand page. |
-| LI-SITE-001 | All pages containing external links | Accessible new-tab notice treatment | Interface text or icon-plus-text asset | Partial | Application; couple | Accessibility review; technical review | CI-SITE-007 | Required | Decide whether external links use visible text, accessible-name text, an icon with hidden text, or a consistent combination. Essential meaning must not depend on an unexplained icon alone. |
+| LI-SITE-001 | All pages containing external links | Accessible external/new-tab link treatment | Interface behavior/text | Yes | Application; couple | Accessibility review; technical review | CI-SITE-007 | Required | Shared external-link behavior is implemented. Final keyboard/screen-reader/new-tab labeling and browser behavior remain part of Workstream 5 QA. |
 
 ---
 
@@ -163,13 +189,13 @@ Do not add a copyrighted image, book file, audiobook file, full-length film, or 
 | ID | Page | Link or Asset | Type | Final URL/File Available? | Owner | Verification Needed? | Source Content Item | Launch Requirement | Notes |
 |---|---|---|---|---|---|---|---|---|---|
 | LI-THEME-004 | Theme & Attire | Wedding-party design-guide downloads | Downloadable files | Partial | Couple; existing design guides | Rights review; accessibility review; technical review | CI-THEME-009 | Recommended | Confirm which guides are appropriate for public or restricted-public access. Prepare final filenames, file formats, accessible headings, and download labels. |
-| LI-STORY-001 | Our Story | Relationship-story photographs | Local assets | Partial | Couple | Rights review; accessibility review; technical review | CI-STORY-004 | Recommended | Select only approved photographs. Prepare responsive versions and meaningful alternative text where the image conveys information. |
+| LI-STORY-001 | Our Story | Implemented relationship/proposal photographs and video | Local assets | Yes | Couple | Accessibility review; technical review | CI-STORY-004 | Recommended | Current Story media is implemented; ownership/publication rights are verified by the couple and hover/alternative text is present where applicable. Final responsive/media behavior remains subject to Workstream 5 QA. |
 | LI-TRAVEL-004 | Travel | Train-service information or trip-planning source | External link | No | Couple; public transportation source | Yes | CI-TRAVEL-005 | Recommended | Use current official or otherwise reliable sources. Avoid promising travel times. |
 | LI-TRAVEL-005 | Travel | Airport information source | External link | No | Couple; airport or transportation source | Yes | CI-TRAVEL-006 | Recommended | Link only where it adds useful planning value. Do not imply guaranteed airport-to-venue travel times. |
-| LI-TRAVEL-006 | Travel | Local public-transportation information | External link | No | Couple; transportation source | Yes | CI-TRAVEL-007 | Recommended | Verify that the source is current and relevant to the selected hotel and active venue configuration. |
+| LI-TRAVEL-006 | Travel | Local public-transportation information | External link | No | Couple; transportation source | Yes | CI-TRAVEL-007 | Recommended | Verify that the source is current and relevant to the selected hotel and confirmed Sphinx venue. |
 | LI-TRAVEL-007 | Travel | Taxi or ride-sharing information | External link or informational reference | No | Couple; public sources | Yes | CI-TRAVEL-008 | Recommended | Do not guarantee availability, pricing, wait times, or service area. A written advisory may be preferable to provider links. |
-| LI-TRAVEL-008 | Travel | Driving-directions destination for active venue configuration | External map link | No | Couple; mapping service | Yes; technical review | CI-TRAVEL-009 | Recommended | Use the verified venue or parking destination. Configuration A may require separate ceremony and reception destinations. |
-| LI-TRAVEL-009 | Travel | Between-venue directions for Configuration A | External map link | No | Couple; mapping service | Yes; technical review | CI-TRAVEL-009 | Conditional on Configuration A | Verify Warinanco-to-Sphinx routing. Present the 12:00–12:30 p.m. period as travel between venues, not a cocktail hour. |
+| LI-TRAVEL-008 | Travel | Driving-directions destination for confirmed Sphinx venue | External map links | Yes | Couple; mapping services | Yes; technical review | CI-TRAVEL-009 | Recommended | Google Maps and Apple Maps directions to the confirmed Sphinx venue are implemented. Recheck destination behavior during Workstream 5. |
+| LI-TRAVEL-009 | Travel | Former between-venue directions | External map link | Not applicable | Couple; mapping service | Not applicable | CI-TRAVEL-009 | Not applicable | No between-venue guest travel is required because the confirmed ceremony and reception are both at Sphinx. |
 | LI-FAQ-001 | FAQ | Confirmed mimosa-station information | Guest-facing text; no separate link required | Pending | Couple; Sphinx Banquet and Catering Center | Contract confirmation | CI-SCHEDULE-010; CI-FAQ-023 | Conditional | Do not publish the FAQ item or any related asset until the arrangement is confirmed. It must not be presented as a formal cocktail hour. |
 
 ---
@@ -200,9 +226,9 @@ Do not add a copyrighted image, book file, audiobook file, full-length film, or 
 | LI-EXCLUDE-005 | Public assets or downloads | Public Nextcloud share containing copyrighted thematic source media | Prohibited public share | Not applicable | Couple; application | Not applicable | CI-EXCLUDE-004 | Prohibited | Nextcloud must not be used to publicly distribute unauthorized copies of the book, audiobook, or film. |
 | LI-EXCLUDE-006 | FAQ or other page | Gift-registry link | Prohibited external link | Not applicable | Couple | Not applicable | CI-EXCLUDE-005 | Prohibited | The wedding will not use a gift registry. |
 | LI-EXCLUDE-007 | RSVP | Code-bearing personalized RSVP link | Prohibited personalized URL | Not applicable | Application | Not applicable | CI-EXCLUDE-013 | Prohibited | Guests manually enter codes at `/wedding/rsvp/`; invitation codes do not appear in URLs. |
-| LI-EXCLUDE-008 | Schedule & Menu or FAQ | Separate cocktail-hour asset, page, or link | Not applicable | Not applicable | Couple; application | Not applicable | CI-SCHEDULE-003; Decision 022 | Prohibited | There is no separately scheduled formal cocktail hour. |
-| LI-EXCLUDE-009 | Schedule & Menu or FAQ | Separate formal-dinner asset, page, or link | Not applicable | Not applicable | Couple; application | Not applicable | Decision 022 | Prohibited | The meal is buffet-style brunch during the reception rather than a separately scheduled formal dinner. |
-| LI-EXCLUDE-010 | Schedule & Menu | Fixed dancing-schedule graphic | Not applicable | Not applicable | Couple; application | Not applicable | CI-SCHEDULE-005; Decision 022 | Prohibited unless policy changes | Dancing occurs at various intervals and does not receive one fixed public time block. |
+| LI-EXCLUDE-008 | Day-Of Details or FAQ | Separate cocktail-hour asset, page, or link | Not applicable | Not applicable | Couple; application | Not applicable | CI-SCHEDULE-003; Decision 022 | Prohibited | There is no separately scheduled formal cocktail hour. |
+| LI-EXCLUDE-009 | Day-Of Details or FAQ | Separate formal-dinner asset, page, or link | Not applicable | Not applicable | Couple; application | Not applicable | Decision 022 | Prohibited | The meal is buffet-style brunch during the reception rather than a separately scheduled formal dinner. |
+| LI-EXCLUDE-010 | Day-Of Details | Fixed dancing-schedule graphic | Not applicable | Not applicable | Couple; application | Not applicable | CI-SCHEDULE-005; Decision 022 | Prohibited unless policy changes | Dancing occurs at various intervals and does not receive one fixed public time block. |
 | LI-EXCLUDE-011 | Guest-facing RSVP and confirmation states | Protected administrative recipient address or email action | Prohibited private email link | Not applicable | Couple; application | Not applicable | CI-ADMIN-004; CI-ADMIN-016; CI-CONFIRM-002; CI-CONFIRM-010; CI-CONFIRM-014 | Prohibited | Guest-facing states may display only a limited administrative delivery-attempt status. They must not display, link, encode, or otherwise expose the couple’s protected administrative confirmation address. |
 | LI-EXCLUDE-012 | Submission-uncertain and confirmation-refresh states | Code-bearing, payload-bearing, or auto-replay retry/resubmission URL | Prohibited transactional URL | Not applicable | Application | Not applicable | CI-SITE-006; CI-CONFIRM-006 | Prohibited | Safe retry is an in-application idempotent action using the original client submission identifier. A refresh fallback must not replay a prior request or instruct automatic resubmission solely because temporary confirmation state is unavailable. |
 
@@ -241,8 +267,8 @@ For each map link:
 1. Confirm the displayed venue name and address.
 2. Confirm the pin or destination is suitable for guest arrival.
 3. Verify parking, entrance, or drop-off information where known.
-4. Check Configuration A and Configuration B independently.
-5. Confirm that inactive-configuration links are not presented as current.
+4. Confirm that only the Sphinx destination is presented as current.
+5. Confirm that no former Warinanco or between-venue destination is presented to guests.
 6. Test the link in at least one commonly used mobile mapping application.
 
 ## Local-asset verification
@@ -308,9 +334,9 @@ Phase 2 Step 7 is complete when:
 - Recovery and refresh-fallback links use only approved canonical routes and never contain invitation codes, RSVP data, confirmation destinations, client submission identifiers, or private administrative values.
 - A safe retry after an uncertain submission remains an idempotent in-application action rather than a code-bearing, payload-bearing, or auto-replay URL.
 - The homepage hero asset is recorded.
-- Theme palette, outfit-reference, inspiration, and design-guide assets are recorded.
-- Lawful book, audiobook, and film resource links are recorded.
-- Warinanco Park and Sphinx map links are recorded separately.
+- Theme palette, outfit-reference, inspiration, and design-guide assets are recorded; publication rights/attribution for currently implemented launch media are verified.
+- Lawful implemented book, audiobook, and film resource links are recorded, with optional library/rental sources distinguished from launch requirements.
+- The Sphinx launch map links are recorded, and former Warinanco/between-venue links are explicitly retired as not applicable.
 - Hotel booking, map, and accessibility resources are recorded as pending the hotel contract.
 - Recommended travel-source links are recorded without presenting them as finalized.
 - Post-wedding photographs, videos, previews, and download links are separated from launch requirements.

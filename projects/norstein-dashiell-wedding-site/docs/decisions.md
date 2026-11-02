@@ -4985,3 +4985,207 @@ Final
 
 Date:
 10/11/2026
+
+---
+
+## Decision 030 — Workstream 4 Public-Site Content Lock and Launch-Candidate Experience
+
+Decision:
+
+Effective with the November 1, 2026 Workstream 4 content lock, the public wedding website uses the finalized guest-facing information architecture, page naming, navigation relationships, media treatment, and Sphinx-only event presentation recorded below.
+
+This decision establishes the current invitation-launch public-site state. It does **not** authorize production activation by itself. Workstream 5 integrated QA, release-readiness verification, and explicit public-launch approval remain separate requirements.
+
+### Confirmed Event Presentation
+
+The public website uses one confirmed event configuration:
+
+* Wedding date: Saturday, May 1, 2027.
+* Ceremony and reception location: Sphinx Banquet and Catering Center, 121 E 2nd Avenue, Roselle, NJ 07203.
+* Ceremony begins at 11:30 a.m.
+* Guest-facing festivities conclude at 4:30 p.m.
+* The ceremony flows directly into brunch and the reception.
+* There is no separately scheduled formal cocktail hour.
+* There is no separately scheduled formal dinner service.
+* Dancing, speeches, and other reception moments remain flexible and must not be converted into a minute-by-minute public run-of-show unless a later recorded decision explicitly approves one.
+
+The former Warinanco Park ceremony configuration is discontinued and historical only. It must not appear to guests as a pending venue decision, alternate public schedule, weather fallback, or future event configuration.
+
+### Day-Of Details Route and Page
+
+The former **Schedule & Menu** page and `/wedding/schedule-menu` route are retired before launch.
+
+The canonical replacement is:
+
+`/wedding/day-of`
+
+with the public navigation label:
+
+**Day-Of Details**
+
+Day-Of Details contains four major guest-facing sections:
+
+1. The Schedule.
+2. The Menu.
+3. Dietary Needs.
+4. Gift Policy.
+
+The page provides an **Explore this page** menu near the top and a matching **Jump To** menu at the end of each major section.
+
+The schedule remains concise and guest-facing. It may state that the ceremony begins at 11:30 a.m., brunch and the celebration follow, and festivities conclude at 4:30 p.m. It must not invent fixed public times for flexible reception activities.
+
+### Gift Policy
+
+The wedding will not use a traditional wedding registry.
+
+The full Gift Policy belongs on Day-Of Details and is referenced contextually from:
+
+* FAQ.
+* The bottom of the RSVP page.
+
+The policy may describe approved preferred and non-preferred gift categories and may welcome thoughtful, handcrafted, or future-oriented gifts or contributions, but it must emphasize that a guest's presence matters more than bringing a gift.
+
+No separate registry page or external registry destination is required.
+
+This placement supersedes the earlier requirement in Decision 005 that gift information appear only in FAQ.
+
+### FAQ Content and Cross-Linking
+
+The FAQ uses warm, cordial guest-facing language rather than clinical, implementation-oriented, or administrative phrasing.
+
+The FAQ covers the approved launch questions for:
+
+* Ceremony and reception location.
+* Arrival time.
+* Parking.
+* Dress code.
+* Day-of flow.
+* RSVP deadline.
+* Printed RSVP.
+* RSVP revisions.
+* Dietary needs.
+* Hotel information.
+* Gift Policy.
+* RSVP privacy.
+* RSVP assistance.
+
+Every FAQ answer that has a corresponding in-depth guest page must include a contextual link to that page.
+
+Hotel information may honestly state that recommendations or booking details are still being gathered. The site must not invent a hotel, room block, negotiated rate, booking code, booking deadline, cancellation rule, or accessibility promise merely to eliminate pending language.
+
+### Privacy Presentation
+
+The public Privacy page must explain grouped-child handling in approachable nontechnical language.
+
+When an invitation includes unnamed children, the grouped family-level RSVP question asks whether any of those children will attend and, when Yes, how many will attend. The grouped question does not request the children's names.
+
+The ordinary Attendee Details section later collects the actual name of every person attending, including Plus1 guests and children represented by a grouped count. Dietary/allergy information remains applicable only when Reception is selected.
+
+The Privacy page must describe these practices without exposing internal source-spreadsheet syntax, allocation identifiers, or backend implementation details.
+
+### Navigation and Recovery
+
+The footer links are:
+
+* Home.
+* RSVP.
+* FAQ.
+* Privacy.
+
+The wedding-specific Not Found experience provides useful recovery links to:
+
+* Home.
+* RSVP.
+* Venue.
+* Day-Of Details.
+* FAQ.
+
+Primary route navigation must place the guest at the top of the selected destination page instead of preserving the prior page's scroll position.
+
+Read, Listen & Watch, Our Story, and Day-Of Details use same-page **Explore this page** and **Jump To** navigation for their approved major sections.
+
+### Background Music
+
+The public header includes an opt-in background-music toggle after Privacy, visually separated from ordinary route navigation.
+
+Background music behavior is:
+
+* Off by default.
+* No audible autoplay on initial page load.
+* When the guest turns music on, the approved intro segment plays first.
+* The intro transitions into the approved looping segment.
+* The loop continues until the guest turns music off.
+* Playback uses the approved 1.2 playback rate.
+* Background music temporarily yields while site foreground multimedia is playing and may resume afterward when the guest has left background music enabled.
+
+The control must expose an accessible name and state; visual switch position alone is not sufficient.
+
+### Route-Transition Loading Experience
+
+Primary route changes may display a floating loading overlay while the destination page and its immediate multimedia prepare.
+
+The approved guest-facing text is:
+
+* `Loading…`
+* `Please wait while we prepare this page.`
+
+The loading artwork is decorative for accessibility purposes. The overlay must announce loading status without exposing asset names, network diagnostics, framework details, server details, or other technical implementation information.
+
+### Image Accessibility and Hover Text
+
+Informative images must use meaningful alternative text.
+
+Where the implemented launch experience provides hover/title text, that text may supplement the accessible description but must not be required to understand essential content.
+
+Decorative images may use empty alternative text and be hidden from assistive technology when appropriate.
+
+### Media Rights
+
+Publication-rights review for the media currently implemented in the invitation-launch build is complete.
+
+The couple has verified that current launch images, artwork, audio, video, and other creative content are either:
+
+* owned by the couple or Loreweaver Creations;
+* used with permission; or
+* used with the required attribution for this website.
+
+Any later replacement or additional public asset requires its own publication-rights review before release.
+
+### Gallery Launch State
+
+The Gallery remains a public Coming Soon experience before the wedding.
+
+Approved decorative launch media may accompany the Coming Soon message. Post-wedding photographs, videos, downloads, and archival materials remain future work and must not delay invitation-launch readiness.
+
+### Workstream 4 Content Lock
+
+The public-site content and visual experience described above are approved as the Workstream 4 launch-candidate state.
+
+Further changes before launch should be limited to:
+
+* Defects found during Workstream 5 QA.
+* Required accessibility corrections.
+* Broken-link or media corrections.
+* Confirmed hotel information or another genuinely unresolved external dependency.
+* A later explicit recorded project decision.
+
+Ordinary preference changes should not reopen Workstream 4 without a new decision.
+
+### Decision Precedence
+
+This decision does not delete or renumber earlier decisions. It supersedes only conflicting current-state provisions in earlier records, including:
+
+* Decision 005, to the extent it placed gift information only in FAQ.
+* Decisions 012 and 013, to the extent their historical two-configuration contingency language is read as a current requirement; the October 10, 2026 Sphinx-only clarification remains controlling.
+* Decision 019, to the extent the finalized navigation now also includes route-to-top behavior, footer-link requirements, the Music control, and approved in-page jump navigation.
+* Decision 020, to the extent the finalized public-site link relationships now include FAQ cross-linking, RSVP-to-Gift-Policy linking, Not Found recovery links, and in-page fragment navigation.
+* Decision 021, to the extent the finalized Privacy presentation now includes the approved plain-language grouped-child explanation.
+* Decision 022, to the extent the former Schedule page is replaced by Day-Of Details and the current Sphinx-only schedule/menu presentation governs.
+
+Historical decision text remains preserved for traceability.
+
+Status:
+Final
+
+Date:
+11/1/2026

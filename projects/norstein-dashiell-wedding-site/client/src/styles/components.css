@@ -734,20 +734,20 @@ textarea:disabled {
 }
 
 /* =========================================================
-   SCHEDULE & MENU IMAGES
+   DAY-OF IMAGES
    ========================================================= */
 
-.schedule-menu-image {
+.day-of-image {
   display: block;
   height: auto;
   margin-inline: auto;
 }
 
-.schedule-menu-image--howl {
+.day-of-image--howl {
   width: 60%;
 }
 
-.schedule-menu-image--markl {
+.day-of-image--markl {
   width: min(
     40%,
     calc(100vw - (2 * var(--space-4)))
@@ -771,7 +771,7 @@ textarea:disabled {
   align-items: center;
   justify-content: center;
 
-  width: clamp(5rem, 10vw, 6rem);
+  width: clamp(8rem, 15vw, 9rem);
   margin: 0;
   padding: 0;
 

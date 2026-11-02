@@ -11,7 +11,7 @@ import PrivacyPage from "./pages/PrivacyPage";
 import ReadListenWatchPage from "./pages/ReadListenWatchPage";
 import RsvpConfirmationPage from "./pages/RsvpConfirmationPage";
 import RsvpPage from "./pages/RsvpPage";
-import ScheduleMenuPage from "./pages/ScheduleMenuPage";
+import DayOfPage from "./pages/DayOfPage";
 import StoryPage from "./pages/StoryPage";
 import ThemePage from "./pages/ThemePage";
 import TravelPage from "./pages/TravelPage";
@@ -41,7 +41,7 @@ function App() {
 
         <Route path="travel" element={<TravelPage />} />
 
-        <Route path="schedule-menu" element={<ScheduleMenuPage />} />
+        <Route path="day-of" element={<DayOfPage />} />
 
         <Route path="faq" element={<FaqPage />} />
 

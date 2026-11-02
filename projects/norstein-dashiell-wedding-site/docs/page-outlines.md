@@ -4,7 +4,7 @@
 
 This document defines the purpose, audience, required content, interface states, and boundaries of every browser-facing page in the Loreweaver Creations wedding website.
 
-It is synchronized through Phase 3 Step 14, the September 20, 2026 attendance-composition correction, the September 27 unnamed-child source clarification, the cleaned latest `Invitees List`, and the grouped `Kids(n)` family-control clarification.
+It is synchronized through Phase 3 Step 14, the September 20, 2026 attendance-composition correction, the September 27 unnamed-child source clarification, the cleaned latest `Invitees List`, the grouped `Kids(n)` family-control clarification, and the November 1, 2026 Workstream 4 public-content lock.
 
 For RSVP pages, this document therefore assumes:
 
@@ -69,7 +69,7 @@ Every public page beneath `/wedding/` must use a consistent wedding-site shell.
 5. Read, Listen & Watch
 6. Venue
 7. Travel
-8. Schedule & Menu
+8. Day-Of Details
 9. FAQ
 10. Gallery
 11. Privacy
@@ -93,6 +93,7 @@ The footer must provide:
 
 - A link to Home.
 - A prominent link to RSVP.
+- A link to FAQ.
 - A link to Privacy.
 - RSVP assistance information where appropriate.
 - Any approved copyright or ownership notice.
@@ -106,26 +107,24 @@ The footer must provide:
 - External links must use appropriate security attributes.
 - No link may expose an invitation code, guest identity, RSVP answer, confirmation destination, or private administrative value in its URL.
 
-### Active event configuration
+### Confirmed event configuration
 
-Home, Venue, Travel, Schedule & Menu, and FAQ must read from the same centralized active-event configuration.
+Home, Venue, Travel, Day-Of Details, and FAQ must present one consistent confirmed public event format:
 
-Only one configuration may be presented as current at a time:
+- Ceremony and reception at Sphinx Banquet and Catering Center.
+- Saturday, May 1, 2027.
+- Guest-facing event window: 11:30 a.m.–4:30 p.m.
 
-- Configuration A — Warinanco Park ceremony and Sphinx reception.
-- Configuration B — Ceremony and reception entirely at Sphinx.
+The former Warinanco Park ceremony configuration is discontinued and may remain only as historical project documentation or inactive historical source data. It must not appear to guests as a pending venue decision, alternate public schedule, weather fallback, or future event configuration.
 
-The pages must never mix times, locations, parking instructions, maps, or contingency wording from different active configurations.
+The public event presentation must also remain consistent with these rules:
 
-The active configuration must also carry one consistent reception-description policy:
-
-- The public site presents confirmed outer event blocks rather than an internal reception run-of-show.
+- The ceremony flows directly into brunch and the reception.
 - There is no separately scheduled formal cocktail hour.
 - There is no separately scheduled formal dinner service.
-- The meal is a buffet-style brunch available throughout the reception portion of the event.
-- Dancing may occur at various intervals during the reception.
-- The possible self-service mimosa station remains unconfirmed and must not appear as promised guest information unless the couple and Sphinx Banquet and Catering Center finalize it.
+- Buffet brunch, dancing, speeches, and other reception moments may occur flexibly rather than through a minute-by-minute guest itinerary.
 - Exact times must not be assigned to flexible internal reception activities unless a later recorded decision approves them.
+- The current guest-facing beverage/menu wording may be published as approved on Day-Of Details; any later vendor-specific service promise requires separate confirmation.
 
 ### Search and metadata
 
@@ -159,7 +158,7 @@ If analytics are used on RSVP or confirmation routes, they must be limited to no
 - Present the couple’s names, wedding date, and general location.
 - Direct guests quickly to RSVP and essential planning information.
 - Establish the tone and visual identity of the wedding.
-- Display only the currently active event configuration.
+- Display the confirmed Sphinx-only event configuration.
 
 ### Required sections
 
@@ -273,6 +272,7 @@ The entry and validated-form states provide:
 6. Link to `/wedding/privacy`.
 7. Guest-safe status/error messaging.
 8. No stored RSVP answers or prior confirmation destinations displayed.
+9. A guest-facing Gift Policy reference linking to `/wedding/day-of`.
 
 ---
 
@@ -1013,6 +1013,16 @@ The state-transition responsibilities remain:
 - Do not include private guest information.
 - Do not allow optional photographs to delay the page’s launch-ready written content.
 
+### In-page navigation
+
+Provide an **Explore this page** menu near the top and a **Jump To** menu at the end of each major section for:
+
+- A Hair-Raising Happily-Ever-After.
+- From Engagement to Wedding Day.
+- Join Us.
+
+The links use same-page fragment anchors and must remain keyboard-operable.
+
 ---
 
 ## Read, Listen & Watch
@@ -1068,6 +1078,10 @@ This page must not include:
 - Public Nextcloud links to copyrighted copies.
 - Unlawful download or streaming links.
 
+### In-page navigation
+
+Provide the established **Explore this page** menu near the top and **Jump To** navigation at the end of each major section using same-page fragment anchors.
+
 ---
 
 ## Venue
@@ -1080,82 +1094,49 @@ This page must not include:
 
 **Primary navigation:** Yes
 
-**Active-event dependency:** Yes
+**Confirmed-event dependency:** Yes
 
 ### Purpose
 
-- Present the active ceremony and reception locations.
-- Provide accurate confirmed outer times, addresses, maps, entrances, parking, accessibility, and contingency information.
-- Describe the reception without converting flexible internal activities into a fixed public itinerary.
-- Prevent guests from seeing mixed event configurations.
+- Present the confirmed ceremony and reception location.
+- Make it clear that the entire celebration takes place at Sphinx Banquet and Catering Center.
+- Provide the confirmed address, map links, parking information, and contextual planning links.
+- Keep venue facts consistent with Home, Travel, Day-Of Details, and FAQ.
+
+### Confirmed public venue information
+
+- **Sphinx Banquet and Catering Center**
+- 121 E 2nd Avenue, Roselle, NJ 07203.
+- Ceremony and reception both take place at this venue.
+- Ceremony begins at 11:30 a.m.
+- Festivities conclude at 4:30 p.m.
+- Municipal parking is available in the lot directly across the street.
 
 ### Required sections
 
-1. **Active event-configuration identification**
-2. **Active ceremony information**
-3. **Active reception information**
-4. **Selectable street addresses**
-5. **Verified map links**
-6. **Parking instructions**
-7. **Entrance instructions**
-8. **Verified accessibility information**
-9. **Weather and contingency instructions**
-10. **Configuration-status notice where appropriate**
-11. **Broad reception-format description**
-
-### Prepared Configuration A content
-
-**Warinanco Park ceremony and Sphinx reception**
-
-- Ceremony:
-  - Saturday, May 1, 2027.
-  - 10:30 a.m. to 12:00 p.m.
-  - Warinanco Park, Roselle, NJ 07036.
-- Reception:
-  - Saturday, May 1, 2027.
-  - 12:30 p.m. to 4:30 p.m.
-  - Sphinx Banquet and Catering Center.
-  - 121 E 2nd Avenue, Roselle, NJ 07203.
-  - Buffet-style brunch remains available throughout the reception.
-  - Dancing and other festivities may occur at various intervals during the reception.
-
-### Prepared Configuration B content
-
-**Entire event at Sphinx**
-
-- Saturday, May 1, 2027.
-- One combined ceremony-and-reception event block from 11:30 a.m. to 4:30 p.m.
-- Sphinx Banquet and Catering Center.
-- 121 E 2nd Avenue, Roselle, NJ 07203.
-- Do not invent a separate ceremony-ending or reception-starting time.
-- Buffet-style brunch remains available throughout the reception portion of the event.
-- Dancing and other festivities may occur at various intervals during the reception.
-
-### Approved reception wording
-
-The page may use broad wording such as:
-
-> Buffet brunch, dancing, and other festivities will take place during the reception.
-
-This wording may be adapted to the page, provided it does not create exact internal activity times.
-
-### Configuration rule
-
-Only the selected configuration may appear as current.
-
-Do not:
-
-- Show the Warinanco ceremony time with the Sphinx-only schedule.
-- Present both configurations as simultaneous guest choices.
-- Display parking, maps, or arrival instructions for an inactive venue as though they are current.
-- Require page reconstruction to switch to the approved fallback.
-- Create a formal cocktail-hour or formal-dinner segment.
-- Assign exact times to buffet service, dancing, toasts, speeches, cake, photographs, or other flexible reception activities.
-- Present the possible self-service mimosa station as confirmed before the couple and banquet hall finalize it.
+1. **Venue introduction**
+   - State clearly that both ceremony and reception are at Sphinx.
+2. **Address**
+   - Present the confirmed street address.
+3. **Directions**
+   - Provide Google Maps and Apple Maps external links.
+4. **Parking**
+   - Explain the municipal lot across the street.
+5. **Related planning links**
+   - Travel.
+   - Day-Of Details.
+   - Theme & Attire where contextually useful.
 
 ### External-link behavior
 
-Verified map links open in a new tab and must be identified accessibly.
+Map links open in a new tab and are identified accessibly.
+
+### Exclusions
+
+- Do not present Warinanco Park as a current, pending, alternate, or weather-fallback ceremony location.
+- Do not create a separate ceremony-to-reception travel segment.
+- Do not invent a separate cocktail-hour or formal-dinner block.
+- Do not publish private setup/vendor/wedding-party timing.
 
 ---
 
@@ -1169,77 +1150,56 @@ Verified map links open in a new tab and must be identified accessibly.
 
 **Primary navigation:** Yes
 
-**Active-event dependency:** Yes
+**Confirmed-event dependency:** Yes
 
 ### Purpose
 
-- Help guests traveling from a distance plan lodging and transportation.
-- Present the fixed hotel-block dates while tracking property-specific details as pending.
-- Provide travel guidance consistent with the active event configuration.
-- Avoid turning travel guidance into an internal reception timeline.
+- Help guests traveling from a distance plan for the confirmed Sphinx-only wedding.
+- Provide current driving/parking information.
+- Preserve an honest, structured hotel-information area while hotel recommendations or booking details remain forthcoming.
+- Avoid inventing hotel, rate, booking, transportation, or accessibility details that have not been confirmed.
 
 ### Required sections
 
-1. **Hotel-block statement**
-2. **Check-in date**
-   - Friday, April 30, 2027.
-3. **Check-out date**
-   - Sunday, May 2, 2027.
-4. **Hotel name and address**
-   - Add once selected.
-5. **Group rate or room-block details**
-   - Add once finalized.
-6. **Booking instructions and booking link**
-   - Add once finalized.
-7. **Booking deadline**
-   - Add once finalized.
-8. **Hotel accessibility information**
-   - Add once verified.
-9. **Parking for the active venue configuration**
-10. **Train information**
-11. **Airport information**
-12. **Local transportation**
-13. **Taxi and ride-sharing guidance**
-14. **Driving guidance**
-15. **Travel accessibility notes**
-16. **Day-of travel contact information**
-    - Include only if approved and available.
+1. **Venue/location reminder**
+   - Sphinx Banquet and Catering Center, Roselle, New Jersey.
+2. **Driving & Parking**
+   - Municipal parking is available in the lot directly across the street.
+   - Provide approved map links.
+3. **Hotels & Overnight Stays**
+   - State warmly that hotel recommendations and any booking/block details are still being gathered.
+   - Do not claim that a room block or negotiated rate exists unless later confirmed.
+4. **Pending hotel structure**
+   - Preserve headings/space for future hotel name, address, booking instructions, rate/block details, deadlines, and accessibility information.
+5. **Contextual planning links**
+   - Venue.
+   - Day-Of Details.
+   - FAQ where useful.
 
 ### Pending-content behavior
 
-Until the hotel property is selected:
+Until hotel information is finalized:
 
-- Display only accurate confirmed information.
-- Treat April 30 through May 2, 2027 as ready content.
-- Do not invent a hotel, rate, booking link, deadline, or accessibility claim.
-- Use a clearly written pending-information state where guest-facing publication is necessary.
+- Publish only accurate confirmed information.
+- Do not invent a hotel, group rate, booking code/link, booking deadline, cancellation rule, or accessibility claim.
+- Use cordial guest-facing pending language rather than administrative placeholder language.
+- The unresolved hotel dependency does not invalidate the rest of the Travel page or block Workstream 4 content completion.
 
 ### Event-day travel behavior
 
-For Configuration A:
-
-- The confirmed 12:00 p.m. ceremony conclusion and 12:30 p.m. reception start create a guest transition window between Warinanco Park and Sphinx.
-- Describe this only as travel or transition time.
-- Do not label it as a cocktail hour.
-
-For Configuration B:
-
-- The event remains one combined 11:30 a.m. to 4:30 p.m. block at Sphinx.
-- Do not invent a ceremony-ending, reception-starting, or internal travel time.
-
-For both configurations:
-
-- Do not use buffet service, dancing, beverages, or another flexible reception activity as a guest travel deadline unless a later recorded decision establishes a genuine transportation need.
+- The entire wedding takes place at Sphinx.
+- Do not create between-venue directions or a guest travel window between ceremony and reception.
+- Do not use flexible reception activities as artificial travel deadlines.
 
 ### Link behavior
 
-External hotel booking and map links open in a new tab and are identified accessibly.
+External map and later-approved hotel links open in a new tab and are identified accessibly.
 
 ---
 
-## Schedule & Menu
+## Day-Of Details
 
-**Route:** `/wedding/schedule-menu`
+**Route:** `/wedding/day-of`
 
 **Visibility:** Public
 
@@ -1247,86 +1207,77 @@ External hotel booking and map links open in a new tab and are identified access
 
 **Primary navigation:** Yes
 
-**Active-event dependency:** Yes
+**Confirmed-event dependency:** Yes
 
 ### Purpose
 
-- Present a concise guest-planning schedule for the active event configuration.
-- Publish the confirmed outer ceremony and reception or combined-event time blocks.
-- Describe the flexible reception structure without creating a binding internal run-of-show.
-- Keep private setup, vendor, wedding-party, and flexible internal reception timing out of the public site.
-- Provide contextual links to Venue, Travel, and RSVP.
+- Give guests one friendly, concise destination for the wedding-day schedule, brunch menu, dietary guidance, and gift policy.
+- Present the confirmed Sphinx-only schedule without creating a minute-by-minute reception run-of-show.
+- Provide direct links to Venue and RSVP where guests need additional action or planning information.
 
-### Required Configuration A schedule (N/A)
+### In-page navigation
 
-1. **Ceremony**
-   - Warinanco Park.
-   - 10:30 a.m. to 12:00 p.m.
-2. **Guest transition between venues**
-   - 12:00 p.m. to 12:30 p.m.
-   - Present as travel or transition time, not as a cocktail hour.
-3. **Reception**
-   - Sphinx Banquet and Catering Center.
-   - 12:30 p.m. to 4:30 p.m.
-4. **Reception description**
-   - Buffet-style brunch remains available throughout the reception.
-   - Dancing and other festivities may occur at various intervals during the reception.
+Near the top, provide an **Explore this page** menu linking to:
 
-### Required Configuration B schedule
+- The Schedule.
+- The Menu.
+- Dietary Needs.
+- Gift Policy.
 
-1. **Ceremony and reception**
-   - Sphinx Banquet and Catering Center.
-   - One combined event block from 11:30 a.m. to 4:30 p.m.
-2. **Reception description**
-   - Buffet-style brunch remains available throughout the reception portion of the event.
-   - Dancing and other festivities may occur at various intervals during the reception.
-3. **Internal transition rule**
-   - Do not invent a separate ceremony-ending or reception-starting time unless a later recorded decision establishes one.
+At the end of each major section, provide the matching **Jump To** menu using same-page fragment links.
 
-### Approved general reception wording
+### The Schedule
 
-The page may use concise wording such as:
+1. **11:30 a.m. — Ceremony**
+   - Encourage guests to arrive a little early and settle in.
+2. **After the Ceremony — Brunch & Celebration**
+   - Ceremony flows directly into a relaxed afternoon of buffet brunch, dancing, speeches, and celebrating.
+   - There is no formal cocktail hour or minute-by-minute guest itinerary.
+   - Speeches and other flexible moments may be announced during the reception.
+3. **4:30 p.m. — Festivities Conclude**
+   - Confirm that everything takes place at Sphinx.
+   - Link to Venue for directions and parking.
 
-> Buffet brunch, dancing, and other festivities will take place during the reception.
+### The Menu
 
-Equivalent wording may be used provided it:
+Present the approved current brunch menu, including:
 
-- Does not promise a formal cocktail hour.
-- Does not promise a formal dinner service.
-- Does not create a fixed dancing period.
-- Does not imply a more detailed internal itinerary than has actually been approved.
-- Does not mention the possible self-service mimosa station unless it is later confirmed.
+- Hot Brunch Buffet.
+- Bagels & Schmears.
+- Gluten-Free Bagels.
+- Schmears.
+- Appetizing.
+- Seasonal fruit.
+- Coffee, tea, and mockmosas.
+- Dessert selection explicitly marked as still to be announced.
 
-### Additional sections
+The page may use approved thematic imagery/captions around the menu provided publication rights/attribution, accessibility, and responsive presentation requirements are met.
 
-1. Guest arrival guidance when finalized.
-2. Guest-relevant transportation deadlines, but only where an actual transportation arrangement creates one.
-3. Link to Venue.
-4. Link to Travel.
-5. Contextual RSVP link.
-6. Optional brief note that reception activities are intentionally flexible.
+### Dietary Needs
 
-### Configuration rule
+- State that gluten-free and non-dairy options will be available.
+- Ask guests to include food allergies, dietary restrictions, or other food-related needs with their RSVP.
+- Include the cross-contact/common-allergen preparation disclaimer.
+- Link to RSVP.
 
-Only the active schedule may be publicly displayed.
+### Gift Policy
 
-### Do not publish
+- State that the couple is not using a traditional wedding registry.
+- Explain that thoughtful/handcrafted gifts or contributions toward future plans are welcome if a guest wishes to give something.
+- Render the centralized preferred and non-preferred gift categories.
+- Emphasize warmly that the guest's presence matters more than bringing a gift.
+- Do not create a separate gift-registry page or external registry link.
 
-- Private setup times.
-- Vendor-only timing.
-- Wedding-party-only instructions.
-- A mixed schedule assembled from both configurations.
-- A separately scheduled formal cocktail hour.
-- A separately scheduled formal dinner period.
-- A fixed dancing block.
-- Exact times for first dances, toasts, speeches, cake service, photographs, buffet activity, or other internal reception events.
-- A more detailed Configuration B ceremony-to-reception transition unless later approved.
-- The possible self-service mimosa station as confirmed information before the couple and Sphinx Banquet and Catering Center finalize it.
-- Unconfirmed milestones presented as final.
+### Exclusions
 
-### Future-decision rule
-
-A later confirmed guest-facing milestone may be added only through an updated recorded decision and corresponding revisions to the requirements, content inventory, page outlines, sitemap, and wireframes where affected.
+- No private setup times.
+- No vendor-only or wedding-party-only timing.
+- No separately scheduled formal cocktail hour.
+- No separately scheduled formal dinner period.
+- No fixed public dancing block.
+- No exact public times for flexible reception activities unless a later recorded decision approves them.
+- No Warinanco or between-venue schedule.
+- No gift registry.
 
 ---
 
@@ -1342,73 +1293,71 @@ A later confirmed guest-facing milestone may be added only through an updated re
 
 ### Purpose
 
-- Consolidate recurring guest questions.
-- Reinforce RSVP, attire, venue, travel, reception, gift, and thematic-resource information.
-- Explain RSVP rules without exposing another invited party's private configuration.
-- Reduce confusion without adding unauthorized RSVP questions.
+- Give guests quick, cordial answers to the questions they are most likely to ask.
+- Keep answers useful on their own while linking to the page containing the fuller explanation.
+- Avoid clinical, implementation-oriented, or administrative wording.
+- Avoid duplicating long page content.
 
-### Required topics
+### Required guest-facing questions and destinations
 
-1. How to RSVP and where to find the invitation code.
-2. Why the QR code opens the general wedding website rather than a personalized RSVP.
-3. RSVP deadline and final-month countdown.
-4. Named invitees: each specifically named person receives an individual Yes/No attendance question after code validation.
-5. Plus1 authorization: only invitations with source-authorized Plus1 allocations receive those individual Plus1 Yes/No questions.
-6. Unnamed-child authorization:
-   - only an invitation with authorized grouped child capacity receives the child question;
-   - the guest sees one family-level question:
-     `We'd love for your family to celebrate with us this Mayday - will your kid(s) be accompanying you?`
-   - Yes reveals a dropdown for the authorized number of children;
-   - there is not one separate child question per possible child.
-7. Why a child already specifically named in the invitation roster uses the ordinary named-invitee question and is not duplicated in grouped child capacity.
-8. Why actual Plus1/unnamed-child names are collected later in Attendee Details.
-9. How `Total Attending Party` is derived rather than independently selected.
-10. What the four age-category controls mean.
-11. Why attendee names are required even for Ceremony-only attendance.
-12. When dietary/allergy information appears.
-13. Dress code and statement hats.
-14. Children/family attendance policy.
-15. Gifts.
-16. Venue and travel information.
-17. Reception format.
-18. Howl's Moving Castle theme/resources.
-19. Accessibility of public-site content and venue information.
-20. RSVP revisions.
-21. Email-only confirmation and delivery.
-22. Confirmation refresh fallback.
-23. Printed RSVP alternative.
-24. RSVP help contact.
-25. RSVP privacy.
+1. **Where are the ceremony and reception?**
+   - Answer with the confirmed Sphinx-only location.
+   - Link to Venue.
+2. **When should I arrive?**
+   - State the 11:30 a.m. ceremony start and recommend arriving a little early.
+   - Link to Day-Of Details.
+3. **Where can I park?**
+   - Explain the municipal lot directly across the street.
+   - Link to Venue.
+4. **What should I wear?**
+   - Summarize Vintage Garden Formal and statement-hat guidance.
+   - Link to Theme & Attire.
+5. **What does the day look like?**
+   - Summarize the relaxed Sphinx-only 11:30 a.m.–4:30 p.m. flow without inventing a formal cocktail hour or minute-by-minute itinerary.
+   - Link to Day-Of Details.
+6. **When is the RSVP deadline?**
+   - Use the centralized RSVP deadline.
+   - Link to RSVP.
+7. **Can I mail in my RSVP instead?**
+   - Explain the printed RSVP alternative.
+   - Link to RSVP.
+8. **Can I change an RSVP I've already submitted?**
+   - Explain that revisions remain available before the deadline by re-entering the invitation code and completing the blank revision form.
+   - Link to RSVP.
+9. **What if I have dietary needs?**
+   - Summarize the approved dietary guidance and cross-contact caveat.
+   - Link to Day-Of Details and RSVP.
+10. **Are hotels arranged?**
+    - Use warm pending language explaining that hotel recommendations/booking details are still being gathered.
+    - Link to Travel.
+11. **What is your gift policy?**
+    - Summarize the no-registry policy and emphasize that presence matters most.
+    - Link to Day-Of Details.
+12. **How does RSVP information stay private?**
+    - Summarize the limited-data/blank-form approach in plain language.
+    - Link to Privacy.
+13. **How do I get RSVP help?**
+    - Use the approved assistance email.
+    - Link to RSVP.
 
-### Required policy statements
+### Link rule
 
-- A validated RSVP form is blank even when the party previously submitted.
-- Named-person controls appear only for the validated invitation's own safe roster.
-- A Plus1 question appears only when the validated invitation includes that source-authorized `plus1` allocation. Multiple Plus1 allocations remain separate Yes/No controls.
-- A grouped child question appears only when the validated invitation includes an `unnamedChildren` allocation.
-- The grouped child control is one family-level Yes/No question, not one question per child.
-- After Yes, the child-count selector ranges from 1 through the invitation-specific authorized maximum supplied by the backend.
-- The public FAQ should explain the behavior conceptually and must not expose raw `Kids(n)` source syntax, other parties' maxima, or another party's configuration.
-- A specifically named child uses the ordinary named-invitee question and is not duplicated.
-- `maximumAttendance` is party capacity, not the guest's editable attending total.
-- Actual attendance derives from named Yes responses, Plus1 Yes responses, and the selected grouped child count.
-- Attendee Details contains one name row per actual attendee.
-- Reception-specific dietary/allergy information is optional and per attendee.
-- Revisions begin from another blank form.
-- Any grouped child response/count change requires complete attendee-name-list replacement.
-- Stored answers are not publicly retrievable.
-- Invitation codes should not be described as passwords.
+Every FAQ answer that has a corresponding in-depth guest page must contain a contextual link to that page.
 
-### Contextual links
+### Privacy/RSVP explanation boundary
 
-Link to relevant pages rather than duplicating long explanations:
+The FAQ may explain RSVP behavior conceptually but must not expose:
 
-- RSVP
-- Theme & Attire
-- Venue
-- Travel
-- Schedule
-- Privacy
+- Raw source-spreadsheet syntax.
+- Invitation codes.
+- Another party's named-invitee roster or capacities.
+- Internal allocation identifiers.
+- Provider/backend details.
+- Stored RSVP answers.
+
+Detailed privacy handling belongs on Privacy. Detailed RSVP interaction belongs on RSVP. Detailed day-of information belongs on Day-Of Details.
+
+---
 
 ## Gallery
 
@@ -1467,7 +1416,7 @@ After approved media is ready:
 
 **Search indexing:** Yes
 
-**Primary navigation:** Footer/contextual rather than primary navigation
+**Primary navigation:** Yes; also linked from the footer and RSVP/FAQ contexts
 
 ### Purpose
 
@@ -1557,8 +1506,9 @@ Explain what RSVP information is collected, why it is collected, how the blank-f
 3. Link to Home.
 4. Link to RSVP.
 5. Link to Venue.
-6. Link to FAQ.
-7. Assistance information where appropriate.
+6. Link to Day-Of Details.
+7. Link to FAQ.
+8. Assistance information where appropriate.
 
 ### Exclusions
 
@@ -1582,7 +1532,7 @@ The following repeated values must be maintained centrally where practical:
 - RSVP deadline.
 - Countdown start.
 - RSVP assistance email.
-- Active event configuration.
+- Confirmed Sphinx-only event configuration.
 - Venue names, addresses, confirmed outer event times.
 - Flexible reception-description policy.
 - Buffet-service policy.
@@ -1612,12 +1562,12 @@ The following repeated values must be maintained centrally where practical:
 - **RSVP:** entry instructions, validation messages, revision instructions, named-invitee wording, Plus1 wording, grouped child family prompt and count-selector guidance, derived-headcount/age-dial presentation, Attendee Details wording, Reception dietary wording, confirmation-field wording, privacy reassurance, closed/unavailable states.
 - **Confirmation:** success, complete summary including grouped child count where applicable, delivery warning, refresh fallback, revision wording.
 - **Theme & Attire:** aesthetic, attire, palette, examples, images, downloads, disclaimer.
-- **Our Story:** relationship narrative/approved photographs.
-- **Read, Listen & Watch:** descriptions, verified external links, availability disclaimer.
-- **Venue:** active venue details, entrances, parking, accessibility, maps, contingency instructions, broad reception description.
+- **Our Story:** relationship narrative/approved media plus Explore this page / Jump To navigation.
+- **Read, Listen & Watch:** descriptions, lawful external links, availability disclaimer, and established Explore this page / Jump To navigation.
+- **Venue:** confirmed Sphinx details, address, map links, parking, and contextual planning links.
 - **Travel:** hotel block, transportation, driving, travel-accessibility info, genuine guest deadlines.
-- **Schedule & Menu:** confirmed outer event blocks and flexible reception description.
-- **FAQ:** guest-facing policy answers including named-invitee, Plus1, grouped child authorization/count behavior, derived attendance, Attendee Details, Reception dietary collection, reception structure, confirmed beverage information.
+- **Day-Of Details:** confirmed schedule, current brunch menu, dietary guidance, Gift Policy, and in-page jump navigation.
+- **FAQ:** warm guest-facing answers for venue, arrival, parking, attire, day-of timing, RSVP, dietary needs, hotels, Gift Policy, Privacy, and assistance, with contextual links to the corresponding in-depth pages.
 - **Gallery:** Coming Soon copy and reviewed post-wedding media.
 - **Privacy:** complete RSVP privacy explanation, including grouped child attendance/count data.
 - **Not Found:** guest-safe recovery wording.
@@ -1639,7 +1589,7 @@ No page may include:
 - Private wedding-party-only schedule details.
 - Separately scheduled formal cocktail hour or formal dinner.
 - Fixed public times for flexible reception activities.
-- Invented Configuration B ceremony-to-reception transition.
+- Invented separate ceremony-ending/reception-starting times or other unapproved internal transition.
 - Unconfirmed self-service mimosa station.
 - Substantive RSVP questions outside the approved structure.
 - Per-person Ceremony/Reception controls.
@@ -1654,7 +1604,7 @@ No page may include:
 - Accessibility/lodging/transport/message-to-couple questions inside RSVP.
 - Omitted revision fields treated as deletions while still applicable.
 - Guest-selectable confirmation methods or SMS/Text Message delivery options.
-- Mixed active-event configurations.
+- Former Warinanco/alternate-event content presented as current or pending guest information.
 
 ---
 
@@ -1682,10 +1632,10 @@ This document is complete when:
 - Confirmation summaries include grouped child Yes/No and selected count where applicable.
 - Email-only guest confirmation and independent protected administrative email-attempt responsibilities are documented.
 - Final-month countdown is limited to approved dates/states.
-- Sticky navigation/link behavior is documented.
+- Sticky navigation, Home/RSVP/FAQ/Privacy footer links, contextual cross-links, and approved in-page jump navigation are documented.
 - Privacy page is included.
-- Both event configurations are prepared but only one active.
-- Public schedule remains limited to confirmed outer blocks.
+- Confirmed Sphinx-only event configuration is documented consistently across public pages.
+- Day-Of Details contains the confirmed guest schedule, menu, dietary guidance, and Gift Policy without inventing a minute-by-minute reception run-of-show.
 - Flexible reception description remains intact.
 - Error, closed, service-unavailable, submission-uncertain, delivery-warning, and refresh-fallback states are documented.
 - Read/Listen/Watch contains no hosted copyrighted-media features.
@@ -1750,4 +1700,4 @@ The outlines satisfy Step 14 when:
 - Privacy page states July 30, 2027 active-data retirement and August 29, 2027 backup retirement.
 - Companion RSVP documents describe the same grouped-child model.
 
-With these responsibilities recorded, `page-outlines.md` is synchronized with the authoritative `Invitees List`, the approved RSVP model through **Phase 3 Step 14**, the September 20 attendance-composition correction, and the September 27 grouped unnamed-children clarification.
+With these responsibilities recorded, `page-outlines.md` is synchronized with the authoritative `Invitees List`, the approved RSVP model through **Phase 3 Step 14**, the September 20 attendance-composition correction, the September 27 grouped unnamed-children clarification, and the November 1, 2026 Workstream 4 public-content lock.

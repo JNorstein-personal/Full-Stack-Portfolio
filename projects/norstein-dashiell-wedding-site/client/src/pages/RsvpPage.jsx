@@ -963,6 +963,18 @@ function RsvpPage() {
             </p>
           </>
         )}
+
+        <section className="rsvp-general-support">
+          <h2>Gift Policy</h2>
+
+          <p>
+            We've decided against a traditional wedding registry. If you would
+            like to give us a gift, we&rsquo;ve shared our ideas and
+            preferences on our{" "}
+            <Link to="/day-of">Day-Of Details</Link> page.
+          </p>
+
+        </section>
       </div>
       <BackToTop />
     </PageContainer>

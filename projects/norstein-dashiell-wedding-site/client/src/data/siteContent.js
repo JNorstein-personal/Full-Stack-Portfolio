@@ -30,8 +30,8 @@ const navigation = [
     to: "/travel",
   },
   {
-    label: "Schedule & Menu",
-    to: "/schedule-menu",
+    label: "Day-Of Details",
+    to: "/day-of",
   },
   {
     label: "FAQ",
@@ -77,7 +77,7 @@ export const siteContent = {
   navigation,
 
   footerNavigation: navigation.filter((item) =>
-    ["/", "/rsvp/", "/privacy"].includes(item.to),
+    ["/", "/rsvp/", "/faq", "/privacy"].includes(item.to),
   ),
 
   giftPolicy: {
@@ -85,16 +85,16 @@ export const siteContent = {
 
     preferredCategories: [
       "Cash",
-      "Cash-equivalent gifts",
       "Checks",
+      "Cash-value or equivalent gifts (we use Venmo and PayPal; sadly our bank does not participate in Zelle, so we cannot accept Zelle payments)",
       "Savings bonds",
-      "Handcrafted gifts",
-      "Otherwise thoughtful gifts",
+      "Handcrafted gifts (we're definitely fans of supporting small businesses, local artisans and freelance artists and crafters!)",
+      "Any other thoughtful or creative gift ideas that tell us you're thinking of us, but wouldn't take up a tremendous amount of our relatively compact living space",
     ],
 
     nonPreferredCategories: [
       "Store-specific gift cards",
-      "Investments made in the couple’s name",
+      "Charitable Donations or Investments made in our name",
     ],
   },
 };

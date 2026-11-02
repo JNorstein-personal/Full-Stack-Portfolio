@@ -117,7 +117,7 @@ function TravelPage() {
         <div className="prose-width">
           <p>
             For wedding-day timing and food information, visit our{" "}
-            <Link to="/schedule-menu">Schedule &amp; Menu</Link> page.
+            <Link to="/day-of">Day-Of Details</Link> page.
           </p>
         </div>
       </ContentSection>

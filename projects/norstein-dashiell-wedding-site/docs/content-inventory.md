@@ -44,6 +44,27 @@ This checkpoint reconciles inventory status with implemented guest-facing conten
 * The verified private invitation-source aggregate is 63 assigned invitations, four reserved placeholders, one permanent Test Sample, 64 functional invitations, capacity 122 for real guest invitations and 126 combined. The 57-invitation/115-person starting baseline remains historical.
 * Workstream 3 Step 11 browser/accessibility checks have previously been reported PASS. The October 12 local code checkpoint passed **31/31 client tests**, **322/322 server tests**, client lint, and client production build. A fresh integrated post-E3 browser journey, Content Lock Round 1 approvals, privacy/bundle audit, final reproducibility checks, and the separate D14 public-release gate remain outstanding. A pushed Git commit is not a deployment or public-release authorization.
 
+
+---
+## November 1, 2026 — Workstream 4 Content Lock Round 2 Reconciliation
+
+This checkpoint records the couple-approved guest-facing content state immediately before integrated Workstream 5 release-candidate QA. It supersedes older **Draft needed** or **Pending confirmation** labels for implemented launch copy where the corresponding inventory item is updated to **Ready** below. It does not convert genuinely unresolved external dependencies into completed facts.
+
+* The current public website content is approved as the intended invitation-launch presentation, subject to Workstream 5 QA and the later D14 production-readiness gate.
+* The confirmed public event configuration is Sphinx-only: ceremony and reception at Sphinx Banquet and Catering Center on Saturday, May 1, 2027, within the guest-facing 11:30 a.m.–4:30 p.m. event window.
+* The former Warinanco Park ceremony configuration is discontinued. Historical references may remain for audit traceability, but it is not a pending guest-facing alternative or weather fallback.
+* The former Schedule page is now **Day-Of Details** at `/wedding/day-of`. It contains the concise schedule, current brunch menu, dietary guidance, and approved Gift Policy.
+* Day-Of Details and Our Story now provide approved in-page jump navigation. Read, Listen & Watch retains its established in-page navigation.
+* The FAQ copy is approved in its warmer guest-facing form and links each published answer to the corresponding in-depth page where applicable.
+* The Gift Policy is published on Day-Of Details and is referenced from both FAQ and RSVP.
+* The full Privacy page is approved in approachable language and explicitly describes authorized grouped unnamed-child attendance/count handling alongside named-invitee and Plus1 handling.
+* The site footer is approved with direct links to Home, RSVP, FAQ, and Privacy.
+* The wedding-specific Not Found experience is approved with useful links to Home, RSVP, Venue, Day-Of Details, and FAQ.
+* Publication-rights and attribution review for the launch media is **verified complete by the couple**. The couple owns or appropriately attributes the relevant content used for this website.
+* Hotel recommendations, booking instructions, and any room-block terms remain genuinely external/forthcoming information. The approved launch Travel page represents that state honestly and does not invent unavailable details.
+* The Gallery remains intentionally in its approved pre-wedding **Coming Soon** state.
+* The cumulative local client checkpoint after these Workstream 4 changes passed client lint, **40/40 client tests**, and the production client build. Workstream 5 still owns integrated route, browser, accessibility, responsive, privacy/bundle, link/media, and performance QA.
+
 ---
 ## Status Definitions
 
@@ -143,7 +164,7 @@ Public
 Yes
 
 **Notes:**
-Use “Union County, New Jersey” as the general location. Both possible event formats take place in Union County.
+Use “Union County, New Jersey” as the general location. The confirmed Sphinx venue is in Union County.
 
 ---
 
@@ -180,7 +201,7 @@ The message should:
 The principal homepage image, illustration, photograph, or decorative artwork.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Couple; approved artwork or photographs
@@ -192,14 +213,9 @@ Public
 Yes
 
 **Notes:**
-Confirm:
+The final launch asset is implemented with approved responsive presentation and alternative/hover text.
 
-* The final asset.
-* Publication rights.
-* Responsive crop and sizing.
-* Appropriate alternative text.
-
-The image must not obscure the RSVP action or essential homepage text.
+Publication-rights and attribution review is verified complete by the couple. The image must continue not to obscure the RSVP action or essential homepage text.
 
 ---
 
@@ -307,7 +323,7 @@ The invitation mailing target is October 19, 2026, following successful website 
 Introductory wording for the public RSVP entry page.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Couple; Decisions 009, 016, 018, and 021; application
@@ -337,7 +353,7 @@ The introduction should also make clear that:
 Instructions explaining where guests can find their invitation code.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Couple; printed invitations
@@ -503,7 +519,7 @@ Yes
 The concise privacy notice displayed on the RSVP entry page and personalized form.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Decision 021; couple; application
@@ -747,7 +763,7 @@ The optional `Dietary or allergy information` field appears in each applicable a
 The labels, help text, and instructions for providing the required guest confirmation email address.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Decisions 015 and 017; application
@@ -779,7 +795,7 @@ The form must not display or prefill a previously stored email address or confir
 The repeating attendee-name fields required for every attending person and the conditional per-attendee dietary/allergy field displayed when Reception is selected.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Decision 015; authoritative `Invitees List` spreadsheet; buffet-brunch policy; couple
@@ -955,7 +971,7 @@ The surrounding instructions must explain the partial-revision behavior before s
 Field-level and form-level messages for missing, invalid, contradictory, or unauthorized answers.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Decisions 015–017 and 023; application
@@ -1208,7 +1224,7 @@ Do not add unrecognized or unauthorized named-person controls, a standalone addi
 Guest-facing instructions explaining the blank-form and field-level partial-revision model.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Decisions 015–016 and 023; couple; application
@@ -1248,7 +1264,7 @@ Yes
 Instructions and control labels that distinguish leaving an answer unchanged from explicitly replacing it, using zero where valid, or allowing backend dependency rules to clear information that has become inapplicable.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Decision 016; application
@@ -1283,7 +1299,7 @@ The wording must avoid revealing previously stored values. The form must not off
 The guest-facing email-confirmation destination instructions.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Decision 017; application
@@ -1331,7 +1347,7 @@ Historical SMS authorization requirement retired on October 11, 2026. No consent
 The labels and supporting text displayed with the live RSVP countdown.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Decision 018; application
@@ -1359,7 +1375,7 @@ The countdown text must remain understandable without relying only on animation 
 The principal heading displayed after a successful RSVP submission or revision.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Decision 010; couple; application
@@ -1383,7 +1399,7 @@ The heading must remain accurate whether the action created an initial response 
 The on-screen summary of the complete current RSVP that was recorded.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Decisions 010, 015–017, and 023; application
@@ -1424,7 +1440,7 @@ Guest and administrative delivery statuses must remain distinct. The administrat
 Wording identifying the date and time of a successful submission or revision.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Application
@@ -1443,7 +1459,7 @@ Yes
 The notice identifying email as the fixed guest confirmation method and reporting the guest-email delivery-attempt outcome without promising delivery.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Decisions 010 and 017; application
@@ -1497,7 +1513,7 @@ The instructions must specifically make clear that changing which people are att
 The message displayed when temporary on-screen confirmation information is unavailable after a browser refresh.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Decision 010; application
@@ -1521,7 +1537,7 @@ Direct the guest to check for the email confirmation, return to the public manua
 The email confirmation sent to the guest after every successful initial submission or revision.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Decisions 010 and 015–017; couple; application
@@ -1560,7 +1576,7 @@ The guest email and protected administrative email may use different presentatio
 The protected private email sent to the couple after an initial RSVP submission.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Decisions 010, 015, and 017; couple; application
@@ -1599,7 +1615,7 @@ It must not include unrelated invitation records, publicize internal backend det
 The protected private email sent to the couple after an RSVP revision.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Decisions 010 and 015–017; couple; application
@@ -1636,7 +1652,7 @@ The message must contain the complete merged RSVP, not only the fields changed d
 The guest-facing warning displayed when the RSVP was stored but the guest-email or protected administrative-email delivery failed.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Decisions 010 and 017; application
@@ -1721,7 +1737,7 @@ Historical SMS guest-confirmation template retired on October 11, 2026. No text-
 The shared ordering and labels used whenever the complete current RSVP is displayed or delivered.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Decisions 010 and 016–017; application
@@ -1754,7 +1770,7 @@ Screen and email formatting may vary, but no confirmation may omit a substantive
 The on-screen state shown when the RSVP was stored successfully but one or more confirmation deliveries failed.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Decisions 010 and 017; application
@@ -1788,7 +1804,7 @@ Guest and administrative confirmation attempts remain independent after storage.
 A summary of the visual and thematic character of the wedding.
 
 **Status:**
-Draft needed
+Ready
 
 **Source or Owner:**
 Couple; existing wedding material
@@ -1810,7 +1826,7 @@ The description should not require guests to be familiar with the thematic sourc
 The complete explanation of the “vintage garden formal” dress code.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Existing wedding material; couple
@@ -1832,7 +1848,7 @@ Ensure the final wording corresponds with the printed invitations and existing a
 The approved public color palette for guest attire.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Existing color palette
@@ -1854,7 +1870,7 @@ The palette is substantially prepared but requires final approval and preparatio
 Examples of suitable guest outfits.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Existing wedding material; couple
@@ -1876,7 +1892,7 @@ Confirm whether examples will be presented as text, illustrations, photographs, 
 Guest-facing guidance concerning hats and accessories.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Existing wedding material; couple
@@ -1895,7 +1911,7 @@ Yes
 Guidance concerning costumes, historical influences, and deliberate anachronism.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Existing wedding material; couple
@@ -1917,7 +1933,7 @@ Clearly explain what is welcome without making themed dress mandatory.
 Attire guidance that does not impose gendered clothing requirements.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Existing wedding material; couple
@@ -1936,7 +1952,7 @@ Yes
 Images used to illustrate the wedding aesthetic and guest attire.
 
 **Status:**
-Pending research
+Ready
 
 **Source or Owner:**
 Couple; approved references
@@ -1948,7 +1964,7 @@ Public
 Yes
 
 **Notes:**
-Collect the final image set and conduct a publication-rights review before adding the images to public assets.
+The final inspiration-image set is implemented. Publication-rights and attribution review is verified complete by the couple; the couple owns or appropriately attributes the relevant content used for this website.
 
 ---
 
@@ -1958,7 +1974,7 @@ Collect the final image set and conduct a publication-rights review before addin
 Downloadable wedding-party design guides.
 
 **Status:**
-Pending confirmation
+Not applicable
 
 **Source or Owner:**
 Existing design guides
@@ -1970,7 +1986,7 @@ Public or restricted public link
 Recommended
 
 **Notes:**
-Confirm which guides are appropriate for public download and prepare the final files.
+Separate downloadable wedding-party design guides are not part of the approved invitation-launch build. The public Theme & Attire page provides the finalized guidance and inspiration directly.
 
 ---
 
@@ -2004,7 +2020,7 @@ State that suggested outfits, accessories, images, and concepts are inspirationa
 The title and opening introduction for the Our Story page.
 
 **Status:**
-Draft needed
+Ready
 
 **Source or Owner:**
 Couple
@@ -2018,6 +2034,8 @@ Yes
 **Notes:**
 Our Story must appear as its own public page and primary-navigation entry.
 
+The approved page begins with an “Explore this page” menu linking to A Hair-Raising Happily-Ever-After, From Engagement to Wedding Day, and Join Us. Each major section ends with the matching “Jump To” navigation.
+
 ---
 
 ## CI-STORY-002 — Relationship Story
@@ -2026,7 +2044,7 @@ Our Story must appear as its own public page and primary-navigation entry.
 The complete relationship narrative intended for guests.
 
 **Status:**
-Draft needed
+Ready
 
 **Source or Owner:**
 Couple
@@ -2045,7 +2063,7 @@ Yes
 The portion of the story addressing the engagement or wedding-planning process.
 
 **Status:**
-Draft needed
+Ready
 
 **Source or Owner:**
 Couple
@@ -2067,7 +2085,7 @@ Include only details the couple is comfortable publishing publicly.
 Photographs accompanying the relationship story.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Couple
@@ -2089,7 +2107,7 @@ Select photographs, confirm publication suitability, and prepare alternative tex
 A link directing visitors from Our Story back to RSVP or Home.
 
 **Status:**
-Draft needed
+Ready
 
 **Source or Owner:**
 Couple; application
@@ -2110,7 +2128,7 @@ Yes
 Introductory wording for the Read, Listen, and Watch page.
 
 **Status:**
-Draft needed
+Ready
 
 **Source or Owner:**
 Couple
@@ -2132,7 +2150,7 @@ Explain why the book, audiobook, and film are relevant to the wedding theme.
 The title, author, edition, and description of the thematic book.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Couple; authorized retailer or library sources
@@ -2151,7 +2169,7 @@ Yes
 Lawful links for purchasing, borrowing, or locating the thematic book.
 
 **Status:**
-Pending research
+Ready
 
 **Source or Owner:**
 Retailers; library services
@@ -2173,7 +2191,7 @@ Provide at least one verified lawful option.
 The title, narrator, edition, and description of the audiobook.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Couple; authorized audiobook sources
@@ -2192,7 +2210,7 @@ Yes
 Lawful links for listening to, purchasing, subscribing to, or borrowing the audiobook.
 
 **Status:**
-Pending research
+Ready
 
 **Source or Owner:**
 Audiobook retailers; subscription and library services
@@ -2214,7 +2232,7 @@ Provide at least one verified lawful listening option.
 The title, edition, and description of the thematic film.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Couple; authorized streaming or retailer sources
@@ -2233,7 +2251,7 @@ Yes
 Lawful links for viewing, renting, purchasing, or borrowing the film.
 
 **Status:**
-Pending research
+Ready
 
 **Source or Owner:**
 Streaming services; retailers; library services
@@ -2255,7 +2273,7 @@ Provide at least one verified lawful viewing option.
 A disclaimer concerning changing prices, services, and regional availability.
 
 **Status:**
-Draft needed
+Ready
 
 **Source or Owner:**
 Couple; application
@@ -2265,6 +2283,8 @@ Public
 
 **Needed Before Launch:**
 Yes
+
+The approved page uses external provider links and does not imply permanent availability, pricing, subscription terms, or regional access. Current destinations remain subject to Workstream 5 external-link verification before release.
 
 ---
 
@@ -2300,13 +2320,13 @@ The application must not host:
 ## CI-VENUE-001 — Ceremony Venue Name
 
 **Content Item:**
-The public-facing ceremony venue under each prepared event format.
+The confirmed public-facing ceremony venue.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
-Decision 012; Warinanco Park approval
+Couple; confirmed October 10, 2026 event-format decision
 
 **Visibility:**
 Public
@@ -2315,19 +2335,19 @@ Public
 Yes
 
 **Notes:**
-Outdoor format: Warinanco Park, Roselle, NJ 07036.
+The ceremony venue is Sphinx Banquet and Catering Center, 121 E 2nd Avenue, Roselle, NJ 07203.
 
-Indoor or inclement-weather format: Sphinx Banquet and Catering Center.
+The former Warinanco Park ceremony configuration is discontinued and is not a pending public alternative.
 
 ---
 
 ## CI-VENUE-002 — Ceremony Address
 
 **Content Item:**
-The ceremony location displayed under the active event format.
+The confirmed ceremony location displayed to guests.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Decision 012; venue sources
@@ -2339,19 +2359,17 @@ Public
 Yes
 
 **Notes:**
-Outdoor format: Warinanco Park, Roselle, NJ 07036. The exact guest entrance or street-address/map destination remains to be verified.
-
-Indoor format: Sphinx Banquet and Catering Center, 121 E 2nd Avenue, Roselle, NJ 07203.
+Sphinx Banquet and Catering Center, 121 E 2nd Avenue, Roselle, NJ 07203.
 
 ---
 
 ## CI-VENUE-003 — Ceremony Arrival and Start Times
 
 **Content Item:**
-The ceremony timing shown under each event format.
+The confirmed guest-facing ceremony timing.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Decisions 012 and 022; couple; venue
@@ -2363,11 +2381,9 @@ Public
 Yes
 
 **Notes:**
-Outdoor format: ceremony from 10:30 a.m. to 12:00 p.m. at Warinanco Park.
+The ceremony begins at 11:30 a.m. at the Sphinx. Guest-facing copy recommends arriving a little early to allow time for parking, crossing from the municipal lot, finding a seat, and settling in.
 
-Indoor format: the ceremony and reception occur within one combined 11:30 a.m.–4:30 p.m. event block at the Sphinx. Do not invent or publish a separate ceremony-ending or reception-starting time unless a later recorded decision establishes one.
-
-A separate recommended guest-arrival time remains to be confirmed for each active format.
+The celebration then flows directly into brunch and the reception. Do not invent or publish a separate ceremony-ending or reception-starting time.
 
 ---
 
@@ -2377,7 +2393,7 @@ A separate recommended guest-arrival time remains to be confirmed for each activ
 Instructions identifying the correct guest entrance.
 
 **Status:**
-Pending confirmation
+Not applicable
 
 **Source or Owner:**
 Venue
@@ -2386,7 +2402,9 @@ Venue
 Public
 
 **Needed Before Launch:**
-Yes
+No
+
+No separate special guest-entrance instruction is part of the approved launch content. The published venue address, map links, and parking guidance provide the required arrival information.
 
 ---
 
@@ -2408,7 +2426,7 @@ Public
 Yes
 
 **Notes:**
-The reception venue under both event formats is the Sphinx Banquet and Catering Center.
+The confirmed reception venue is the Sphinx Banquet and Catering Center.
 
 ---
 
@@ -2439,7 +2457,7 @@ Roselle, NJ 07203
 ## CI-VENUE-007 — Reception Start and Ending Times
 
 **Content Item:**
-The guest-facing reception timing under each event format.
+The confirmed guest-facing event timing.
 
 **Status:**
 Ready
@@ -2454,11 +2472,9 @@ Public
 Yes
 
 **Notes:**
-Outdoor format: reception from 12:30 p.m. to 4:30 p.m. at the Sphinx.
+The ceremony and reception together occupy the confirmed 11:30 a.m.–4:30 p.m. guest-facing event block at the Sphinx. The public website does not assign a separate internal ceremony-ending or reception-starting time.
 
-Indoor format: ceremony and reception together run from 11:30 a.m. to 4:30 p.m. at the Sphinx. The public website must not assign a separate internal ceremony-ending or reception-starting time unless a later recorded decision approves one.
-
-The reception timing record establishes the outer guest-facing event block. It does not create fixed public times for buffet service, dancing, toasts, speeches, cake service, photographs, or other internal reception activities.
+The event timing record establishes the outer guest-facing block. It does not create fixed public times for buffet service, dancing, toasts, speeches, cake service, photographs, or other flexible reception activities.
 
 ---
 
@@ -2468,7 +2484,7 @@ The reception timing record establishes the outer guest-facing event block. It d
 Parking information for the ceremony and reception venues.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Venue
@@ -2480,12 +2496,7 @@ Public
 Yes
 
 **Notes:**
-Confirm:
-
-* Parking locations.
-* Restrictions.
-* Accessible spaces.
-* Fees, if any.
+Municipal parking is available in the lot directly across the street from the Sphinx. Guest-facing copy recommends allowing a few extra minutes to park and cross safely.
 
 ---
 
@@ -2524,7 +2535,7 @@ Verify:
 External map links for the ceremony and reception.
 
 **Status:**
-Pending research
+Ready
 
 **Source or Owner:**
 Venue; mapping service
@@ -2536,7 +2547,7 @@ Public
 Yes
 
 **Notes:**
-Verify that each link opens the correct guest entrance or parking destination.
+Google Maps and Apple Maps links for the confirmed Sphinx venue are implemented. Workstream 5 will perform the final external-link verification before release.
 
 ---
 
@@ -2546,7 +2557,7 @@ Verify that each link opens the correct guest entrance or parking destination.
 Guest instructions explaining the inclement-weather fallback.
 
 **Status:**
-Draft needed
+Not applicable
 
 **Source or Owner:**
 Decision 012; couple
@@ -2555,10 +2566,10 @@ Decision 012; couple
 Public
 
 **Needed Before Launch:**
-Yes
+No
 
 **Notes:**
-If the outdoor format is approved and published, explain that inclement weather will move both ceremony and reception to the Sphinx Banquet and Catering Center under the 11:30 a.m.–4:30 p.m. indoor schedule.
+A separate weather-fallback venue notice is no longer applicable because both ceremony and reception are confirmed at the Sphinx.
 
 ---
 
@@ -2568,32 +2579,26 @@ If the outdoor format is approved and published, explain that inclement weather 
 The complete venue-and-schedule content version used if Warinanco Park approval is granted.
 
 **Status:**
-Pending confirmation
+Not applicable
 
 **Source or Owner:**
 Decisions 012, 013, and 022; Warinanco Park approval
 
 **Visibility:**
-Public when active
+Historical documentation only
 
 **Needed Before Launch:**
-Yes
+No
 
 **Notes:**
-Ceremony: Warinanco Park, 10:30 a.m.–12:00 p.m.
-
-Reception: Sphinx Banquet and Catering Center, 12:30 p.m.–4:30 p.m.
-
-Reception copy may state broadly that buffet brunch, dancing, and other festivities will take place during the reception. Do not publish a formal cocktail-hour segment, a formal dinner segment, or exact times for flexible internal activities.
-
-Include the Sphinx-only inclement-weather fallback.
+This former Warinanco Park ceremony configuration is discontinued. The entry remains only for historical traceability and must not be presented as a pending guest-facing option or weather fallback.
 
 ---
 
-## CI-VENUE-013 — Indoor or Inclement-Weather Event Configuration
+## CI-VENUE-013 — Confirmed Sphinx-Only Event Configuration
 
 **Content Item:**
-The complete venue-and-schedule content version used if Warinanco Park is not approved or weather prevents the outdoor ceremony.
+The complete confirmed venue-and-schedule content version used for the wedding.
 
 **Status:**
 Ready
@@ -2602,27 +2607,27 @@ Ready
 Decisions 012, 013, and 022
 
 **Visibility:**
-Public when active
+Public
 
 **Needed Before Launch:**
 Yes
 
 **Notes:**
-Both ceremony and reception take place at the Sphinx Banquet and Catering Center within the combined 11:30 a.m.–4:30 p.m. event block.
+Both ceremony and reception take place at the Sphinx Banquet and Catering Center within the confirmed 11:30 a.m.–4:30 p.m. guest-facing event block.
 
 Do not create a separate public ceremony-ending or reception-starting time within that block unless a later recorded decision approves one.
 
-Reception copy may state broadly that buffet brunch, dancing, and other festivities will take place during the reception. Do not publish a formal cocktail-hour segment, a formal dinner segment, or exact times for flexible internal activities.
+Guest-facing copy may state broadly that buffet brunch, dancing, speeches, and other festivities occur during the reception without publishing fixed times for flexible internal activities.
 
 ---
 
-## CI-VENUE-014 — Active Event-Configuration Selection
+## CI-VENUE-014 — Confirmed Event-Configuration Selection
 
 **Content Item:**
-The configuration value selecting which prepared venue-and-schedule version is guest-facing.
+The private configuration value identifying the confirmed Sphinx-only guest-facing event format.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Decisions 012–013; couple; application
@@ -2634,7 +2639,7 @@ Private configuration controlling public content
 Yes
 
 **Notes:**
-Select the baseline active configuration after the Warinanco Park approval decision and before the printed invitations are mailed. Only one configuration may be publicly active at a time. If Configuration A is initially active but inclement weather later requires the Sphinx-only fallback, Configuration B must be capable of being activated promptly without rebuilding the application.
+The Sphinx-only ceremony-and-reception configuration is the confirmed guest-facing format. Historical alternate configuration data may remain in inactive source history, but the public site must not present it as a pending option, weather fallback, or alternate schedule.
 
 ---
 
@@ -2658,7 +2663,9 @@ Public after confirmation
 Yes
 
 **Notes:**
-Select a nearby hotel suitable for attendees traveling from a distance and verify the final name, address, reservation link or instructions, group-rate information, booking deadline, accessibility information, and proximity to the active venue configuration.
+Select a nearby hotel suitable for attendees traveling from a distance and verify the final name, address, reservation link or instructions, group-rate information, booking deadline, accessibility information, and proximity to the confirmed Sphinx venue.
+
+The approved launch Travel page states plainly that hotel recommendations, booking instructions, and any room-block terms are still being finalized. No unavailable detail is invented. This truthful pending state is the approved temporary substitute for invitation launch.
 
 ---
 
@@ -2693,6 +2700,8 @@ Yes
 * Booking deadline.
 * Accessibility information.
 
+The approved launch Travel page states plainly that hotel recommendations, booking instructions, and any room-block terms are still being finalized. No unavailable detail is invented. This truthful pending state is the approved temporary substitute for invitation launch.
+
 ---
 
 ## CI-TRAVEL-003 — Hotel Booking Deadlines
@@ -2715,6 +2724,8 @@ Yes
 **Notes:**
 Confirm after the hotel block is contracted.
 
+The approved launch Travel page states plainly that hotel recommendations, booking instructions, and any room-block terms are still being finalized. No unavailable detail is invented. This truthful pending state is the approved temporary substitute for invitation launch.
+
 ---
 
 ## CI-TRAVEL-004 — General Parking Information
@@ -2723,7 +2734,7 @@ Confirm after the hotel block is contracted.
 General guest parking guidance.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Venue; couple
@@ -2735,7 +2746,7 @@ Public
 Yes
 
 **Notes:**
-Coordinate with the Venues page and avoid contradictory instructions.
+Municipal parking is available in the lot directly across the street from the Sphinx. The Travel page repeats this confirmed guidance consistently with the Venue page.
 
 ---
 
@@ -2884,7 +2895,7 @@ Include only if the couple designates an appropriate contact who will be availab
 
 ---
 
-# Schedule
+# Day-Of Details
 
 ## CI-SCHEDULE-001 — Guest Arrival Time
 
@@ -2892,7 +2903,7 @@ Include only if the couple designates an appropriate contact who will be availab
 The recommended time for guests to arrive under the active event format.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Couple; venue; Decision 012
@@ -2904,14 +2915,14 @@ Public
 Yes
 
 **Notes:**
-The event start times are known, but the recommended arrival buffer remains to be finalized separately for the outdoor and indoor formats.
+The approved guest-facing wording recommends arriving a little early so guests have time to park, cross the street, find their seats, and settle in before the 11:30 a.m. ceremony. No separate exact arrival time is published.
 
 ---
 
 ## CI-SCHEDULE-002 — Ceremony Time
 
 **Content Item:**
-The ceremony timing under each prepared event format.
+The confirmed ceremony timing.
 
 **Status:**
 Ready
@@ -2926,9 +2937,7 @@ Public
 Yes
 
 **Notes:**
-Outdoor format: 10:30 a.m.–12:00 p.m. at Warinanco Park.
-
-Indoor format: the ceremony occurs within the combined 11:30 a.m.–4:30 p.m. event at the Sphinx. The public website must not invent a separate ceremony-ending or reception-starting time unless a later recorded decision establishes one.
+The ceremony begins at 11:30 a.m. at the Sphinx. The public website does not invent a separate ceremony-ending or reception-starting time; brunch and the reception follow directly.
 
 ---
 
@@ -2952,7 +2961,7 @@ No
 **Notes:**
 There will be no separately scheduled formal cocktail hour.
 
-Do not create a cocktail-hour block, label, or implied transition in the public Schedule page.
+Do not create a cocktail-hour block, label, or implied transition on Day-Of Details.
 
 General reception beverage information may be added elsewhere only after it is confirmed and must not be presented as a formal cocktail-hour segment.
 
@@ -2978,9 +2987,7 @@ Yes
 **Notes:**
 The meal is a buffet-style brunch rather than a formal plated dinner.
 
-Outdoor format: the buffet will remain available throughout the 12:30 p.m.–4:30 p.m. reception.
-
-Indoor format: the buffet will remain available throughout the reception portion of the combined 11:30 a.m.–4:30 p.m. event. Because no separate internal ceremony-ending or reception-starting time is currently approved, do not publish an invented buffet-opening time for this format.
+The buffet is part of the reception following the 11:30 a.m. ceremony within the confirmed 11:30 a.m.–4:30 p.m. Sphinx event window. Because no separate internal ceremony-ending or reception-starting time is approved, do not publish an invented buffet-opening time.
 
 Do not create a separately scheduled formal dinner period, imply assigned entrée service, or publish a more restrictive buffet timeline unless a later recorded decision approves it.
 
@@ -3032,7 +3039,7 @@ Public
 Yes
 
 **Notes:**
-Both approved event configurations conclude at 4:30 p.m.
+The confirmed Sphinx-only event concludes at 4:30 p.m.
 
 Do not create a separately timed farewell activity unless one is later finalized through a recorded decision.
 
@@ -3044,7 +3051,7 @@ Do not create a separately timed farewell activity unless one is later finalized
 Any time by which guests must use or board arranged transportation.
 
 **Status:**
-Pending confirmation
+Not applicable
 
 **Source or Owner:**
 Couple; transportation provider
@@ -3053,10 +3060,12 @@ Couple; transportation provider
 Public
 
 **Needed Before Launch:**
-Recommended
+No
 
 **Notes:**
 Include only if transportation arrangements create a specific guest deadline.
+
+No separate guest transportation deadline is part of the approved Day-Of Details content.
 
 ---
 
@@ -3078,17 +3087,17 @@ Private and excluded from public site
 No
 
 **Notes:**
-Do not publish this content on the public Schedule page.
+Do not publish this content on the public Day-Of Details page.
 
 ---
 
-## CI-SCHEDULE-009 — Active Schedule Version
+## CI-SCHEDULE-009 — Confirmed Day-Of Schedule
 
 **Content Item:**
-The concise public schedule corresponding to the active venue configuration.
+The concise public schedule for the confirmed Sphinx-only event.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Decisions 012, 013, and 022; couple; application
@@ -3100,20 +3109,9 @@ Public when active
 Yes
 
 **Notes:**
-Prepare both schedule versions.
+The ceremony begins at 11:30 a.m. at the Sphinx, followed directly by brunch and the reception. Buffet brunch, dancing, speeches, and other festivities may occur throughout the reception, and the celebration concludes at 4:30 p.m.
 
-Configuration A contains:
-
-* Warinanco Park ceremony from 10:30 a.m. to 12:00 p.m.
-* Sphinx reception from 12:30 p.m. to 4:30 p.m.
-
-Configuration B contains:
-
-* Ceremony and reception at the Sphinx within one combined 11:30 a.m. to 4:30 p.m. event block.
-
-Only the active version may be guest-facing.
-
-The public schedule must remain a concise guest-planning schedule rather than an internal run-of-show. It may state broadly that buffet brunch, dancing, and other festivities occur during the reception, but it must not publish a formal cocktail-hour segment, formal dinner segment, invented Configuration B transition time, or fixed times for flexible internal reception activities.
+The public schedule remains a concise guest-planning schedule rather than an internal run-of-show. It does not publish a formal cocktail-hour segment, formal dinner segment, invented ceremony-to-reception transition time, or fixed times for flexible internal reception activities.
 
 ---
 
@@ -3123,7 +3121,7 @@ The public schedule must remain a concise guest-planning schedule rather than an
 Guest-facing information concerning the possible self-service mimosa station.
 
 **Status:**
-Pending confirmation
+Not applicable
 
 **Source or Owner:**
 Decision 022; couple; Sphinx Banquet and Catering Center
@@ -3132,20 +3130,85 @@ Decision 022; couple; Sphinx Banquet and Catering Center
 Public only if confirmed
 
 **Needed Before Launch:**
-Recommended
+No
 
 **Notes:**
-The couple and banquet hall still need to confirm whether a self-service mimosa station will be offered.
+An alcoholic self-service mimosa station is not part of the approved launch content. The current Day-Of Details menu lists non-alcoholic Mockmosas among the beverages.
 
-Do not mention or imply that the station is available until the arrangement is finalized.
+---
 
-If confirmed, guest-facing copy may describe it broadly as available during the reception unless a later recorded decision establishes a more specific service window.
+## CI-SCHEDULE-011 — Day-Of Gift Policy Section
 
-Do not present it as a formal cocktail hour.
+**Content Item:**
+The approved no-registry Gift Policy published on Day-Of Details and referenced from FAQ and RSVP.
+
+**Status:**
+Ready
+
+**Source or Owner:**
+Couple; approved Workstream 4 content lock
+
+**Visibility:**
+Public
+
+**Needed Before Launch:**
+Yes
+
+**Notes:**
+The section explains that the couple is not using a traditional registry, provides the approved preferred and nonpreferred gift categories from centralized site content, and emphasizes that attendance is more important than bringing a gift.
+
+The Gift Policy is not a separate registry route. FAQ and RSVP link guests to the Day-Of Details page for the fuller policy.
+
+---
+
+## CI-SCHEDULE-012 — Day-Of In-Page Navigation
+
+**Content Item:**
+The “Explore this page” and “Jump To” navigation for Day-Of Details.
+
+**Status:**
+Ready
+
+**Source or Owner:**
+Couple; application
+
+**Visibility:**
+Public
+
+**Needed Before Launch:**
+Yes
+
+**Notes:**
+The approved anchors are:
+
+* The Schedule
+* The Menu
+* Dietary Needs
+* Gift Policy
+
+The top of the page provides “Explore this page,” and each major section ends with the matching “Jump To” menu.
 
 ---
 
 # Frequently Asked Questions
+
+The approved invitation-launch FAQ uses warm guest-facing wording and a concise set of questions that link to the corresponding in-depth page whenever one exists. Older candidate FAQ topics retained below may be marked **Not applicable** when they are intentionally handled elsewhere rather than published as standalone FAQ questions.
+
+The approved published questions cover:
+
+* ceremony and reception location;
+* recommended arrival timing;
+* parking;
+* attire;
+* the overall day structure;
+* RSVP deadline;
+* printed RSVP;
+* RSVP revisions;
+* dietary needs;
+* forthcoming hotel information;
+* gift policy;
+* RSVP privacy; and
+* RSVP help.
 
 ## CI-FAQ-001 — Children Policy Wording
 
@@ -3153,7 +3216,7 @@ Do not present it as a formal cocktail hour.
 The FAQ answer concerning invited children and family attendance.
 
 **Status:**
-Pending confirmation
+Not applicable
 
 **Source or Owner:**
 Existing draft; couple
@@ -3164,6 +3227,8 @@ Public
 **Needed Before Launch:**
 Yes
 
+This topic is not published as a standalone question in the approved launch FAQ. Where relevant, the information is handled by the dedicated page or RSVP interface instead.
+
 ---
 
 ## CI-FAQ-002 — Additional-Guest Policy Wording
@@ -3172,7 +3237,7 @@ Yes
 The FAQ answer concerning additional-guest eligibility.
 
 **Status:**
-Ready
+Not applicable
 
 **Source or Owner:**
 Decisions 015 and 023; authoritative `Invitees List` spreadsheet
@@ -3192,6 +3257,8 @@ The authorization question does not ask for the additional guest's name. If the 
 
 Guests should follow only the options displayed after their invitation code is validated and contact RSVP assistance rather than assuming an unlisted guest may be added.
 
+This topic is not published as a standalone question in the approved launch FAQ. Where relevant, the information is handled by the dedicated page or RSVP interface instead.
+
 ---
 
 ## CI-FAQ-003 — Attire Summary
@@ -3200,7 +3267,7 @@ Guests should follow only the options displayed after their invitation code is v
 A concise FAQ summary of the dress code.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Theme & Attire content
@@ -3222,7 +3289,7 @@ Link to the complete Theme & Attire page.
 A concise FAQ answer concerning statement hats.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Theme & Attire content
@@ -3241,7 +3308,7 @@ Yes
 A concise FAQ answer concerning costumes and anachronistic attire.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Theme & Attire content
@@ -3260,7 +3327,7 @@ Yes
 A concise FAQ answer concerning guest parking.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Venue; Travel content
@@ -3291,15 +3358,16 @@ Public
 Yes
 
 **Notes:**
-Explain that:
+The approved FAQ answer explains that:
 
 * The meal is a buffet-style brunch.
 * There is no separately scheduled formal dinner service.
-* In Configuration A, the buffet remains available throughout the 12:30 p.m.–4:30 p.m. reception.
-* In Configuration B, the buffet remains available throughout the reception portion of the combined 11:30 a.m.–4:30 p.m. event, without publishing an invented internal transition time.
-* Guests do not select an entrée.
-* Every attending person is identified by name in `Attendee Details`.
-* When Reception is selected, each attendee row also provides the optional field `Dietary or allergy information` so dietary needs can be associated with the correct attendee.
+* Gluten-free and non-dairy options will be available.
+* Guests should report food allergies, dietary restrictions, or other food-related needs through RSVP.
+* Food may be prepared or served in environments where common allergens are present.
+* Day-Of Details contains the fuller menu and dietary guidance.
+
+Guests do not select an entrée. When Reception is selected, each attendee row in RSVP provides the optional field `Dietary or allergy information` so dietary needs can be associated with the correct attendee.
 
 ---
 
@@ -3309,7 +3377,7 @@ Explain that:
 The FAQ answer concerning venue accessibility and accommodation requests.
 
 **Status:**
-Draft needed
+Not applicable
 
 **Source or Owner:**
 Couple; venue
@@ -3323,6 +3391,8 @@ Yes
 **Notes:**
 Publish verified venue accessibility details. Do not state that accessibility information is collected through the RSVP form, because it is not part of the finalized question set. Provide an approved assistance contact for individual requests.
 
+This topic is not published as a standalone question in the approved launch FAQ. Where relevant, the information is handled by the dedicated page or RSVP interface instead.
+
 ---
 
 ## CI-FAQ-009 — Photography Policy
@@ -3331,7 +3401,7 @@ Publish verified venue accessibility details. Do not state that accessibility in
 The FAQ answer concerning guest photography and social sharing.
 
 **Status:**
-Draft needed
+Not applicable
 
 **Source or Owner:**
 Couple; photographer
@@ -3350,6 +3420,8 @@ Finalize any rules concerning:
 * Ceremony restrictions.
 * Unplugged portions of the event.
 
+This topic is not published as a standalone question in the approved launch FAQ. Where relevant, the information is handled by the dedicated page or RSVP interface instead.
+
 ---
 
 ## CI-FAQ-010 — Weather Answer
@@ -3358,7 +3430,7 @@ Finalize any rules concerning:
 The FAQ answer explaining the outdoor-ceremony weather contingency.
 
 **Status:**
-Draft needed
+Not applicable
 
 **Source or Owner:**
 Decision 012; couple
@@ -3371,6 +3443,8 @@ Yes
 
 **Notes:**
 If the outdoor format is active, explain that inclement weather will move the entire event to the Sphinx Banquet and Catering Center from 11:30 a.m. to 4:30 p.m. If the indoor format is active from the outset, the answer should state that both ceremony and reception are indoors at the Sphinx.
+
+This topic is not published as a standalone question in the approved launch FAQ. Where relevant, the information is handled by the dedicated page or RSVP interface instead.
 
 ---
 
@@ -3404,7 +3478,7 @@ A guest revises an RSVP by returning to the public RSVP page, manually re-enteri
 The FAQ answer for guests whose invitation code is not accepted.
 
 **Status:**
-Ready
+Not applicable
 
 **Source or Owner:**
 Decision 006; RSVP requirements
@@ -3419,6 +3493,8 @@ Yes
 Direct guests to recheck the printed code and contact:
 
 `RSVPhelp@loreweavercreations.com`
+
+This topic is not published as a standalone question in the approved launch FAQ. Where relevant, the information is handled by the dedicated page or RSVP interface instead.
 
 ---
 
@@ -3447,7 +3523,7 @@ Yes
 The FAQ answer identifying the active ceremony and reception locations and confirmed outer time blocks.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Decisions 012, 013, and 022; active event-configuration setting
@@ -3459,11 +3535,7 @@ Public
 Yes
 
 **Notes:**
-Prepare both versions and publish only the active version selected before the printed invitations are mailed.
-
-Configuration A identifies the Warinanco Park ceremony from 10:30 a.m. to 12:00 p.m. and the Sphinx reception from 12:30 p.m. to 4:30 p.m. Retain a clear explanation of the Sphinx-only inclement-weather fallback.
-
-Configuration B identifies the entire ceremony-and-reception event at the Sphinx from 11:30 a.m. to 4:30 p.m. Do not invent a separate internal ceremony-ending or reception-starting time.
+The approved answer states that both ceremony and reception take place at the Sphinx Banquet & Catering Center, 121 East 2nd Avenue, Roselle, New Jersey, and links to the Venue page for full directions and parking details.
 
 ---
 
@@ -3543,7 +3615,7 @@ Explain that store-specific gift cards and investments made in the couple’s na
 Wording clarifying that gifts are optional.
 
 **Status:**
-Draft needed
+Ready
 
 **Source or Owner:**
 Couple
@@ -3555,7 +3627,7 @@ Public
 Yes
 
 **Notes:**
-Do not imply that a gift is required or is a condition of attendance.
+The approved answer emphasizes that the guests’ presence matters more than bringing a gift and links to the full Gift Policy on Day-Of Details.
 
 ---
 
@@ -3565,7 +3637,7 @@ Do not imply that a gift is required or is a condition of attendance.
 The FAQ answer concerning the thematic media resources.
 
 **Status:**
-Draft needed
+Not applicable
 
 **Source or Owner:**
 Read, Listen, and Watch content
@@ -3579,6 +3651,8 @@ Yes
 **Notes:**
 Briefly explain the resources and link to the dedicated page.
 
+This topic is not published as a standalone question in the approved launch FAQ. Where relevant, the information is handled by the dedicated page or RSVP interface instead.
+
 ---
 
 ## CI-FAQ-020 — Email Confirmation and Delivery Answer
@@ -3587,7 +3661,7 @@ Briefly explain the resources and link to the dedicated page.
 The FAQ answer explaining guest email RSVP confirmations.
 
 **Status:**
-Draft needed
+Not applicable
 
 **Source or Owner:**
 Decision 017; couple
@@ -3603,6 +3677,8 @@ Explain that online guests provide a newly entered valid email address on every 
 
 Clarify that delivery failure does not erase an RSVP that was already stored and that assistance is available for a resend.
 
+This topic is not published as a standalone question in the approved launch FAQ. Where relevant, the information is handled by the dedicated page or RSVP interface instead.
+
 ---
 
 ## CI-FAQ-021 — RSVP Privacy and Blank-Form Answer
@@ -3611,7 +3687,7 @@ Clarify that delivery failure does not erase an RSVP that was already stored and
 The FAQ answer summarizing RSVP privacy, blank forms, and partial revisions.
 
 **Status:**
-Draft needed
+Ready
 
 **Source or Owner:**
 Decisions 016 and 021; couple
@@ -3623,7 +3699,7 @@ Public
 Recommended
 
 **Notes:**
-Explain that the form loads blank and does not display stored answers, that revision fields are merged privately with the current response, and that the complete Privacy page contains further information.
+The approved answer explains in plain language that the RSVP system collects only information needed for wedding planning and response communication, that previously submitted answers are not displayed when the form is reopened, and that personalized RSVP information is kept out of public pages and personalized URLs. It links to the full Privacy page for the complete explanation.
 
 ---
 
@@ -3663,7 +3739,7 @@ Do not imply that the absence of a detailed internal timeline means that the con
 An FAQ answer concerning the possible self-service mimosa station.
 
 **Status:**
-Pending confirmation
+Not applicable
 
 **Source or Owner:**
 Decision 022; couple; Sphinx Banquet and Catering Center
@@ -3678,6 +3754,8 @@ Recommended
 Do not publish this question or answer unless the couple and banquet hall confirm the mimosa-station plan.
 
 If confirmed, state the approved service arrangement without presenting it as a formal cocktail hour or assigning a more specific public time than the confirmed arrangement supports.
+
+This topic is not published as a standalone question in the approved launch FAQ. Where relevant, the information is handled by the dedicated page or RSVP interface instead.
 
 ---
 
@@ -3711,7 +3789,7 @@ The Gallery remains visible in the primary navigation.
 The placeholder message displayed before wedding photographs and videos are published.
 
 **Status:**
-Draft needed
+Ready
 
 **Source or Owner:**
 Couple
@@ -3903,7 +3981,7 @@ No
 The final labels used in the compact sticky primary navigation.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Decisions 004, 007, 019, and 021; route inventory
@@ -3921,9 +3999,9 @@ Yes
 * Theme & Attire
 * Our Story
 * Read, Listen & Watch
-* Venues
+* Venue
 * Travel
-* Schedule
+* Day-Of Details
 * FAQ
 * Gallery
 * Privacy
@@ -3939,7 +4017,7 @@ The navigation remains available while guests scroll. The mobile menu must use a
 The links and information displayed in the site footer.
 
 **Status:**
-Draft needed
+Ready
 
 **Source or Owner:**
 Decisions 019–021; couple; application
@@ -3951,7 +4029,7 @@ Public
 Yes
 
 **Notes:**
-Include appropriate navigation, prominent RSVP access, RSVP assistance, the full Privacy page, and other approved site information.
+The approved footer provides direct links to Home, RSVP, FAQ, and Privacy.
 
 Internal wedding-site links open in the same tab. External media, hotel, and map links open in a new tab with an accessible indication.
 
@@ -3963,7 +4041,7 @@ Internal wedding-site links open in the same tab. External media, hotel, and map
 The message displayed when a visitor opens an unknown wedding-site route.
 
 **Status:**
-Draft needed
+Ready
 
 **Source or Owner:**
 Couple; application
@@ -3975,12 +4053,13 @@ Public
 Yes
 
 **Notes:**
-Provide links to:
+The approved friendly message explains that the requested page could not be found and provides useful links to:
 
-* Home
+* Wedding Home
 * RSVP
-* Venues
-* FAQ
+* Venue & Directions
+* Day-Of Details
+* Frequently Asked Questions
 
 Do not expose server details.
 
@@ -3992,7 +4071,7 @@ Do not expose server details.
 The message displayed when the RSVP service is temporarily unavailable.
 
 **Status:**
-Draft needed
+Ready
 
 **Source or Owner:**
 Application
@@ -4024,7 +4103,7 @@ Do not display:
 The message displayed after the online RSVP deadline.
 
 **Status:**
-Draft needed
+Ready
 
 **Source or Owner:**
 Couple; application
@@ -4050,7 +4129,7 @@ State:
 The message displayed when the browser cannot confirm whether an RSVP was recorded.
 
 **Status:**
-Draft needed
+Ready
 
 **Source or Owner:**
 Application
@@ -4074,7 +4153,7 @@ Direct the guest to check for the guest email confirmation and provide `RSVPhelp
 Consistent behavior and accessible indication for links to outside websites.
 
 **Status:**
-Draft needed
+Ready
 
 **Source or Owner:**
 Decision 020; application
@@ -4098,7 +4177,7 @@ External media, hotel, and map links open in a new tab, use appropriate security
 The concise public notice explaining the collection, processing, storage, and confirmation delivery of RSVP information.
 
 **Status:**
-Draft needed
+Ready
 
 **Source or Owner:**
 Decision 021; couple; application
@@ -4142,13 +4221,13 @@ RSVP entry and confirmation metadata must not expose invitation codes, guest ide
 
 ---
 
-## CI-SITE-010 — Event-Configuration Status and Contingency Copy
+## CI-SITE-010 — Confirmed Event-Configuration Copy
 
 **Content Item:**
-Centralized public wording identifying the active event configuration and any applicable weather fallback.
+Centralized public wording identifying the confirmed Sphinx-only event configuration.
 
 **Status:**
-Draft needed
+Ready
 
 **Source or Owner:**
 Decisions 012–013; couple; application
@@ -4160,7 +4239,7 @@ Public
 Yes
 
 **Notes:**
-This content must remain consistent across Home, Venues, Travel, Schedule, and FAQ. It must never present both configurations as simultaneously active. If Configuration A is active, the public content must explain the inclement-weather fallback to Configuration B.
+This content must remain consistent across Home, Venue, Travel, Day-Of Details, and FAQ. Both ceremony and reception are confirmed at the Sphinx Banquet and Catering Center, and the guest-facing event window is 11:30 a.m.–4:30 p.m. The discontinued Warinanco Park configuration must not be presented as a pending option or weather fallback.
 
 ---
 
@@ -4170,7 +4249,7 @@ This content must remain consistent across Home, Venues, Travel, Schedule, and F
 The page title, introductory paragraph, and section headings for the full public RSVP Privacy page.
 
 **Status:**
-Draft needed
+Ready
 
 **Source or Owner:**
 Decision 021; couple
@@ -4186,7 +4265,7 @@ The page is located at:
 
 `/wedding/privacy`
 
-Use plain language and organize the notice so that guests with varying technical experience can understand the site’s RSVP practices.
+Use plain, approachable language so guests with varying technical experience can understand the RSVP practices. The approved notice includes grouped unnamed-child Yes/No and attending-count handling without exposing internal implementation terminology.
 
 ---
 
@@ -4196,7 +4275,7 @@ Use plain language and organize the notice so that guests with varying technical
 The label and accessible instructions associated with the compact sticky navigation and mobile menu control.
 
 **Status:**
-Draft needed
+Ready
 
 **Source or Owner:**
 Decision 019; application
@@ -4222,7 +4301,7 @@ Navigation copy and spacing must remain compact enough not to obscure page headi
 The full Privacy-page explanation of what RSVP and operational contact information is collected and why.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Decision 021; privacy requirements; couple
@@ -4256,7 +4335,7 @@ The explanation must distinguish substantive RSVP information from operational c
 The full Privacy-page explanation of blank forms and backend merging of revisions.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Decisions 016 and 021; privacy requirements
@@ -4282,7 +4361,7 @@ Removing Reception while continuing to attend Ceremony preserves attendee names 
 The full Privacy-page explanation of separate administrative and guest email confirmation attempts.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Decisions 017 and 021; privacy requirements
@@ -4306,7 +4385,7 @@ State that no mobile number is requested for RSVP confirmations because guest co
 The full Privacy-page explanation of where RSVP information is stored, who may access it, and how long it is expected to be retained.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Decision 021; Decision 024; couple; private administrative policy
@@ -4338,7 +4417,7 @@ The public explanation must reflect the finalized retention standard:
 The full Privacy-page instructions for requesting assistance or correction and the statement concerning security limitations.
 
 **Status:**
-Pending confirmation
+Ready
 
 **Source or Owner:**
 Decision 021; couple
@@ -4678,13 +4757,13 @@ Protected backups containing retired RSVP-operational data must expire no later 
 
 The permanent Test Sample configuration is not retired with the real wedding guest list. Its private production identity remains available indefinitely for controlled portfolio and production-verification use. Historical Test Sample RSVP responses may still be deleted or de-identified under the same data-minimization policy; continued Test Sample functionality must not depend on retaining old Test Sample submissions.
 
-## CI-ADMIN-011 — Active Event-Configuration Setting
+## CI-ADMIN-011 — Confirmed Event-Configuration Setting
 
 **Content Item:**
-The private setting selecting the guest-facing event configuration.
+The private setting identifying the confirmed guest-facing event configuration.
 
 **Status:**
-Draft needed
+Ready
 
 **Source or Owner:**
 Decisions 012–013; application
@@ -4696,7 +4775,7 @@ Private
 Yes
 
 **Notes:**
-The setting must update venue, schedule, timing, weather, map, Travel-page, and related FAQ content consistently. Only one configuration may be active publicly. The setting must also support a prompt switch from Configuration A to Configuration B if inclement weather requires the fallback.
+The confirmed guest-facing setting is the Sphinx-only ceremony-and-reception configuration. Venue, Day-Of Details, timing, map, Travel, and FAQ content must remain consistent with that selection. Historical alternate configuration data may remain inactive for audit history but is not a pending production fallback.
 
 ---
 
@@ -4718,7 +4797,7 @@ Private
 Yes
 
 **Notes:**
-Confirm that the active event configuration, public pages, manual-entry RSVP flow, blank forms, partial-revision merge behavior, fixed guest email confirmation and a separate protected administrative email attempt, countdown states, sticky navigation, link behavior, privacy notices, and production invitation registry are ready before mailing.
+Confirm that the confirmed Sphinx-only event configuration, public pages, manual-entry RSVP flow, blank forms, partial-revision merge behavior, fixed guest email confirmation and a separate protected administrative email attempt, countdown states, sticky navigation, link behavior, privacy notices, and production invitation registry are ready before mailing.
 
 The checkpoint must also confirm that:
 
@@ -5152,7 +5231,7 @@ Not applicable
 **Reason:**
 The wedding will not use a gift registry of any kind.
 
-Gift guidance belongs in the FAQ.
+Gift guidance belongs on Day-Of Details and is summarized or linked from FAQ and RSVP.
 
 ---
 
@@ -5206,7 +5285,7 @@ Private setup times and wedding-party-only instructions.
 Not applicable
 
 **Reason:**
-The public Schedule page contains only guest-relevant events.
+The public Day-Of Details page contains only guest-relevant schedule information.
 
 ---
 
@@ -5321,8 +5400,15 @@ Before the invitation-launch version is published and printed invitations are ma
 
 * Every item marked **Needed Before Launch: Yes** is either Ready or has an explicitly approved temporary substitute.
 * The invitation-launch website is operational and tested before invitation mailing begins.
-* Complete public content exists for both approved event configurations and only one is active/guest-facing at a time.
-* Schedule, venue, hotel, deadline, countdown, assistance, printed-response, navigation, accessibility, privacy, and external-link content remain consistent with their governing entries above.
+* Public event content consistently uses the confirmed Sphinx-only ceremony-and-reception configuration; the former Warinanco Park format is discontinued and not guest-facing.
+* Day-Of Details, venue, hotel-pending-state, deadline, countdown, assistance, printed-response, navigation, privacy, and external-link content remain consistent with their governing entries above.
+* Publication-rights and attribution review for all launch media is verified complete by the couple.
+* Day-Of Details uses `/wedding/day-of`, contains the approved schedule, menu, dietary guidance, and Gift Policy, and provides in-page jump navigation.
+* Our Story provides the approved “Explore this page” and section-end “Jump To” navigation.
+* FAQ uses the approved warm guest-facing copy and links published answers to their in-depth pages where applicable.
+* The footer links Home, RSVP, FAQ, and Privacy.
+* The Not Found page links Home, RSVP, Venue, Day-Of Details, and FAQ.
+* The full Privacy page describes grouped unnamed-child attendance/count handling in approachable language.
 * The authoritative private `Invitees List` contains 68 numbered source rows, 68 unique normalized source codes, and a valid Invite 1–68 sequence.
 * Invites 1–57 remain the established historical assigned baseline; invites 58–63 are now assigned; invites 64–67 are the four remaining reserved placeholders; Invite 68 is the permanent Test Sample.
 * The current source produces 64 functional production configurations: 63 guest-list eligible and one permanent test identity.

@@ -1,22 +1,31 @@
 import { Link } from "react-router-dom";
-
+import { siteContent } from "../data/siteContent.js";
 import ContentSection from "../components/layout/ContentSection";
 import PageContainer from "../components/layout/PageContainer";
 import BackToTop from "../components/navigation/BackToTop";
 import howlBreakfast from "../assets/images/howl_breakfast.jpg";
 import marklBreakfast from "../assets/images/Markl_Breakfast.jpg";
 
-function ScheduleMenuPage() {
+function DayOfPage() {
   return (
     <PageContainer>
-      <ContentSection labelledBy="schedule-menu-heading">
-        <h1 id="schedule-menu-heading">Schedule &amp; Menu</h1>
+      <ContentSection labelledBy="day-of-heading">
+        <h1 id="day-of-heading">Day-Of Details</h1>
 
         <div className="prose-width">
           <p>
             Our wedding day is intentionally simple: the ceremony and
             reception are both at the Sphinx Banquet &amp; Catering Center, and
-            the celebration flows directly from one into the other.
+            the celebration flows directly from one into the other. See below for a simple breakdown of the day's events, the menu, and our gift policy.
+          </p>
+
+          <p>
+            <strong>Explore this page:</strong>{" "}
+            <a href="#schedule-heading">Schedule</a>
+            {" · "}
+            <a href="#menu-heading">Menu</a>
+            {" · "}
+            <a href="#gift-policy-heading">Gift Policy</a>
           </p>
         </div>
       </ContentSection>
@@ -46,20 +55,21 @@ function ScheduleMenuPage() {
             directions and parking information.
           </p>
         </div>
+
       </ContentSection>
 
       <ContentSection labelledBy="menu-heading">
         <h2 id="menu-heading">The Menu</h2>
-        <figure className="schedule-menu-figure schedule-menu-figure--markl">
+        <figure className="day-of-figure day-of-figure--markl">
           <img
-            className="schedule-menu-image schedule-menu-image--markl"
+            className="day-of-image day-of-image--markl"
             src={marklBreakfast}
             alt="Markl enjoying breakfast in Howl's Moving Castle."
 
             title="Markl enjoying breakfast in Howl's Moving Castle."
           />
 
-          <figcaption className="schedule-menu-caption">
+          <figcaption className="day-of-caption">
             <em>
               &ldquo;Which d&apos;you want? You only get one, &apos;cause the rest&apos;re dirty.&rdquo;
               <br />
@@ -146,7 +156,7 @@ function ScheduleMenuPage() {
             where common allergens are present.
           </p>
         <img
-          className="schedule-menu-image schedule-menu-image--howl"
+          className="day-of-image day-of-image--howl"
           src={howlBreakfast}
           alt="Breakfast, cooked over a hot open fire demon"
 
@@ -156,10 +166,53 @@ function ScheduleMenuPage() {
             <Link to="/rsvp/">Go to RSVP</Link>
           </p>
         </div>
+
       </ContentSection>
+
+      <ContentSection labelledBy="gift-policy-heading">
+  <h2 id="gift-policy-heading">Gift Policy</h2>
+
+  <div className="prose-width">
+    <p>
+      Because we have plenty of stuff and not so much an abundance of space, we've decided against using a traditional wedding registry. If you would like
+      to give us a gift, we would be delighted by something thoughtful and handcrafted.
+      <br />
+      …Or perhaps you'd like to help us put a little aside for the
+      adventures and plans ahead of us?
+    </p>
+
+    <p>
+      Some ideas that would be especially useful or meaningful to us include:
+    </p>
+
+    <ul>
+      {siteContent.giftPolicy.preferredCategories.map((category) => (
+        <li key={category}>{category}</li>
+      ))}
+    </ul>
+
+    <p>
+      We would prefer not to receive:
+    </p>
+
+    <ul>
+      {siteContent.giftPolicy.nonPreferredCategories.map((category) => (
+        <li key={category}>{category}</li>
+      ))}
+    </ul>
+
+    <p>
+      Of course, the greatest gift we could hope to receive is your company on our special day.
+      <br />
+      Hope to see you there!
+    </p>
+  </div>
+
+</ContentSection>
+
       <BackToTop />
     </PageContainer>
   );
 }
 
-export default ScheduleMenuPage;
+export default DayOfPage;

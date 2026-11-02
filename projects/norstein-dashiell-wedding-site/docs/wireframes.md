@@ -17,7 +17,7 @@ These wireframes define:
 - Explicit named-invitee and Plus 1 Yes/No decisions plus grouped unnamed-child Yes/No-and-count behavior.
 - Backend-derived `overallAttendance`, age-category totals that must equal that derived count, and all-attendance `Attendee Details` repetition.
 - Reception-specific dietary/allergy fields within otherwise universal attendee-detail rows.
-- Active-event configuration variants.
+- Confirmed Sphinx-only event presentation.
 - Invitation-launch and post-wedding Gallery states.
 
 They intentionally do **not** define:
@@ -45,7 +45,7 @@ The controlling project documents are:
 - `docs/rsvp-api-contract.md`
 - `docs/rsvp-test-cases.md`
 
-The RSVP states and behaviors shown here are synchronized through Phase 3 Step 14 and the September 27, 2026 grouped `Kids(n)` correction with `docs/rsvp-system-design.md`, `docs/rsvp-api-contract.md`, `docs/page-outlines.md`, and `docs/rsvp-test-cases.md`. These wireframes continue to define browser-facing information order and layout rather than backend implementation or API payload structure. The grouped-child correction changes only conditional content inside existing RSVP states: one family-level child Yes/No control may reveal one count selector from 1 through the authorized `maximumCount`. It does not create a new route, top-level state, child-specific substantive region, or independently editable headcount.
+The RSVP states and behaviors shown here are synchronized through Phase 3 Step 14 and the September 27, 2026 grouped `Kids(n)` correction with `docs/rsvp-system-design.md`, `docs/rsvp-api-contract.md`, `docs/page-outlines.md`, and `docs/rsvp-test-cases.md`. The public-page wireframes are additionally synchronized through the November 1, 2026 Workstream 4 content lock. These wireframes continue to define browser-facing information order and layout rather than backend implementation or API payload structure. The grouped-child correction changes only conditional content inside existing RSVP states: one family-level child Yes/No control may reveal one count selector from 1 through the authorized `maximumCount`. It does not create a new route, top-level state, child-specific substantive region, or independently editable headcount.
 
 **October 12, 2026 — Decision 029 reconciliation:** Email is the sole guest RSVP confirmation method for new submissions and revisions. Every online initial submission and revision requires a newly entered valid guest email address; no confirmation-method selector, text-message option, mobile-number input, or SMS authorization appears in the guest interface. Successful storage precedes independent guest-email and protected administrative-email delivery attempts. Disabled historical SMS-capable paths and sensitive records remain subject to separately reviewed retirement and privacy controls; they are not a future activation option. These wireframe updates do not authorize production deployment or public RSVP activation.
 
@@ -66,7 +66,7 @@ The RSVP states and behaviors shown here are synchronized through Phase 3 Step 1
 - `[ ]` represents a checkbox.
 - `< Select one >` represents a select control.
 - `{ Conditional }` identifies content shown only in an applicable state.
-- `{ Configuration A }` and `{ Configuration B }` identify mutually exclusive event states.
+- `{ Confirmed event details }` identifies guest-facing information derived from the finalized Sphinx-only wedding configuration.
 - `{ Authorized named invitees }` identifies a region repeated once for each safe named invitee returned by the validated invitation configuration.
 - `{ Authorized additional-guest allocations }` identifies a conditional region that exists only when the validated invitation configuration contains one or more `additionalGuestAllocations`. Each allocation exposes safe `id`, `kind`, `prompt`, and `maximumCount` metadata. A `plus1` allocation renders one Yes/No control; an `unnamedChildren` allocation renders one grouped family Yes/No control and, after Yes, one required count selector from 1 through `maximumCount`.
 - `{ Reception selected }` identifies content shown only when Reception is part of the current attendance state.
@@ -121,7 +121,7 @@ The interface must render only one top-level RSVP state at a time. A state trans
 ┌──────────────────────────────┐
 │ [Skip to main content]       │
 ├──────────────────────────────┤
-│ SITE BRAND / COUPLE NAMES    │
+│ BRAND / HOME LINK            │
 │ [Menu]              [RSVP]   │  ← compact sticky header
 ├──────────────────────────────┤
 │ {Expanded mobile menu}       │
@@ -130,12 +130,13 @@ The interface must render only one top-level RSVP state at a time. A state trans
 │ Theme & Attire               │
 │ Our Story                    │
 │ Read, Listen & Watch         │
-│ Venues                       │
+│ Venue                        │
 │ Travel                       │
-│ Schedule & Menu              │
+│ Day-Of Details               │
 │ FAQ                          │
 │ Gallery                      │
 │ Privacy                      │
+│ | Music [Off/On toggle]      │
 │ [Close menu]                 │
 ├──────────────────────────────┤
 │ MAIN CONTENT                 │
@@ -144,9 +145,11 @@ The interface must render only one top-level RSVP state at a time. A state trans
 │                              │
 ├──────────────────────────────┤
 │ FOOTER                       │
-│ [Home] [RSVP] [Privacy]      │
+│ [Home] [RSVP] [FAQ]          │
+│ [Privacy]                    │
 │ RSVP assistance              │
 │ Ownership/copyright notice   │
+│ [Decorative Calcifer GIF]    │
 └──────────────────────────────┘
 ```
 
@@ -157,25 +160,60 @@ The interface must render only one top-level RSVP state at a time. A state trans
 3. The mobile menu is clearly labeled.
 4. The menu closes after a destination is selected.
 5. RSVP remains prominent whether the menu is open or closed.
-6. Internal wedding-site links open in the same tab.
-7. External media, hotel, and map links open in a new tab and are identified as such.
-8. The content begins below the sticky header.
-9. The footer follows the final page section.
-10. All controls remain keyboard- and touch-operable.
+6. Primary route navigation returns the guest to the top of the selected page.
+7. Internal wedding-site links open in the same tab.
+8. External media, hotel, and map links open in a new tab and are identified as such.
+9. The content begins below the sticky header.
+10. The footer follows the final page section.
+11. All controls remain keyboard- and touch-operable.
+12. Informational images provide meaningful alternative text where appropriate; hover/title text may supplement but never replace accessible alternative text.
+
+## Background-music control
+
+The header places a visible separator immediately after Privacy, followed by the background-music toggle.
+
+- Music is **Off by default**. The site does not attempt audible autoplay on initial page load.
+- Turning Music on begins with the approved intro segment, then transitions into the looping segment.
+- Turning Music off stops the background playback.
+- When site multimedia that requires foreground audio is playing, background music is temporarily suppressed and may resume afterward if the guest left the music toggle on.
+- The toggle exposes an accessible name and status; essential state is not communicated by visual position alone.
+
+## Route-transition loading overlay
+
+Primary route changes may display a floating loading overlay while the destination page and its immediate media prepare.
+
+```text
+┌──────────────────────────────┐
+│          [GIF]               │
+│                              │
+│          Loading…            │
+│ Please wait while we prepare │
+│ this page.                   │
+└──────────────────────────────┘
+```
+
+The loading overlay:
+
+- Appears above the destination page rather than as permanent page content.
+- Uses a decorative animated image that is hidden from assistive technology.
+- Announces loading status politely.
+- Prevents a partially loaded multimedia-heavy page from appearing to stall mid-scroll.
+- Clears when the transition is ready or when the route-loading safeguard completes.
+- Does not expose technical asset, network, framework, or server details.
 
 ## Wider-screen adaptation
 
 At tablet and desktop widths:
 
 ```text
-┌────────────────────────────────────────────────────────────────────┐
-│ BRAND  Home RSVP Theme Story Read/Listen/Watch Venues Travel ...  │
-│                                                       [RSVP]       │
-├────────────────────────────────────────────────────────────────────┤
-│ MAIN CONTENT                                                       │
-├────────────────────────────────────────────────────────────────────┤
-│ FOOTER                                                             │
-└────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────┐
+│ BRAND  Home RSVP Theme Story Read/Listen/Watch Venue Travel Day-Of ... │
+│                                         Privacy | Music [Off/On] [RSVP] │
+├─────────────────────────────────────────────────────────────────────────┤
+│ MAIN CONTENT                                                            │
+├─────────────────────────────────────────────────────────────────────────┤
+│ FOOTER: Home · RSVP · FAQ · Privacy                         [Calcifer]   │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
 - The approved navigation remains in the same logical order.
@@ -186,129 +224,55 @@ At tablet and desktop widths:
 
 ## Shared event-schedule and reception policy
 
-All event-dependent wireframes must follow the approved public-schedule model:
+All event-dependent wireframes use the single confirmed public wedding format:
 
-- Show confirmed outer event blocks rather than a detailed internal reception run-of-show.
-- Configuration A uses:
-  - Ceremony at Warinanco Park from 10:30 a.m. to 12:00 p.m.
-  - Guest travel between venues from 12:00 p.m. to 12:30 p.m.
-  - Reception at Sphinx from 12:30 p.m. to 4:30 p.m.
-- Configuration B uses one combined ceremony-and-reception event block at Sphinx from 11:30 a.m. to 4:30 p.m.
-- Do not invent a separate ceremony-ending or reception-starting time for Configuration B.
+- Ceremony and reception are both at Sphinx Banquet and Catering Center.
+- Saturday, May 1, 2027.
+- Ceremony begins at 11:30 a.m.
+- Festivities conclude at 4:30 p.m.
+- The ceremony flows directly into brunch and the reception.
 - There is no separately scheduled formal cocktail hour.
 - There is no separately scheduled formal dinner service.
-- Buffet-style brunch remains available throughout the reception portion of the event.
-- Dancing and other festivities may occur at various intervals during the reception.
-- Do not assign exact public times to dancing, toasts, speeches, cake service, photographs, buffet activity, or other flexible internal events.
-- The possible self-service mimosa station remains absent from guest-facing wireframes unless the couple and Sphinx Banquet and Catering Center later confirm it.
+- Buffet brunch, dancing, speeches, and other reception moments may occur flexibly rather than through a minute-by-minute guest itinerary.
+- Do not assign exact public times to dancing, toasts, speeches, cake service, photographs, buffet activity, or other flexible internal events unless a later recorded decision approves them.
+- The former Warinanco Park ceremony configuration is discontinued and must not appear as a current, pending, alternate, or weather-fallback guest plan.
 
----
-
-# 1. Home Wireframes
+# 1. Home Wireframe
 
 **Route:** `/wedding/`
 
-## 1A. Home — Configuration A
-
-**Active configuration:** Warinanco Park ceremony and Sphinx reception.
+**Confirmed event format:** Ceremony and reception entirely at Sphinx.
 
 ```text
 ┌──────────────────────────────┐
 │ SHARED STICKY HEADER         │
 ├──────────────────────────────┤
 │ HERO / INTRO REGION          │
-│                              │
-│ [Optional approved artwork]  │
-│                              │
+│ [Approved couple photograph] │
 │ COUPLE'S NAMES               │
 │ Saturday, May 1, 2027        │
 │ Roselle, New Jersey          │
-│                              │
 │ Brief welcome message        │
-│                              │
 │ [RSVP]                       │
 ├──────────────────────────────┤
 │ QUICK PLANNING LINKS         │
-│ [Theme & Attire]           │
-│ [Venues]                     │
+│ [Theme & Attire]             │
+│ [Venue]                      │
 │ [Travel]                     │
+│ [Day-Of Details]             │
 ├──────────────────────────────┤
-│ ACTIVE EVENT SUMMARY         │
-│                              │
-│ Ceremony                     │
-│ Warinanco Park               │
-│ 10:30 a.m.–12:00 p.m.        │
-│                              │
-│ Reception                    │
-│ Sphinx Banquet Center        │
-│ 12:30 p.m.–4:30 p.m.         │
-│                              │
-│ Buffet brunch, dancing, and  │
-│ other festivities take place │
-│ during the reception.        │
-│                              │
-│ [View Venues]                │
-│ [View Schedule]              │
-├──────────────────────────────┤
-│ OUR STORY TEASER             │
-│ Brief introduction           │
-│ [Read Our Story]             │
-├──────────────────────────────┤
-│ PLANNING REMINDER            │
-│ RSVP deadline text           │
-│ RSVP assistance link         │
-├──────────────────────────────┤
-│ SHARED FOOTER                │
-└──────────────────────────────┘
-```
-
-### Configuration A rules
-
-- Show only the Warinanco/Sphinx combination.
-- Do not display the Sphinx-only 11:30 a.m. start time.
-- Keep reception wording broad.
-- Do not add a cocktail-hour, formal-dinner, dancing-period, or mimosa-station block.
-- Venue and Schedule links read from the same active configuration.
-
----
-
-## 1B. Home — Configuration B
-
-**Active configuration:** Ceremony and reception entirely at Sphinx.
-
-```text
-┌──────────────────────────────┐
-│ SHARED STICKY HEADER         │
-├──────────────────────────────┤
-│ HERO / INTRO REGION          │
-│                              │
-│ [Optional approved artwork]  │
-│                              │
-│ COUPLE'S NAMES               │
-│ Saturday, May 1, 2027        │
-│ Roselle, New Jersey          │
-│                              │
-│ Brief welcome message        │
-│                              │
-│ [RSVP]                       │
-├──────────────────────────────┤
-│ QUICK PLANNING LINKS         │
-│ [Theme & Attire]           │
-│ [Venues]                     │
-│ [Travel]                     │
-├──────────────────────────────┤
-│ ACTIVE EVENT SUMMARY         │
-│                              │
-│ Ceremony and Reception       │
+│ CONFIRMED EVENT SUMMARY      │
+│ Ceremony + Reception         │
 │ Sphinx Banquet Center        │
 │ 11:30 a.m.–4:30 p.m.         │
 │                              │
-│ Buffet brunch, dancing, and  │
-│ other festivities take place │
-│ during the reception portion.│
+│ Buffet brunch, dancing,      │
+│ speeches, and other          │
+│ festivities follow the       │
+│ ceremony.                    │
 │                              │
 │ [View Venue]                 │
-│ [View Schedule]              │
+│ [View Day-Of Details]        │
 ├──────────────────────────────┤
 │ OUR STORY TEASER             │
 │ Brief introduction           │
@@ -322,16 +286,14 @@ All event-dependent wireframes must follow the approved public-schedule model:
 └──────────────────────────────┘
 ```
 
-### Configuration B rules
+### Home rules
 
-- Show only the Sphinx-only event.
-- Do not display Warinanco Park as a current venue.
-- Do not display the Configuration A travel interval.
-- Do not split the 11:30 a.m.–4:30 p.m. event into invented ceremony and reception times.
-- Keep reception wording broad.
-- Do not add a cocktail-hour, formal-dinner, fixed dancing, or mimosa-station block.
-
----
+- Present only the confirmed Sphinx-only wedding format.
+- Do not display Warinanco Park as a current, pending, alternate, or weather-fallback venue.
+- Do not split the 11:30 a.m.–4:30 p.m. guest-facing event window into invented internal ceremony/reception times.
+- Keep flexible reception wording broad.
+- Do not add a separately scheduled cocktail hour, formal dinner, or fixed dancing block.
+- The static invitation QR code continues to open this public Home route.
 
 # 2. RSVP Entry Wireframes
 
@@ -1387,53 +1349,46 @@ All state changes that announce progress, error, warning, uncertainty, success, 
 ┌──────────────────────────────┐
 │ SHARED STICKY HEADER         │
 ├──────────────────────────────┤
-│ THEME AND ATTIRE             │
-│ Brief introductory statement │
+│ THEME & ATTIRE               │
+│ Introductory statement       │
 ├──────────────────────────────┤
 │ WEDDING AESTHETIC            │
-│ Concise theme description    │
+│ Howl's Moving Castle         │
+│ inspiration explained        │
 ├──────────────────────────────┤
 │ VINTAGE GARDEN FORMAL        │
 │ Plain-language dress-code    │
 │ explanation                  │
 ├──────────────────────────────┤
+│ [Guest attire inspiration]   │
+│ Click/tap to expand          │
+├──────────────────────────────┤
+│ HATS, ACCESSORIES &          │
+│ A LITTLE MAGIC               │
+│ Statement hats encouraged    │
+│ Whimsical/anachronistic      │
+│ details welcome              │
+├──────────────────────────────┤
+│ [Guest color palette]        │
+│ Click/tap to expand          │
+├──────────────────────────────┤
 │ COLOR PALETTE                │
-│ [Color swatches / labels]    │
-│ [Download or expand details] │
+│ Written guidance; palette is │
+│ inspiration, not a rulebook  │
 ├──────────────────────────────┤
-│ OUTFIT INSPIRATION           │
-│ [Image]                      │
-│ Suggestion text              │
-│ ...                          │
-├──────────────────────────────┤
-│ HATS AND ACCESSORIES         │
-├──────────────────────────────┤
-│ COSTUMES / ANACHRONISM       │
-├──────────────────────────────┤
-│ GENDER-NEUTRAL GUIDANCE      │
-├──────────────────────────────┤
-│ WEDDING-PARTY GUIDES         │
-│ [Guide download]             │
-│ [Guide download]             │
-│ ...                          │
-├──────────────────────────────┤
-│ INSPIRATION DISCLAIMER       │
-│ Suggestions are not          │
-│ mandatory.                   │
-├──────────────────────────────┤
-│ [RSVP]                       │
+│ FINAL ATTIRE GUIDANCE        │
+│ Comfort, celebration, and    │
+│ personal style emphasized    │
 ├──────────────────────────────┤
 │ SHARED FOOTER                │
 └──────────────────────────────┘
 ```
 
----
+The two informational graphics must remain understandable with their accompanying written content, use appropriate alternative/hover text, and support responsive click/tap expansion without obscuring surrounding content.
 
 # 6. Our Story Wireframe
 
 **Route:** `/wedding/story`
-
-This page was not named in the Step 6 example list, but it is an approved primary-navigation page and therefore receives a Phase 2 wireframe.
 
 ```text
 ┌──────────────────────────────┐
@@ -1441,26 +1396,35 @@ This page was not named in the Step 6 example list, but it is an approved primar
 ├──────────────────────────────┤
 │ OUR STORY                    │
 │ Brief introduction           │
+│                              │
+│ Explore this page:           │
+│ [Hair-Raising Happily-...]   │
+│ [Engagement to Wedding Day]  │
+│ [Join Us]                    │
 ├──────────────────────────────┤
-│ STORY SECTION 1              │
-│ [Optional photograph]        │
+│ A HAIR-RAISING               │
+│ HAPPILY-EVER-AFTER           │
 │ Narrative text               │
+│ [Relationship media]         │
+│ [Jump To: section links]     │
 ├──────────────────────────────┤
-│ STORY SECTION 2              │
-│ Narrative text               │
-│ [Optional photograph]        │
+│ FROM ENGAGEMENT TO           │
+│ WEDDING DAY                  │
+│ Proposal/planning narrative  │
+│ [Proposal photographs]       │
+│ [Proposal video]             │
+│ [Jump To: section links]     │
 ├──────────────────────────────┤
-│ ENGAGEMENT / PLANNING        │
-│ Context text                 │
-├──────────────────────────────┤
-│ NEXT STEP                    │
+│ JOIN US                      │
+│ Closing invitation/context   │
 │ [RSVP] [Return Home]         │
+│ [Jump To: section links]     │
 ├──────────────────────────────┤
 │ SHARED FOOTER                │
 └──────────────────────────────┘
 ```
 
----
+All Explore/Jump-To links are same-page fragment links. Proposal imagery/video uses approved accessible labels or captions where applicable. Background music temporarily yields to foreground multimedia playback.
 
 # 7. Read, Listen, and Watch Wireframe
 
@@ -1470,35 +1434,39 @@ This page was not named in the Step 6 example list, but it is an approved primar
 ┌──────────────────────────────┐
 │ SHARED STICKY HEADER         │
 ├──────────────────────────────┤
-│ READ, LISTEN, AND WATCH      │
+│ READ, LISTEN & WATCH         │
 │ Introductory explanation     │
+│                              │
+│ Explore this page:           │
+│ [About the Book]             │
+│ [About the Movie]            │
+│ [Experience the Story]       │
 ├──────────────────────────────┤
-│ BOOK                         │
-│ [Cover image]                │
-│ Title / description          │
-│ [Retailer — new tab]         │
-│ [Library — new tab]          │
+│ ABOUT THE BOOK               │
+│ [Book cover]                 │
+│ Description / significance   │
+│ Audiobook information        │
+│ [Lawful external resources]  │
+│ [Jump To: section links]     │
 ├──────────────────────────────┤
-│ AUDIOBOOK                    │
-│ [Cover image]                │
-│ Title / description          │
-│ [Service — new tab]          │
-│ [Library — new tab]          │
+│ ABOUT THE MOVIE              │
+│ [Movie poster]               │
+│ Description / significance   │
+│ [Trailer / media]            │
+│ [Jump To: section links]     │
 ├──────────────────────────────┤
-│ FILM                         │
-│ [Poster image]               │
-│ Title / description          │
-│ [Stream/Rent — new tab]      │
-│ [Purchase — new tab]         │
-│ [Library — new tab]          │
-├──────────────────────────────┤
-│ AVAILABILITY DISCLAIMER      │
-│ Services and regional access │
-│ may change.                  │
+│ EXPERIENCE THE STORY         │
+│ [Bookshop.org — new tab]     │
+│ [Amazon book — new tab]      │
+│ [IMDb — new tab]             │
+│ [Blu-ray — new tab]          │
+│ [Streaming — new tab]        │
+│ Availability disclaimer      │
+│ [Jump To: section links]     │
 ├──────────────────────────────┤
 │ COPYRIGHTED MEDIA NOTICE     │
-│ This site does not host the  │
-│ book, audiobook, or movie.   │
+│ Site links to lawful sources │
+│ and does not host full works │
 ├──────────────────────────────┤
 │ SHARED FOOTER                │
 └──────────────────────────────┘
@@ -1506,516 +1474,244 @@ This page was not named in the Step 6 example list, but it is an approved primar
 
 ### Wider-screen adaptation
 
-- Resource cards may appear in two or three columns.
-- Each card remains a coherent unit when stacked.
+- Media/text blocks may use wider layouts when doing so improves comprehension.
+- Each resource group remains coherent when stacked.
 - External-link behavior remains visible and accessible.
+- Explore/Jump-To links remain usable by keyboard and touch.
 
----
+# 8. Venue Wireframe
 
-# 8. Venues Wireframes
-
-**Route:** `/wedding/venues`
-
-## 8A. Venues — Configuration A
-
-```text
-┌──────────────────────────────┐
-│ SHARED STICKY HEADER         │
-├──────────────────────────────┤
-│ VENUES                       │
-│ Active configuration notice  │
-├──────────────────────────────┤
-│ CEREMONY                     │
-│ Warinanco Park               │
-│ Roselle, NJ 07036            │
-│ 10:30 a.m.–12:00 p.m.        │
-│                              │
-│ [Open Map — new tab]         │
-│ Entrance instructions        │
-│ Parking instructions         │
-│ Accessibility information    │
-├──────────────────────────────┤
-│ TRAVEL BETWEEN VENUES        │
-│ 12:00 p.m.–12:30 p.m.        │
-│ Guest travel guidance        │
-│ Not a cocktail hour          │
-├──────────────────────────────┤
-│ RECEPTION                    │
-│ Sphinx Banquet Center        │
-│ 121 E 2nd Avenue             │
-│ Roselle, NJ 07203            │
-│ 12:30 p.m.–4:30 p.m.         │
-│                              │
-│ Buffet brunch remains open   │
-│ throughout reception hours.  │
-│ Dancing and festivities      │
-│ occur at various intervals.  │
-│                              │
-│ [Open Map — new tab]         │
-│ Entrance instructions        │
-│ Parking instructions         │
-│ Accessibility information    │
-├──────────────────────────────┤
-│ WEATHER / FALLBACK           │
-│ Current contingency notice   │
-├──────────────────────────────┤
-│ [Travel] [Schedule] [FAQ]    │
-├──────────────────────────────┤
-│ SHARED FOOTER                │
-└──────────────────────────────┘
-```
-
-### Configuration A venue rules
-
-- The 12:00–12:30 p.m. interval is travel between venues.
-- Do not label it as a cocktail hour.
-- Do not add exact times for dancing, buffet activity, toasts, cake, photographs, or other reception activities.
-- Do not show a mimosa station unless later confirmed.
-
----
-
-## 8B. Venues — Configuration B
+**Route:** `/wedding/venue`
 
 ```text
 ┌──────────────────────────────┐
 │ SHARED STICKY HEADER         │
 ├──────────────────────────────┤
 │ VENUE                        │
-│ Active configuration notice  │
+│ Ceremony + reception at      │
+│ Sphinx Banquet & Catering    │
+│ Center                       │
 ├──────────────────────────────┤
-│ CEREMONY AND RECEPTION       │
-│ Sphinx Banquet Center        │
+│ ADDRESS                      │
 │ 121 E 2nd Avenue             │
 │ Roselle, NJ 07203            │
-│ 11:30 a.m.–4:30 p.m.         │
-│                              │
-│ One combined event block     │
-│                              │
-│ Buffet brunch remains open   │
-│ during the reception portion.│
-│ Dancing and festivities      │
-│ occur at various intervals.  │
-│                              │
-│ [Open Map — new tab]         │
-│ Entrance instructions        │
-│ Parking instructions         │
-│ Accessibility information    │
 ├──────────────────────────────┤
-│ CONFIGURATION NOTICE         │
-│ Approved Sphinx-only wording │
+│ DIRECTIONS                   │
+│ [Google Maps — new tab]      │
+│ [Apple Maps — new tab]       │
 ├──────────────────────────────┤
-│ [Travel] [Schedule] [FAQ]    │
+│ PARKING                      │
+│ Municipal lot directly       │
+│ across the street            │
+├──────────────────────────────┤
+│ DAY-OF CONTEXT               │
+│ Ceremony begins 11:30 a.m.   │
+│ Festivities end 4:30 p.m.    │
+│ Entire celebration at Sphinx │
+├──────────────────────────────┤
+│ [Travel] [Day-Of Details]    │
+│ [Theme & Attire]             │
 ├──────────────────────────────┤
 │ SHARED FOOTER                │
 └──────────────────────────────┘
 ```
 
-### Configuration B venue rules
+### Venue rules
 
-- Do not create a visual divider labeled “Reception begins.”
-- Do not invent a ceremony-ending time.
-- Do not add exact internal activity times.
-- Do not show a mimosa station unless later confirmed.
+- Do not present a second ceremony venue or between-venue travel period.
+- Do not present Warinanco Park as a current, pending, alternate, or weather-fallback venue.
+- Map links open in a new tab and are identified accessibly.
+- Do not invent entrance, accessibility, or parking details beyond information that has actually been verified.
 
----
-
-# 9. Travel Wireframes
+# 9. Travel Wireframe
 
 **Route:** `/wedding/travel`
-
-## 9A. Travel — Shared Hotel Block
 
 ```text
 ┌──────────────────────────────┐
 │ SHARED STICKY HEADER         │
 ├──────────────────────────────┤
 │ TRAVEL                       │
+│ Sphinx location reminder     │
 ├──────────────────────────────┤
-│ HOTEL BLOCK                  │
-│ Check-in: Fri., Apr. 30      │
-│ Check-out: Sun., May 2       │
+│ DRIVING & PARKING            │
+│ Municipal lot across street  │
+│ [Google Maps — new tab]      │
+│ [Apple Maps — new tab]       │
+├──────────────────────────────┤
+│ HOTELS & OVERNIGHT STAYS     │
+│ Friendly pending message:    │
+│ hotel recommendations and    │
+│ booking details are still    │
+│ being gathered               │
 │                              │
-│ {Before hotel selected}      │
-│ Property details are being   │
-│ finalized.                   │
-│                              │
-│ {After hotel selected}       │
-│ Hotel name and address       │
-│ Rate / deadline              │
+│ {Future confirmed details}   │
+│ Hotel / address              │
+│ Booking instructions         │
+│ Rate / block / deadline      │
 │ Accessibility details        │
-│ [Book Hotel — new tab]       │
+│ [Booking link — new tab]     │
 ├──────────────────────────────┤
-│ ACTIVE-VENUE TRAVEL          │
-│ {Configuration-specific}     │
+│ ADDITIONAL TRAVEL GUIDANCE   │
+│ Future verified information  │
+│ may be added without         │
+│ inventing unconfirmed facts  │
 ├──────────────────────────────┤
-│ TRAIN                        │
-│ Guest guidance               │
-├──────────────────────────────┤
-│ AIRPORTS                     │
-│ Guest guidance               │
-├──────────────────────────────┤
-│ LOCAL TRANSPORTATION         │
-│ Taxi / rideshare / transit   │
-├──────────────────────────────┤
-│ DRIVING                      │
-│ Guest guidance               │
-├──────────────────────────────┤
-│ ACCESSIBILITY NOTES          │
-├──────────────────────────────┤
-│ [Venues] [Schedule]          │
+│ [Venue] [Day-Of Details]     │
+│ [FAQ]                        │
 ├──────────────────────────────┤
 │ SHARED FOOTER                │
 └──────────────────────────────┘
 ```
 
----
+### Travel rules
 
-## 9B. Travel — Configuration A Active-Venue Section
+- The entire wedding takes place at Sphinx; do not create between-venue travel.
+- Do not publish an invented hotel, room block, negotiated rate, booking code, booking deadline, cancellation rule, or accessibility promise.
+- Pending hotel language should remain warm and guest-facing rather than administrative.
+- The absence of finalized hotel details does not block publication of the confirmed venue/driving/parking information.
 
-```text
-┌──────────────────────────────┐
-│ ACTIVE-VENUE TRAVEL          │
-├──────────────────────────────┤
-│ WARINANCO PARK ARRIVAL       │
-│ Parking / drop-off / entrance│
-│ Recommended arrival TBD      │
-│ [Map — new tab]              │
-├──────────────────────────────┤
-│ BETWEEN-VENUE TRAVEL         │
-│ 12:00 p.m.–12:30 p.m.        │
-│ Travel from Warinanco to     │
-│ Sphinx                       │
-│                              │
-│ No cocktail-hour label       │
-├──────────────────────────────┤
-│ SPHINX ARRIVAL               │
-│ Reception begins 12:30 p.m.  │
-│ Parking / entrance           │
-│ [Map — new tab]              │
-└──────────────────────────────┘
-```
+# 10. Day-Of Details Wireframe
 
-### Configuration A travel rules
-
-- Use the confirmed transition window only for guest travel.
-- Do not tie arrival guidance to buffet, dancing, beverage, or other internal reception activity times.
-
----
-
-## 9C. Travel — Configuration B Active-Venue Section
-
-```text
-┌──────────────────────────────┐
-│ ACTIVE-VENUE TRAVEL          │
-├──────────────────────────────┤
-│ SPHINX ARRIVAL               │
-│ One-location event           │
-│ 11:30 a.m.–4:30 p.m.         │
-│ Recommended arrival TBD      │
-│ Parking / drop-off / entrance│
-│ [Map — new tab]              │
-└──────────────────────────────┘
-```
-
-### Configuration B travel rules
-
-- Do not create an internal travel interval.
-- Do not use an invented reception-starting time as an arrival deadline.
-- Internal reception activities do not determine guest travel timing unless a later confirmed transportation arrangement requires it.
-
----
-
-# 10. Schedule Wireframes
-
-**Route:** `/wedding/schedule`
-
-## 10A. Schedule — Configuration A
+**Route:** `/wedding/day-of`
 
 ```text
 ┌──────────────────────────────┐
 │ SHARED STICKY HEADER         │
 ├──────────────────────────────┤
-│ SCHEDULE                     │
-│ Saturday, May 1, 2027        │
-├──────────────────────────────┤
-│ CEREMONY                     │
-│ 10:30 a.m.–12:00 p.m.        │
-│ Warinanco Park               │
-├──────────────────────────────┤
-│ TRAVEL BETWEEN VENUES        │
-│ 12:00 p.m.–12:30 p.m.        │
-│ Warinanco Park → Sphinx      │
-├──────────────────────────────┤
-│ RECEPTION                    │
-│ 12:30 p.m.–4:30 p.m.         │
-│ Sphinx Banquet Center        │
-├──────────────────────────────┤
-│ DURING THE RECEPTION         │
-│ Buffet brunch remains open   │
-│ throughout reception hours.  │
+│ DAY-OF DETAILS               │
+│ Introductory copy            │
 │                              │
-│ Dancing and other festivities│
-│ take place at various        │
-│ intervals.                   │
-│                              │
-│ No detailed internal         │
-│ timeline is published.       │
+│ Explore this page:           │
+│ [The Schedule] [The Menu]    │
+│ [Dietary Needs] [Gift Policy]│
 ├──────────────────────────────┤
-│ [Venues] [Travel] [FAQ]      │
+│ THE SCHEDULE                 │
+│ 11:30 a.m. — Ceremony        │
+│ After ceremony — brunch,     │
+│ dancing, speeches, and       │
+│ celebration                  │
+│ 4:30 p.m. — festivities end  │
+│ [Venue]                      │
+│ [Jump To: section links]     │
+├──────────────────────────────┤
+│ THE MENU                     │
+│ [Approved breakfast image]   │
+│ Hot Brunch Buffet            │
+│ Bagels & Schmears            │
+│ Appetizing / fruit           │
+│ Coffee / tea / mockmosas     │
+│ Dessert: to be announced     │
+│ [Approved themed image +     │
+│  caption]                    │
+│ [Jump To: section links]     │
+├──────────────────────────────┤
+│ DIETARY NEEDS                │
+│ Gluten-free/non-dairy        │
+│ availability                 │
+│ Allergy/restriction reminder │
+│ Cross-contact caveat         │
 │ [RSVP]                       │
+│ [Jump To: section links]     │
+├──────────────────────────────┤
+│ GIFT POLICY                  │
+│ No traditional registry      │
+│ Preferred/non-preferred      │
+│ categories                   │
+│ Presence matters most        │
+│ [Jump To: section links]     │
 ├──────────────────────────────┤
 │ SHARED FOOTER                │
 └──────────────────────────────┘
 ```
 
-### Configuration A schedule rules
+### Day-Of Details rules
 
-- The page uses three guest-facing blocks: Ceremony, Travel, and Reception.
-- The Travel block is not a cocktail hour.
-- Do not add exact times for buffet service, dancing, toasts, speeches, cake, photographs, or other reception activities.
-- Do not show a mimosa station unless later confirmed.
+- Use the confirmed Sphinx-only 11:30 a.m.–4:30 p.m. guest-facing schedule.
+- Do not create a formal cocktail-hour block, formal-dinner block, fixed dancing block, or minute-by-minute internal run-of-show.
+- Speeches and other flexible reception moments may be announced during the reception rather than assigned exact public times.
+- The Gift Policy remains part of Day-Of Details; do not create a separate gift-registry page.
+- Explore/Jump-To navigation uses same-page fragment links and remains keyboard/touch-operable.
 
----
-
-## 10B. Schedule — Configuration B
-
-```text
-┌──────────────────────────────┐
-│ SHARED STICKY HEADER         │
-├──────────────────────────────┤
-│ SCHEDULE                     │
-│ Saturday, May 1, 2027        │
-├──────────────────────────────┤
-│ CEREMONY AND RECEPTION       │
-│ 11:30 a.m.–4:30 p.m.         │
-│ Sphinx Banquet Center        │
-│                              │
-│ One combined event block     │
-├──────────────────────────────┤
-│ DURING THE RECEPTION PORTION │
-│ Buffet brunch remains open.  │
-│                              │
-│ Dancing and other festivities│
-│ take place at various        │
-│ intervals.                   │
-│                              │
-│ No separate reception-start  │
-│ time is published.           │
-├──────────────────────────────┤
-│ [Venue] [Travel] [FAQ]       │
-│ [RSVP]                       │
-├──────────────────────────────┤
-│ SHARED FOOTER                │
-└──────────────────────────────┘
-```
-
-### Configuration B schedule rules
-
-- Preserve one combined 11:30 a.m.–4:30 p.m. block.
-- Do not add a visual timeline split between ceremony and reception.
-- Do not add exact times for buffet service, dancing, toasts, speeches, cake, photographs, or other reception activities.
-- Do not show a mimosa station unless later confirmed.
-
----
-
-## 10C. Later Confirmed Mimosa-Station Variant
-
-This variant is **not active** unless the arrangement is confirmed.
-
-```text
-┌──────────────────────────────┐
-│ DURING THE RECEPTION         │
-│ Buffet brunch remains open.  │
-│ Dancing and other festivities│
-│ occur at various intervals.  │
-│                              │
-│ Self-service mimosa station  │
-│ available during reception.  │
-└──────────────────────────────┘
-```
-
-### Mimosa variant rules
-
-- Add only after the couple and Sphinx confirm the arrangement.
-- Do not relabel it as a cocktail hour.
-- Do not assign a narrower time unless a later recorded decision establishes one.
-
----
-
-# 11. FAQ Wireframes
+# 11. FAQ Wireframe
 
 **Route:** `/wedding/faq`
-
-## 11A. FAQ — Shared Structure
 
 ```text
 ┌──────────────────────────────┐
 │ SHARED STICKY HEADER         │
 ├──────────────────────────────┤
 │ FREQUENTLY ASKED QUESTIONS   │
-│ Brief introduction           │
 ├──────────────────────────────┤
-│ RSVP                         │
-│ ▸ How do I RSVP?             │
-│ ▸ Can I revise my RSVP?      │
-│ ▸ Why is the form blank?     │
-│ ▸ Where is my confirmation   │
-│   email?                     │
-│ ▸ What if my code fails?     │
+│ Where are the ceremony and   │
+│ reception?                   │
+│ Warm concise answer          │
+│ [Venue]                      │
 ├──────────────────────────────┤
-│ ATTENDANCE                   │
-│ ▸ Can children attend?       │
-│ ▸ May I bring a Plus 1?      │
-│ ▸ Why do some guests see     │
-│   Plus 1 questions?          │
-│ ▸ How do I report our party  │
-│   size?                      │
-│ ▸ Why am I asked for attendee│
-│   names?                     │
+│ When should I arrive?        │
+│ 11:30 a.m. ceremony; arrive  │
+│ a little early               │
+│ [Day-Of Details]             │
 ├──────────────────────────────┤
-│ FOOD AND RECEPTION           │
-│ ▸ What meal is served?       │
-│ ▸ Is there a cocktail hour?  │
-│ ▸ Is there a formal dinner?  │
-│ ▸ When will dancing happen?  │
-│ ▸ How do I report dietary    │
-│   information?               │
-│ ▸ {Mimosa question only if   │
-│   later confirmed}           │
+│ Where can I park?            │
+│ Municipal lot across street  │
+│ [Venue]                      │
 ├──────────────────────────────┤
-│ ATTIRE                       │
-│ ▸ What should I wear?        │
-│ ▸ Are hats encouraged?       │
-│ ▸ Are costumes welcome?      │
+│ What should I wear?          │
+│ Vintage Garden Formal        │
+│ [Theme & Attire]             │
 ├──────────────────────────────┤
-│ VENUE AND WEATHER            │
-│ {Configuration-specific}     │
+│ What does the day look like? │
+│ Relaxed 11:30–4:30 flow      │
+│ [Day-Of Details]             │
 ├──────────────────────────────┤
-│ TRAVEL                       │
-│ ▸ What are hotel dates?      │
-│ ▸ Where do I park?           │
+│ When is the RSVP deadline?   │
+│ Centralized deadline         │
+│ [RSVP]                       │
 ├──────────────────────────────┤
-│ GIFTS                        │
-│ ▸ Is there a registry?       │
-│ ▸ What gifts are preferred?  │
+│ Can I mail in my RSVP?       │
+│ Printed RSVP alternative     │
+│ [RSVP]                       │
 ├──────────────────────────────┤
-│ THEME RESOURCES              │
-│ ▸ Where can I find the book, │
-│   audiobook, and movie?      │
+│ Can I change my RSVP?        │
+│ Revision before deadline     │
+│ [RSVP]                       │
 ├──────────────────────────────┤
-│ PRIVACY                      │
-│ Brief answer                 │
-│ [Full Privacy Notice]        │
+│ What if I have dietary needs?│
+│ Concise dietary guidance     │
+│ [Day-Of Details] [RSVP]      │
 ├──────────────────────────────┤
-│ [Schedule] [RSVP]            │
-│ [Contact for Help]           │
+│ Are hotels arranged?         │
+│ Friendly forthcoming-details │
+│ answer                       │
+│ [Travel]                     │
+├──────────────────────────────┤
+│ What is your gift policy?    │
+│ No traditional registry;     │
+│ presence matters most        │
+│ [Day-Of Details]             │
+├──────────────────────────────┤
+│ How does RSVP information    │
+│ stay private?                │
+│ Plain-language summary       │
+│ [Privacy]                    │
+├──────────────────────────────┤
+│ How do I get RSVP help?      │
+│ RSVPhelp@...                 │
+│ [RSVP]                       │
 ├──────────────────────────────┤
 │ SHARED FOOTER                │
 └──────────────────────────────┘
 ```
 
-### RSVP attendance-answer structure
+### FAQ rules
 
-- Explain that the validated invitation identifies the named invitees associated with that invitation and asks for an explicit Yes/No attendance decision for each of them when the party is attending.
-- Explain that mixed attendance within one invited party is allowed; one named invitee may attend while another declines.
-- Explain that a Plus 1 is available **only** when the private invitation configuration contains a `Plus1` allocation from the authoritative Invitees List.
-- Explain that not every invited party has a Plus 1 option and that every authorized Plus 1 allocation receives its own Yes/No question rather than one aggregate guest-count control.
-- Explain that some family invitations may contain one grouped child question when the validated private configuration authorizes unnamed children whose individual names were not known at invitation time; a child already named on the invitation remains a normal named invitee instead.
-- Use the approved grouped prompt: `We'd love for your family to celebrate with us this Mayday - will your kid(s) be accompanying you?`
-- Explain that Yes reveals one required selector for the number of children attending, from 1 through the invitation's authorized maximum; No means zero and no selector remains applicable.
-- Explain that actual `overallAttendance` is derived from named-invitee Yes responses, Plus 1 Yes responses, and the grouped child selected count.
-- Explain that the four age-category dials classify that derived attending party and must add up exactly to the derived count; they do not independently choose party size.
-- Explain that every attending person receives an **Attendee Details** row with an attendee name. When Reception is selected, the row also provides optional **Dietary or allergy information**.
-- Do not expose internal named-invitee IDs, allocation identifiers, source-row details, or another party's invitation configuration.
-
-### Food and reception answer structure
-
-```text
-┌──────────────────────────────┐
-│ WHAT MEAL IS SERVED?         │
-│ Buffet-style brunch.         │
-│ Buffet remains available     │
-│ throughout reception.        │
-├──────────────────────────────┤
-│ HOW DO I REPORT DIETARY      │
-│ INFORMATION?                 │
-│ If attending Reception, use  │
-│ the Dietary or allergy       │
-│ information field in each    │
-│ attendee's Attendee Details  │
-│ row.                         │
-├──────────────────────────────┤
-│ IS THERE A COCKTAIL HOUR?    │
-│ No separately scheduled      │
-│ formal cocktail hour.        │
-├──────────────────────────────┤
-│ IS THERE A FORMAL DINNER?    │
-│ No separately scheduled      │
-│ formal dinner service.       │
-├──────────────────────────────┤
-│ WHEN WILL DANCING HAPPEN?    │
-│ At various intervals during  │
-│ the reception; no fixed      │
-│ public dancing block.        │
-├──────────────────────────────┤
-│ {MIMOSA STATION — ONLY IF    │
-│ CONFIRMED}                   │
-│ Approved guest-facing answer │
-└──────────────────────────────┘
-```
-
-## 11B. FAQ — Configuration A Venue/Weather State
-
-```text
-┌──────────────────────────────┐
-│ VENUE AND WEATHER            │
-├──────────────────────────────┤
-│ ▸ Where is the ceremony?     │
-│   Warinanco Park             │
-│   10:30 a.m.–12:00 p.m.      │
-│                              │
-│ ▸ How do we reach reception? │
-│   Travel to Sphinx during    │
-│   12:00–12:30 p.m.           │
-│                              │
-│ ▸ Is that a cocktail hour?   │
-│   No; it is guest travel     │
-│   between venues.            │
-│                              │
-│ ▸ Where is the reception?    │
-│   Sphinx, 12:30–4:30 p.m.    │
-│                              │
-│ ▸ What happens in bad        │
-│   weather?                   │
-│   Approved fallback wording  │
-└──────────────────────────────┘
-```
-
-## 11C. FAQ — Configuration B Venue/Weather State
-
-```text
-┌──────────────────────────────┐
-│ VENUE AND WEATHER            │
-├──────────────────────────────┤
-│ ▸ Where are the ceremony and │
-│   reception?                 │
-│   Sphinx Banquet Center      │
-│                              │
-│ ▸ What time is the event?    │
-│   11:30 a.m.–4:30 p.m.       │
-│                              │
-│ ▸ When does reception begin? │
-│   The public schedule uses   │
-│   one combined event block;  │
-│   no separate time is posted.│
-│                              │
-│ ▸ Is Warinanco Park part of  │
-│   the current guest plan?    │
-│   No / approved wording      │
-└──────────────────────────────┘
-```
-
----
+- Answers are friendly, cordial, and concise rather than clinical or implementation-oriented.
+- Every answer with a corresponding in-depth page includes a contextual link to that page.
+- The FAQ does not expose source-spreadsheet syntax, private invitation configuration, internal allocation identifiers, stored RSVP values, or provider details.
+- Day-of answers use the confirmed Sphinx-only plan.
+- Hotel answers may honestly state that details are forthcoming.
+- Gift Policy points to Day-Of Details; Privacy points to the full Privacy page.
 
 # 12. Gallery Wireframes
 
@@ -2030,12 +1726,13 @@ This variant is **not active** unless the arrangement is confirmed.
 │ GALLERY                      │
 ├──────────────────────────────┤
 │ COMING SOON                  │
+│ [Decorative Sophie GIF]       │
 │                              │
-│ Simple intentional message   │
-│ explaining that wedding      │
-│ photographs and videos will  │
-│ appear after the celebration │
-│ and review process.          │
+│ Friendly message explaining  │
+│ that wedding photographs and │
+│ videos will appear after the │
+│ celebration and review       │
+│ process.                     │
 │                              │
 │ [Return Home]                │
 ├──────────────────────────────┤
@@ -2043,7 +1740,7 @@ This variant is **not active** unless the arrangement is confirmed.
 └──────────────────────────────┘
 ```
 
-No pre-wedding images are required.
+The launch state may include the approved decorative Sophie-cleaning GIF; post-wedding photograph/video publication remains deferred until after review.
 
 ---
 
@@ -2104,9 +1801,11 @@ This public informational page was added through the approved privacy decision a
 │ • Attendance / decline       │
 │ • Named-invitee Yes/No       │
 │   responses                  │
-│ • Authorized additional-    │
-│   guest responses, if        │
-│   applicable                 │
+│ • Plus 1 responses, when     │
+│   authorized                 │
+│ • Grouped child Yes/No +     │
+│   attending count, when      │
+│   authorized                 │
 │ • Four age-category totals   │
 │ • Attendee names             │
 │ • Reception dietary/allergy  │
@@ -2197,8 +1896,9 @@ This public informational page was added through the approved privacy decision a
 
 - The Privacy page itself remains public and indexable.
 - Explain that a successful invitation lookup returns only the validated party's limited safe named-invitee display data and authorized additional-guest prompts needed to render that party's blank form; do not publish the production invitation registry, source rows, opaque person/allocation IDs, allocation-type metadata, or another party's configuration.
-- Explain that named-invitee and authorized additional-guest Yes/No responses are private personalized RSVP information used to derive actual attendance.
-- Explain that attendee names are collected for every attending RSVP and that dietary/allergy information is collected only when Reception is selected.
+- Explain that named-invitee, Plus 1, and grouped-child attendance responses are private RSVP information used to derive actual attendance.
+- Explain in plain language that some invitations may include unnamed children as one family-level Yes/No question with a count when Yes; the form does not ask for those children's names in that grouped question.
+- Explain that attendee names are collected later for every person actually attending, including Plus 1 guests and children represented by a grouped count, and that dietary/allergy information is collected only when Reception is selected.
 - Explain that attendee names and any dietary/allergy text may appear in the submitting party's own confirmation surfaces and authorized private administrative records, but not public pages, public metadata, analytics, ordinary logs, unrelated administrative messages, or another party's response.
 - The retention region must state the finalized July 30, 2027 active-data retirement date and August 29, 2027 protected-backup retirement deadline.
 - The final prose must also explain the minimum-record exception for a concrete unresolved correction, dispute, delivery investigation, or comparable administrative need.
@@ -2218,22 +1918,22 @@ This public informational page was added through the approved privacy decision a
 │ SHARED STICKY HEADER         │
 ├──────────────────────────────┤
 │ PAGE NOT FOUND               │
-│ Guest-friendly explanation   │
+│ "It looks like this page     │
+│ wandered off somewhere."     │
+│ Friendly recovery message    │
 │                              │
-│ [Home]                       │
+│ Useful places to continue:   │
+│ [Wedding Home]               │
 │ [RSVP]                       │
-│ [Venues]                     │
-│ [FAQ]                        │
-├──────────────────────────────┤
-│ NEED HELP?                   │
+│ [Venue & Directions]         │
+│ [Day-Of Details]             │
+│ [Frequently Asked Questions] │
 ├──────────────────────────────┤
 │ SHARED FOOTER                │
 └──────────────────────────────┘
 ```
 
 No server, framework, filesystem, or routing details appear.
-
----
 
 # Mobile Stacking Summary
 
@@ -2362,19 +2062,17 @@ The confirmation omits genuinely inapplicable conditional regions. It does not i
 
 The fallback contains no RSVP summary, invitation code, confirmation destination, submission identifier, recovery token, or hidden reconstruction control. It does not automatically perform lookup, replay a submission, or redirect the guest before the explanation can be read.
 
-## Event-dependent pages
+## Confirmed event-information pages
 
 1. Header.
 2. Page heading.
-3. Clear active-configuration identification.
-4. Confirmed outer event blocks.
-5. Venue, schedule, or travel information.
-6. Broad reception description where applicable.
-7. Contingency information.
-8. Contextual links.
-9. Footer.
+3. Confirmed Sphinx-only event information.
+4. Venue, Day-Of Details, or Travel content.
+5. Broad reception description where applicable.
+6. Contextual links and same-page jump navigation where applicable.
+7. Footer.
 
-No event-dependent mobile stack inserts a formal cocktail hour, formal dinner, fixed dancing block, or unconfirmed mimosa-station section.
+No event-information mobile stack inserts a second venue, between-venue travel period, formal cocktail hour, formal dinner, fixed dancing block, or invented minute-by-minute reception schedule.
 
 ---
 
@@ -2388,9 +2086,9 @@ The low-fidelity wireframes are complete when:
 - RSVP confirmation is represented.
 - Theme & Attire is represented.
 - Read, Listen & Watch is represented.
-- Venues is represented.
+- Venue is represented.
 - Travel is represented.
-- Schedule is represented.
+- Day-Of Details is represented.
 - FAQ is represented.
 - Gallery is represented.
 - The approved Our Story, Privacy, and Not Found routes are represented.
@@ -2402,18 +2100,18 @@ The low-fidelity wireframes are complete when:
 - Form placement is shown.
 - Every page includes a footer.
 - Mobile stacking order is documented.
-- Home has separate Configuration A and Configuration B states.
-- Venues has separate Configuration A and Configuration B states.
-- Travel has separate Configuration A and Configuration B content states.
-- Schedule has separate Configuration A and Configuration B states.
-- FAQ has separate Configuration A and Configuration B notices.
-- Configuration A identifies 12:00–12:30 p.m. as travel rather than a cocktail hour.
-- Configuration B remains one combined 11:30 a.m.–4:30 p.m. block without an invented internal transition.
-- Buffet brunch is shown as available throughout the reception portion.
-- Dancing is shown as occurring at various intervals without a fixed public schedule.
+- Home, Venue, Travel, Day-Of Details, and FAQ consistently present the confirmed Sphinx-only wedding format.
+- The former Warinanco/dual-venue configuration is retired from guest-facing wireframes.
+- Day-Of Details replaces the former Schedule page and uses `/wedding/day-of`.
+- Day-Of Details includes The Schedule, The Menu, Dietary Needs, Gift Policy, and Explore/Jump-To navigation.
+- FAQ uses the approved warm guest-facing questions and links each answer to its corresponding in-depth page where one exists.
+- Our Story and Read, Listen & Watch include their approved Explore/Jump-To navigation.
+- Footer navigation is Home, RSVP, FAQ, and Privacy.
+- Not Found provides Home, RSVP, Venue, Day-Of Details, and FAQ recovery routes.
+- The header includes the opt-in Music toggle, default Off.
+- Route changes may use the approved floating Loading overlay while destination media prepares.
 - No formal cocktail-hour or formal-dinner block appears.
 - Exact times for flexible reception activities are excluded.
-- The mimosa-station variant remains conditional and inactive unless confirmed.
 - RSVP countdown behavior is represented before and during the final month.
 - Manual invitation-code entry is the sole RSVP access method.
 - No code-bearing personalized URL appears.
@@ -2509,4 +2207,4 @@ Phase 3 Step 14 is reflected in these wireframes when:
 - `rsvp-system-design.md`, `rsvp-api-contract.md`, `rsvp-test-cases.md`, `page-outlines.md`, and this file describe the same Step 14 browser-facing consequences.
 - The synchronized governing documents must continue to describe the same spreadsheet-authoritative RSVP model as implementation proceeds.
 
-With these constraints recorded, `wireframes.md` preserves the finalized Phase 3 Step 14 state/privacy architecture and is synchronized with the approved authorized attendance correction.
+With these constraints recorded, `wireframes.md` preserves the finalized Phase 3 Step 14 state/privacy architecture, the approved authorized-attendance correction, and the November 1, 2026 Workstream 4 public-content lock.

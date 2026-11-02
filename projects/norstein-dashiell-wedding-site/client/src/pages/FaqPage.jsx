@@ -19,9 +19,15 @@ function FaqPage() {
 
         <div className="prose-width">
           <p>
-            Both will take place at the Sphinx Banquet &amp; Catering Center,
-            121 East 2nd Avenue, Roselle, NJ 07203. There is no separate
-            ceremony venue.
+            Both our ceremony and reception will take place at the Sphinx
+            Banquet &amp; Catering Center, 121 East 2nd Avenue, Roselle, New
+            Jersey. Once you arrive, you&rsquo;re in the right place for the
+            whole celebration&mdash;no venue-hopping required.
+          </p>
+
+          <p>
+            You can find directions, parking information, and more on our{" "}
+            <Link to="/venue">Venue</Link> page.
           </p>
         </div>
       </ContentSection>
@@ -31,9 +37,16 @@ function FaqPage() {
 
         <div className="prose-width">
           <p>
-            The ceremony begins at 11:30 a.m. on Saturday, May 1, 2027. Please
-            arrive a little early to allow time for parking and finding your
-            seat.
+            Our ceremony begins at{" "}
+            <strong>11:30 a.m. on Saturday, May 1, 2027</strong>. We recommend
+            arriving a little early so you have plenty of time to park, cross
+            the street, find your seat, and settle in before things get
+            underway.
+          </p>
+
+          <p>
+            You can find the rest of the day&rsquo;s timing on our{" "}
+            <Link to="/day-of">Day-Of Details</Link> page.
           </p>
         </div>
       </ContentSection>
@@ -44,7 +57,13 @@ function FaqPage() {
         <div className="prose-width">
           <p>
             Municipal parking is available in the lot directly across the
-            street from the venue.
+            street from the Sphinx. Please give yourself a few extra minutes
+            to park and cross safely before the ceremony.
+          </p>
+
+          <p>
+            See our <Link to="/venue">Venue</Link> page for the full location
+            and parking details.
           </p>
         </div>
       </ContentSection>
@@ -54,23 +73,34 @@ function FaqPage() {
 
         <div className="prose-width">
           <p>
-            Our dress code is <strong>Vintage Garden Formal</strong>, with
-            statement hats strongly encouraged. See{" "}
-            <Link to="/theme">Theme &amp; Attire</Link> for inspiration; the
-            suggestions are not restricted by gender.
+            Our dress code is <strong>Vintage Garden Formal</strong>, and
+            statement hats are very much encouraged! Think elegant garden
+            party, vintage influence, botanical details, whimsical touches,
+            and whatever makes you feel celebratory and comfortable.
+          </p>
+
+          <p>
+            Our <Link to="/theme">Theme &amp; Attire</Link> page has examples,
+            color inspiration, and plenty of ideas.
           </p>
         </div>
       </ContentSection>
 
       <ContentSection labelledBy="faq-schedule-heading">
-        <h2 id="faq-schedule-heading">Is there a detailed schedule?</h2>
+        <h2 id="faq-schedule-heading">What does the day look like?</h2>
 
         <div className="prose-width">
           <p>
-            Only a few times are fixed for guests: the ceremony begins at
-            11:30 a.m., and festivities conclude at 4:30 p.m. Brunch, dancing,
-            speeches, and any other poignant moments will unfold during the afternoon, with
-            announcements as needed.
+            We&rsquo;re keeping the day intentionally relaxed. The ceremony
+            begins at <strong>11:30 a.m.</strong>, followed by brunch, dancing,
+            speeches, and the rest of the celebration, with festivities
+            concluding at <strong>4:30 p.m.</strong> There is no formal cocktail
+            hour or minute-by-minute itinerary guests need to follow.
+          </p>
+
+          <p>
+            Our <Link to="/day-of">Day-Of Details</Link> page has the schedule,
+            menu, dietary information, and gift policy all in one place.
           </p>
         </div>
       </ContentSection>
@@ -80,9 +110,14 @@ function FaqPage() {
 
         <div className="prose-width">
           <p>
-            Online RSVPs and revisions are accepted until{" "}
-            {siteContent.rsvp.deadline.display}. Your invitation includes the
-            code needed to access your RSVP form.
+            Online RSVPs and revisions are welcome through{" "}
+            <strong>{siteContent.rsvp.deadline.display}</strong>. Your invitation
+            includes the code you&rsquo;ll need to open your RSVP form.
+          </p>
+
+          <p>
+            Visit the <Link to="/rsvp/">RSVP</Link> page whenever you&rsquo;re
+            ready to respond.
           </p>
         </div>
       </ContentSection>
@@ -94,8 +129,14 @@ function FaqPage() {
 
         <div className="prose-width">
           <p>
-            Absolutely. We enclosed a printed RSVP slip along with your
-            invitation, and you are welcome to mail it in to the address provided, if you prefer not to complete the online form.
+            Absolutely! A printed RSVP slip is included with your invitation,
+            and you&rsquo;re welcome to mail that back instead if you would
+            rather not use the online form.
+          </p>
+
+          <p>
+            If you prefer to RSVP online, or want to review the available
+            options, visit our <Link to="/rsvp/">RSVP</Link> page.
           </p>
         </div>
       </ContentSection>
@@ -107,9 +148,15 @@ function FaqPage() {
 
         <div className="prose-width">
           <p>
-            Yes, before the deadline. Re-enter your invitation code to open a
-            blank form and follow its revision instructions. Previously stored
-            answers are not displayed.
+            Yes. Until the RSVP deadline, you can return to the{" "}
+            <Link to="/rsvp/">RSVP</Link> page and enter your invitation code
+            again to submit a revision.
+          </p>
+
+          <p>
+            For privacy, the form will open blank rather than displaying your
+            previously stored answers, so simply enter the complete information
+            you would like us to use going forward.
           </p>
         </div>
       </ContentSection>
@@ -119,10 +166,16 @@ function FaqPage() {
 
         <div className="prose-width">
           <p>
-            Please provide food allergies or dietary restrictions in the
-            appropriate RSVP fields. Some gluten-free and non-dairy options are
-            planned, but food may be prepared or served around common
-            allergens.
+            Please let us know about food allergies, dietary restrictions, or
+            other food-related needs when you RSVP. Gluten-free and non-dairy
+            options will be available, although food may be prepared or served
+            in environments where common allergens are present.
+          </p>
+
+          <p>
+            You can read more about the menu and dietary accommodations on our{" "}
+            <Link to="/day-of">Day-Of Details</Link> page, and provide your own
+            information through the <Link to="/rsvp/">RSVP</Link> page.
           </p>
         </div>
       </ContentSection>
@@ -132,9 +185,57 @@ function FaqPage() {
 
         <div className="prose-width">
           <p>
-            Hotel recommendations and booking details have not yet been
-            finalized, but the plan is to reserve rooms for guests with available check-in the day before (Friday, 04/30/2027) until the morning following (Sunday, 05/02/2027). The <Link to="/travel">Travel</Link> page will be
-            updated when confirmed information is available.
+            We&rsquo;re still putting the final accommodation details together.
+            We plan to provide lodging information for guests staying from{" "}
+            <strong>Friday, April 30 through Sunday, May 2</strong>, but the
+            hotel recommendations, booking instructions, and any block details
+            are not yet finalized.
+          </p>
+
+          <p>
+            We&rsquo;ll post everything on our <Link to="/travel">Travel</Link>{" "}
+            page as soon as those details are confirmed.
+          </p>
+        </div>
+      </ContentSection>
+
+      <ContentSection labelledBy="faq-gifts-heading">
+        <h2 id="faq-gifts-heading">What is your gift policy?</h2>
+
+        <div className="prose-width">
+          <p>
+            We will not be using a traditional wedding registry. If you would
+            like to give us something, we&rsquo;re happiest with thoughtful,
+            handcrafted, or practical gifts that can help us save toward the
+            adventures and plans ahead of us&mdash;but your presence at the
+            celebration matters far more to us than bringing a gift.
+          </p>
+
+          <p>
+            You can read our complete Gift Policy on the{" "}
+            <Link to="/day-of">Day-Of Details</Link> page.
+          </p>
+        </div>
+      </ContentSection>
+
+      <ContentSection labelledBy="faq-privacy-heading">
+        <h2 id="faq-privacy-heading">
+          How does RSVP information stay private?
+        </h2>
+
+        <div className="prose-width">
+          <p>
+            Our RSVP system is designed to collect only the information we need
+            to plan the wedding and communicate about your response. Previously
+            submitted answers are not displayed when you reopen the form, and
+            RSVP information is kept out of public pages and personalized
+            website addresses.
+          </p>
+
+          <p>
+            Our <Link to="/privacy">Privacy</Link> page explains what
+            information is collected, how it is used, and how long it is
+            retained in plain language.
           </p>
         </div>
       </ContentSection>
@@ -144,11 +245,17 @@ function FaqPage() {
 
         <div className="prose-width">
           <p>
-            Email{" "}
+            If anything about the RSVP process gives you trouble, please reach
+            out&mdash;we&rsquo;re happy to help.
+          </p>
+
+          <p>
+            You can return to the <Link to="/rsvp/">RSVP</Link> page for the
+            online form, or email{" "}
             <a href={`mailto:${siteContent.rsvp.assistanceEmail}`}>
               {siteContent.rsvp.assistanceEmail}
-            </a>
-            .
+            </a>{" "}
+            for assistance.
           </p>
         </div>
       </ContentSection>
