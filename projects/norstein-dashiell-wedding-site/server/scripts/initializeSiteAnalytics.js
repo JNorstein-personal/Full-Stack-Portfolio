@@ -67,7 +67,7 @@ async function main() {
 
   const spreadsheetId =
     process.env
-      .GOOGLE_SPREADSHEET_ID;
+      .SITE_ANALYTICS_SPREADSHEET_ID;
 
   if (
     typeof spreadsheetId !==
@@ -76,7 +76,7 @@ async function main() {
       ""
   ) {
     throw new Error(
-      "Site analytics initialization requires GOOGLE_SPREADSHEET_ID.",
+      "Site analytics initialization requires SITE_ANALYTICS_SPREADSHEET_ID.",
     );
   }
 

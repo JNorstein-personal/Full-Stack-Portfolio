@@ -129,17 +129,17 @@ function createDefaultAnalyticsStore(
     environment.NODE_ENV ===
       "production" &&
     typeof environment
-      .GOOGLE_SPREADSHEET_ID ===
+      .SITE_ANALYTICS_SPREADSHEET_ID ===
       "string" &&
     environment
-      .GOOGLE_SPREADSHEET_ID
+      .SITE_ANALYTICS_SPREADSHEET_ID
       .trim() !== ""
   ) {
     const connection =
       createGoogleSheetsConnection({
         spreadsheetId:
           environment
-            .GOOGLE_SPREADSHEET_ID,
+            .SITE_ANALYTICS_SPREADSHEET_ID,
       });
 
     return createGoogleSheetsAnalyticsStore({

@@ -194,6 +194,7 @@ test(
     const environment = parseEnvironment(
       makeDevelopmentEnvironment({
         GOOGLE_SPREADSHEET_ID: "",
+        SITE_ANALYTICS_SPREADSHEET_ID: "",
         RSVP_ADMIN_NOTIFICATION_EMAIL: "",
         EMAIL_PROVIDER: "",
         RESEND_API_KEY: "",
@@ -208,6 +209,11 @@ test(
 
     assert.equal(
       environment.GOOGLE_SPREADSHEET_ID,
+      undefined,
+    );
+
+    assert.equal(
+      environment.SITE_ANALYTICS_SPREADSHEET_ID,
       undefined,
     );
     assert.equal(
@@ -244,6 +250,8 @@ test(
         NODE_ENV: "production",
         GOOGLE_SPREADSHEET_ID:
           "fictional-spreadsheet-id",
+        SITE_ANALYTICS_SPREADSHEET_ID:
+          "fictional-analytics-spreadsheet-id",
         RSVP_ADMIN_NOTIFICATION_EMAIL:
           "admin@example.com",
         EMAIL_PROVIDER:
@@ -272,6 +280,16 @@ test(
       environment.GOOGLE_SPREADSHEET_ID,
       "fictional-spreadsheet-id",
     );
+
+    assert.equal(
+      environment.SITE_ANALYTICS_SPREADSHEET_ID,
+      "fictional-analytics-spreadsheet-id",
+    );
+
+    assert.notEqual(
+      environment.GOOGLE_SPREADSHEET_ID,
+      environment.SITE_ANALYTICS_SPREADSHEET_ID,
+    );
     assert.equal(
       environment.RSVP_SMS_ENABLED,
       false,
@@ -289,6 +307,8 @@ test(
             NODE_ENV: "production",
             GOOGLE_SPREADSHEET_ID:
               "fictional-spreadsheet-id",
+            SITE_ANALYTICS_SPREADSHEET_ID:
+              "fictional-analytics-spreadsheet-id",
             RSVP_ADMIN_NOTIFICATION_EMAIL:
               "admin@example.com",
             EMAIL_PROVIDER: "resend",
@@ -446,6 +466,8 @@ test(
               "production",
             GOOGLE_SPREADSHEET_ID:
               "fictional-spreadsheet-id",
+            SITE_ANALYTICS_SPREADSHEET_ID:
+              "fictional-analytics-spreadsheet-id",
             RSVP_ADMIN_NOTIFICATION_EMAIL:
               "admin@example.com",
             EMAIL_PROVIDER:
@@ -487,6 +509,8 @@ test(
                 "production",
               GOOGLE_SPREADSHEET_ID:
                 "fictional-spreadsheet-id",
+              SITE_ANALYTICS_SPREADSHEET_ID:
+                "fictional-analytics-spreadsheet-id",
               RSVP_ADMIN_NOTIFICATION_EMAIL:
                 "admin@example.com",
               EMAIL_PROVIDER:
@@ -523,6 +547,8 @@ test(
               "production",
             GOOGLE_SPREADSHEET_ID:
               "fictional-spreadsheet-id",
+            SITE_ANALYTICS_SPREADSHEET_ID:
+              "fictional-analytics-spreadsheet-id",
             RSVP_ADMIN_NOTIFICATION_EMAIL:
               "admin@example.com",
             EMAIL_PROVIDER:
