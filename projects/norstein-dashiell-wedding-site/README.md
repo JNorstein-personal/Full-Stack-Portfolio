@@ -1,16 +1,22 @@
 # Norstein-Dashiell Wedding Website
 
-A custom full-stack wedding website being developed for the Norstein-Dashiell wedding.
+A custom full-stack wedding website for the Norstein-Dashiell wedding, built as a production web application rather than a template-based wedding page.
 
-The project is being built as a production web application rather than a template-based wedding page. It is intended to provide guests with wedding information, event configuration, travel and venue information, schedule details, themed presentation, and a personalized RSVP system while remaining responsive, accessible, privacy-conscious, and deployable on self-hosted infrastructure.
+The site provides guests with current wedding information, themed presentation, venue and travel guidance, Day-Of details, media and story content, an invitation-specific RSVP workflow, optional background music, and privacy-minimized anonymous aggregate site analytics. The application is responsive, accessibility-conscious, privacy-conscious, and deployed on self-hosted Ubuntu infrastructure.
 
-The application is designed to operate beneath:
+Production site:
+
+```text
+https://www.loreweavercreations.com/wedding/
+```
+
+Browser application base path:
 
 ```text
 /wedding/
 ```
 
-with its backend API available beneath:
+Backend API base path:
 
 ```text
 /wedding/api/
@@ -18,71 +24,84 @@ with its backend API available beneath:
 
 ## Project Status
 
-**Active development — Workstreams 1–2 complete; Workstream 3 in progress. The confirmed wedding arrangement is permanently Sphinx-only (Configuration B). The email-only RSVP backend/frontend migration is committed and regression-tested in source control, and controlled D12/D13 production verification was completed against the protected Test Sample. The production RSVP service remains intentionally inactive; public RSVP release is neither active nor authorized.**
+**Invitation-launch production release is live. Workstreams 1–6 and the D14 production-readiness gate are complete. The confirmed wedding arrangement is permanently Sphinx-only. The public RSVP service is active, the production release has passed deployment and rollback verification, toggleable background music is implemented, and privacy-minimized anonymous aggregate site analytics are deployed.**
 
-Workstream 1 is complete. It established the client/server structure, shared application shell, canonical routing, centralized wedding and event configuration, reusable design-system foundations, relative client/API boundary, initial launch-oriented content, and an Ubuntu deployment proof.
+The final release sprint closed the remaining launch-critical work:
 
-Workstream 2 is complete and verified across private invitation lookup, blank-form construction, server-side validation, initial submission and revision handling, persistence, version history, idempotent retry behavior, confirmation delivery, production invitation transformation, and production activation/readiness tooling. Workstream 3 continues the guest-facing React interaction, accessibility, responsive behavior, and first-round content lock.
+| Phase | Status | Result |
+| --- | --- | --- |
+| Workstream 1 — Application Foundation | Complete | React/Vite client, Express server, shared shell, design foundations, routing, configuration boundaries, and Ubuntu deployment proof |
+| Workstream 2 — RSVP Backend and Data Layer | Complete | Private invitation lookup, validation, persistence, revisions, version history, idempotency, confirmation delivery, production synchronization, and recovery tooling |
+| Workstream 3 — RSVP Frontend and Content Lock | Complete | Thirteen-state browser coverage, accessibility/responsive verification, guest-facing copy cleanup, privacy/bundle review, and reproducibility exit |
+| Workstream 4 — Public Pages and Launch Assets | Complete | Sphinx-only public content, themed presentation, media, navigation, current links, Day-Of details, FAQ, Travel pending-state treatment, and Gallery Coming Soon |
+| Workstream 5 — Integrated Release QA | Complete | Route, browser, API, accessibility, privacy, and production-build regression |
+| D14 — Production Readiness | Complete | Read-only source/runtime/configuration/routing/workbook/backup/rollback review and GO decision |
+| Workstream 6 — Production Cutover | Complete | Guarded Ubuntu deployment, HTTPS/public routing, service activation, smoke testing, and rollback verification |
+| Post-release enhancement — Background Music | Complete | Accessible guest-controlled intro-to-loop background audio, off by default and nonessential |
+| Post-release enhancement — Anonymous Analytics | Complete | First-party aggregate page metrics stored separately from RSVP data with privacy-minimized collection |
 
-During September 2026, the RSVP architecture was resynchronized around explicit person-level attendance and the clarified treatment of unnamed children. The governing documentation, fictional development fixtures, backend lookup and submission boundaries, confirmation output, private production transformation, production activation coverage, client state model, RSVP form, and confirmation page now use the same corrected contract.
+The current production deployment checkpoint is:
 
-During October 2026, the private production invitation source model was extended so that the source can safely contain currently assigned invitations, reserved future invitation codes, and one permanent production Test Sample without treating all numbered source rows as guest-list records. Production synchronization tooling was correspondingly updated so later reserved invitations can become real invitations even after RSVP activity has begun, while preserving any invitation configuration already referenced by operational RSVP history.
-
-The current RSVP model uses:
-
-* A safe invitation-specific `namedInvitees` roster.
-* Explicit Yes/No attendance decisions for every authorized named invitee.
-* Typed `additionalGuestAllocations`.
-* One-person `plus1` allocations.
-* At most one grouped `unnamedChildren` allocation when applicable.
-* A conditional grouped-child count bounded by the invitation's authorized `maximumCount`.
-* Backend-derived `overallAttendance`.
-* Four age-category totals whose sum must equal derived attendance.
-* `attendeeDetails` for every attending person, including Ceremony-only attendees.
-* Reception-specific optional dietary/allergy information.
-* Blank-form partial revision semantics.
-* Composition-sensitive attendee-detail replacement.
-* Email-only guest confirmation under Decision 029: each initial online submission and revision requires a newly entered valid email address, with a fixed email method and no guest SMS controls. After successful storage, separate guest and protected administrative email attempts run independently. Historical SMS information remains protected, and the earlier stopped Ubuntu deployment is not assumed to contain the new source changes.
-
-The corrected RSVP contract, private invitation synchronization, and WS3-12E2/E3 email-only source migration have been verified. On October 12, 2026, the cumulative local checkpoint passed **31/31 client tests**, **322/322 server tests**, client ESLint, and the Vite production build; the reviewed six-file frontend change was committed and pushed to GitHub `main` as **`59fc5420b69d0f2d0ab6c5a722cf92597ed8d400`**. These are development and source-control results, not proof of a new Ubuntu deployment, a completed integrated browser/accessibility review, or permission to release RSVP publicly.
-
-### Protected Ubuntu backend verification checkpoint (October 11–12, 2026)
-
-* The dedicated `wedding-rsvp` service identity, protected installation, workload-identity authentication, and private workbook access were established during the controlled Ubuntu deployment sequence.
-* **D12** verified a controlled production RSVP submission, independent guest and protected administrative email attempts, recorded delivery, and no unintended change to unrelated invitations or RSVP data.
-* **D13** verified a controlled revision, an idempotent same-payload replay, changed-payload rejection, and an independent final read-only audit. The permanent production Test Sample was used rather than a real guest invitation.
-* After those controlled checks, the RSVP service was returned to its **inactive/disabled** state; the production listener was unbound, its writer lock absent, and public wedding/RSVP routes remained blocked. The public RSVP service has **not** been activated.
-* **D14 — public RSVP release readiness and activation planning — remains pending.** Its readiness assessment must verify implementation/contract consistency, source provenance, routing, security controls, recovery/rollback, monitoring, and separate public-access authorization. A documentation commit or a successful smoke test does not authorize release.
-* Do not rerun controlled production submissions, revisions, email transmissions, loaders, or destructive RSVP operations merely to establish a repository checkpoint. Protected evidence and credentials stay outside Git.
-
-Workstream 3 still requires final browser verification of deadline and all thirteen interface states, keyboard/focus/announcement and responsive checks after E3, integrated fictional-data RSVP journeys, Content Lock Round 1 approvals, a client-bundle/privacy review, and a reproducibility checkpoint. The countdown and deadline helpers already pass automated tests; their complete browser behavior has not thereby been certified. The authoritative RSVP behavior and protected production data model remain unchanged.
-
-## Local Setup and Verification
-
-The project uses an npm workspace root with separate `client` and `server` packages. From a checkout of this monorepo, open PowerShell in `projects/norstein-dashiell-wedding-site` and run:
-
-```powershell
-npm ci
-npm run lint:client
-npm run test:client
-npm run test:server
-npm run build:client
+```text
+d6f6d9919845d50058eee77a14997cb622039537
 ```
 
-For **local development only**, copy `client/.env.example` to `client/.env` and `server/.env.example` to `server/.env`. The examples contain configuration names, not live credentials; the real backend requires independently configured Google and email dependencies for their respective features. Never commit real `.env` contents, private invitation data, production codes, or secrets. Use fictional development fixtures for ordinary tests.
+That checkpoint was deployed through the guarded release procedure and passed final post-release provenance, service, public-route, privacy-log, rollback-asset, and analytics-storage audits.
 
-With the backend's local development configuration prepared, run `npm run dev:server` in one terminal and `npm run dev:client` in another. Vite serves the client beneath `/wedding/` and proxies `/wedding/api` to the local Express port `3001`. These commands are for development, **not** permission to start or expose the protected production RSVP service.
+## Current Wedding Configuration
 
-## October 2026 Development Checkpoint
+The active wedding presentation is permanently Sphinx-only.
 
-* **Navigation:** `/wedding/venue` and `/wedding/schedule-menu` are the current browser routes; the latter is labeled **Schedule & Menu**, with buffet-menu copy deferred to public-page content work. The wedding arrangement is permanently Sphinx-only.
-* **Documentation:** WS3-12F completed the Decision 029 email-only reconciliation across `docs/rsvp-test-cases.md`, `docs/wireframes.md`, `docs/requirements.md`, `docs/content-inventory.md`, and this README. All five reviewed documentation replacements were committed and pushed together as `7a3f8bc4033046624118f4d2fa6cdda416ff8378` (October 12, 2026). Core RSVP design, API-contract, page-outline, route-inventory, and sitemap documentation also record the email-only requirements. Historical decisions remain intact for traceability; final integrated browser checks and content approvals are still pending.
-* **Historical configurations:** The discontinued Warinanco/Sphinx option remains in some source and documentation for historical reference only. It is not an active or optional future wedding plan; related obsolete readiness items require documentation cleanup before release.
-* **Repository and runtime are different checkpoints:** the WS3-12E3 source checkpoint `59fc5420b69d0f2d0ab6c5a722cf92597ed8d400` and subsequent WS3-12F documentation checkpoint `7a3f8bc4033046624118f4d2fa6cdda416ff8378` are preserved in GitHub history. The intentionally stopped, access-restricted Ubuntu RSVP service has not been verified against these newer revisions. Source-control synchronization and development tests are not production deployment or public-release authorization.
+**Wedding:** Saturday, May 1, 2027
+**Ceremony:** 11:30 a.m.
+**Event window:** 11:30 a.m.–4:30 p.m.
+**Venue:** Sphinx Banquet and Catering Center
+**Address:** 121 E 2nd Avenue, Roselle, NJ 07203
+**Parking:** Municipal parking lot directly across the street
+
+The earlier Warinanco Park ceremony configuration is discontinued. Historical references may remain in older planning records for traceability, but it is not an active contingency or future launch option.
+
+## Implemented Public Experience
+
+The production application includes:
+
+* Home
+* RSVP
+* RSVP Confirmation
+* Theme & Attire
+* Our Story
+* Read, Listen & Watch
+* Venue
+* Travel
+* Day-Of Details
+* FAQ
+* Gallery — intentional pre-wedding Coming Soon state
+* Wedding Website Privacy
+* Wedding-specific Not Found handling
+
+The canonical browser routes are:
+
+```text
+/wedding/
+/wedding/rsvp
+/wedding/rsvp/confirmation
+/wedding/theme
+/wedding/story
+/wedding/read-listen-watch
+/wedding/venue
+/wedding/travel
+/wedding/day-of
+/wedding/faq
+/wedding/gallery
+/wedding/privacy
+/wedding/not-found
+```
+
+Legacy planning references to `/wedding/schedule-menu` are superseded by the final `/wedding/day-of` route.
+
+Unknown `/wedding/*` destinations remain inside the wedding application and render the wedding-specific Not Found experience.
 
 ## Core Technology
-
-The application architecture uses:
 
 ### Front End
 
@@ -93,30 +112,34 @@ The application architecture uses:
 * CSS
 * React Router
 * Responsive web design
+* Web Audio API for guest-controlled background music
 
 ### Back End
 
 * Node.js
 * Express
 * Environment-based configuration
-* Server-side validation
+* Server-side authorization and validation
 * Security middleware
 * Rate limiting
+* Google Sheets persistence
+* Resend email delivery
+* First-party aggregate analytics endpoint
 
-### Deployment
+### Production Infrastructure
 
 * Ubuntu Server
-* Git-based Windows-to-Ubuntu deployment workflow
-* Production client build
-* Reverse-proxy routing
-* HTTPS in the production deployment
-* Self-hosted infrastructure
+* `systemd` service management
+* Self-hosted production client
+* Reverse-proxy / Cloudflare Tunnel routing
+* HTTPS
+* Git-based Windows-to-Ubuntu release workflow
+* Protected production environment files
+* Timestamped backup and rollback procedure
 
 ## Project Structure
 
 The application is maintained as one portable project root with separate client, server, and documentation responsibilities.
-
-The project is organized around the following client, server, and documentation structure:
 
 ```text
 norstein-dashiell-wedding-site/
@@ -135,13 +158,13 @@ norstein-dashiell-wedding-site/
 ├── server/
 │   ├── scripts/
 │   ├── src/
+│   │   ├── analytics/
 │   │   ├── config/
 │   │   ├── middleware/
 │   │   ├── routes/
 │   │   ├── rsvp/
 │   │   ├── services/
 │   │   └── validation/
-│   ├── secrets/
 │   └── tests/
 │
 ├── docs/
@@ -152,629 +175,305 @@ norstein-dashiell-wedding-site/
 └── README.md
 ```
 
-The root package is intended to coordinate the client and server while allowing each to retain its own package responsibilities.
+The root package coordinates the client and server workspaces while each retains its own package responsibilities.
 
-## Public Application Routes
+## Local Setup and Verification
 
-The canonical browser routes are beneath `/wedding/`:
+From a checkout of the monorepo, open a terminal in:
 
 ```text
-/wedding/
-/wedding/rsvp/
-/wedding/rsvp/confirmation
-/wedding/theme
-/wedding/story
-/wedding/read-listen-watch
-/wedding/venue
-/wedding/travel
-/wedding/schedule-menu
-/wedding/faq
-/wedding/gallery
-/wedding/privacy
-/wedding/not-found
+projects/norstein-dashiell-wedding-site
 ```
 
-Unknown `/wedding/*` destinations are intended to remain inside the wedding application and render a wedding-specific Not Found experience.
+Install dependencies and run the standard verification sequence:
 
-## Shared Site Shell
+```powershell
+npm ci
+npm run lint:client
+npm run test:client
+npm run test:server
+npm run build:client
+```
 
-Public application routes use a common application shell containing:
+For local development only, copy:
+
+```text
+client/.env.example -> client/.env
+server/.env.example -> server/.env
+```
+
+The example files contain configuration names, not production values.
+
+Never commit real `.env` contents, production invitation data, invitation codes, guest records, Google credentials, email credentials, spreadsheet identifiers that are intended to remain protected, or other production secrets.
+
+Use fictional development fixtures for ordinary development and testing.
+
+Start the development backend and client in separate terminals:
+
+```powershell
+npm run dev:server
+npm run dev:client
+```
+
+Vite serves the application beneath `/wedding/` and proxies `/wedding/api/` to the local Express development server.
+
+Local development commands do not authorize production-data mutation or production-maintenance operations.
+
+## Shared Site Shell and Accessibility
+
+Public routes share a reusable application shell containing:
 
 * Skip-to-content navigation
-* Shared page container
 * Sticky site header
 * Desktop navigation
 * Accessible mobile navigation
 * Prominent RSVP access
+* Background-music control
 * Shared main-content structure
-* Footer
-* Consistent heading and layout system
+* Shared footer
+* Back-to-top behavior where applicable
+* Consistent heading, spacing, and readable-width rules
 
-The application is designed so that essential functionality does not depend on hover behavior.
+Accessibility and responsive behavior are implementation requirements rather than late-stage enhancements.
 
-## Responsive and Accessible Design
+The released site includes keyboard-operable navigation and forms, visible focus treatment, semantic headings, accessible form labels and legends, text-based status communication, narrow-screen form behavior, touch-appropriate controls, reduced-motion support, accessible mobile-menu state, and meaning that does not depend solely on color.
 
-Accessibility and responsive behavior are treated as implementation requirements rather than late-stage enhancements.
+Guest-critical flows were verified at representative phone, tablet/intermediate, laptop, and desktop widths during the final release sprint.
 
-Planned accessibility features include:
+## Design and Presentation
 
-* Keyboard-accessible navigation
-* Skip-to-content support
-* Visible `:focus-visible` treatment
-* Semantic headings
-* Accessible form labels and legends
-* Text-based status communication
-* Responsive single-column form behavior on narrow screens
-* Touch-appropriate interactive controls
-* Reduced-motion support
-* Meaning that does not depend solely on color
-* Accessible mobile menu state
-* Avoidance of keyboard traps
+The site uses a centralized visual system and shared styling rather than unrelated page-specific themes.
 
-Representative layouts will be tested across phone, tablet, laptop, and desktop widths.
+The production presentation includes:
 
-## Design System
+* Licensed project typography
+* Shared design tokens
+* Reusable controls and status treatments
+* Responsive cards and content sections
+* Decorative header, footer, and page-background artwork
+* Sphinx-only event presentation
+* Howl's Moving Castle-inspired visual and editorial direction
+* Theme & Attire inspiration and guest color-palette imagery
+* Proposal imagery/video on Our Story
+* Book and film presentation on Read, Listen & Watch
+* Responsive wedding-owned and rights-reviewed launch assets
 
-The application uses a centralized design system rather than page-specific visual styling.
+Decorative behavior remains subordinate to navigation, RSVP completion, readable content, accessibility, and performance.
 
-Shared style responsibilities include:
+## Toggleable Background Music
 
-* Typography roles
-* Type scale
-* Semantic colors
-* Spacing
-* Readable content widths
-* Control geometry
-* Focus indicators
-* Buttons
-* Links
-* Form controls
-* Status messages
-* Cards
-* Decorative surfaces
-* Responsive foundations
-* Reduced-motion behavior
+Background music was originally optional/deferred in the launch plan but was implemented after the required release gates were green.
 
-Shared design tokens are intended to allow changes to typography, spacing, colors, and other reusable values without individually modifying page components.
+The feature is intentionally nonessential.
 
-## Shared Components
+Current behavior:
 
-Reusable component families establish common interaction patterns, including:
+* Music is **Off by default**.
+* The guest must explicitly enable music from the header control; the site does not attempt audible autoplay on initial load.
+* The control exposes an accessible on/off state and is keyboard- and touch-operable.
+* Enabling music starts the approved introductory segment and then transitions to the looping segment.
+* Disabling music stops playback and resets the sequence.
+* The music provider survives in-application route changes, so playback can continue while navigating the wedding site.
+* The enabled state is not persisted across a full reload; a new page session begins with music off.
+* Foreground audiovisual content suppresses the background-music level while foreground audio is active and allows it to return afterward.
+* Failure to load, decode, or play audio does not affect navigation, RSVP, content access, or other website functionality.
+* Browser autoplay restrictions are respected rather than bypassed.
 
-* Primary and secondary buttons
-* Status messages
-* Content cards
-* External links
-* Form controls
-* Page containers
-* Content sections
-* Header and navigation
-* Skip link
-* Footer
+The browser-delivery assets are based on the wedding-owned source material:
 
-The goal is to establish one consistent interaction and design language across the site rather than allowing individual pages to develop unrelated component behavior.
+```text
+IntroMerry Go Round.mp3
+LoopMerry Go Round.mp3
+```
 
-## Centralized Wedding Configuration
-
-Guest-facing wedding information is centralized where practical rather than duplicated across React page components.
-
-Centralized application data includes information such as:
-
-* Wedding date
-* General location
-* RSVP deadline
-* RSVP assistance information
-* Navigation labels
-* Reusable guest-facing labels
-* Gift-policy content
-* Venue and schedule configuration
-
-**Confirmed arrangement — Configuration B (Sphinx-only).** The ceremony and reception take place at Sphinx Banquet and Catering Center on May 1, 2027, from **11:30 a.m. to 4:30 p.m.** The public website must select Configuration B.
-
-Historical Configuration A (Warinanco Park ceremony followed by Sphinx reception) is **discontinued as of October 10, 2026** and retained only as a reference to the earlier contingency. No further Warinanco-specific planning, implementation, or launch verification is required.
-
-Venue and schedule components continue to consume the centralized event configuration so that the confirmed arrangement is presented consistently across public pages.
+Background audio must remain a progressive enhancement. No wedding-site feature depends on it.
 
 ## RSVP System
 
-The RSVP system is the primary feature of Workstream 2. Its governing architecture is specified in the project documentation and is implemented against fictional development data before protected production invitation data is activated.
+The RSVP system is invitation-specific but uses one reusable guest-facing form and one protected backend contract.
 
-### Access and lookup model
-
-Guests use the shared route:
+Guests manually enter the six-character invitation code printed with their invitation at:
 
 ```text
-/wedding/rsvp/
+/wedding/rsvp
 ```
 
-and manually enter the six-character invitation code printed with their invitation.
+Invitation codes are sent in request bodies rather than embedded in personalized URLs.
 
-Invitation codes are submitted to the backend in request bodies rather than embedded in personalized browser URLs.
+### Lookup Boundary
 
-A successful lookup returns only the limited safe configuration required to construct a **blank** authorized form.
+A valid lookup returns only the safe configuration required to build a blank authorized form, such as:
 
-Depending on the invitation, that safe response may include:
+* Party display information
+* Singular/plural wording mode
+* Maximum authorized attendance
+* Safe `namedInvitees`
+* Safe typed `additionalGuestAllocations`
+* Reusable form-schema metadata
+* Fixed email confirmation availability
 
-* Party display information.
-* Singular or plural wording mode.
-* Maximum authorized attendance capacity.
-* A safe `namedInvitees` roster.
-* Zero or more safe `additionalGuestAllocations`.
-* Reusable form-schema metadata.
-* Fixed email confirmation availability (`confirmationOptions: { email: true }`), with no guest-facing selectable SMS method.
+Lookup does not return previously stored RSVP answers, prior confirmation destinations, response history, private source rows, protected record classification, or another party's information.
 
-Lookup does **not** return:
+Re-entering an invitation code therefore opens another blank authorized form rather than exposing a stored RSVP for editing.
 
-* Previously stored RSVP answers.
-* Prior confirmation destinations.
-* Response history.
-* Internal party identifiers.
-* Private source-spreadsheet rows or notes.
-* Another invited party's information.
-* Private production record classification such as `recordRole` or `guestListEligible`.
+### Attendance Model
 
-Entering the same invitation code again therefore produces another blank authorized form rather than displaying a stored RSVP for editing.
+The current RSVP contract supports:
 
-### Spreadsheet-authoritative production configuration
+* Explicit Yes/No decisions for each authorized named invitee
+* Zero or more one-person `plus1` allocations
+* At most one grouped `unnamedChildren` allocation where authorized
+* A bounded grouped-child count when that family-level allocation is attending
+* Backend-derived `overallAttendance`
+* Four age categories whose total must equal derived attendance
+* One `attendeeDetails` record per attendee
+* Reception-only optional dietary/allergy information
+* Initial submissions
+* Partial revisions
+* Composition-sensitive attendee-detail replacement
+* Explicit zero values where applicable
+* Dependency-driven clearing
+* Idempotent retry and duplicate-submission protection
+* Current-response storage and immutable version history
+* Confirmation refresh fallback
+* Backend-authoritative deadline enforcement
 
-The private production source currently contains **68 numbered invitation-code rows**. Those rows are intentionally not all equivalent guest-list records.
+The browser mirrors attendance calculations for usability, but the backend remains authoritative.
 
-The current source model is:
+### Email-Only Confirmation
 
-* **Invites 1–63** — assigned real guest-list invitations.
-* **Invites 64–67** — four reserved invitation-code placeholders, not functional RSVP identities.
-* **Invite 68** — the permanent production **Test Sample** identity used for safe production verification.
+Decision 029 permanently changed the new guest-confirmation flow to email-only.
 
-Invites 1–57 remain the independently audited historical baseline; invites 58–63 are now assigned, rather than reserved.
+Each initial online RSVP and revision requires a newly entered valid email address. New submissions do not expose SMS selection or mobile-number capture.
 
-Real invitation codes, guest identities, and source-to-party mappings remain outside the public client and public repository documentation.
+After successful storage:
 
-Reserved rows retain unique invitation codes in the private source but do not become stored production invitation configurations until their invitation-defining fields are populated. A partially populated or ambiguous reserved row fails closed rather than being inferred as either a valid invitation or a harmless placeholder.
+1. The guest confirmation email is attempted.
+2. The protected administrative confirmation email is attempted independently.
+3. Delivery status is recorded separately from RSVP state.
+4. A delivery problem does not invalidate an otherwise stored RSVP.
 
-The permanent Test Sample is a fully functional production invitation. It follows the same lookup, blank-form, submission, revision, persistence, version-history, idempotency, confirmation, and operational-storage contracts as an ordinary invitation. Its distinguishing private classification is:
+Legacy SMS-related data or recovery handling may remain protected for historical compatibility, but it does not authorize new text messages and is not a future enablement path.
+
+### Production Invitation Source
+
+The private production source currently contains 68 numbered source rows:
+
+* 63 assigned guest-list invitations
+* 4 reserved invitation-code placeholders
+* 1 permanent production Test Sample
+
+The functional registry therefore contains 64 production invitation configurations: 63 guest-list-eligible invitations plus the Test Sample.
+
+Current source-level capacity is:
 
 ```text
-recordRole = test
-guestListEligible = false
+Real guest-list maximum attendance: 122
+Permanent Test Sample maximum:       4
+Combined functional maximum:        126
 ```
 
-Assigned real invitations use:
+The original assigned invites 1–57 remain a separately auditable historical baseline. Later assignment of a reserved invitation must use the guarded production synchronization procedure.
 
-```text
-recordRole = assigned
-guestListEligible = true
-```
+Real invitation codes, guest identities, source-to-party mappings, and protected workbook content remain outside the public client and public repository documentation.
 
-These classification values are backend/private configuration metadata. They are not part of the guest-facing lookup response.
-
-Each functional production invitation configuration is derived privately from the authoritative source and includes the values required by the RSVP backend, including:
-
-* Reviewed party/form heading.
-* Explicit singular or plural wording mode.
-* `maximumAttendance`.
-* A safe `namedInvitees` roster containing stable opaque IDs and approved display names.
-* Zero or more typed `additionalGuestAllocations`.
-* Private record classification.
-* Active/environment state.
-
-The safe public shape of an additional-guest allocation is:
-
-```js
-{
-  id,
-  kind,
-  prompt,
-  maximumCount
-}
-```
-
-Supported allocation kinds are:
-
-```text
-plus1
-unnamedChildren
-```
-
-A `plus1` allocation:
-
-* Represents exactly one potential additional attendee.
-* Always has `maximumCount: 1`.
-* Uses one invitation-specific Yes/No response.
-
-An `unnamedChildren` allocation:
-
-* Represents the complete authorized capacity for children whose individual names were not known at invitation time.
-* Appears at most once on an invitation.
-* Uses one family-level Yes/No response.
-* Reveals one count selector when Yes is chosen.
-* Allows only whole-number counts from `1` through that allocation's `maximumCount`.
-* Uses count `0` when the response is No.
-
-Specifically named children remain ordinary members of `namedInvitees`; they are not duplicated in grouped unnamed-child capacity.
-
-Every valid functional invitation configuration must satisfy:
-
-```text
-namedInvitees.length
-+ sum(additionalGuestAllocations.maximumCount)
-= maximumAttendance
-```
-
-The number of allocation objects is **not** treated as person capacity.
-
-#### Current production-source audit
-
-The current private-source transformation audit reconciles to these source-level totals:
-
-* 68 numbered source rows.
-* 68 unique source invitation codes.
-* Valid numbered sequence through Invite 68.
-* 4 reserved placeholders (Invites 64–67).
-* 64 functional production invitation configurations:
-  * 63 guest-list-eligible assigned invitations.
-  * 1 permanent Test Sample.
-* 126 functional combined maximum attendance:
-  * 122 current real guest-list maximum attendance.
-  * 4 Test Sample maximum attendance.
-
-For the established assigned guest list represented by invites 1–57, the stable baseline audit remains:
-
-* 57 assigned guest-list invitations.
-* 35 singular-wording invitations.
-* 22 plural-wording invitations.
-* 84 specifically named potential attendees.
-* 26 Plus 1 allocation objects.
-* 2 grouped unnamed-child allocation objects.
-* 28 total allocation objects.
-* 31 total additional-person capacity slots.
-* 5 grouped unnamed-child capacity slots.
-* 115 combined maximum attendance.
-
-The **115-person figure is the historical baseline for invites 1–57**, not the current guest-list total. Invites 58–63 were subsequently assigned, bringing current real guest-list capacity to **122**. If any reserved invite 64–67 is later assigned, the transformation and protected synchronization procedure can increase the current totals without changing the original 1–57 baseline audit.
-
-Production transformation and activation code validate the corrected person-capacity model rather than the superseded one-allocation-equals-one-person assumption.
-
-### Production invitation synchronization and safety
+### Guarded Production Synchronization
 
 The production Invitations sheet is a derived private registry rather than an immutable one-time seed.
 
-A later source synchronization may add a newly populated reserved invitation after guests have already begun submitting RSVPs. Production tooling therefore does **not** require the operational RSVP tables to remain permanently empty.
+A later source synchronization may add a newly populated reserved invitation, but any invitation already referenced by operational RSVP history is protected against ordinary mutation or removal.
 
-Before any invitation replacement occurs, the current workbook snapshot is compared with the source-derived expected registry.
-
-Every party referenced by operational RSVP data must satisfy all of the following:
-
-* Its existing invitation configuration still exists.
-* The new expected source-derived registry still contains the same party.
-* The invitation code remains unchanged.
-* The complete private invitation configuration remains unchanged.
-
-Operational history includes references from:
-
-* Current RSVPs.
-* RSVP Versions.
-* Submission Records.
-* Delivery Records.
-* Resend Records.
-
-An invitation that has operational history is therefore immutable through the ordinary synchronization path. A synchronization that would change or remove such an invitation fails before the production invitation write begins.
-
-An invitation with no operational history may still be corrected or removed through the guarded synchronization path. Newly assigned invitations may be added.
-
-The production synchronization sequence is:
-
-1. Load and audit the private source.
-2. Verify production environment and Google Sheets schema/access.
-3. Read a complete private workbook snapshot.
-4. Verify source-derived invitation compatibility with all operationally referenced parties.
-5. Write the private pre-load snapshot to the protected backup directory.
-6. Replace the Invitations sheet with the complete expected functional production registry.
-7. Read a post-write snapshot.
-8. Verify every operational RSVP section is unchanged.
-9. Verify the stored Invitations sheet exactly matches the source-derived expected registry.
-10. If a post-backup activation step fails, attempt to restore the prior Invitations sheet from the snapshot.
-
-The synchronization process intentionally changes only the invitation registry. It does not clear or rewrite RSVP history.
-
-### Production readiness, activation verification, and audit
-
-Production readiness verification confirms:
-
-* `NODE_ENV=production`.
-* The private source can be loaded.
-* Source transformation and audit targets pass.
-* Google Sheets access is available.
-* The RSVP workbook schema is valid.
-* The proposed source-derived invitation registry is compatible with all existing operational RSVP history.
-
-Readiness does **not** require operational RSVP tables to be empty.
-
-Post-load activation verification confirms:
-
-* The production source still passes its transformation audit.
-* The stored Invitations sheet exactly matches all current functional production configurations.
-* Any existing operational RSVP history remains compatible with the invitation configurations it references.
-
-The transformation audit reports source, functional, guest-list, reserved, Test Sample, and baseline metrics separately so that the current guest list is not conflated with all numbered source rows.
-
-### Permanent Test Sample production smoke path
-
-Production loopback smoke testing uses the permanent Test Sample rather than a real guest invitation.
-
-The smoke command still requires explicit operator acknowledgement and an explicitly supplied invitation code, but the script independently loads the authoritative source and refuses to continue unless the supplied code canonicalizes to the one permanent production configuration classified as:
+Operational history includes:
 
 ```text
-recordRole = test
-guestListEligible = false
+Current RSVPs
+RSVP Versions
+Submission Records
+Delivery Records
+Resend Records
 ```
 
-Before exercising the production API, the smoke script also verifies that the Test Sample stored in Google Sheets exactly matches its authoritative source-derived configuration.
+The production synchronization path performs source audit, schema/access verification, compatibility checks, protected pre-write snapshotting, invitation replacement, unchanged-operational-data verification, exact post-write registry verification, and rollback handling.
 
-The smoke test then performs read-only production checks including:
+The permanent Test Sample exists specifically for controlled production verification without using a real guest invitation.
 
-* Health endpoint success.
-* Valid RSVP lookup.
-* Expected no-store response behavior.
-* Expected guest-facing lookup boundary.
-* Expected Test Sample capacity, named-invitee, and allocation configuration.
-* No changes to operational RSVP storage.
+## Anonymous Aggregate Site Analytics
 
-The real Test Sample invitation code remains private and is not written into repository documentation or test fixtures.
+The production site does **not** use standard Google Analytics / GA4.
 
-### Reusable substantive RSVP structure
+Instead, the project uses a first-party aggregate analytics endpoint designed specifically around the approved data-minimization requirement.
 
-Every invitation uses the same five substantive RSVP regions:
-
-1. `eventAttendance`
-2. `namedInviteeResponses`
-3. `additionalGuestResponses`
-4. `attendanceTotals`
-5. `attendeeDetails`
-
-Operational confirmation fields remain separate from substantive RSVP answers.
-
-### Event attendance
-
-The complete attendance state is one of:
+Browser endpoint:
 
 ```text
-Ceremony
-Reception
-Ceremony + Reception
-Decline
+POST /wedding/api/analytics
 ```
 
-Ceremony and Reception may be selected together.
+Production storage uses a dedicated Google Sheets workbook separate from the private RSVP workbook.
 
-Decline is mutually exclusive with both attending choices.
-
-A full decline produces zero attendance and clears attendance-dependent substantive data.
-
-### Named invitee attendance
-
-Whenever the party is attending, each authorized object in `namedInvitees` receives an explicit Yes/No attendance decision.
-
-Responses are keyed by stable opaque invitee IDs. Display names are presentation-only and are not authorization keys.
-
-Mixed household attendance is permitted. Specifically named children use this same named-invitee mechanism.
-
-On an initial attending RSVP, every authorized named invitee requires an explicit response.
-
-On an ordinary revision that remains attending, an omitted named-invitee response may remain unchanged when no controlling dependency requires replacement.
-
-### Additional guest attendance
-
-Additional-guest controls appear only when the validated invitation contains corresponding authorization.
-
-A Plus 1 response is scalar:
-
-```js
-"yes"
-```
-
-or:
-
-```js
-"no"
-```
-
-A grouped unnamed-child Yes response is:
-
-```js
-{
-  attending: "yes",
-  count: 2
-}
-```
-
-A grouped unnamed-child No response is:
-
-```js
-{
-  attending: "no",
-  count: 0
-}
-```
-
-The approved grouped-child guest-facing question is:
+The production worksheet is:
 
 ```text
-We'd love for your family to celebrate with us this Mayday - will your kid(s) be accompanying you?
+Site Analytics
 ```
 
-If Yes is selected, the browser displays one required count selector containing the consecutive whole numbers from `1` through the allocation's authorized `maximumCount`.
-
-The grouped control is rendered once for the family allocation, not once per unnamed child.
-
-Child names are not collected in this control. Like Plus 1 names, they are entered later through ordinary `Attendee Details`.
-
-No generic client-selected “How many additional guests?” field exists.
-
-### Derived overall attendance
-
-Guests do not directly submit `overallAttendance`.
-
-The authoritative backend derives it as:
+Only these aggregate columns are stored:
 
 ```text
-number of named invitees answered Yes
-+ number of Plus 1 allocations answered Yes
-+ grouped unnamed-child attending count
-= overallAttendance
+Page Path
+Page Views
+Anonymous Visitors
+Engagement Milliseconds
+Average Engagement Seconds
 ```
 
-The browser mirrors this calculation for usability, but server-side validation remains authoritative.
+### Analytics Privacy Boundary
 
-An attending RSVP requires at least one actual attendee.
+The analytics implementation intentionally stores only:
 
-A full decline has derived attendance of zero.
+* Fixed allowlisted page paths
+* Aggregate page-view counts
+* Aggregate anonymous-browser/visitor counts
+* Aggregate engagement duration
 
-### Attendance totals
+It does not intentionally store analytics event records, names, invitation codes, RSVP answers, attendee information, dietary/allergy information, email addresses, mobile numbers, confirmation destinations, submission identifiers, RSVP configuration, allocation details, IP addresses, geographic location, referrers, browser/device profiles, screen resolution, advertising identifiers, query strings, or URL fragments.
 
-The four age categories are:
+Infrastructure necessarily handles ordinary network metadata in transit, but that metadata is not retained in the analytics workbook.
 
-* Adults, ages 21 and older.
-* Young Adults, ages 18–20.
-* Children, ages 3–17.
-* Children under 3.
+"Anonymous Visitors" means anonymous browser instances rather than identified people. The browser keeps a local seen-page marker so a page can distinguish a first visit from a later reload without transmitting a persistent browser identifier. Clearing local browser state or using another browser/session can therefore count as another anonymous visitor.
 
-These controls classify the already-derived attending party.
+Analytics requests use a strict fixed-path allowlist and reject query strings and fragments.
 
-They do not independently choose party size.
+Analytics failures are swallowed on the client and must never block page rendering or RSVP functionality.
 
-Each value must be a nonnegative whole number and the complete sum must equal `overallAttendance` exactly.
+### Nonessential Analytics Configuration
 
-The browser coordinates the controls against the derived attending count, while the backend independently validates the final result.
-
-### Attendee Details
-
-Whenever at least one person is attending, the RSVP contains exactly one `attendeeDetails` record per attendee.
-
-This includes:
-
-* Named invitees who are attending.
-* Attending Plus 1 guests.
-* Every child represented by the grouped unnamed-child attending count.
-* Ceremony-only attendees.
-* Reception-only attendees.
-* Attendees participating in both events.
-
-Every attendee row contains:
-
-* `attendeeName` — required, maximum 100 characters.
-
-When Reception is selected, the row may additionally contain:
-
-* `dietaryPreferences` — optional, maximum 1000 characters.
-
-The visible field label is:
+RSVP storage and analytics storage use separate configuration:
 
 ```text
-Dietary or allergy information
+GOOGLE_SPREADSHEET_ID
+SITE_ANALYTICS_SPREADSHEET_ID
 ```
 
-Dietary/allergy information is not applicable to Ceremony-only attendance and is omitted or cleared when Reception is not selected.
+`GOOGLE_SPREADSHEET_ID` is the protected RSVP workbook.
 
-### Composition-sensitive revisions
+`SITE_ANALYTICS_SPREADSHEET_ID` is the dedicated aggregate analytics workbook.
 
-The revision model is intentionally stricter than a simple numerical-headcount patch.
+The analytics workbook ID is optional at the production application-schema boundary. If analytics is not configured or becomes unavailable, the RSVP backend remains able to start and operate.
 
-A change to who is attending may require complete `attendeeDetails` replacement even if the total number of attendees remains the same.
+The analytics worksheet initializer separately requires an explicit production acknowledgement before initialization.
 
-Composition-sensitive changes include:
+The public Privacy page documents the aggregate analytics behavior and its exclusions.
 
-* Named-invitee Yes/No changes that change who attends.
-* Plus 1 Yes/No changes that change who attends.
-* Any grouped unnamed-child response or count change.
+## Development and Production Separation
 
-Grouped-child response/count changes are always treated as composition-sensitive because the identities represented by previously unnamed child rows cannot safely be assumed unchanged.
+Ordinary development and automated tests use fictional RSVP fixtures.
 
-When composition changes, a complete replacement `attendeeDetails` list is required.
+Production invitation records are not used as development data.
 
-If Reception is removed while Ceremony attendance remains and composition is otherwise unchanged:
+The private production invitation source, production workbook, production analytics workbook, credentials, administrative destinations, and protected operational evidence remain backend-only.
 
-* `attendeeDetails` and `attendeeName` values are preserved.
-* Reception-specific `dietaryPreferences` values are removed.
-
-If Reception is added while attending-person composition remains unchanged, existing attendee names may remain unchanged and dietary/allergy fields simply become available.
-
-### Submission and revision model
-
-The architecture supports:
-
-* Server-side authorization and validation.
-* Initial responses.
-* Blank-form partial revisions.
-* Omitted-field-means-unchanged semantics where dependencies permit omission.
-* Explicit replacement values.
-* Explicit zero values for nested attendance totals.
-* Dependency-driven clearing.
-* Composition-sensitive attendee-detail replacement.
-* Idempotent submissions and safe retries.
-* Current-response storage and version history.
-* Backend-authoritative deadline enforcement.
-* Guest confirmation.
-* Protected administrative confirmation.
-* Independent delivery-warning handling.
-* Confirmation-page refresh fallback.
-
-A revision may submit `changes: {}` when the guest intends only to replace the operational confirmation destination.
-
-The browser does not submit an authoritative `overallAttendance` and does not send an `expectedVersion` concurrency field. The backend determines and validates the complete resulting RSVP.
-
-Operational confirmation information is entered again for every initial submission and revision.
-
-**Decision 029 (October 11, 2026): Guest confirmation is email-only, with a separate protected administrative email attempt after storage.** The source-controlled lookup advertises only email; each initial online RSVP and revision requires a newly entered valid email address, and new submissions use the fixed email method. No guest-selectable Text Message option, new mobile-number capture, SMS authorization, provider-selection gate, or future SMS activation is permitted. Server validation rejects SMS-enabled configuration. Legacy SMS-related contact, authorization, delivery-history, and exact-replay/recovery handling, where present, remain protected and do not authorize new messages or automatic email redirection. The latest verified source-control implementation must not be confused with the intentionally inactive, previously installed Ubuntu runtime.
-
-### Confirmation behavior
-
-A successful confirmation presents the complete current guest-facing RSVP rather than only the fields included in the latest request.
-
-Applicable confirmation content includes:
-
-* Event attendance.
-* Named-invitee Yes/No responses.
-* Plus 1 Yes/No responses.
-* Grouped unnamed-child Yes/No response and selected attending count when applicable.
-* Age-category totals.
-* Derived `overallAttendance`.
-* `Attendee Details`.
-* Dietary/allergy information only when Reception is selected.
-* Submission type and recorded timestamp.
-* Guest delivery status.
-* Administrative delivery-attempt status without exposing the protected administrative destination.
-
-The email and on-screen confirmation render grouped children as one family-level response. When children are attending, they also report the selected child count. They do not invent synthetic per-child authorization responses.
-
-### Development and production separation
-
-Production invitation records are not used during ordinary development.
-
-Development and automated tests use fictional fixtures so backend and client work can proceed without exposing real invitation codes or guest identities.
-
-The private production source remains backend-only input and is excluded from public source-control and client bundles.
-
-The permanent production Test Sample is the deliberate exception to the ordinary real-guest production population: it exists specifically so protected production verification can exercise a valid RSVP identity without requiring a real guest's invitation code. Its code and private configuration remain protected production data.
-
-Before public launch, carry out D14 read-only readiness assessment and the separately authorized final production compatibility, routing, recovery, security, and Test Sample checks required by the approved release plan. Do not rerun loaders, make production writes, send live emails, or start the stopped service merely to refresh a repository/documentation checkpoint.
-
-## Client/API Boundary
-
-Browser API access is designed around the relative base path:
-
-```text
-/wedding/api
-```
-
-Client components should not contain hard-coded backend hostnames such as:
-
-```text
-http://localhost:...
-```
-
-During development, Vite will proxy requests under `/wedding/api/` to the local Express application.
-
-This preserves the same browser-facing API path between development and deployment environments.
+The source-controlled application must remain reproducible without production secrets.
 
 ## Environment Configuration
 
@@ -786,123 +485,164 @@ Example client configuration includes:
 VITE_API_BASE_PATH=/wedding/api
 ```
 
-Server configuration is expected to include values for responsibilities such as:
+Server configuration includes responsibilities such as:
 
-* Application environment
-* Server port
-* Site base path
-* Google integration
-* RSVP deadline
-* Time zone
-* Administrative notifications
-* Email provider
-* Legacy `RSVP_SMS_ENABLED=false` setting until obsolete SMS handling is retired (not an enablement path)
-* Allowed origin
-* Reverse-proxy behavior
+```text
+NODE_ENV
+HOST
+PORT
+SITE_BASE_PATH
+GOOGLE_SPREADSHEET_ID
+SITE_ANALYTICS_SPREADSHEET_ID
+GOOGLE_APPLICATION_CREDENTIALS
+RSVP_DEADLINE
+RSVP_TIME_ZONE
+RSVP_ADMIN_NOTIFICATION_EMAIL
+EMAIL_PROVIDER
+RESEND_API_KEY
+RSVP_FROM_NAME
+RSVP_FROM_EMAIL
+RSVP_REPLY_TO_EMAIL
+RSVP_WRITER_INSTANCE_COUNT
+RSVP_SINGLE_WRITER_LOCK_FILE
+RSVP_SMS_ENABLED
+ALLOWED_ORIGIN
+TRUST_PROXY
+```
 
-Actual secrets are not stored in tracked environment files.
+Tracked `.env.example` files document configuration names without containing live values.
+
+Production credentials and private values are stored outside the repository.
 
 ## Security and Privacy
 
-The website handles information that may include guest identities and RSVP responses, so privacy boundaries are a core architectural requirement.
+Privacy and data-boundary requirements are part of the core architecture.
 
-The repository is intended to exclude:
+The public repository and browser bundle must not contain:
 
 * Production invitation spreadsheets
 * Real invitation codes
-* The permanent production Test Sample code
-* Guest identities and RSVP data
-* Attendee names and, when Reception is selected, dietary/allergy responses
-* Private additional-guest allocation mappings, including Plus 1 and grouped-child authorization
-* Google service-account credentials
+* Permanent Test Sample code
+* Guest identities
+* RSVP responses or version history
+* Attendee names
+* Dietary/allergy responses
+* Private invitation/allocation mappings
+* Protected administrative destinations
+* Google credentials
 * Email credentials
-* Any retained legacy SMS credentials or contact/authorization records until securely retired
-* Administrative destinations
-* Local `.env` files
-* Protected server-secret files
-* Private working materials
+* Protected environment files
+* Private analytics workbook identifiers where operational policy requires protection
+* Production diagnostic evidence containing sensitive values
 
-Public React code must not contain server-side secrets or private production invitation information.
+The application uses backend authorization and validation, rate limits, cache controls, guest-safe errors, origin restrictions, protected credentials, and private production data boundaries.
 
-Development uses fictional or otherwise non-production configuration until production data is intentionally introduced through protected backend mechanisms.
+Analytics follows a separate aggregate-only privacy boundary and is intentionally excluded from detailed application request auditing.
 
 ## Git and Source-Control Boundaries
 
-The project is maintained within the broader `Full-Stack-Portfolio` Git repository.
-
-This project directory is:
+The project is maintained inside the broader `Full-Stack-Portfolio` repository at:
 
 ```text
 projects/norstein-dashiell-wedding-site/
 ```
 
-Git excludes dependencies, production builds, logs, local environment files, credentials, private working materials, and production wedding data where appropriate.
+Git excludes dependencies, production build output, logs, local environment files, credentials, private working materials, protected evidence, and production wedding data where appropriate.
 
-The project is intended to remain reproducible from committed source files, dependency manifests, example environment configuration, and documented deployment requirements.
+Before release-related commits, review the staged filenames and staged diff and run:
 
-## Windows-to-Ubuntu Workflow
+```powershell
+git diff --cached --check
+```
 
-Primary application development may occur on Windows, while the production environment is Ubuntu.
+Do not use broad staging commands when private working materials may exist nearby.
 
-The intended workflow is:
+## Windows-to-Ubuntu Release Workflow
+
+Primary development occurs on Windows; production runs on Ubuntu.
+
+The release flow is:
 
 ```text
 Windows development
         ↓
+review + automated verification
+        ↓
 Git commit
         ↓
-GitHub repository
+GitHub main
         ↓
-Clone / pull on Ubuntu
+exact-commit Ubuntu release candidate
         ↓
-Install dependencies
+production build / preflight
         ↓
-Build client
+timestamped backend + frontend backups
         ↓
-Run Express application
+staged backend + frontend copies
         ↓
-Serve /wedding/
+guarded cutover
         ↓
-Proxy /wedding/api/
+systemd health verification
+        ↓
+local + public route/API smoke checks
+        ↓
+rollback retained until stabilization
 ```
 
-Dependencies are installed independently on Ubuntu from committed manifests.
+Windows `node_modules` directories are never transferred to Ubuntu.
 
-Windows `node_modules` directories are not transferred to the server.
+The production backend runs under the dedicated `wedding-rsvp.service` systemd service and binds to the protected local backend listener. Public traffic reaches the wedding application through the configured production reverse-proxy/tunnel path.
 
-The project includes an early deployment proof specifically so that path handling, nested-route refresh behavior, API proxying, and Linux portability can be validated before the application becomes significantly more complex.
+The deployment procedure preserves protected environment configuration outside the deployed source tree.
 
-## Deployment Requirements
+## Production Verification
 
-The deployment architecture must eventually demonstrate that:
+The final launch and post-release analytics checkpoints verified:
 
-```text
-/wedding/
-```
+* Client ESLint — PASS
+* Client tests — **40/40 PASS**
+* Server tests — **327/327 PASS**
+* Vite production build — PASS
+* Backend JavaScript syntax checks — PASS
+* Required analytics/privacy release files — PASS
+* Exact release-candidate provenance — PASS
+* Live backend matched the exact release candidate — PASS
+* Live frontend matched the exact release build — PASS
+* Local and public backend health — PASS
+* Public Home, RSVP, Privacy, and other release routes — PASS
+* Public analytics endpoint routing — PASS
+* Background-music browser behavior — PASS
+* Anonymous analytics browser behavior — PASS
+* Analytics failure isolation from website/RSVP — PASS
+* Analytics workbook aggregate-only privacy audit — PASS
+* Analytics request-detail absence from relevant application/tunnel journals — PASS
+* Zero post-deploy application error lines in the final audit window — PASS
+* Timestamped production rollback assets retained — PASS
 
-serves the React application and:
+The analytics post-release audit confirmed one dedicated `Site Analytics` worksheet, the approved five-column schema only, allowlisted paths only, no query/hash data, aggregate numeric metrics only, and no duplicate per-page rows.
 
-```text
-/wedding/api/
-```
+## Deferred or Changed Scope
 
-reaches the Express backend.
+The final release intentionally does not attempt to complete every historical planning idea.
 
-Direct navigation to nested routes such as:
+Current deferred or superseded scope includes:
 
-```text
-/wedding/theme
-```
+* **Advanced gallery/post-wedding media:** The Gallery remains a deliberate pre-wedding Coming Soon page. Full post-wedding galleries, guest uploads, download packages, archive workflows, and generalized media-library/Nextcloud integration remain deferred.
+* **Hotel block details:** The Travel route is complete as a page, but property-specific hotel information remains externally dependent until finalized. No rate, booking code, deadline, shuttle, or accessibility claim should be invented.
+* **SMS confirmation:** Superseded by Decision 029. New RSVP confirmation is email-only; SMS is not a pending launch feature or future guest-facing activation path.
+* **Warinanco configuration:** Discontinued. The active wedding presentation is permanently Sphinx-only.
+* **Portfolio polish:** Additional screenshots, architecture diagrams, demo-guide refinement, and optional CI improvements remain separate portfolio/maintenance work rather than wedding-site launch requirements.
+* **Broad external-link expansion:** The production site uses a limited useful set of reviewed resources rather than an exhaustive shopping/streaming directory.
+* **Nonessential architecture/refactoring work:** Broad refactors and dependency upgrades are handled separately from release-critical wedding functionality.
+* **Dependency maintenance:** The final production preflight surfaced npm audit advisories that should be reviewed in a separate controlled maintenance task rather than addressed through forced release-time upgrades.
 
-must continue to work after a browser refresh rather than returning a server-level 404.
+Background music was originally in the optional/deferred category but was subsequently implemented and verified without reopening or weakening any launch gate.
 
-The final production configuration will include additional security, deployment, backup, and operational requirements beyond the early architecture proof.
+Anonymous aggregate analytics was added after the original workstream scope and completed as a separate privacy-minimized production enhancement.
 
 ## Documentation
 
-The `docs/` directory contains the project's engineering and planning materials.
-
-These include documentation concerning:
+The `docs/` directory contains the project's engineering and planning references, including:
 
 * Requirements
 * Architectural decisions
@@ -914,152 +654,58 @@ These include documentation concerning:
 * Wireframes
 * RSVP system design
 * RSVP API contract
-* RSVP configuration examples
-* RSVP form-schema examples
+* RSVP example configuration/schema material
 * RSVP test cases
 * Visual design system
-* Development and deployment planning
-* Current accelerated workstream planning
+* Development/deployment plans
+* Final release sprint planning and handoff records
 
-The project originally used a documentation-heavy sequential planning process.
+Historical plans are retained for traceability, but current source code, verified Git history, current specifications, and explicitly approved later decisions supersede obsolete chronology or requirements.
 
-That approach has since been replaced by an accelerated implementation model in which existing specifications remain authoritative while new documentation is created primarily when it directly supports implementation, testing, deployment, operation, or a substantive changed decision.
-
-## Completed Application Foundation Workstream
-
-The first implementation workstream established the durable application foundation required for later feature development.
-
-Completed foundation work includes:
-
-* React/Vite client foundation
-* Node.js/Express server foundation
-* Portable client/server project structure
-* Git and privacy boundaries
-* Development/production configuration boundaries
-* Design tokens and global CSS
-* Licensed typography setup
-* Shared controls
-* Shared navigation and layout shell
-* Canonical browser routes
-* Centralized site content
-* Centralized Configuration A/B data
-* Development design-system calibration
-* Relative client/API boundary
-* Production client build
-* Ubuntu deployment proof
-* Initial launch-oriented content
-* Dedicated Our Story and RSVP Privacy page foundations
-* Reproducible README documentation
-
-The application foundation has been exercised as a navigable application, its production client build has been validated, and its intended `/wedding/` and `/wedding/api/` deployment architecture has been proven on the Ubuntu deployment environment.
-
-## Completed RSVP Backend Workstream
-
-Workstream 2 completed the RSVP backend, private data layer, confirmation pipeline, and guarded production invitation activation tooling on top of the application foundation. The corrected September attendance contract and October production-source extension are verified. Guest-facing interface completion is managed in Workstream 3.
-
-Verified source and behavior include:
-
-* Centralized environment parsing and validation remain implemented.
-* Development/production configuration separation remains established.
-* Invitation-code normalization and display formatting remain implemented.
-* Governing RSVP documentation describes the grouped-child/person-level attendance model and extended production-source classifications. The five-file WS3-12F email-only supporting-document reconciliation is complete in source control; outstanding browser, accessibility, privacy, and Content Lock verification belongs to Workstream 3 exit testing.
-* Fictional development invitation configuration uses safe `namedInvitees` and typed `additionalGuestAllocations`.
-* Development fixtures validate allocation `kind`, `maximumCount`, opaque identifiers, uniqueness, development-only boundaries, and exact person-capacity reconciliation.
-* Lookup exposes only safe allocation fields: `id`, `kind`, `prompt`, and `maximumCount`.
-* Private production classification fields such as `recordRole` and `guestListEligible` remain outside the guest-facing lookup boundary.
-* Submission validation accepts scalar Plus 1 responses and structured grouped-child responses in the same `additionalGuestResponses` map.
-* Backend attendance derivation counts named-invitee Yes responses, Plus 1 Yes responses, and grouped-child selected count.
-* Age-category totals must reconcile exactly to derived `overallAttendance`.
-* `attendeeDetails` applies to every attendee, including Ceremony-only attendance.
-* Dietary/allergy information is limited to Reception attendance.
-* Grouped-child response/count changes are composition-sensitive and require complete attendee-detail replacement.
-* RSVP submission success responses preserve safe allocation metadata and structured grouped-child response data.
-* Guest and administrative confirmation emails render grouped-child Yes/No and child count safely.
-* The production transformation parses `Kids(n)` as one grouped `unnamedChildren` allocation while preserving specifically named children as ordinary named invitees.
-* The current production source has 68 numbered rows: 63 assigned guest-list invitations, 4 reserved placeholders, and one permanent Test Sample.
-* The functional registry contains 64 invitations: 63 guest-list-eligible identities and one permanent test identity.
-* The original invites 1–57 baseline remains independently auditable: 84 named potential attendees plus 31 additional-person slots, totaling 115 maximum attendees.
-* Current real guest-list maximum attendance is 122; the Test Sample maximum is 4, yielding combined functional capacity 126.
-* Future population of reserved invites 64–67 must follow the guarded, history-compatible invitation synchronization procedure.
-* Production activation compatibility protects any invitation already referenced by Current RSVPs, RSVP Versions, Submission Records, Delivery Records, or Resend Records.
-* Operational RSVP tables no longer need to remain empty for later invitation synchronization.
-* The production loader creates a private pre-write snapshot, replaces only invitation configurations, proves operational data is unchanged, verifies an exact source-to-workbook match, and attempts invitation rollback on post-backup failure.
-* Production readiness verifies synchronization compatibility before any write.
-* Post-load activation verification requires both exact invitation-registry matching and continued operational-history compatibility.
-* Production audit output distinguishes source rows, functional invitations, guest-list invitations, reserved placeholders, the Test Sample, and the stable 1–57 baseline.
-* Production loopback smoke testing is restricted to the permanent Test Sample rather than a real guest invitation.
-* Production activation tests distinguish allocation-object count from person capacity and include grouped-child and operational-compatibility coverage.
-* The client RSVP model supports named invitee responses, mixed allocation response shapes, derived headcount, all-attendance attendee details, and Reception-only dietary fields.
-* The guest RSVP form renders one grouped child family question with a conditional `1..maximumCount` selector.
-* The confirmation page renders named invitees, Plus 1 responses, grouped-child response/count, party totals, and all-attendance attendee details.
-* Public/private source-control boundaries continue to protect production invitation data and credentials.
-
-Workstream 2's protected invitation synchronization and controlled D12/D13 production tests were completed. The RSVP service remains intentionally inactive while D14 release-readiness planning is pending. The Decision 029 email-only source migration has passed local regression tests, but the deployed runtime must be compared with the reviewed Git baseline during D14 and brought forward only through an explicitly authorized release procedure. Complete the remaining browser, accessibility, privacy, integration, security, and recovery reviews without modifying real invitations merely to test deployment.
-
-Remaining launch and deployment checks include:
-
-* Rerun server regression tests against the final release candidate (322/322 passed at the October 12 local development checkpoint).
-* Rerun client regression tests against the final release candidate (31/31 passed at that checkpoint).
-* Recheck client ESLint and the production client build against the final candidate.
-* Verify the integrated fictional-data browser journeys, accessible interactions, responsive layouts, deadline transitions, and guest-safe fallbacks.
-* Complete Content Lock Round 1 approvals and the client-bundle/privacy review.
-* Production invitation transformation audit.
-* Production readiness verification.
-* Read-only production runtime readiness verification.
-* Authorized Permanent Test Sample smoke testing after the Ubuntu backend is configured.
-* Reverse-proxy, systemd, startup/restart, writer-lock, and production confirmation-delivery verification.
-
-Do not rerun the protected production invitation loader or change production guest records as part of routine deployment verification.
-
-The current production source remains private backend input. It is not copied into the React client, committed to public source control, or used as ordinary development test data.
-
-## Development Priorities
-
-Under schedule pressure, the project prioritizes:
-
-1. Correct architecture and contract fidelity
-2. Git, credential, and private-data safety
-3. Server-side RSVP authorization and validation
-4. Reliable storage, revision, and idempotency behavior
-5. Confirmation and delivery correctness
-6. Accessible form, status, and focus behavior
-7. Centralized configuration
-8. Reproducible production builds
-9. Proven Ubuntu deployment behavior
-
-Decorative refinement remains secondary to producing a reliable, accessible, secure, privacy-conscious, and reproducible production application.
+The project moved from a documentation-heavy sequential planning model to an implementation-focused model in which documentation is maintained when it directly supports implementation, testing, deployment, operation, recovery, or a substantive changed decision.
 
 ## Portfolio Focus
 
-This project is intended to demonstrate practical work involving:
+This project demonstrates practical work involving:
 
 * Full-stack web development
 * React application architecture
 * Node.js/Express backend development
 * Client/server separation
-* REST-style API architecture
+* REST-style API design
 * Responsive interface development
 * Accessible interaction design
 * Design-system implementation
-* Form architecture
-* Application state design
-* Data privacy boundaries
-* Environment configuration
-* Git-based development workflow
+* Complex form and state architecture
+* Server-side authorization and validation
+* Google Sheets persistence
+* Idempotent and versioned data mutation
+* Transaction/recovery-oriented production tooling
+* Email-delivery integration
+* Privacy engineering and data minimization
+* First-party aggregate analytics design
+* Web Audio / progressive enhancement
+* Environment and credential boundaries
+* Git-based release management
 * Cross-platform Windows/Linux development
-* Self-hosted deployment
-* Reverse-proxy architecture
+* Ubuntu/systemd production operation
+* Reverse-proxy and tunnel architecture
+* Backup and rollback design
 * Requirements-driven software development
 * Technical documentation
 * Iterative project management
 
-The project is particularly intended to demonstrate the progression from extensive requirements and system planning into a maintainable production application.
+The project demonstrates progression from requirements and systems planning through implementation, protected production-data integration, release-candidate validation, controlled public deployment, and post-release verification.
 
 ## Development and AI-Assistance Disclosure
 
-This project is developed and maintained by Joshua Norstein. AI-assisted tools may be used as development aids for tasks such as planning, research, proofreading documentation, troubleshooting, syntax and error checking, architecture review, code review, and implementation support. Final project decisions, integration, testing, repository management, and maintenance remain the developer's responsibility.
+This project is developed and maintained by Joshua Norstein.
 
-Third-party and open-source libraries, frameworks, packages, tools, templates, assets, and other external material remain the work of their respective authors and are used in accordance with their applicable licenses and attribution requirements. Material adapted from an external source should be identified and attributed where its license or terms require it.
+AI-assisted tools may be used as development aids for planning, research, proofreading documentation, troubleshooting, syntax/error checking, architecture review, code review, implementation support, testing support, and release-procedure review.
+
+Final project decisions, source integration, testing, repository management, production operations, and maintenance remain the developer's responsibility.
+
+Third-party and open-source libraries, frameworks, packages, tools, templates, assets, and external material remain the work of their respective authors and are used in accordance with applicable licenses and attribution requirements.
 
 ## Author
 
