@@ -293,7 +293,6 @@ const environmentSchema = z
 
     const productionRequired = [
       "GOOGLE_SPREADSHEET_ID",
-      "SITE_ANALYTICS_SPREADSHEET_ID",
       "RSVP_ADMIN_NOTIFICATION_EMAIL",
       "EMAIL_PROVIDER",
       "RESEND_API_KEY",

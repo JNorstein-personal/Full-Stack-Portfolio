@@ -25,8 +25,6 @@ function productionEnvironment(
       "/wedding",
     GOOGLE_SPREADSHEET_ID:
       "fictional-sheet",
-    SITE_ANALYTICS_SPREADSHEET_ID:
-      "fictional-analytics-sheet",
     RSVP_DEADLINE:
       "2027-03-01T23:59:00-05:00",
     RSVP_TIME_ZONE:
