@@ -12,6 +12,12 @@ const {
   "../src/services/storage/googleSheetsStore"
 );
 const {
+  RSVP_OVERVIEW_ATTENDEE_HEADERS,
+  RSVP_OVERVIEW_PARTY_HEADERS,
+} = require(
+  "../src/services/storage/googleSheetsRsvpOverview"
+);
+const {
   initializeDevelopmentGoogleSheetsStore,
 } = require(
   "../src/services/storage/googleSheetsStoreSetup"
@@ -60,7 +66,9 @@ function makeStoredRsvp({
   };
 }
 
-async function createInitializedStore() {
+async function createInitializedStore({
+  onOverviewSyncError,
+} = {}) {
   const fake =
     createFakeSheetsClient();
 
@@ -106,6 +114,7 @@ async function createInitializedStore() {
         fake.sheets,
       spreadsheetId:
         "fictional-sheet",
+      onOverviewSyncError,
     });
 
   return {
@@ -613,6 +622,145 @@ test(
           state: "prepared",
         },
       ],
+    );
+  },
+);
+
+
+test(
+  "Google Sheets mutation commit refreshes the copied RSVP Overview when its layout is present",
+  async () => {
+    const {
+      fake,
+      store,
+      invitation,
+    } =
+      await createInitializedStore();
+
+    const overviewRows =
+      Array.from(
+        { length: 84 },
+        () => [],
+      );
+    overviewRows[13] = [
+      ...RSVP_OVERVIEW_PARTY_HEADERS,
+    ];
+    overviewRows[83] = [
+      ...RSVP_OVERVIEW_ATTENDEE_HEADERS,
+    ];
+    fake.workbook.set(
+      "RSVP Overview",
+      overviewRows,
+    );
+
+    const currentRsvp = {
+      ...makeStoredRsvp({
+        version: 1,
+        eventAttendance: [
+          "ceremony",
+          "reception",
+        ],
+      }),
+      recordedAt:
+        "2026-11-05T12:04:42.013Z",
+      confirmation: {
+        method: "email",
+      },
+    };
+
+    await store.commitRsvpMutation(
+      invitation.partyId,
+      {
+        expectedCurrentVersion: 0,
+        mutationId:
+          "mutation-overview",
+        currentRsvp,
+        versionRecord: {
+          action: "initial",
+          mutationId:
+            "mutation-overview",
+          recordedAt:
+            currentRsvp.recordedAt,
+          ...currentRsvp,
+        },
+      },
+    );
+
+    const row =
+      fake.workbook.get(
+        "RSVP Overview",
+      )[14];
+
+    assert.equal(
+      row[1],
+      "Example Guest",
+    );
+    assert.equal(
+      row[4],
+      "Attending",
+    );
+    assert.equal(row[5], "Yes");
+    assert.equal(row[6], "Yes");
+    assert.equal(row[7], 1);
+    assert.equal(row[17], invitation.partyId);
+  },
+);
+
+test(
+  "RSVP Overview synchronization failure is reported but never rolls back a canonical mutation",
+  async () => {
+    let reported = 0;
+
+    const {
+      store,
+      invitation,
+    } =
+      await createInitializedStore({
+        onOverviewSyncError: () => {
+          reported += 1;
+        },
+      });
+
+    const currentRsvp =
+      makeStoredRsvp({
+        version: 1,
+      });
+
+    assert.deepEqual(
+      await store.commitRsvpMutation(
+        invitation.partyId,
+        {
+          expectedCurrentVersion: 0,
+          mutationId:
+            "mutation-derived-failure",
+          currentRsvp,
+          versionRecord: {
+            action: "initial",
+            mutationId:
+              "mutation-derived-failure",
+            ...currentRsvp,
+          },
+        },
+      ),
+      {
+        status: "committed",
+      },
+    );
+
+    assert.equal(reported, 1);
+    assert.deepEqual(
+      await store.getCurrentRsvp(
+        invitation.partyId,
+      ),
+      currentRsvp,
+    );
+    assert.equal(
+      (
+        await store.listRsvpVersions(
+          invitation.partyId,
+        )
+      ).length,
+      1,
     );
   },
 );
