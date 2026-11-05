@@ -1,9 +1,9 @@
-const {
+﻿const {
   GOOGLE_SHEETS_STORE_SCHEMA,
 } = require("./googleSheetsStoreSchema");
 
 const RSVP_OVERVIEW_SHEET_TITLE =
-  "RSVP Overview";
+  "Wedding RSVP Overview";
 const RSVP_OVERVIEW_PARTY_START_ROW =
   15;
 const RSVP_OVERVIEW_PARTY_ROW_COUNT =

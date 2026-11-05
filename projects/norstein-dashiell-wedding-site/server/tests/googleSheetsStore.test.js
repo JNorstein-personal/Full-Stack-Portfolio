@@ -1,4 +1,4 @@
-const test = require("node:test");
+﻿const test = require("node:test");
 const assert = require("node:assert/strict");
 
 const {
@@ -649,7 +649,7 @@ test(
       ...RSVP_OVERVIEW_ATTENDEE_HEADERS,
     ];
     fake.workbook.set(
-      "RSVP Overview",
+      "Wedding RSVP Overview",
       overviewRows,
     );
 
@@ -688,7 +688,7 @@ test(
 
     const row =
       fake.workbook.get(
-        "RSVP Overview",
+        "Wedding RSVP Overview",
       )[14];
 
     assert.equal(
