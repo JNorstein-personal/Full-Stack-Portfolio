@@ -4,6 +4,9 @@ const {
 const {
   GOOGLE_SHEETS_STORE_SCHEMA,
 } = require("./googleSheetsStoreSchema");
+const {
+  createRsvpOverviewSynchronizer,
+} = require("./googleSheetsRsvpOverview");
 
 function freezeClone(value) {
   if (value === null) {
@@ -89,6 +92,7 @@ function validateClient(
 function createGoogleSheetsStore({
   sheets,
   spreadsheetId,
+  onOverviewSyncError,
 } = {}) {
   validateClient(sheets);
 
@@ -100,6 +104,31 @@ function createGoogleSheetsStore({
     throw new Error(
       "Google Sheets RSVP store requires a spreadsheet identifier.",
     );
+  }
+
+  const overviewSynchronizer =
+    createRsvpOverviewSynchronizer({
+      sheets,
+      spreadsheetId,
+    });
+
+  async function synchronizeOverview() {
+    try {
+      await overviewSynchronizer
+        .synchronize();
+    } catch (error) {
+      if (
+        typeof onOverviewSyncError ===
+        "function"
+      ) {
+        try {
+          onOverviewSyncError(error);
+        } catch {
+          // A derived-view error reporter must never
+          // alter canonical RSVP persistence.
+        }
+      }
+    }
   }
 
   async function readRows(
@@ -253,6 +282,8 @@ function createGoogleSheetsStore({
           ),
         ],
       );
+
+      await synchronizeOverview();
 
       return freezeClone(
         currentRsvp,
@@ -430,6 +461,8 @@ function createGoogleSheetsStore({
             );
           }
 
+          await synchronizeOverview();
+
           return Object.freeze({
             status:
               "alreadyCommitted",
@@ -457,6 +490,8 @@ function createGoogleSheetsStore({
             ),
           ],
         );
+
+        await synchronizeOverview();
 
         return Object.freeze({
           status: "recovered",
@@ -500,6 +535,8 @@ function createGoogleSheetsStore({
           ),
         ],
       );
+
+      await synchronizeOverview();
 
       return Object.freeze({
         status: "committed",

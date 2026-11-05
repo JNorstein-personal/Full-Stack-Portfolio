@@ -108,6 +108,11 @@ function createDefaultRsvpStore(
       spreadsheetId:
         connection
           .getSpreadsheetId(),
+      onOverviewSyncError: () => {
+        console.error(
+          "RSVP Overview synchronization failed; canonical RSVP storage remains authoritative.",
+        );
+      },
     });
   }
 
