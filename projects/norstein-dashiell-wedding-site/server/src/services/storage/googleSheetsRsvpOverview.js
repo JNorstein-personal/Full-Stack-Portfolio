@@ -1,4 +1,4 @@
-﻿const {
+const {
   GOOGLE_SHEETS_STORE_SCHEMA,
 } = require("./googleSheetsStoreSchema");
 
