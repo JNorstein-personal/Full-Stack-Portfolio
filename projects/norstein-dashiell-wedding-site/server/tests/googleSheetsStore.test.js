@@ -639,13 +639,13 @@ test(
 
     const overviewRows =
       Array.from(
-        { length: 84 },
+        { length: 83 },
         () => [],
       );
     overviewRows[13] = [
       ...RSVP_OVERVIEW_PARTY_HEADERS,
     ];
-    overviewRows[83] = [
+    overviewRows[82] = [
       ...RSVP_OVERVIEW_ATTENDEE_HEADERS,
     ];
     fake.workbook.set(

@@ -12,7 +12,7 @@ const RSVP_OVERVIEW_PARTY_END_ROW =
   RSVP_OVERVIEW_PARTY_START_ROW +
   RSVP_OVERVIEW_PARTY_ROW_COUNT - 1;
 const RSVP_OVERVIEW_ATTENDEE_START_ROW =
-  85;
+  84;
 const RSVP_OVERVIEW_ATTENDEE_CLEAR_END_ROW =
   1000;
 
@@ -144,7 +144,7 @@ async function verifyRsvpOverviewLayout({
       range:
         `${quoteSheetTitle(
           RSVP_OVERVIEW_SHEET_TITLE,
-        )}!A84:F84`,
+        )}!A${RSVP_OVERVIEW_ATTENDEE_START_ROW - 1}:F${RSVP_OVERVIEW_ATTENDEE_START_ROW - 1}`,
     }),
   ]);
 

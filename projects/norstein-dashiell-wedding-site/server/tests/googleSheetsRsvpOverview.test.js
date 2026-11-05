@@ -16,7 +16,7 @@ const {
 function makeOverviewRows() {
   const rows =
     Array.from(
-      { length: 84 },
+      { length: 83 },
       () => [],
     );
 
@@ -26,7 +26,7 @@ function makeOverviewRows() {
   rows[13] = [
     ...RSVP_OVERVIEW_PARTY_HEADERS,
   ];
-  rows[83] = [
+  rows[82] = [
     ...RSVP_OVERVIEW_ATTENDEE_HEADERS,
   ];
 
@@ -249,7 +249,7 @@ test(
     );
 
     assert.deepEqual(
-      overview[84].slice(0, 6),
+      overview[83].slice(0, 6),
       [
         "Example Party",
         "Example One",
@@ -262,7 +262,7 @@ test(
       ],
     );
     assert.equal(
-      overview[85][1],
+      overview[84][1],
       "Example Two",
     );
   },
