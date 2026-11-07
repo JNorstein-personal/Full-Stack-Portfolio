@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import ContentSection from "../components/layout/ContentSection";
 import PageContainer from "../components/layout/PageContainer";
 import BackToTop from "../components/navigation/BackToTop";
-import MediaAwareYouTube from "../components/media/MediaAwareYouTube";
 import { useBackgroundMusic } from "../components/media/BackgroundMusicContext";
 import HowlSophieUs from "../assets/icons/HowlSophieUs.png";
 import engagementRing from "../assets/images/EngagementRing.jpg";
@@ -271,11 +270,20 @@ function StoryPage() {
             own words below.
           </p>
 
-          <MediaAwareYouTube
-            videoId="fThuwOTq7p8"
-            mediaId="story-proposal-youtube"
+          <iframe
+            width="560"
+            height="315"
+            src="https://www.youtube.com/embed/fThuwOTq7p8?si=c7bc7gYw5Bkk-gvD"
             title="The story behind Joshua and Taylor's proposal"
-            loading="eager"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+            style={{
+              width: "100%",
+              aspectRatio: "16 / 9",
+              border: 0,
+            }}
           />
 
           <p>
