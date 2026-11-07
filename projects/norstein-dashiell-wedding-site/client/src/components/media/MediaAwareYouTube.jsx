@@ -91,7 +91,6 @@ function MediaAwareYouTube({
   videoId,
   mediaId,
   title,
-  loading = "lazy",
 }) {
   const iframeRef = useRef(null);
   const playerRef = useRef(null);
@@ -191,7 +190,7 @@ function MediaAwareYouTube({
       ref={iframeRef}
       src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}&playsinline=1&rel=0`}
       title={title}
-      loading={loading}
+      loading="lazy"
       referrerPolicy="strict-origin-when-cross-origin"
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
       allowFullScreen
