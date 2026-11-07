@@ -275,6 +275,7 @@ function StoryPage() {
             videoId="fThuwOTq7p8"
             mediaId="story-proposal-youtube"
             title="The story behind Joshua and Taylor's proposal"
+            loading="eager"
           />
 
           <p>
