@@ -403,7 +403,7 @@ The verified current production-source checkpoint contains **68 numbered
 invitation-code rows** with three intentional roles:
 
 - **Invites 1–63** are currently assigned, guest-list-eligible invitations;
-  invites 1–57 remain the separately audited historical baseline.
+  invites 1–57 remain the separately audited original subset.
 - **Invites 64–67** are the four currently reserved invitation-code
   placeholders and do not produce functional RSVP identities.
 - **Invite 68** is the permanent production **Test Sample** identity, which
@@ -566,28 +566,28 @@ source-audit results:
 - 64 functional production invitation configurations:
   - 63 guest-list-eligible assigned invitations;
   - one permanent Test Sample.
-- Functional combined maximum-attendance capacity of 126:
-  - current guest-list capacity of 122;
+- Functional combined maximum-attendance capacity of 127:
+  - current guest-list capacity of 123;
   - Test Sample capacity of 4.
 
-The established invites 1–57 guest-list baseline must independently
-continue to audit to:
+The current invites 1–57 guest-list baseline, after the approved
+November 8, 2026 Plus1 authorization, must independently audit to:
 
 - 57 assigned invitations.
 - 35 singular `I` wording records and 22 plural `we` wording records.
-- 23 records containing at least one `Plus1`.
-- 26 total `Plus1` allocation objects.
+- 24 records containing at least one `Plus1`.
+- 27 total `Plus1` allocation objects.
 - Two records containing more than one `Plus1`.
 - 84 specifically named potential attendees represented by the parallel
   C/D name lists.
 - Two invitations containing `Kids(n)`.
 - Five total unnamed-child attendance slots across those two invitations.
 - Two grouped `unnamedChildren` allocation objects.
-- 28 total `additionalGuestAllocations` objects: 26 Plus1 objects plus two
+- 29 total `additionalGuestAllocations` objects: 27 Plus1 objects plus two
   grouped child objects.
-- 31 total additional-guest person-capacity slots: 26 Plus1 slots plus
+- 32 total additional-guest person-capacity slots: 27 Plus1 slots plus
   five unnamed-child slots.
-- Combined maximum-attendance capacity of 115.
+- Combined maximum-attendance capacity of 116.
 
 The permanent Test Sample is a functional, guest-list-ineligible
 production identity with maximum attendance 4 at the current verified
@@ -595,12 +595,16 @@ source checkpoint. Its separately protected invitation composition must
 be validated against the authoritative private source rather than inferred
 from the historical Test Sample fixture.
 
-The **115-person value is a stable baseline for invites 1–57, not a
-permanent guest-list ceiling**. If one or more of the currently
-reserved invites 64–67 is later populated as a real assigned invitation, the reserved-placeholder
-count decreases and the current guest-list invitation count and maximum-
-attendance capacity increase accordingly. The established 1–57 baseline
-remains separately auditable at 57 invitations and 115 maximum attendance.
+The **116-person value is the current auditable baseline for invites 1–57
+after the approved November 8, 2026 addition of one `Plus1` allocation to
+Invite 57, not a permanent guest-list ceiling**. The previously verified
+115-person October 3 baseline remains historical reference only. If one or
+more of the currently reserved invites 64–67 is later populated as a real
+assigned invitation, the reserved-placeholder count decreases and the
+current guest-list invitation count and maximum-attendance capacity
+increase accordingly. The current 1–57 baseline remains separately
+auditable at 57 invitations and 116 maximum attendance unless an explicit
+later source authorization changes one of those baseline invitations.
 
 These aggregate values are transformation-validation targets only. They
 must not be hard-coded into reusable RSVP rendering or business logic.
@@ -687,7 +691,7 @@ with the invitation configurations it references.
 
 Production audit output must distinguish source-row, functional,
 guest-list, reserved-placeholder, Test Sample, functional-capacity,
-guest-list-capacity, and stable invites 1–57 baseline metrics.
+guest-list-capacity, and current auditable invites 1–57 baseline metrics.
 
 Production loopback smoke testing must use the permanent Test Sample rather
 than a real guest invitation. The smoke command must require explicit
@@ -1729,8 +1733,8 @@ and security rules, the spreadsheet-authoritative RSVP source, the
 September 20 person-level attendance clarification, the September 27
 unnamed-child source clarification, the cleaned latest Invitees List, the
 grouped-children interaction, the October 3 production-source extension,
-and the November 1, 2026 Workstream 4 public-content lock when all of the
-following remain true:
+the November 1, 2026 Workstream 4 public-content lock, and the November 8,
+2026 Plus1 authorization when all of the following remain true:
 
 - The public site uses the confirmed Sphinx-only event configuration; the
   former Warinanco ceremony configuration is historical only and is not a
@@ -1767,13 +1771,17 @@ following remain true:
   real guest-list counts and capacity.
 - The current functional registry contains 64 invitation configurations:
   63 guest-list eligible plus the permanent Test Sample.
-- The current functional combined maximum-attendance capacity is 126:
-  122 guest-list eligible plus 4 Test Sample capacity.
-- The established invites 1–57 baseline remains independently auditable at
-  57 invitations and maximum attendance 115.
-- The 115-person baseline is not a permanent guest-list ceiling; assigning
-  a currently reserved invite 64–67 increases current guest-list invitation and
-  capacity totals dynamically while preserving the 1–57 baseline audit.
+- The current functional combined maximum-attendance capacity is 127:
+  123 guest-list eligible plus 4 Test Sample capacity.
+- The current invites 1–57 baseline, after the approved November 8, 2026
+  Plus1 authorization, remains independently auditable at 57 invitations
+  and maximum attendance 116.
+- The previously verified 115-person October 3 baseline remains historical
+  reference only. The current 116-person baseline is not a permanent
+  guest-list ceiling; assigning a currently reserved invite 64–67 increases
+  current guest-list invitation and capacity totals dynamically while
+  preserving the 1–57 baseline audit unless an explicit later source
+  authorization changes one of those baseline invitations.
 - All functional production invitations use one reusable substantive form
   structure rather than separate production question profiles.
 - Specifically named potential attendees are represented through
@@ -1788,11 +1796,11 @@ following remain true:
   children and reconciles exactly to the grouped child capacity.
 - The configuration-capacity invariant is
   `namedInvitees.length + sum(additionalGuestAllocations.maximumCount) = maximumAttendance`.
-- The established invites 1–57 baseline requires 84 specifically named
-  potential attendees, 26 Plus1 allocation objects, two grouped child
-  allocation objects, five total unnamed-child slots, 28 total allocation
-  objects, 31 total additional-guest person-capacity slots, and combined
-  maximum capacity of 115.
+- The current invites 1–57 baseline requires 84 specifically named
+  potential attendees, 27 Plus1 allocation objects, two grouped child
+  allocation objects, five total unnamed-child slots, 29 total allocation
+  objects, 32 total additional-guest person-capacity slots, and combined
+  maximum capacity of 116.
 - The permanent Test Sample has maximum attendance 4 in the current
   verified private source, remains guest-list-ineligible, and must retain
   exact-match validation against its protected production configuration.

@@ -37,8 +37,8 @@ Date:
 Decision:
 The authoritative private production invitation source is the couple-supplied `Invitees List` spreadsheet. The current spreadsheet contains **68 numbered invitation-code rows** with three intentional production-source roles:
 
-* Invites 1–57 are established assigned guest-list invitations.
-* Invites 58–67 are reserved invitation-code placeholders that are not currently functional RSVP identities.
+* Invites 1–63 are assigned guest-list invitations. Invites 1–57 remain the original independently auditable subset, while invites 58–63 are later assigned guest-list invitations.
+* Invites 64–67 are reserved invitation-code placeholders that are not currently functional RSVP identities.
 * Invite 68 is the permanent production `Test Sample` identity used for protected production verification without requiring a real guest invitation code.
 
 The spreadsheet supplies the invitation codes and the private invited-party information required to build production invitation configurations. The actual production codes and guest details must remain in private project data and must not be copied into public documentation, frontend source files, public repositories, browser URLs, analytics, page metadata, referrer data, or ordinary application logs.
@@ -47,15 +47,15 @@ Current source audit:
 
 * All 68 numbered source invitation codes normalize successfully under the approved invitation-code rules.
 * All 68 normalized six-character source keys are unique, with no normalization collision.
-* The 57 established assigned rows produce 57 guest-list-eligible production configurations.
-* The 10 exact reserved placeholder rows retain unique private codes but produce no functional invitation configuration until populated as real invitations.
+* The 63 assigned rows produce 63 guest-list-eligible production configurations.
+* The four exact reserved placeholder rows retain unique private codes but produce no functional invitation configuration until populated as real invitations.
 * The permanent Test Sample produces one functional production configuration with `recordRole: "test"` and `guestListEligible: false`.
-* The current functional production registry therefore contains 58 invitation configurations: 57 guest-list eligible and one permanent test identity.
+* The current functional production registry therefore contains 64 invitation configurations: 63 guest-list eligible and one permanent test identity.
 
 Implementation Requirement:
 The application must load invitation records dynamically and must not contain form-building, validation, auditing, or guest-list-capacity logic that assumes a permanently fixed number of assigned invitations.
 
-A reserved row may become a real assigned invitation later. When one of invites 58–67 is populated normally, it becomes `recordRole: "assigned"`, `guestListEligible: true`, and increases the current guest-list invitation and capacity totals. A partially populated or ambiguous reserved row must fail closed rather than being inferred as either a harmless placeholder or valid invitation.
+A reserved row may become a real assigned invitation later. When one of invites 64–67 is populated normally, it becomes `recordRole: "assigned"`, `guestListEligible: true`, and increases the current guest-list invitation and capacity totals. A partially populated or ambiguous reserved row must fail closed rather than being inferred as either a harmless placeholder or valid invitation.
 
 Fictional development/test fixtures must remain separate from production data and must never be authorized by the production registry. The permanent Test Sample is an intentional protected **production** identity, not a development fixture; its real code remains private production data.
 
@@ -68,6 +68,7 @@ Date:
 Clarified:
 9/19/2026
 10/3/2026
+11/8/2026
 
 ## Decision 003 — RSVP Deadline
 
@@ -634,8 +635,8 @@ The authoritative private `Invitees List` contains **68 numbered invitation-code
 
 ### Source-Role Classification
 
-* **Invites 1–57 — established assigned guest-list invitations.** Each row must remain a valid assigned invitation and produces one functional production configuration with `recordRole: "assigned"` and `guestListEligible: true`.
-* **Invites 58–67 — reserved invitation-code range.** An exact placeholder consists of the reserved invite number, its unique Guest ID, `?` in First Name(s), `?` in Last Name(s), and otherwise blank invitation-defining fields. An exact placeholder produces no functional invitation configuration. If one of these rows is later populated as an ordinary valid invitation, it produces a normal assigned configuration with `recordRole: "assigned"` and `guestListEligible: true`. A partially populated or ambiguous placeholder must fail transformation for private review.
+* **Invites 1–63 — assigned guest-list invitations.** Each populated row produces one functional production configuration with `recordRole: "assigned"` and `guestListEligible: true`. Invites 1–57 remain the original independently auditable subset; invites 58–63 are later assigned guest-list invitations.
+* **Invites 64–67 — reserved invitation-code range.** An exact placeholder consists of the reserved invite number, its unique Guest ID, `?` in First Name(s), `?` in Last Name(s), and otherwise blank invitation-defining fields. An exact placeholder produces no functional invitation configuration. If one of these rows is later populated as an ordinary valid invitation, it produces a normal assigned configuration with `recordRole: "assigned"` and `guestListEligible: true`. A partially populated or ambiguous placeholder must fail transformation for private review.
 * **Invite 68 — permanent Test Sample.** This row produces one functional production configuration with `recordRole: "test"` and `guestListEligible: false`. It remains a valid production RSVP identity for lookup, submission, revision, persistence, history, idempotency, and confirmation testing, but it is excluded from real wedding guest-list counts and capacity totals.
 
 The source-to-configuration mapping for each functional row is:
@@ -687,33 +688,36 @@ Source-level audit:
 
 * 68 numbered source rows are present in the expected sequence.
 * All 68 source invitation codes normalize successfully and are unique.
-* 10 rows are exact reserved placeholders.
-* 58 rows currently produce functional production invitation configurations.
-* 57 functional configurations are guest-list eligible assigned invitations.
+* Four rows are exact reserved placeholders.
+* 64 rows currently produce functional production invitation configurations.
+* 63 functional configurations are guest-list eligible assigned invitations.
 * One functional configuration is the permanent Test Sample and is not guest-list eligible.
-* Functional maximum-attendance capacity is currently 117: 115 guest-list eligible plus 2 Test Sample capacity.
+* Real guest-list maximum-attendance capacity is currently 123.
+* Permanent Test Sample maximum-attendance capacity is 4.
+* Functional maximum-attendance capacity is therefore 127.
 
-Stable invites 1–57 guest-list baseline:
+Current invites 1–57 auditable baseline after the approved November 8, 2026 Plus1 authorization:
 
 * 57 assigned invitation records.
 * 35 records use singular `I` wording and 22 use plural `we` wording.
-* 23 records contain at least one `Plus1`.
-* 26 total `Plus1` allocation objects are required.
+* 24 records contain at least one `Plus1`.
+* 27 total `Plus1` allocation objects are required.
 * 84 specifically named potential attendees are represented by the parallel C/D name lists.
 * Five source-authorized unnamed-child attendance slots are required across two invitations.
 * Those five child slots are represented by two grouped `unnamedChildren` allocation objects.
-* 28 total `additionalGuestAllocations` objects are required: 26 `Plus1` objects plus two grouped child objects.
-* Combined additional-guest capacity is 31 people: 26 Plus1 slots plus five unnamed-child slots.
-* `84 namedInvitees + 31 additional-guest capacity = 115` established baseline maximum-attendance capacity.
+* 29 total `additionalGuestAllocations` objects are required: 27 `Plus1` objects plus two grouped child objects.
+* Combined additional-guest capacity is 32 people: 27 Plus1 slots plus five unnamed-child slots.
+* `84 namedInvitees + 32 additional-guest capacity = 116` current baseline maximum-attendance capacity.
 
 Permanent Test Sample:
 
 * One named invitee.
 * One `Plus1` allocation with capacity 1.
-* Maximum attendance 2.
+* One grouped `unnamedChildren` allocation with capacity 2.
+* Maximum attendance 4.
 * Excluded from guest-list counts and capacity.
 
-The 115-person value is the stable audit baseline for established invites 1–57, **not a permanent maximum for the wedding guest list**. If an invite in the reserved 58–67 range is later populated as a real assigned invitation, the current guest-list invitation count and maximum-attendance capacity increase accordingly while the 1–57 baseline remains independently auditable at 57 invitations and 115 maximum attendance.
+The current 116-person value is the auditable baseline for invites 1–57 after the approved November 8, 2026 addition of one `Plus1` allocation to Invite 57. The previously verified 115-person October 3 baseline remains historical reference only. Invites 58–63 are now assigned guest-list invitations, while reserved invites 64–67 remain available for later assignment through the guarded production synchronization procedure.
 
 Implementation Requirement:
 The transformation must be repeatable and validated. It must reject malformed codes, duplicate normalized keys, missing required source values, unsupported wording modes, invalid or duplicate named-invitee identifiers, unequal or ambiguous parallel C/D name lists, malformed or ambiguous `Plus1` text, invalid or duplicate allocation identifiers, invalid allocation kinds or maximum counts, an unnamed-child residual not authorized by `Kids(n)`, invalid maximum-attendance values, a total configuration capacity that does not equal `maximumAttendance`, ambiguous heading data, malformed reserved rows, duplicate source codes including reserved codes, an invalid numbered-row sequence, or other contradictory records.
@@ -731,6 +735,7 @@ Clarified:
 9/20/2026
 9/27/2026
 10/3/2026
+11/8/2026
 
 ## Decision 024 — Phase 3 RSVP Privacy and Security Standard
 
@@ -1310,7 +1315,7 @@ The six-character value is used for internal lookup and is formatted as `XXX-XXX
 
 Runtime validation checks format and functional-registry existence. It does not re-enforce the historical code-generation rule concerning the minimum number of letters.
 
-All 68 numbered codes in the authoritative private source pass the normalization rules and produce 68 unique canonical source keys with no normalization collision. Functional eligibility is determined separately by source-role classification: exact reserved rows 58–67 are not lookup identities until populated, while assigned invitations and the permanent Test Sample produce functional production configurations.
+All 68 numbered codes in the authoritative private source pass the normalization rules and produce 68 unique canonical source keys with no normalization collision. Functional eligibility is determined separately by source-role classification: exact reserved rows 64–67 are not lookup identities until populated, while assigned invitations and the permanent Test Sample produce functional production configurations.
 
 **Status:**
 Final
@@ -1358,10 +1363,10 @@ Required
 **Completion Test:**
 The authoritative private source contains 68 numbered invitation-code rows with 68 unique normalized source keys. Under the current source state:
 
-* Invites 1–57 produce 57 assigned guest-list-eligible production configurations.
-* Invites 58–67 are 10 exact reserved placeholders and produce no functional configurations.
+* Invites 1–63 produce 63 assigned guest-list-eligible production configurations.
+* Invites 64–67 are four exact reserved placeholders and produce no functional configurations.
 * Invite 68 produces one permanent Test Sample production configuration with `guestListEligible: false`.
-* The current functional registry therefore contains 58 configurations.
+* The current functional registry therefore contains 64 configurations.
 
 If a reserved row is later populated as a valid real invitation, the derived functional and guest-list counts increase without a form-renderer code change. A partially populated or ambiguous reserved row fails transformation rather than being silently enabled.
 
@@ -1378,7 +1383,7 @@ Required
 
 **Completion Test:**
 
-* Exact reserved rows 58–67 retain unique source codes but do not appear in the functional production invitation registry and cannot retrieve or submit an RSVP until populated as real assigned invitations.
+* Exact reserved rows 64–67 retain unique source codes but do not appear in the functional production invitation registry and cannot retrieve or submit an RSVP until populated as real assigned invitations.
 * Fictional development/test fixtures remain isolated to nonproduction environments and are rejected by the production application.
 * The permanent Test Sample at Invite 68 is the intentional exception to the ordinary “test data is nonproduction” rule: it is a valid active production configuration with `recordRole: "test"` and `guestListEligible: false`.
 * The Test Sample follows the ordinary production RSVP behavior contract but does not contribute to real guest-list counts or capacity.
@@ -2305,7 +2310,7 @@ The couple-supplied private `Invitees List` spreadsheet is the authoritative sou
 Required
 
 **Completion Test:**
-The current source contains 68 numbered rows and 68 unique normalized source keys. Invites 1–57 are the established assigned guest-list baseline, invites 58–67 are exact reserved placeholders until populated, and Invite 68 is the permanent Test Sample. The source-role transformation currently yields 58 functional configurations: 57 guest-list eligible and one permanent test identity.
+The current source contains 68 numbered rows and 68 unique normalized source keys. Invites 1–63 are assigned guest-list invitations, with invites 1–57 retained as the independently auditable original subset; invites 64–67 are exact reserved placeholders until populated; and Invite 68 is the permanent Test Sample. The source-role transformation currently yields 64 functional configurations: 63 guest-list eligible and one permanent test identity.
 
 Every source code normalizes successfully; no normalized source key is duplicated; every functional configuration maps to its intended assigned or permanent-test row; and the source is stored and processed only within approved private project locations.
 
@@ -2325,8 +2330,8 @@ Required
 **Completion Test:**
 Source-role classification is deterministic:
 
-* Invites 1–57 are assigned guest-list records.
-* Invites 58–67 in the exact reserved placeholder shape produce no functional configuration; when later populated normally they become assigned guest-list records; malformed/partial placeholder states fail closed.
+* Invites 1–63 are assigned guest-list records; invites 1–57 remain the independently auditable original subset.
+* Invites 64–67 in the exact reserved placeholder shape produce no functional configuration; when later populated normally they become assigned guest-list records; malformed/partial placeholder states fail closed.
 * Invite 68 is the permanent Test Sample and remains functional production data with `guestListEligible: false`.
 
 For each functional row, the transformation maps Guest ID to `inviteCode`; Column G to `partyDisplayName` when present or otherwise derives the heading from Columns C and D; Column I to `wordingMode`; Column F to `maximumAttendance`; and each parallel C/D name pair to a `namedInvitees` record with a stable opaque ID and approved display name. It also stores private `recordRole`, `guestListEligible`, `active`, and production-environment metadata.
@@ -2348,14 +2353,14 @@ The transformation rejects malformed or duplicate source codes, invalid numbered
 Current audit values are:
 
 * 68 numbered source rows and 68 unique source codes.
-* 10 reserved placeholders.
-* 58 functional configurations.
-* 57 current guest-list-eligible configurations with maximum attendance 115.
-* One permanent Test Sample with maximum attendance 2.
-* Functional combined maximum attendance 117.
-* Stable invites 1–57 baseline: 84 named potential attendees, 26 Plus1 allocation objects/capacity, two grouped unnamed-child allocation objects carrying five child slots, 28 total allocation objects, 31 additional-guest capacity, and 115 maximum attendance.
+* Four reserved placeholders.
+* 64 functional configurations.
+* 63 current guest-list-eligible configurations with maximum attendance 123.
+* One permanent Test Sample with maximum attendance 4.
+* Functional combined maximum attendance 127.
+* Current invites 1–57 baseline after the approved November 8, 2026 Plus1 authorization: 84 named potential attendees, 27 Plus1 allocation objects/capacity, two grouped unnamed-child allocation objects carrying five child slots, 29 total allocation objects, 32 additional-guest capacity, and 116 maximum attendance.
 
-The 115 baseline is not a permanent ceiling. A later assigned invitation in the reserved 58–67 range increases current guest-list totals while leaving the established 1–57 audit baseline unchanged.
+The current 116-person baseline reflects the approved November 8, 2026 addition of one `Plus1` allocation to Invite 57. The previously verified 115-person October 3 baseline remains historical reference only. A later assigned invitation in the reserved 64–67 range increases current guest-list totals without altering the current 1–57 audit baseline unless an explicit later source authorization changes one of those baseline invitations.
 
 **Status:**
 Final
@@ -4397,7 +4402,7 @@ One reusable RSVP form-building system must serve every functional invitation.
 Required
 
 **Completion Test:**
-All functional production invitations—including assigned guest-list invitations, the permanent Test Sample, and any future assigned invitation populated from the reserved 58–67 range—are rendered through the same maintained form-building architecture rather than through separately coded React pages.
+All functional production invitations—including assigned guest-list invitations, the permanent Test Sample, and any future assigned invitation populated from the reserved 64–67 range—are rendered through the same maintained form-building architecture rather than through separately coded React pages.
 
 **Status:**
 Proposed
@@ -4834,7 +4839,7 @@ Decision:
 
 Production invitation configuration must be synchronized through a controlled maintenance workflow rather than by manually editing the RSVP workbook or running an unverified destructive script.
 
-The Invitations sheet is a private source-derived registry that may need to change after RSVP activity has begun—for example, when one of reserved invites 58–67 is later assigned to a real guest. Operational RSVP tables therefore are **not required to remain permanently empty**.
+The Invitations sheet is a private source-derived registry that may need to change after RSVP activity has begun—for example, when one of reserved invites 64–67 is later assigned to a real guest. Operational RSVP tables therefore are **not required to remain permanently empty**.
 
 Before any invitation write, the synchronization process must establish compatibility between the existing workbook and the new source-derived expected registry.
 

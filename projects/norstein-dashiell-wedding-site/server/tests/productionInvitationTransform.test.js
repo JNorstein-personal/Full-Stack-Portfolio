@@ -182,6 +182,11 @@ function makeBaselineRows() {
       plus1 =
         `Plus1 (${names.displayNames[0]})`;
       plus1Count = 1;
+    } else if (
+      index === 57
+    ) {
+      plus1 = "Plus1";
+      plus1Count = 1;
     }
 
     rows.push(
@@ -1336,12 +1341,12 @@ test(
     assert.equal(
       transformed.summary
         .combinedMaximumAttendance,
-      115,
+      116,
     );
     assert.equal(
       transformed.summary
         .baselineCombinedMaximumAttendance,
-      115,
+      116,
     );
     assert.equal(
       transformed.summary
@@ -1351,7 +1356,7 @@ test(
     assert.equal(
       transformed.summary
         .functionalCombinedMaximumAttendance,
-      119,
+      120,
     );
 
     assert.equal(
@@ -1397,7 +1402,7 @@ test(
     assert.equal(
       transformed.summary
         .plus1AllocationCount,
-      26,
+      27,
     );
     assert.equal(
       transformed.summary
@@ -1412,12 +1417,12 @@ test(
     assert.equal(
       transformed.summary
         .allocationCount,
-      28,
+      29,
     );
     assert.equal(
       transformed.summary
         .additionalGuestCapacity,
-      31,
+      32,
     );
     assert.equal(
       transformed.summary
@@ -1505,18 +1510,18 @@ test(
     assert.equal(
       transformed.summary
         .baselineCombinedMaximumAttendance,
-      115,
+      116,
     );
 
     assert.equal(
       transformed.summary
         .combinedMaximumAttendance,
-      116,
+      117,
     );
     assert.equal(
       transformed.summary
         .functionalCombinedMaximumAttendance,
-      120,
+      121,
     );
 
     assert.equal(

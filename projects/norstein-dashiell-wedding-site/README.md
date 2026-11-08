@@ -368,12 +368,12 @@ The functional registry therefore contains 64 production invitation configuratio
 Current source-level capacity is:
 
 ```text
-Real guest-list maximum attendance: 122
+Real guest-list maximum attendance: 123
 Permanent Test Sample maximum:       4
-Combined functional maximum:        126
+Combined functional maximum:        127
 ```
 
-The original assigned invites 1–57 remain a separately auditable historical baseline. Later assignment of a reserved invitation must use the guarded production synchronization procedure.
+Assigned invites 1–57 remain a separately auditable baseline. Following the approved November 8, 2026 addition of one `Plus1` allocation to Invite 57, the current 1–57 baseline maximum attendance is 116. The previously verified 115-person October 3 baseline remains historical reference only. Later assignment of a reserved invitation must use the guarded production synchronization procedure.
 
 Real invitation codes, guest identities, source-to-party mappings, and protected workbook content remain outside the public client and public repository documentation.
 

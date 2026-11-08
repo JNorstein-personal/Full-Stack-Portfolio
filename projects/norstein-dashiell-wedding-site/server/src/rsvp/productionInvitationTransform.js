@@ -53,17 +53,17 @@ const PRODUCTION_AUDIT_TARGETS =
     baselinePluralCount: 22,
     baselineNamedInviteeCount: 84,
     baselineInvitationsWithAllocations:
-      23,
-    baselineAllocationCount: 28,
-    baselinePlus1AllocationCount: 26,
+      24,
+    baselineAllocationCount: 29,
+    baselinePlus1AllocationCount: 27,
     baselineGroupedChildAllocationCount:
       2,
-    baselineAdditionalGuestCapacity: 31,
+    baselineAdditionalGuestCapacity: 32,
     baselineGroupedChildCapacity: 5,
     baselineMultiAllocationInvitationCount:
       4,
     baselineCombinedMaximumAttendance:
-      115,
+      116,
 
     testInvitationCount: 1,
     testNamedInviteeCount: 1,

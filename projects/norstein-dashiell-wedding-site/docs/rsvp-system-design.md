@@ -2,9 +2,9 @@
 
 **Project:** Loreweaver Creations Wedding Website
 **Phase:** Phase 3 — Design the RSVP System
-**Current completion:** Phase 3 RSVP architecture synchronized with the authoritative private `Invitees List` spreadsheet, the September 20, 2026 attendance-composition clarification, the September 27 unnamed-child/grouped-children clarification, and the October 3, 2026 production-source extension introducing reserved future invitation codes, one permanent production Test Sample, and guarded repeat invitation synchronization after RSVP activity begins
+**Current completion:** Phase 3 RSVP architecture synchronized with the authoritative private `Invitees List` spreadsheet, the September 20, 2026 attendance-composition clarification, the September 27 unnamed-child/grouped-children clarification, the October 3, 2026 production-source extension introducing reserved future invitation codes, one permanent production Test Sample, guarded repeat invitation synchronization after RSVP activity begins, and the November 8, 2026 approved Plus1 authorization affecting Invite 57
 **Phase 3 status:** Complete; governing RSVP model and production invitation lifecycle synchronized for the current implementation
-**Last updated:** October 11, 2026 (Decision 029 and D13 current-source reconciliation)
+**Last updated:** November 8, 2026 (approved Invite 57 Plus1 source update and governing audit-target reconciliation)
 
 ---
 
@@ -12,7 +12,7 @@
 
 **Governing update — October 11, 2026 (Decision 029):** The approved target system uses only guest email confirmation plus a separate protected administrative email attempt. SMS/text-message delivery, confirmation mobile-number collection, provider selection, authorization, and a future SMS release gate are retired, not deferred. Historical Phase 3 descriptions of the older dual-channel implementation are retained only where explicitly identified as historical. Obsolete SMS-capable code and API fields still exist disabled; the approved email-only contract must not be represented as fully implemented until controlled cleanup and verification have been completed. This documentation change does not authorize production activation.
 
-**Current D13 verified source:** 68 total invitation-code rows, 63 assigned guest invitations (1–63), four reserved placeholders (64–67), one permanent production Test Sample (68); 64 functional configurations; real guest maximum attendance 122 and Test Sample maximum attendance 4, for 126 combined. The 57-invitation/115-person October 3 historical baseline remains an independently auditable subset.
+**Current authoritative source after the approved November 8, 2026 update:** 68 total invitation-code rows, 63 assigned guest invitations (1–63), four reserved placeholders (64–67), one permanent production Test Sample (68); 64 functional configurations; real guest maximum attendance 123 and Test Sample maximum attendance 4, for 127 combined. The current invites 1–57 auditable baseline is 116 after the newly authorized Plus1 on Invite 57. The previously verified 57-invitation/115-person October 3 baseline remains historical reference.
 
 This document specifies the architecture, end-to-end data flow, trust boundaries, invitation-code normalization rules, sole RSVP access method, limited blank-form response boundary, submission/partial-revision model, authoritative conditional/dependency rules, explicit React interface-state model, fictional development archetypes, finalized confirmation-refresh behavior, and mandatory privacy and security rules of the RSVP system for the Loreweaver Creations wedding website.
 
@@ -70,19 +70,19 @@ The authoritative production source audit is now:
 * Invite 68 is the permanent production Test Sample.
 * 64 current functional production configurations: 63 `recordRole: "assigned"` / `guestListEligible: true` records plus one `recordRole: "test"` / `guestListEligible: false` record.
 * Four current reserved placeholders.
-* 126 combined functional maximum-attendance capacity: 122 real guest-list capacity plus 4 Test Sample capacity.
-* The established invites 1–57 baseline remains:
+* 127 combined functional maximum-attendance capacity: 123 real guest-list capacity plus 4 Test Sample capacity.
+* The current invites 1–57 baseline after the approved November 8, 2026 Plus1 authorization is:
   * 35 singular `I` wording records and 22 plural `we` wording records.
-  * 23 invitations authorizing at least one additional-guest allocation.
-  * 26 total `plus1` allocation objects.
+  * 24 invitations authorizing at least one additional-guest allocation.
+  * 27 total `plus1` allocation objects.
   * Two grouped `unnamedChildren` allocation objects carrying five unnamed-child capacity slots.
-  * 28 total `additionalGuestAllocations` objects.
-  * 31 total additional-guest person-capacity slots.
+  * 29 total `additionalGuestAllocations` objects.
+  * 32 total additional-guest person-capacity slots.
   * 84 specifically named potential attendees.
-  * Combined maximum-attendance capacity of 115.
+  * Combined maximum-attendance capacity of 116.
 * No normalization collisions are permitted across the 68 source codes.
 
-The 57-invitation / 115-person values are stable baseline audit targets for invites 1–57, not permanent production ceilings. If a currently reserved invite 64–67 is later populated as a real assigned invitation, the current guest-list invitation count and capacity increase while the baseline remains independently auditable.
+The 57-invitation / 116-person values are the current auditable baseline targets for invites 1–57 after the approved November 8, 2026 addition of one Plus1 allocation to Invite 57, not permanent production ceilings. The previously verified 115-person October 3 baseline remains historical reference only. If a currently reserved invite 64–67 is later populated as a real assigned invitation, the current guest-list invitation count and capacity increase while the current 1–57 baseline remains independently auditable unless a later explicit source authorization changes one of those baseline invitations.
 
 These figures are source-validation targets, not renderer constants.
 
@@ -1565,28 +1565,28 @@ The current authoritative source audit requires:
 * 64 functional production configurations.
 * 63 guest-list-eligible assigned configurations.
 * One permanent production Test Sample configuration with a source-audited roster and allocations.
-* 126 combined functional maximum-attendance capacity.
-* 122 current real guest-list maximum-attendance capacity.
+* 127 combined functional maximum-attendance capacity.
+* 123 current real guest-list maximum-attendance capacity.
 * Test Sample maximum-attendance capacity of 4.
 
-The established invites 1–57 baseline separately requires:
+The current invites 1–57 baseline after the approved November 8, 2026 Plus1 authorization separately requires:
 
 * 57 assigned guest-list invitations.
 * 35 singular and 22 plural wording records.
-* 23 invitations with one or more additional-guest allocations.
+* 24 invitations with one or more additional-guest allocations.
 * Four multi-allocation invitations.
-* 26 total Plus1 allocation objects.
+* 27 total Plus1 allocation objects.
 * 84 specifically named potential attendees.
 * Two invitations with grouped unnamed-child authorization.
 * Five total unnamed-child attendance-capacity slots.
 * Two grouped `unnamedChildren` allocation objects.
-* 28 total additional-allocation objects.
-* 31 total additional-guest person-capacity slots.
-* Combined maximum-attendance capacity of 115.
+* 29 total additional-allocation objects.
+* 32 total additional-guest person-capacity slots.
+* Combined maximum-attendance capacity of 116.
 
 The audit must reject duplicate source codes, missing/out-of-sequence numbered rows, partial reserved placeholders, or a Test Sample that fails its required production role/capacity expectations.
 
-These are transformation-audit targets only. Reusable runtime behavior must not hard-code the current functional count, current guest-list count, reserved-placeholder count, or current guest-list capacity. Population of a reserved invite 64–67 increases the live guest-list totals while leaving the invites 1–57 baseline unchanged.
+These are transformation-audit targets only. Reusable runtime behavior must not hard-code the current functional count, current guest-list count, reserved-placeholder count, or current guest-list capacity. Population of a reserved invite 64–67 increases the live guest-list totals while leaving the current invites 1–57 baseline unchanged unless a later explicit source authorization changes one of those baseline invitations. The previously verified 115-person October 3 baseline remains historical reference rather than a current audit target.
 
 ## 8. Sole RSVP Access Method
 
@@ -3714,7 +3714,9 @@ The governing capacity invariant remains:
 
 The October 3 source extension established 68 numbered invitation-code rows, with invites 1–57 assigned, invites 58–67 reserved, and Invite 68 the permanent production Test Sample. At that historical checkpoint, 58 configurations were functional, guest-list capacity was 115, and combined capacity was 117.
 
-**Superseding current state (D13 verified October 11, 2026):** invites 1–63 are assigned, 64–67 remain reserved, and Invite 68 remains the permanent Test Sample. The current 64 functional configurations have real guest-list capacity 122 plus Test Sample capacity 4, for 126 combined.
+**Superseding D13 state verified October 11, 2026:** invites 1–63 were assigned, 64–67 remained reserved, and Invite 68 remained the permanent Test Sample. At that checkpoint, the 64 functional configurations had real guest-list capacity 122 plus Test Sample capacity 4, for 126 combined.
+
+**Approved November 8, 2026 source update:** the source-role counts remain unchanged at 63 assigned invitations, four reserved placeholders, and one permanent Test Sample, but Invite 57 now authorizes one additional `Plus1`. Current real guest-list capacity is therefore 123, Test Sample capacity remains 4, and combined functional capacity is 127. The current invites 1–57 auditable baseline is 116; the 115-person October 3 baseline remains historical reference.
 
 The synchronization architecture supports future population of the four remaining reserved rows after RSVP responses exist. Such an addition is permitted only when all invitation configurations already referenced by operational data remain exactly unchanged.
 
@@ -3833,9 +3835,11 @@ The October 3 source extension adds production-record lifecycle classification w
 * Historical October 3 functional configurations: 58.
 * Historical October 3 real guest-list maximum attendance: 115.
 * Historical October 3 combined functional maximum attendance including Test Sample: 117.
-* Stable invites 1–57 baseline of 84 named potential attendees, 26 Plus1 allocations, two grouped child allocations carrying five child-capacity slots, 28 total allocation objects, 31 additional-guest capacity slots, and 115 maximum attendance.
+* Historical October 3 invites 1–57 baseline of 84 named potential attendees, 26 Plus1 allocations, two grouped child allocations carrying five child-capacity slots, 28 total allocation objects, 31 additional-guest capacity slots, and 115 maximum attendance.
 
-Under the current October 11 D13 source, invites 58–63 are now assigned and invites 64–67 are the only four reserved rows. Current functional total is 64, current real guest-list capacity is 122, Test Sample capacity is 4, and combined functional capacity is 126. Reserved rows are not lookup identities until assigned. The permanent Test Sample is a fully functional production identity but does not contribute to real guest-list counts. Later assignment of a reserved invitation may increase current guest-list totals without changing the established 1–57 baseline.
+Under the October 11 D13 source checkpoint, invites 58–63 had become assigned and invites 64–67 were the only four reserved rows. Functional total was 64, real guest-list capacity was 122, Test Sample capacity was 4, and combined functional capacity was 126.
+
+Under the approved November 8, 2026 source update, those source-role counts remain unchanged, but Invite 57 now authorizes one additional `Plus1`. Current real guest-list capacity is 123, Test Sample capacity remains 4, and combined functional capacity is 127. The current invites 1–57 baseline is 84 named potential attendees, 27 Plus1 allocations, two grouped child allocations carrying five child-capacity slots, 29 total allocation objects, 32 additional-guest capacity slots, and 116 maximum attendance. Reserved rows are not lookup identities until assigned. The permanent Test Sample is a fully functional production identity but does not contribute to real guest-list counts. Later assignment of a reserved invitation may increase current guest-list totals without changing the current 1–57 baseline unless a later explicit source authorization changes one of those baseline invitations.
 
 The October 3 synchronization model also removes the obsolete requirement that operational RSVP tables must be empty before invitation synchronization. Existing operational history is permitted, but every invitation configuration referenced by that history is immutable through the ordinary synchronization path.
 
