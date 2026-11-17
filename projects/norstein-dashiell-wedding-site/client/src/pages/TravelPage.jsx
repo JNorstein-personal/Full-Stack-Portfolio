@@ -168,10 +168,116 @@ function TravelPage() {
 
         <div className="prose-width">
           <p>
-            Guests traveling from farther away should plan their journey to
-            Roselle and confirm their own schedules and onward transportation.
-            Specific station, airport, and local-transfer recommendations will
-            be added only after those details are verified.
+            Guests traveling from farther away have several convenient options
+            for reaching Roselle. Please check current schedules and travel times
+            before your trip, particularly if you will be making a rail
+            connection.
+          </p>
+
+          <h3>Roselle Park Station &mdash; NJ Transit</h3>
+
+          <p>
+            <strong>Roselle Park Station</strong> is the closest NJ Transit rail
+            station to the wedding location and is served by the{" "}
+            <strong>Raritan Valley Line</strong>. Guests arriving here can
+            continue to the venue or hotel by taxi, rideshare, or other local
+            transportation.
+          </p>
+
+          <p>
+            NJ Transit rail tickets may be purchased online, through the NJ
+            Transit mobile app, or at a ticket vending machine at the station.
+          </p>
+
+          <p>
+            <strong>Tickets:</strong>{" "}
+            <ExternalLink href="https://webtickets.prod.njtransit.com/">
+              Purchase NJ Transit rail tickets
+            </ExternalLink>
+          </p>
+
+          <h3>Newark Penn Station &mdash; Amtrak &amp; NJ Transit</h3>
+
+          <p>
+            For guests traveling by Amtrak, we recommend arriving at{" "}
+            <strong>Newark Penn Station</strong>. The station is served by both{" "}
+            <strong>Amtrak</strong> and <strong>NJ Transit</strong>, making it a
+            convenient transfer point for continuing toward Roselle.
+          </p>
+
+          <p>
+            From Newark Penn, guests can transfer to an{" "}
+            <strong>NJ Transit Raritan Valley Line</strong> train serving
+            Roselle Park Station, then complete the remainder of the trip by
+            taxi or rideshare.
+          </p>
+
+          <p>
+            Amtrak and NJ Transit require separate tickets, so guests making
+            this connection should purchase an Amtrak ticket to Newark Penn
+            Station and an NJ Transit ticket for their onward trip.
+          </p>
+
+          <p>
+            <strong>Tickets:</strong>{" "}
+            <ExternalLink href="https://www.amtrak.com/tickets-reservations">
+              Purchase Amtrak tickets
+            </ExternalLink>
+            {" · "}
+            <ExternalLink href="https://webtickets.prod.njtransit.com/">
+              Purchase NJ Transit rail tickets
+            </ExternalLink>
+          </p>
+
+          <h3>
+            Newark Liberty International Airport &mdash; Flights, Amtrak &amp;
+            NJ Transit
+          </h3>
+
+          <p>
+            <strong>Newark Liberty International Airport (EWR)</strong> is the
+            most convenient airport for guests flying to the area, with both
+            domestic and international service.
+          </p>
+
+          <p>
+            Guests arriving by air may continue directly to Roselle by taxi or
+            rideshare. Public transportation is also available: the
+            airport&rsquo;s <strong>AirTrain</strong> connects the passenger
+            terminals with{" "}
+            <strong>Newark Liberty International Airport Rail Station</strong>,
+            which is served by both NJ Transit and Amtrak. Guests traveling
+            toward Roselle by rail can take NJ Transit to Newark Penn Station
+            and transfer there to the Raritan Valley Line for Roselle Park.
+          </p>
+
+          <p>
+            Guests traveling by Amtrak may also choose Newark Liberty
+            International Airport Rail Station if their train stops there.
+            AirTrain provides the connection between the rail station and the
+            airport terminals.
+          </p>
+
+          <p>
+            For airfare, use Newark Liberty International Airport&rsquo;s
+            official airline directory to find the airline serving your route
+            and book directly with the carrier.
+          </p>
+
+          <p>
+            <strong>Flights:</strong>{" "}
+            <ExternalLink href="https://www.newarkairport.com/flights/airlines">
+              View airlines serving Newark Liberty International Airport
+            </ExternalLink>
+            <br />
+            <strong>Rail tickets:</strong>{" "}
+            <ExternalLink href="https://www.amtrak.com/tickets-reservations">
+              Purchase Amtrak tickets
+            </ExternalLink>
+            {" · "}
+            <ExternalLink href="https://webtickets.prod.njtransit.com/">
+              Purchase NJ Transit rail tickets
+            </ExternalLink>
           </p>
         </div>
       </ContentSection>
