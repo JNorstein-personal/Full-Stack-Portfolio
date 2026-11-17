@@ -283,7 +283,7 @@ function TravelPage() {
 
         <div className="prose-width">
           <p>
-            For wedding-day timing and food information, visit our{" "}
+            For a brief day-of itinerary, menu information and gifting details, visit our{" "}
             <Link to="/day-of">Day-Of Details</Link> page.
           </p>
         </div>
