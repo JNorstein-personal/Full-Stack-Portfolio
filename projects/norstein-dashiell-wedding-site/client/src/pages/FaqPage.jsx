@@ -185,16 +185,14 @@ function FaqPage() {
 
         <div className="prose-width">
           <p>
-            We&rsquo;re still putting the final accommodation details together.
-            We plan to provide lodging information for guests staying from{" "}
-            <strong>Friday, April 30 through Sunday, May 2</strong>, but the
-            hotel recommendations, booking instructions, and any block details
-            are not yet finalized.
+            Yes. We have reserved a discounted room block at the{" "}
+            <strong>Holiday Inn Clark</strong>, 36 Valley Road, Clark, New Jersey,
+            for the <strong>Norstein-Dashiell Wedding</strong> from{" "}
+            <strong>Friday, April 30 through Sunday, May 2, 2027</strong>.
           </p>
-
           <p>
-            We&rsquo;ll post everything on our <Link to="/travel">Travel</Link>{" "}
-            page as soon as those details are confirmed.
+            See our <Link to="/travel">Travel</Link> page for the
+            complete booking details.
           </p>
         </div>
       </ContentSection>
@@ -205,9 +203,8 @@ function FaqPage() {
         <div className="prose-width">
           <p>
             We will not be using a traditional wedding registry. If you would
-            like to give us something, we&rsquo;re happiest with thoughtful,
-            handcrafted, or practical gifts that can help us save toward the
-            adventures and plans ahead of us&mdash;but your presence at the
+            like to give us something, we&rsquo;d welcome cash, checks, or cash-value or equivalent gifts &mdash; something that can help us save toward the adventures and plans ahead of us; or thoughtful,
+            handcrafted or practical gifts that won't overfill our relatively compact living space &mdash; but your presence at the
             celebration matters far more to us than bringing a gift.
           </p>
 

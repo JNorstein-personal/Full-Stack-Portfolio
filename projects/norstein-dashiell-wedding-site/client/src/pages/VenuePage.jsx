@@ -100,13 +100,19 @@ function VenuePage() {
         <div className="prose-width">
           <p>
             Municipal parking is available in the lot directly across the
-            street from the Sphinx Banquet &amp; Catering Center.
+            street from the Sphinx Banquet &amp; Catering Center, so you
+            won&rsquo;t have far to go once you&rsquo;ve parked.
           </p>
 
           <p>
-            Please take care when crossing the street, and allow yourself a
-            little extra time to park and make your way inside before the
-            ceremony begins.
+            One small but important heads-up: unfortunately, the municipal
+            parking meters are active on most Saturdays as well as weekdays.
+            Please be prepared to pay for parking, and give yourself a little
+            extra time to find a space, check the posted meter or parking
+            instructions, get everything squared away, and cross the street
+            safely before the ceremony begins. That way, an unexpected
+            ticket&mdash;or, worse, a tow&mdash;doesn&rsquo;t become part of
+            your wedding-day adventure.
           </p>
         </div>
       </ContentSection>

@@ -68,8 +68,19 @@ function TravelPage() {
         <div className="prose-width">
           <p>
             Municipal parking is available in the lot directly across the
-            street from the venue. Please allow extra time to park and cross
-            the street before the ceremony.
+            street from the venue, so you won&rsquo;t have far to go once
+            you&rsquo;ve arrived.
+          </p>
+
+          <p>
+            One small but important heads-up: unfortunately, the municipal
+            parking meters are active on most Saturdays as well as weekdays.
+            Please be prepared to pay for parking, and give yourself a little
+            extra time to find a space, check the posted meter or parking
+            instructions, get everything squared away, and cross the street
+            safely before the ceremony begins. That way, an unexpected
+            ticket&mdash;or, worse, a tow&mdash;doesn&rsquo;t become part of
+            your wedding-day adventure.
           </p>
 
           <p>
@@ -80,19 +91,73 @@ function TravelPage() {
       </ContentSection>
 
       <ContentSection labelledBy="travel-hotels-heading">
-        <h2 id="travel-hotels-heading">Hotels &amp; Overnight Stays</h2>
+        <h2 id="travel-hotels-heading">Hotel Accommodations</h2>
 
         <div className="prose-width">
           <Card>
             <p>
-              <strong>Accommodation details are still being finalized.</strong>
+              For guests traveling from out of town&mdash;or anyone who would
+              simply prefer to stay nearby after the celebration&mdash;we have
+              reserved a discounted room block at the <strong>Holiday Inn Clark</strong>.
             </p>
 
             <p>
-              We&rsquo;re still gathering hotel recommendations and any booking
-              details. No hotel room block or negotiated rate has been
-              confirmed yet. We&rsquo;ll add accommodation information here once it
-              is available.
+              <strong>Holiday Inn Clark</strong>
+              <br />
+              36 Valley Road
+              <br />
+              Clark, NJ 07066
+            </p>
+
+            <p>
+              Rooms are available from <strong>April 30 through May 2, 2027</strong>,
+            </p>
+
+            <p>
+              at a special group rate of{" "}
+              <strong>$129 per night, plus applicable state and local taxes</strong>.
+              Breakfast is included with the group rate.
+            </p>
+
+            <p>The discounted rate applies to:</p>
+
+            <ul>
+              <li>King rooms</li>
+              <li>Rooms with two queen beds</li>
+              <li>Suites</li>
+            </ul>
+
+            <p>
+              <strong>Check-in:</strong> Friday, April 30th at 3:00 PM
+              <br />
+              <strong>Check-out:</strong> Sunday, May 2nd at 11:00 AM
+            </p>
+
+            <p>
+              The hotel will make every effort to accommodate early check-in
+              requests, but early check-in cannot be guaranteed. Guests who need
+              a connecting room should contact the hotel directly, as connecting
+              rooms are limited and subject to availability.
+            </p>
+
+            <h3>Reserving Your Room</h3>
+
+            <p>
+              To receive the wedding room-block rate, please reserve your room{" "}
+              <strong>no later than March 30, 2027</strong>.
+            </p>
+
+            <p>
+              Reserve a room by calling{" "}
+              <a href="tel:+17325740100">(732) 574-0100</a> and asking for the{" "}
+              <strong>Norstein-Dashiell Wedding</strong> room block or providing
+              group code: <strong>NDW</strong>.
+            </p>
+
+            <p>
+              After March 30, the discounted wedding rate will no longer be
+              guaranteed. Rooms may still be available at the hotel&rsquo;s regular
+              rate, subject to availability.
             </p>
           </Card>
         </div>
