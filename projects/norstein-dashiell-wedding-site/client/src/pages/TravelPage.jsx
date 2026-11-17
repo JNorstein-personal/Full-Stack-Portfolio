@@ -110,11 +110,7 @@ function TravelPage() {
             </p>
 
             <p>
-              Rooms are available from <strong>April 30 through May 2, 2027</strong>,
-            </p>
-
-            <p>
-              at a special group rate of{" "}
+              Rooms are available from <strong>April 30 through May 2, 2027</strong>, At a special group rate of{" "}
               <strong>$129 per night, plus applicable state and local taxes</strong>.
               Breakfast is included with the group rate.
             </p>
