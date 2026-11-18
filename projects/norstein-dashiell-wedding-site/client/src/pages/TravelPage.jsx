@@ -147,7 +147,11 @@ function TravelPage() {
               Reserve a room by calling{" "}
               <a href="tel:+17325740100">(732) 574-0100</a> and asking for the{" "}
               <strong>Norstein-Dashiell Wedding</strong> room block or providing
-              group code: <strong>NDW</strong>.
+              group code: <strong>NDW</strong>, or you can book online by{" "}
+              <ExternalLink href="https://www.ihg.com/holidayinn/hotels/us/en/find-hotels/select-roomrate?fromRedirect=true&qSrt=sBR&qIta=99801505&icdv=99801505&qSlH=clknj&qCiD=30&qCiMy=032027&qCoD=02&qCoMy=042027&qGrpCd=DNW&setPMCookies=true&qSHBrC=HI&qDest=36%20Valley%20Road,%20Clark,%20NJ,%20US&showApp=true&adjustMonth=false&srb_u=1&qRmFltr=">
+                <strong>clicking here</strong>
+              </ExternalLink>
+              .
             </p>
 
             <p>
