@@ -855,7 +855,7 @@ function RsvpPage() {
            <p className="rsvp-kicker">
               Welcome,
             </p>
-            <h2>
+            <h2 className="rsvp-party-display-name">
               {lookup.invitation
                   .partyDisplayName}
             </h2>
