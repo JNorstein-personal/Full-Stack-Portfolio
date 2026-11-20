@@ -51,6 +51,144 @@ function readRsvpTiming(
   });
 }
 
+const FRONTEND_NAME_CORRECTIONS = Object.freeze({
+  CP61ZX: Object.freeze({
+    displayName: "Nūh Dashiell",
+    variants: Object.freeze([
+      "N?h Dashiell",
+      "N?h",
+    ]),
+  }),
+  N6S4AZ: Object.freeze({
+    displayName: "Chlöe Thomas",
+    variants: Object.freeze([
+      "Chloe Thomas",
+      "Chl?e Thomas",
+      "Chöe Thomas",
+      "Chloe",
+      "Chl?e",
+      "Chöe",
+    ]),
+  }),
+});
+
+function canonicalizeInviteCodeForDisplay(
+  value,
+) {
+  return String(value ?? "")
+    .trim()
+    .replace(/\s/g, "")
+    .replace(/-/g, "")
+    .toUpperCase();
+}
+
+function replaceCorrectedGuestName(
+  value,
+  correction,
+) {
+  if (
+    typeof value !== "string" ||
+    !correction
+  ) {
+    return value;
+  }
+
+  return correction.variants.reduce(
+    (current, variant) =>
+      current
+        .split(variant)
+        .join(correction.displayName),
+    value,
+  );
+}
+
+function applyFrontendNameCorrection(
+  payload,
+  inviteCode,
+) {
+  const canonicalCode =
+    canonicalizeInviteCodeForDisplay(
+      inviteCode,
+    );
+  const correction =
+    FRONTEND_NAME_CORRECTIONS[
+      canonicalCode
+    ];
+
+  if (!correction || !payload) {
+    return payload;
+  }
+
+  const invitation = payload.invitation
+    ? {
+        ...payload.invitation,
+        partyDisplayName:
+          replaceCorrectedGuestName(
+            payload.invitation
+              .partyDisplayName,
+            correction,
+          ),
+        greeting:
+          replaceCorrectedGuestName(
+            payload.invitation.greeting,
+            correction,
+          ),
+        ...(Array.isArray(
+          payload.invitation
+            .namedInvitees,
+        )
+          ? {
+              namedInvitees:
+                payload.invitation.namedInvitees.map(
+                  (invitee) => ({
+                    ...invitee,
+                    displayName:
+                      replaceCorrectedGuestName(
+                        invitee.displayName,
+                        correction,
+                      ),
+                  }),
+                ),
+            }
+          : {}),
+      }
+    : payload.invitation;
+
+  const rsvp = payload.rsvp
+    ? {
+        ...payload.rsvp,
+        ...(Array.isArray(
+          payload.rsvp
+            .namedInviteeResponses,
+        )
+          ? {
+              namedInviteeResponses:
+                payload.rsvp.namedInviteeResponses.map(
+                  (response) => ({
+                    ...response,
+                    displayName:
+                      replaceCorrectedGuestName(
+                        response.displayName,
+                        correction,
+                      ),
+                  }),
+                ),
+            }
+          : {}),
+      }
+    : payload.rsvp;
+
+  return {
+    ...payload,
+    ...(payload.invitation
+      ? { invitation }
+      : {}),
+    ...(payload.rsvp
+      ? { rsvp }
+      : {}),
+  };
+}
+
 function RsvpPage() {
   const navigate = useNavigate();
   const [state, setState] =
@@ -244,10 +382,17 @@ function RsvpPage() {
         await lookupRsvpInvitation(
           code,
         );
+      const displayResult =
+        applyFrontendNameCorrection(
+          result,
+          code,
+        );
 
-      setLookup(result);
+      setLookup(displayResult);
       setDraft(
-        createBlankDraft(result),
+        createBlankDraft(
+          displayResult,
+        ),
       );
       setPendingRequest(null);
       setState(
@@ -309,7 +454,10 @@ function RsvpPage() {
         );
 
       setTransientConfirmation(
-        result,
+        applyFrontendNameCorrection(
+          result,
+          request.inviteCode,
+        ),
       );
       setPendingRequest(null);
       submissionInFlightRef.current =
