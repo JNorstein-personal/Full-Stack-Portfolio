@@ -60,7 +60,7 @@ const FRONTEND_NAME_CORRECTIONS = Object.freeze({
     ]),
   }),
   N6S4AZ: Object.freeze({
-    displayName: "Chlöe Thomas",
+    displayName: "Chloë Thomas",
     variants: Object.freeze([
       "Chloe Thomas",
       "Chl?e Thomas",
