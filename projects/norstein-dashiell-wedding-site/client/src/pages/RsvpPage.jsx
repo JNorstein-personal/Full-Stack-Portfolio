@@ -54,21 +54,13 @@ function readRsvpTiming(
 const FRONTEND_NAME_CORRECTIONS = Object.freeze({
   CP61ZX: Object.freeze({
     displayName: "Nūh Dashiell",
-    variants: Object.freeze([
-      "N?h Dashiell",
-      "N?h",
-    ]),
+    fullNamePattern:
+      String.raw`N\S*\s+Dashiell`,
   }),
   N6S4AZ: Object.freeze({
     displayName: "Chloë Thomas",
-    variants: Object.freeze([
-      "Chloe Thomas",
-      "Chl?e Thomas",
-      "Chöe Thomas",
-      "Chloe",
-      "Chl?e",
-      "Chöe",
-    ]),
+    fullNamePattern:
+      String.raw`Ch\S*\s+Thomas`,
   }),
 });
 
@@ -93,12 +85,15 @@ function replaceCorrectedGuestName(
     return value;
   }
 
-  return correction.variants.reduce(
-    (current, variant) =>
-      current
-        .split(variant)
-        .join(correction.displayName),
-    value,
+  const fullNameMatcher =
+    new RegExp(
+      correction.fullNamePattern,
+      "giu",
+    );
+
+  return value.replace(
+    fullNameMatcher,
+    correction.displayName,
   );
 }
 
@@ -126,11 +121,6 @@ function applyFrontendNameCorrection(
           replaceCorrectedGuestName(
             payload.invitation
               .partyDisplayName,
-            correction,
-          ),
-        greeting:
-          replaceCorrectedGuestName(
-            payload.invitation.greeting,
             correction,
           ),
         ...(Array.isArray(
