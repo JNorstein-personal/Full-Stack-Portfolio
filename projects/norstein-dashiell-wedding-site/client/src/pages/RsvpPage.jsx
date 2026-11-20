@@ -51,66 +51,63 @@ function readRsvpTiming(
   });
 }
 
-const FRONTEND_NAME_CORRECTIONS = Object.freeze({
-  CP61ZX: Object.freeze({
+const FRONTEND_NAME_CORRECTIONS = Object.freeze([
+  Object.freeze({
     displayName: "Nūh Dashiell",
-    fullNamePattern:
-      String.raw`N\S*\s+Dashiell`,
+    normalizedPattern:
+      /^n(?:u|\s*)h\s+dashiell\b/u,
   }),
-  N6S4AZ: Object.freeze({
+  Object.freeze({
     displayName: "Chloë Thomas",
-    fullNamePattern:
-      String.raw`Ch\S*\s+Thomas`,
+    normalizedPattern:
+      /^chl(?:o|\s*)e\s+thomas\b/u,
   }),
-});
+]);
 
-function canonicalizeInviteCodeForDisplay(
+function normalizeDisplayNameForMatching(
   value,
 ) {
   return String(value ?? "")
-    .toUpperCase()
-    .replace(/[^A-Z0-9]/g, "");
+    .normalize("NFKD")
+    .replace(/\p{M}/gu, "")
+    .replace(/\p{Cf}/gu, "")
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim()
+    .toLowerCase();
 }
 
-function replaceCorrectedGuestName(
+function correctedDisplayName(
   value,
-  correction,
 ) {
-  if (
-    typeof value !== "string" ||
-    !correction
-  ) {
+  if (typeof value !== "string") {
     return value;
   }
 
-  const fullNameMatcher =
-    new RegExp(
-      correction.fullNamePattern,
-      "giu",
+  const normalized =
+    normalizeDisplayNameForMatching(
+      value,
     );
 
-  return value.replace(
-    fullNameMatcher,
-    correction.displayName,
-  );
+  const correction =
+    FRONTEND_NAME_CORRECTIONS.find(
+      (item) =>
+        item.normalizedPattern.test(
+          normalized,
+        ),
+    );
+
+  return correction
+    ? correction.displayName
+    : value;
 }
 
-function correctFrontendDisplayStrings(
+function correctFrontendDisplayFields(
   value,
-  correction,
 ) {
-  if (typeof value === "string") {
-    return replaceCorrectedGuestName(
-      value,
-      correction,
-    );
-  }
-
   if (Array.isArray(value)) {
     return value.map((item) =>
-      correctFrontendDisplayStrings(
+      correctFrontendDisplayFields(
         item,
-        correction,
       ));
   }
 
@@ -120,13 +117,26 @@ function correctFrontendDisplayStrings(
   ) {
     return Object.fromEntries(
       Object.entries(value).map(
-        ([key, item]) => [
-          key,
-          correctFrontendDisplayStrings(
-            item,
-            correction,
-          ),
-        ],
+        ([key, item]) => {
+          if (
+            key === "partyDisplayName" ||
+            key === "displayName"
+          ) {
+            return [
+              key,
+              correctedDisplayName(
+                item,
+              ),
+            ];
+          }
+
+          return [
+            key,
+            correctFrontendDisplayFields(
+              item,
+            ),
+          ];
+        },
       ),
     );
   }
@@ -136,24 +146,13 @@ function correctFrontendDisplayStrings(
 
 function applyFrontendNameCorrection(
   payload,
-  inviteCode,
 ) {
-  const canonicalCode =
-    canonicalizeInviteCodeForDisplay(
-      inviteCode,
-    );
-  const correction =
-    FRONTEND_NAME_CORRECTIONS[
-      canonicalCode
-    ];
-
-  if (!correction || !payload) {
+  if (!payload) {
     return payload;
   }
 
-  return correctFrontendDisplayStrings(
+  return correctFrontendDisplayFields(
     payload,
-    correction,
   );
 }
 
@@ -353,7 +352,6 @@ function RsvpPage() {
       const displayResult =
         applyFrontendNameCorrection(
           result,
-          code,
         );
 
       setLookup(displayResult);
@@ -424,7 +422,6 @@ function RsvpPage() {
       setTransientConfirmation(
         applyFrontendNameCorrection(
           result,
-          request.inviteCode,
         ),
       );
       setPendingRequest(null);
