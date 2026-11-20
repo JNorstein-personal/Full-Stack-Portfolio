@@ -312,6 +312,10 @@ textarea:disabled {
   text-transform: uppercase;
 }
 
+.rsvp-party-display-name {
+  text-transform: uppercase;
+}
+
 .rsvp-form fieldset {
   display: grid;
   gap: var(--space-3);
