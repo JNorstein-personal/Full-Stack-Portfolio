@@ -68,10 +68,8 @@ function canonicalizeInviteCodeForDisplay(
   value,
 ) {
   return String(value ?? "")
-    .trim()
-    .replace(/\s/g, "")
-    .replace(/-/g, "")
-    .toUpperCase();
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "");
 }
 
 function replaceCorrectedGuestName(
@@ -97,6 +95,45 @@ function replaceCorrectedGuestName(
   );
 }
 
+function correctFrontendDisplayStrings(
+  value,
+  correction,
+) {
+  if (typeof value === "string") {
+    return replaceCorrectedGuestName(
+      value,
+      correction,
+    );
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) =>
+      correctFrontendDisplayStrings(
+        item,
+        correction,
+      ));
+  }
+
+  if (
+    value &&
+    typeof value === "object"
+  ) {
+    return Object.fromEntries(
+      Object.entries(value).map(
+        ([key, item]) => [
+          key,
+          correctFrontendDisplayStrings(
+            item,
+            correction,
+          ),
+        ],
+      ),
+    );
+  }
+
+  return value;
+}
+
 function applyFrontendNameCorrection(
   payload,
   inviteCode,
@@ -114,69 +151,10 @@ function applyFrontendNameCorrection(
     return payload;
   }
 
-  const invitation = payload.invitation
-    ? {
-        ...payload.invitation,
-        partyDisplayName:
-          replaceCorrectedGuestName(
-            payload.invitation
-              .partyDisplayName,
-            correction,
-          ),
-        ...(Array.isArray(
-          payload.invitation
-            .namedInvitees,
-        )
-          ? {
-              namedInvitees:
-                payload.invitation.namedInvitees.map(
-                  (invitee) => ({
-                    ...invitee,
-                    displayName:
-                      replaceCorrectedGuestName(
-                        invitee.displayName,
-                        correction,
-                      ),
-                  }),
-                ),
-            }
-          : {}),
-      }
-    : payload.invitation;
-
-  const rsvp = payload.rsvp
-    ? {
-        ...payload.rsvp,
-        ...(Array.isArray(
-          payload.rsvp
-            .namedInviteeResponses,
-        )
-          ? {
-              namedInviteeResponses:
-                payload.rsvp.namedInviteeResponses.map(
-                  (response) => ({
-                    ...response,
-                    displayName:
-                      replaceCorrectedGuestName(
-                        response.displayName,
-                        correction,
-                      ),
-                  }),
-                ),
-            }
-          : {}),
-      }
-    : payload.rsvp;
-
-  return {
-    ...payload,
-    ...(payload.invitation
-      ? { invitation }
-      : {}),
-    ...(payload.rsvp
-      ? { rsvp }
-      : {}),
-  };
+  return correctFrontendDisplayStrings(
+    payload,
+    correction,
+  );
 }
 
 function RsvpPage() {
