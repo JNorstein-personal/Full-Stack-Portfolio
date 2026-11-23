@@ -24,42 +24,78 @@ Backend API base path:
 
 ## Project Status
 
-**Invitation-launch production release is live. Workstreams 1–6 and the D14 production-readiness gate are complete. The confirmed wedding arrangement is permanently Sphinx-only. The public RSVP service is active, the production release has passed deployment and rollback verification, toggleable background music is implemented, and privacy-minimized anonymous aggregate site analytics are deployed.**
+**The invitation-launch production release is live. Workstreams 1–6 and the D14 production-readiness gate are complete. The confirmed wedding arrangement is permanently Sphinx-only. The public RSVP service is active, the production release has passed deployment and rollback verification, toggleable background music is implemented, privacy-minimized anonymous aggregate site analytics are deployed, and finalized hotel/travel information is live.**
 
-The final release sprint closed the remaining launch-critical work:
+The final release sprint and subsequent production enhancements established the following state:
 
 | Phase | Status | Result |
 | --- | --- | --- |
 | Workstream 1 — Application Foundation | Complete | React/Vite client, Express server, shared shell, design foundations, routing, configuration boundaries, and Ubuntu deployment proof |
 | Workstream 2 — RSVP Backend and Data Layer | Complete | Private invitation lookup, validation, persistence, revisions, version history, idempotency, confirmation delivery, production synchronization, and recovery tooling |
 | Workstream 3 — RSVP Frontend and Content Lock | Complete | Thirteen-state browser coverage, accessibility/responsive verification, guest-facing copy cleanup, privacy/bundle review, and reproducibility exit |
-| Workstream 4 — Public Pages and Launch Assets | Complete | Sphinx-only public content, themed presentation, media, navigation, current links, Day-Of details, FAQ, Travel pending-state treatment, and Gallery Coming Soon |
+| Workstream 4 — Public Pages and Launch Assets | Complete | Sphinx-only public content, themed presentation, media, navigation, current links, Day-Of details, FAQ, finalized Travel/hotel/transportation/parking information, and Gallery Coming Soon |
 | Workstream 5 — Integrated Release QA | Complete | Route, browser, API, accessibility, privacy, and production-build regression |
 | D14 — Production Readiness | Complete | Read-only source/runtime/configuration/routing/workbook/backup/rollback review and GO decision |
 | Workstream 6 — Production Cutover | Complete | Guarded Ubuntu deployment, HTTPS/public routing, service activation, smoke testing, and rollback verification |
 | Post-release enhancement — Background Music | Complete | Accessible guest-controlled intro-to-loop background audio, off by default and nonessential |
 | Post-release enhancement — Anonymous Analytics | Complete | First-party aggregate page metrics stored separately from RSVP data with privacy-minimized collection |
+| Post-release enhancement — Travel and Accommodations Finalization | Complete | Hotel block, rail/air guidance, ticketing links, parking guidance, and online hotel booking information finalized and deployed |
 
-The current production deployment checkpoint is:
-
-```text
-d6f6d9919845d50058eee77a14997cb622039537
-```
-
-That checkpoint was deployed through the guarded release procedure and passed final post-release provenance, service, public-route, privacy-log, rollback-asset, and analytics-storage audits.
+Production deployments continue to use the project's guarded exact-commit release procedure with preflight verification, timestamped rollback assets, service checks, and public smoke tests. Because the live deployment advances as maintenance changes are released, the README does not hardcode a single commit as the permanent "current" production checkpoint; Git history and deployment verification records provide the authoritative provenance for each release.
 
 ## Current Wedding Configuration
 
 The active wedding presentation is permanently Sphinx-only.
 
-**Wedding:** Saturday, May 1, 2027
-**Ceremony:** 11:30 a.m.
-**Event window:** 11:30 a.m.–4:30 p.m.
-**Venue:** Sphinx Banquet and Catering Center
-**Address:** 121 E 2nd Avenue, Roselle, NJ 07203
+**Wedding:** Saturday, May 1, 2027  
+**Ceremony:** 11:30 a.m.  
+**Event window:** 11:30 a.m.–4:30 p.m.  
+**Venue:** Sphinx Banquet and Catering Center  
+**Address:** 121 E 2nd Avenue, Roselle, NJ 07203  
 **Parking:** Municipal parking lot directly across the street
 
 The earlier Warinanco Park ceremony configuration is discontinued. Historical references may remain in older planning records for traceability, but it is not an active contingency or future launch option.
+
+## Travel, Hotel, and Transportation
+
+The Travel experience is no longer in a placeholder or externally pending state. Guest-facing accommodation and transportation information has been finalized and deployed.
+
+### Hotel Accommodations
+
+The wedding room block is at:
+
+**Holiday Inn Clark**  
+36 Valley Road  
+Clark, NJ 07066
+
+Current block information includes:
+
+* **Block name:** Norstein-Dashiell Wedding
+* **Stay window:** April 30–May 2, 2027
+* **Group rate:** $129/night plus applicable taxes
+* **Breakfast:** Included
+* **Room types:** King, Two Queen, and Suites
+* **Check-in:** Friday, April 30 at 3:00 p.m.
+* **Check-out:** Sunday, May 2 at 11:00 a.m.
+* **Booking deadline:** March 30, 2027
+* **Phone booking:** (732) 574-0100
+* **Group code:** NDW
+
+The live Travel page also includes the official online IHG group-booking link. Early check-in is not guaranteed, and connecting rooms are limited.
+
+### Rail and Air Guidance
+
+The finalized Travel page identifies:
+
+* **Roselle Park Station** as the nearest NJ Transit rail station, served by the Raritan Valley Line;
+* **Newark Penn Station** as the nearest practical Amtrak station, with NJ Transit connections available for onward travel; and
+* **Newark Liberty International Airport (EWR)** as the nearest major airport, with rail and ground-transportation connections available.
+
+Guest-facing ticketing and travel-resource links are integrated for NJ Transit, Amtrak, EWR airline information, and the Holiday Inn booking page.
+
+### Driving and Parking
+
+The municipal parking lot directly across from the venue is the primary guest parking location. Its meters are active on most Saturdays as well as weekdays, so guests are advised to be prepared to pay for parking to avoid tickets or towing and to allow a little extra time to park, confirm that everything is squared away, and cross safely before the ceremony begins.
 
 ## Implemented Public Experience
 
@@ -597,29 +633,30 @@ The deployment procedure preserves protected environment configuration outside t
 
 ## Production Verification
 
-The final launch and post-release analytics checkpoints verified:
+The final launch and subsequent production checkpoints have verified:
 
 * Client ESLint — PASS
 * Client tests — **40/40 PASS**
-* Server tests — **327/327 PASS**
+* Server tests — **332/332 PASS** at the current verified server-test baseline
 * Vite production build — PASS
 * Backend JavaScript syntax checks — PASS
 * Required analytics/privacy release files — PASS
 * Exact release-candidate provenance — PASS
-* Live backend matched the exact release candidate — PASS
-* Live frontend matched the exact release build — PASS
+* Live backend matched the intended release candidate — PASS
+* Live frontend matched the intended release build — PASS
 * Local and public backend health — PASS
-* Public Home, RSVP, Privacy, and other release routes — PASS
+* Public Home, RSVP, Privacy, Travel, Venue, FAQ, and other release routes — PASS
 * Public analytics endpoint routing — PASS
 * Background-music browser behavior — PASS
 * Anonymous analytics browser behavior — PASS
 * Analytics failure isolation from website/RSVP — PASS
 * Analytics workbook aggregate-only privacy audit — PASS
 * Analytics request-detail absence from relevant application/tunnel journals — PASS
-* Zero post-deploy application error lines in the final audit window — PASS
 * Timestamped production rollback assets retained — PASS
 
 The analytics post-release audit confirmed one dedicated `Site Analytics` worksheet, the approved five-column schema only, allowlisted paths only, no query/hash data, aggregate numeric metrics only, and no duplicate per-page rows.
+
+Later Travel/Hotel deployments were likewise built from Git-tracked source, tested, deployed through the guarded Ubuntu workflow, and publicly verified before completion.
 
 ## Deferred or Changed Scope
 
@@ -628,13 +665,14 @@ The final release intentionally does not attempt to complete every historical pl
 Current deferred or superseded scope includes:
 
 * **Advanced gallery/post-wedding media:** The Gallery remains a deliberate pre-wedding Coming Soon page. Full post-wedding galleries, guest uploads, download packages, archive workflows, and generalized media-library/Nextcloud integration remain deferred.
-* **Hotel block details:** The Travel route is complete as a page, but property-specific hotel information remains externally dependent until finalized. No rate, booking code, deadline, shuttle, or accessibility claim should be invented.
 * **SMS confirmation:** Superseded by Decision 029. New RSVP confirmation is email-only; SMS is not a pending launch feature or future guest-facing activation path.
 * **Warinanco configuration:** Discontinued. The active wedding presentation is permanently Sphinx-only.
 * **Portfolio polish:** Additional screenshots, architecture diagrams, demo-guide refinement, and optional CI improvements remain separate portfolio/maintenance work rather than wedding-site launch requirements.
 * **Broad external-link expansion:** The production site uses a limited useful set of reviewed resources rather than an exhaustive shopping/streaming directory.
 * **Nonessential architecture/refactoring work:** Broad refactors and dependency upgrades are handled separately from release-critical wedding functionality.
-* **Dependency maintenance:** The final production preflight surfaced npm audit advisories that should be reviewed in a separate controlled maintenance task rather than addressed through forced release-time upgrades.
+* **Dependency maintenance:** npm audit advisories are reviewed as controlled maintenance work rather than addressed through forced release-time upgrades.
+
+Hotel accommodations and transportation information were formerly dependent on external confirmation but are now finalized and deployed; they are therefore no longer deferred scope.
 
 Background music was originally in the optional/deferred category but was subsequently implemented and verified without reopening or weakening any launch gate.
 
@@ -691,11 +729,12 @@ This project demonstrates practical work involving:
 * Ubuntu/systemd production operation
 * Reverse-proxy and tunnel architecture
 * Backup and rollback design
+* Production content maintenance and verification
 * Requirements-driven software development
 * Technical documentation
 * Iterative project management
 
-The project demonstrates progression from requirements and systems planning through implementation, protected production-data integration, release-candidate validation, controlled public deployment, and post-release verification.
+The project demonstrates progression from requirements and systems planning through implementation, protected production-data integration, release-candidate validation, controlled public deployment, post-release enhancement, and ongoing production maintenance.
 
 ## Development and AI-Assistance Disclosure
 

@@ -12,11 +12,14 @@ The projects represented here span:
 * REST-style API design;
 * responsive and accessible interface development;
 * C# and Godot application/game development;
+* browser-extension development;
 * Linux systems administration;
 * Docker/Podman containerization;
 * networking and cybersecurity;
 * identity and access management;
+* secure remote administration;
 * self-hosted infrastructure;
+* public game-server deployment;
 * data integration;
 * testing, validation, and debugging;
 * technical documentation;
@@ -28,7 +31,7 @@ The projects represented here span:
 
 This repository is an actively maintained portfolio of my software development, systems, and infrastructure work.
 
-Several projects represented on my résumé began as local academic, personal, or production projects before I adopted a more consistent Git/GitHub workflow and began reorganizing my work into this portfolio. The underlying projects therefore exist locally in varying stages of development, while preparation of their public repository versions is an ongoing process.
+Several projects represented on my résumé began as local academic, personal, or production projects before I adopted a more consistent Git/GitHub workflow and began reorganizing my work into this portfolio. The underlying projects therefore exist locally in varying stages of development, while preparation of their public repository versions remains an ongoing process.
 
 As a result, projects listed on my résumé may exist locally in a more advanced state than the version currently committed here, and some projects may not yet have been fully migrated into this repository.
 
@@ -53,19 +56,19 @@ For the clearest examples of my current work, begin with the projects under **Re
 
 ### [Norstein-Dashiell Wedding Website](projects/norstein-dashiell-wedding-site/)
 
-A custom full-stack production web application being developed using **React, Vite, React Router, Node.js, and Express**.
+A live custom full-stack production web application developed using **React, Vite, React Router, Node.js, and Express**.
 
-The project demonstrates full-stack application architecture, responsive and accessible component development, REST-style API design, personalized RSVP workflows, server-side validation, Google Sheets integration, automated email workflows, testing, privacy/security boundaries, environment configuration, and deployment to self-hosted Ubuntu infrastructure.
+The project demonstrates full-stack application architecture, responsive and accessible component development, REST-style API design, personalized RSVP workflows, server-side validation, Google Sheets integration, automated email workflows, privacy-minimized aggregate analytics, testing, security/privacy boundaries, environment configuration, guarded release management, and deployment to self-hosted Ubuntu infrastructure.
 
-This is currently one of the most active application-development projects in the portfolio.
+The invitation-launch production release is live. Primary launch workstreams and production-readiness gates are complete, while post-launch maintenance has continued with finalized hotel accommodations, transportation guidance, parking information, ticketing/booking links, and other guest-facing updates.
 
 ### [Self-Hosted Linux Infrastructure, Networking & Homelab Administration](projects/homelab-infrastructure/)
 
 An operational self-hosted Linux environment designed, deployed, secured, and administered as an ongoing infrastructure project.
 
-The project demonstrates practical work with **Ubuntu Linux, OpenWrt, Docker, Docker Compose, Podman, PostgreSQL, Nextcloud, Keycloak, OIDC/SSO, Tailscale, Cloudflare Tunnel/Access, UniFi, CUPS, networking, firewalls, storage, backup/recovery, monitoring, and identity/access management**.
+The project demonstrates practical work with **Ubuntu Linux, OpenWrt, Docker, Docker Compose, Podman, PostgreSQL, Nextcloud, Keycloak, OIDC/SSO, Tailscale, GNOME Remote Desktop, Cloudflare Tunnel/Access, UniFi, CUPS, Palworld server hosting, networking, firewalls, storage, backup/recovery, monitoring, and identity/access management**.
 
-Unlike a demonstration-only lab, this environment supports active services and users, so infrastructure changes are developed using inspection, rollback planning, controlled implementation, testing, persistence verification, and documentation.
+The environment supports active services and users rather than functioning only as a demonstration lab. Infrastructure work therefore uses inspection, rollback planning, controlled implementation, testing, persistence verification, and documentation. Recent completed work includes production-certified Palworld hosting with narrowly scoped public UDP gameplay exposure and private management interfaces, plus unattended GNOME remote desktop administration over Tailscale.
 
 ### [Focus Window Reader Aid — Firefox Add-on](projects/small-projects-and-utilities/Focus-Window-Reader-Aid/0.4.0/)
 
@@ -73,7 +76,7 @@ A lightweight assistive Firefox add-on that provides an adjustable visual focus 
 
 The project demonstrates browser-extension development, JavaScript, CSS, DOM interaction, extension state management, accessibility-oriented UI design, per-tab persistence across webpage navigation, regression testing, release preparation, and Mozilla Add-ons packaging.
 
-The current portfolio version is **0.4.0**.
+The current portfolio source/release-candidate version is **0.4.0**, which has completed its planned functional regression testing and is being prepared as the next Mozilla Add-ons update. The currently published Mozilla Add-ons release remains **0.3.0** until the update is accepted and published.
 
 ---
 
@@ -83,9 +86,11 @@ The current portfolio version is **0.4.0**.
 
 #### [Norstein-Dashiell Wedding Website](projects/norstein-dashiell-wedding-site/)
 
-**Status:** Active development
+**Status:** Production — live, with continued maintenance and enhancement
 
 Custom full-stack wedding application developed as a production web project rather than a template-based event page.
+
+The invitation-launch production release is live. Primary application, RSVP, public-content, integrated QA, production-readiness, and production-cutover workstreams are complete, with post-release maintenance and guest-facing content refinement continuing as the event approaches.
 
 Primary areas of work include:
 
@@ -100,16 +105,18 @@ Primary areas of work include:
 * idempotent and revision-capable submissions;
 * responsive and accessible interface development;
 * privacy and production-data separation;
-* Git-based Windows-to-Ubuntu deployment;
+* first-party privacy-minimized aggregate analytics;
+* finalized hotel, transportation, and parking information;
+* guarded Git-based Windows-to-Ubuntu deployment;
 * self-hosted production infrastructure.
 
-See the project README and documentation for current implementation details.
+See the project README and documentation for current implementation, deployment, Travel/accommodation, RSVP, analytics, and maintenance details.
 
 ---
 
-#### Loreweaver Creations Full-Stack Web Platform
+#### [Loreweaver Creations Full-Stack Web Platform](projects/loreweaver-creations-site/)
 
-**Status:** Early development
+**Status:** Active development
 
 Public-facing web platform for Loreweaver Creations and its publishing and creative services.
 
@@ -128,19 +135,19 @@ Current and planned areas include:
 * self-hosted deployment;
 * integration with other Loreweaver services.
 
-Repository migration and organization of existing local project materials remain in progress, but current priority is on the completion and launch of Norstein-Dashiell Wedding Website; once this is concluded, more focus can be shifted to this project.
+Existing project materials are being organized and migrated into the portfolio structure while development continues. With the Norstein-Dashiell Wedding Website now in production, this project can progress alongside ongoing maintenance of the deployed wedding application.
 
 ---
 
-#### Lor-E — Self-Hosted RAG-Enabled Personal AI Assistant
+#### [Lor-E — Self-Hosted RAG-Enabled Personal AI Assistant](projects/lor-e/)
 
-**Status:** Early development — conceptual work transitioning into architectural planning
+**Status:** Active development / academic software-engineering project
 
-Lor-E is a planned local-first personal AI assistant intended to combine local language-model inference, Retrieval-Augmented Generation, persistent project knowledge, semantic retrieval, and conversational context.
+Lor-E is a self-hosted, single-user personal AI assistant and knowledge-orchestration system intended to combine local language-model inference, Retrieval-Augmented Generation, persistent project knowledge, semantic retrieval, structured memory, resource-aware request routing, and conversational context.
 
-The project is being developed as the Fall 2026 term project for **CSCI 4005 — Software Engineering**, with a functional prototype targeted for completion by the end of the semester.
+The project is being developed as the Fall 2026 term project for **CSCI 4005 — Software Engineering** and has progressed from conceptual exploration into requirements, architectural design, technology selection, resource-routing design, modeling, and preparation for implementation on the existing Ubuntu Server environment.
 
-Current work focuses on requirements and architecture, including:
+Current areas of work include:
 
 * Retrieval-Augmented Generation;
 * document ingestion;
@@ -148,13 +155,16 @@ Current work focuses on requirements and architecture, including:
 * semantic search;
 * vector storage;
 * persistent project knowledge;
+* structured memory;
 * source-grounded responses;
 * modular model/retrieval components;
 * local inference;
+* resource-aware request routing;
 * browser-based interaction;
-* self-hosted deployment architecture.
+* self-hosted deployment architecture;
+* system-context, interaction, state, data-flow, and component modeling.
 
-Implementation has not yet reached the coding stage, and repository publication will follow as the architecture and prototype develop.
+The project is represented in this repository, with its README documenting the current architecture, goals, technology considerations, development methodology, and planned implementation path.
 
 ---
 
@@ -196,11 +206,17 @@ Major areas include:
 * UniFi wireless infrastructure;
 * DHCP and DNS;
 * IPv4/IPv6 networking;
-* Tailscale remote administration;
+* Tailscale private remote administration;
+* GNOME Remote Login/Desktop Sharing over Tailscale;
 * Cloudflare Tunnel and Cloudflare Access;
 * Keycloak and OpenID Connect;
 * Nextcloud;
 * PostgreSQL;
+* Palworld dedicated-server hosting;
+* narrowly scoped public game-server NAT/firewall exposure;
+* private/loopback-only administrative interfaces;
+* dynamic DNS;
+* scheduled backups;
 * service monitoring;
 * Linux filesystem administration;
 * ext4 storage;
@@ -209,18 +225,21 @@ Major areas include:
 * service hardening;
 * troubleshooting and change control.
 
-See the project README for current architecture, deployment history, security practices, recovery methodology, and active workstreams.
+The current Palworld deployment intentionally exposes only the gameplay transport required for public access while retaining its REST management interface on localhost. Administrative GUI access is provided privately through GNOME Remote Desktop over Tailscale rather than through a public RDP service.
+
+See the project README for the current architecture, deployment history, security practices, remote-access design, Palworld exposure model, recovery methodology, and active Nextcloud/Keycloak workstream.
 
 ---
 
 ### Small Projects and Utilities
 
-This area contains smaller applications, utilities, experiments, assistive tools, and focused technical projects that do not require the scope of the primary portfolio projects.
+The [Small Projects & Utilities](projects/small-projects-and-utilities/) area contains smaller applications, utilities, experiments, assistive tools, and focused technical projects that do not require the scope of the primary portfolio projects.
 
 #### [Focus Window Reader Aid](projects/small-projects-and-utilities/Focus-Window-Reader-Aid/0.4.0/)
 
-**Platform:** Firefox
-**Current portfolio version:** 0.4.0
+**Platform:** Firefox  
+**Current portfolio source/release-candidate version:** 0.4.0  
+**Current public Mozilla Add-ons release:** 0.3.0
 
 Assistive browser add-on providing an adjustable focus-window overlay intended to support reading and visual tracking while reducing surrounding visual distraction.
 
@@ -237,7 +256,9 @@ Representative skills and practices include:
 * release cleanup;
 * extension packaging and distribution preparation.
 
-Additional small projects and utilities will be added to this section as they are prepared for portfolio publication.
+Version `0.4.0` has completed its planned functional regression testing and is being prepared as the next public update to the existing Mozilla Add-ons listing.
+
+Additional small projects and utilities will be added to this section as they are developed and prepared for portfolio publication.
 
 ---
 
@@ -249,10 +270,11 @@ The repository is organized primarily beneath:
 Full-Stack-Portfolio/
 │
 ├── projects/
-│   ├── homelab-infrastructure/
-│   ├── norstein-dashiell-wedding-site/
 │   ├── hexicon/
+│   ├── homelab-infrastructure/
+│   ├── lor-e/
 │   ├── loreweaver-creations-site/
+│   ├── norstein-dashiell-wedding-site/
 │   ├── small-projects-and-utilities/
 │   │   └── Focus-Window-Reader-Aid/
 │   │       └── 0.4.0/
@@ -342,6 +364,8 @@ This repository is not intended to contain items such as:
 
 Where representative configuration is useful for portfolio purposes, sanitized examples may be provided instead.
 
+Operational projects deliberately distinguish public application traffic from administrative access. Public exposure is limited to services and transport protocols that require it, while administrative interfaces remain private, loopback-only, protected by application controls, or restricted through trusted network/Tailscale paths as appropriate.
+
 ---
 
 ## Development and AI Assistance
@@ -358,11 +382,13 @@ AI-assisted tools may be used during development for tasks such as:
 * debugging assistance;
 * code review;
 * configuration review;
+* implementation support;
+* testing support;
 * identifying possible implementation or security issues.
 
 AI assistance does not replace responsibility for the resulting work.
 
-Project architecture, technical decisions, implementation choices, configuration changes, testing, verification, debugging, source-control operations, and maintenance are evaluated and carried out by the project author unless otherwise identified.
+Project architecture, technical decisions, implementation choices, configuration changes, testing, verification, debugging, source-control operations, deployment, and maintenance are evaluated and carried out by the project author unless otherwise identified.
 
 Third-party and open-source libraries, frameworks, applications, assets, and other dependencies remain the work of their respective authors and are used according to their applicable licenses and attribution requirements.
 
@@ -374,6 +400,8 @@ This repository will continue to evolve as:
 
 * locally developed projects are migrated and sanitized for publication;
 * active projects reach additional implementation milestones;
+* production projects receive continued maintenance and enhancement;
+* infrastructure services and access models are refined and documented;
 * project documentation is consolidated;
 * older work is reorganized according to current repository practices;
 * smaller utilities are prepared for inclusion;
@@ -389,8 +417,8 @@ For the most representative current material, see **Recommended Starting Points*
 
 Computer Science student and technology professional focused on full-stack software development, Linux systems, networking, cybersecurity, and self-hosted infrastructure.
 
-GitHub:
+GitHub:  
 https://github.com/JNorstein-personal
 
-Portfolio Repository:
+Portfolio Repository:  
 https://github.com/JNorstein-personal/Full-Stack-Portfolio
